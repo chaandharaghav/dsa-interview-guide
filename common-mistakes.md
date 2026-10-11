@@ -238,7 +238,7 @@ Candidate: *assumes constraints and starts coding*
 **Bad:**
 ```java
 public int f(int[] a, int t) {
-    int l=0,r=a.length-1;
+    int l=0,r=a.length;
     while(l<r){int m=(l+r)/2;if(a[m]<t)l=m+1;else r=m;}
     return l;
 }
@@ -246,9 +246,10 @@ public int f(int[] a, int t) {
 
 **Good:**
 ```java
-public int binarySearch(int[] nums, int target) {
+// Returns the first index i with nums[i] >= target, or nums.length if none.
+public int lowerBound(int[] nums, int target) {
     int left = 0;
-    int right = nums.length - 1;
+    int right = nums.length;
     
     while (left < right) {
         int mid = left + (right - left) / 2;

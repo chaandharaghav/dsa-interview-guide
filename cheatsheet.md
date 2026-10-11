@@ -358,7 +358,7 @@ Level 2: [neighbors of level 1]
 | DFS + Memoization | Grid paths with caching | LC 329 Longest Increasing Path |
 | Sliding Window + HashMap | Substring with frequency constraint | LC 76 Minimum Window Substring |
 | Sorting + Two Pointers | k-Sum problems | LC 15 3Sum |
-| Monotonic Stack + Math | Contribution to all subarrays | LC 907 Sum of Subarray Minimums |
+| Monotonic Stack + Contribution | Contribution to all subarrays | LC 907 Sum of Subarray Minimums |
 | BFS + Bitmask | Shortest path with state | LC 864 Shortest Path to Get All Keys |
 | Union Find + HashMap | Group by connectivity | LC 721 Accounts Merge |
 | Trie + DFS | Multi-word search in grid | LC 212 Word Search II |

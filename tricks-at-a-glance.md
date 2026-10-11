@@ -124,7 +124,11 @@ for val in arr:
     seen[prefXor] = seen.get(prefXor, 0) + 1
 return count
 ```
-**Examples:** LC 1310 (XOR Queries), LC 1442, LC 560 uses same structure with addition
+**Examples (related prefix-XOR problems):**
+- LC 1310 (XOR Queries of a Subarray): answer each query as `prefix[r] ^ prefix[l-1]`. It uses the prefix XOR array without a hashmap.
+- LC 1442 (Count Triplets That Can Form Two Arrays of Equal XOR): `a == b` holds when `XOR(arr[i..k]) == 0`. That means `prefix[i-1] == prefix[k]`. Count the pairs of equal prefix values. Each pair gives `k - i` choices of `j`.
+- LC 1915 (Number of Wonderful Substrings): count substrings using a prefix XOR bitmask and a hashmap of counts. This is the same counting structure as the code above.
+- LC 560 (Subarray Sum Equals K) uses the same structure with addition.
 
 ---
 
@@ -614,7 +618,7 @@ function height(node):
     maxDiameter = max(maxDiameter, left + right)  // path through node
     return max(left, right) + 1
 ```
-**Examples:** LC 543 (Diameter of Binary Tree), LC 124 (Binary Tree Maximum Path Sum — use value instead of height)
+**Examples:** LC 543 (Diameter of Binary Tree), LC 124 (Binary Tree Maximum Path Sum — use node values instead of height. Clamp negative child gains to 0: `gain = max(0, child gain)`. A negative branch lowers the sum, so the path skips it. Start the global max at `Integer.MIN_VALUE` so an all-negative tree returns its largest node.)
 
 ---
 

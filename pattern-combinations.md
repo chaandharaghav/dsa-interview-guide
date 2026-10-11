@@ -172,7 +172,7 @@ function longestIncreasingPath(matrix):
 
 **Similar Problems:**
 - LC 576: Out of Boundary Paths
-- LC 1240: Tiling a Rectangle with the Fewest Squares
+- LC 2328: Number of Increasing Paths in a Grid
 - LC 1444: Number of Ways of Cutting a Pizza
 
 ---
@@ -297,12 +297,12 @@ function threeSum(nums):
 
 ---
 
-### Combination 6: Monotonic Stack + DP
+### Combination 6: Monotonic Stack + Contribution
 **Classic Problem:** Sum of Subarray Minimums (LC #907)
 
 **Why Two Patterns:**
 - Monotonic Stack: Find previous/next smaller element efficiently
-- DP-like Counting: Calculate contribution of each element
+- Contribution Counting: Calculate contribution of each element
 
 **How They Work Together:**
 ```
@@ -352,9 +352,11 @@ function sumSubarrayMins(arr):
     for i = 0 to n-1:
         left = i - prevSmaller[i]
         right = nextSmaller[i] - i
-        result += arr[i] * left * right
+        // Java: use long and take the modulo inside the loop.
+        // arr[i] * left * right can exceed 2^63 - 1 before a final modulo.
+        result = (result + (long) arr[i] * left % MOD * right) % MOD
     
-    return result % MOD
+    return result
 ```
 
 **Similar Problems:**
@@ -386,37 +388,54 @@ Can revisit cell if we have more keys now
 **Template:**
 ```
 function shortestPathAllKeys(grid):
-    // Find start position and count keys
+    rows, cols = grid dimensions
+    // Find start position ('@') and count keys ('a'-'f')
     startRow, startCol, totalKeys = scan grid
+    // LC 864 guarantees the keys are the first totalKeys letters,
+    // so bits 0..totalKeys-1 cover every key
+    allKeys = (1 << totalKeys) - 1
     
     // State: (row, col, keys bitmask)
     visited = set()
     queue = [(startRow, startCol, 0, 0)]  // row, col, keys, steps
+    visited.add((startRow, startCol, 0))
     
     while queue not empty:
         row, col, keys, steps = queue.dequeue()
         
         // Check if all keys collected
-        if keys == (1 << totalKeys) - 1:
+        if keys == allKeys:
             return steps
         
-        state = (row, col, keys)
-        if state in visited:
-            continue
-        visited.add(state)
-        
-        for each neighbor (newRow, newCol):
+        for each direction (dr, dc):
+            newRow, newCol = row + dr, col + dc
+            
+            // Bounds check before reading the cell
+            if newRow < 0 or newRow >= rows or newCol < 0 or newCol >= cols:
+                continue
+            
             cell = grid[newRow][newCol]
             
-            if cell is wall:
-                continue
-            if cell is door and we don't have key:
+            // Wall check
+            if cell == '#':
                 continue
             
+            // Lock check: lock 'A' needs key 'a', lock 'B' needs key 'b', ...
+            if 'A' <= cell <= 'F':
+                lockIndex = cell - 'A'
+                if (keys & (1 << lockIndex)) == 0:
+                    continue
+            
+            // Key pickup
             newKeys = keys
-            if cell is key:
+            if 'a' <= cell <= 'f':
+                keyIndex = cell - 'a'
                 newKeys = keys | (1 << keyIndex)
             
+            state = (newRow, newCol, newKeys)
+            if state in visited:
+                continue
+            visited.add(state)
             queue.enqueue((newRow, newCol, newKeys, steps + 1))
     
     return -1
@@ -424,8 +443,7 @@ function shortestPathAllKeys(grid):
 
 **Similar Problems:**
 - LC 847: Shortest Path Visiting All Nodes
-- LC 1197: Minimum Knight Moves (with optimization)
-- LC 1293: Shortest Path in a Grid with Obstacles Elimination
+- LC 1284: Minimum Number of Flips to Convert Binary Matrix to Zero Matrix (the state is the whole board as a bitmask)
 
 ---
 
@@ -447,9 +465,9 @@ Step 4: Format output
 ```
 
 **Similar Problems:**
-- LC 684: Redundant Connection
-- LC 1584: Min Cost to Connect All Points (Kruskal's MST)
-- LC 959: Regions Cut By Slashes
+- LC 947: Most Stones Removed with Same Row or Column (a HashMap maps each row and column to a Union Find node)
+- LC 1202: Smallest String With Swaps (a HashMap groups indices by their root)
+- LC 399: Evaluate Division (a HashMap maps each variable name to its parent and weight)
 
 ---
 
@@ -506,7 +524,7 @@ function findWords(board, words):
 
 **Similar Problems:**
 - LC 211: Design Add and Search Words Data Structure
-- LC 421: Maximum XOR of Two Numbers in an Array
+- LC 472: Concatenated Words
 - LC 1268: Search Suggestions System
 
 ---
@@ -553,7 +571,7 @@ function minMeetingRooms(intervals):
 
 **Similar Problems:**
 - LC 1094: Car Pooling
-- LC 218: The Skyline Problem
+- LC 1353: Maximum Number of Events That Can Be Attended
 - LC 630: Course Schedule III
 
 ---
@@ -567,7 +585,7 @@ function minMeetingRooms(intervals):
 | Grid paths + optimal | DFS + Memoization |
 | Substring with conditions | Sliding Window + HashMap |
 | k-Sum problems | Sorting + Two Pointers |
-| Element contribution to all subarrays | Monotonic Stack + Math |
+| Element contribution to all subarrays | Monotonic Stack + Contribution |
 | Shortest path + multiple states | BFS + Bitmask |
 | Grouping by connectivity | Union Find + HashMap |
 | Multiple string search in grid | Trie + DFS |
@@ -593,7 +611,7 @@ function minMeetingRooms(intervals):
 - [ ] LC 329: Longest Increasing Path in a Matrix
 - [ ] LC 576: Out of Boundary Paths
 - [ ] LC 494: Target Sum (also DP)
-- [ ] LC 1239: Maximum Length of a Concatenated String
+- [ ] LC 2328: Number of Increasing Paths in a Grid
 
 ### Sliding Window + HashMap
 - [ ] LC 76: Minimum Window Substring

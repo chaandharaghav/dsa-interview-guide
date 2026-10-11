@@ -310,7 +310,8 @@ function exist(board, word):
 2. **Restore after returning** (the backtrack step!)
 3. Short-circuit with `or` - stop exploring if found
 
-### Complexity: O(m × n × 4^L) where L = word length
+### Complexity: O(m × n × 3^L) where L = word length
+The first cell has 4 neighbors to try. After the first step, the path cannot go back to the cell it came from, because that cell is marked visited. So each later step has at most 3 choices. The exact count per start cell is 4 × 3^(L−1). O(m × n × 4^L) is also a valid bound, but it is looser.
 
 ---
 
