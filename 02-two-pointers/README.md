@@ -272,11 +272,11 @@ while left < right:
 ### EASY (Warm-up)
 | Problem | Key Insight |
 |---------|-------------|
-| Two Sum II (sorted array) | Basic opposite direction |
 | Valid Palindrome | Opposite direction, skip non-alphanumeric |
-| Merge Sorted Arrays | Same direction merge |
+| Merge Sorted Array (LC 88) | Same direction merge |
 | Move Zeroes | Same direction, partition zeros to end |
 | Remove Duplicates from Sorted Array | Same direction, slow-fast |
+| Squares of a Sorted Array (LC 977) | Two pointers from ends, compare abs |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
@@ -287,17 +287,17 @@ while left < right:
 | **Sort Colors** | Dutch National Flag (3 pointers) | 75 |
 | **Partition Labels** | Two pointers to find segment boundaries | 763 |
 | **Boats to Save People** | Greedy pairing lightest + heaviest | 881 |
-| **Squares of Sorted Array** | Two pointers from ends, compare abs | 977 |
 | **Interval List Intersections** | Two pointers on interval lists | 986 |
 | **4Sum** | Fix two + Two Sum | 18 |
 | **Longest Mountain in Array** | Expand from peaks | 845 |
+| **Two Sum II - Input Array Is Sorted** | Basic opposite direction | 167 |
+| **3Sum Smaller** | Count pairs less than target | 259 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Trapping Rain Water** | Two pointers with maxLeft/maxRight | 42 |
 | **Minimum Window Substring** | (Overlaps with Sliding Window) | 76 |
-| **3Sum Smaller** | Count pairs less than target | 259 |
 
 ---
 

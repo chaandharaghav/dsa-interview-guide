@@ -247,11 +247,11 @@ function sumOfSubarrayMins(arr):
         stack.push(i)
     
     // Calculate contribution of each element
-    result = 0
+    result = 0                         // long
     for i = 0 to n-1:
         leftCount = i - ple[i]        // Subarrays starting from ple[i]+1 to i
         rightCount = nle[i] - i       // Subarrays ending from i to nle[i]-1
-        contribution = arr[i] * leftCount * rightCount
+        contribution = (long) arr[i] * leftCount * rightCount   // cast first: int * int overflows before it widens to long
         result = (result + contribution) % MOD
     
     return result
@@ -265,7 +265,7 @@ function sumOfSubarrayMins(arr):
 **Problem:** Days until warmer temperature
 **Key Insight:** This is "next greater index" - subtract to get days
 ```
-result[i] = nextGreaterIndex[i] - i
+result[i] = (nextGreaterIndex[i] == -1) ? 0 : nextGreaterIndex[i] - i
 ```
 
 ### Variation B: Stock Span
@@ -297,28 +297,32 @@ For each row:
 
 ## 8. Classic Interview Problems
 
-### MEDIUM (Interview Favorites)
+### EASY (Warm-up)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Next Greater Element I** | HashMap + Stack for subset | 496 |
+
+### MEDIUM (Interview Favorites)
+| Problem | Key Insight | LC # |
+|---------|-------------|------|
 | **Next Greater Element II** | Circular array, iterate 2x | 503 |
 | **Daily Temperatures** | Next greater, return difference | 739 |
 | **Online Stock Span** | Previous greater, count span | 901 |
-| **Sliding Window Maximum** | Monotonic deque | 239 |
 | **132 Pattern** | Track min on left, stack for middle | 456 |
 | **Remove K Digits** | Maintain increasing stack | 402 |
 | **Remove Duplicate Letters** | Stack + last occurrence + used | 316 |
 | **Sum of Subarray Minimums** | Contribution counting | 907 |
-| **Largest Rectangle in Histogram** | Classic stack problem | 84 |
+| **Maximum Width Ramp** | Decreasing stack for starts | 962 |
+| **Sum of Subarray Ranges** | Sum of max - sum of min | 2104 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Maximal Rectangle** | Per-row histogram + largest rect | 85 |
+| **Largest Rectangle in Histogram** | Classic stack problem | 84 |
+| **Sliding Window Maximum** | Monotonic deque | 239 |
 | **Trapping Rain Water** | Stack or two pointers | 42 |
 | **Shortest Subarray with Sum at Least K** | Monotonic deque + prefix sum | 862 |
-| **Maximum Width Ramp** | Decreasing stack for starts | 962 |
-| **Sum of Subarray Ranges** | Sum of max - sum of min | 2104 |
 | **Number of Visible People in a Queue** | Stack counting | 1944 |
 
 ---

@@ -203,7 +203,7 @@ function shortestValidWindow(arr, target):
             removeFromWindow(arr[left])
             left = left + 1
     
-    return minLength == INFINITY ? -1 : minLength
+    return minLength == INFINITY ? -1 : minLength   // LC 209 returns 0 when no window is valid
 ```
 
 ---
@@ -250,7 +250,6 @@ function shortestValidWindow(arr, target):
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Longest Substring Without Repeating Characters** | Variable window + HashSet | 3 |
-| **Minimum Window Substring** | Variable window + 2 frequency maps | 76 |
 | **Longest Substring with At Most K Distinct** | Variable window + HashMap | 340 |
 | **Find All Anagrams in a String** | Fixed window + frequency match | 438 |
 | **Permutation in String** | Fixed window + frequency match | 567 |
@@ -259,15 +258,16 @@ function shortestValidWindow(arr, target):
 | **Subarray Product Less Than K** | Variable window, shrink when ≥k | 713 |
 | **Minimum Size Subarray Sum** | Shortest window with sum ≥ target | 209 |
 | **Grumpy Bookstore Owner** | Fixed window optimization | 1052 |
+| **Count Subarrays Where Max Element Appears at Least K Times** | Track max element count | 2962 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Sliding Window Maximum** | Monotonic deque | 239 |
+| **Minimum Window Substring** | Variable window + 2 frequency maps | 76 |
 | **Minimum Window Subsequence** | DP + Two Pointers | 727 |
 | **Substring with Concatenation of All Words** | Multiple fixed windows | 30 |
 | **Subarrays with K Different Integers** | atMost(k) - atMost(k-1) | 992 |
-| **Count Subarrays Where Max Element Appears at Least K Times** | Track max element count | 2962 |
 
 ---
 

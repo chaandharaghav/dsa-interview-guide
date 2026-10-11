@@ -320,6 +320,8 @@ Each swap puts one value at its target index, so cyclic sort does at most n swap
 | Intersection of Two Arrays | HashSet intersection |
 | Missing Number (LC 268) | Cyclic sort, or sum/XOR |
 | Find All Numbers Disappeared in an Array (LC 448) | Negate nums[v-1] to mark v as seen |
+| Isomorphic Strings (LC 205) | Two HashMaps for bidirectional mapping |
+| Word Pattern (LC 290) | Two-way mapping pattern↔word |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
@@ -334,8 +336,6 @@ Each swap puts one value at its target index, so cyclic sort does at most n swap
 | **LRU Cache** | HashMap + Doubly Linked List | 146 |
 | **Insert Delete GetRandom O(1)** | HashMap + Array | 380 |
 | **Copy List with Random Pointer** | HashMap for old→new mapping | 138 |
-| **Isomorphic Strings** | Two HashMaps for bidirectional mapping | 205 |
-| **Word Pattern** | Two-way mapping pattern↔word | 290 |
 | **Find All Duplicates in an Array** | Negation marking (index-as-hash) | 442 |
 
 ### HARD (Differentiators)

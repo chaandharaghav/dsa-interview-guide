@@ -406,28 +406,27 @@ function kthFromEnd(head, k):
 |---------|-------------|
 | Linked List Cycle | Basic cycle detection |
 | Middle of Linked List | Fast travels 2x |
-| Remove Nth Node From End | Fast starts n steps ahead |
 | Reverse Linked List (LC 206) | Iterative prev/curr/next |
+| Happy Number (LC 202) | Cycle detection on digit sums |
+| Palindrome Linked List (LC 234) | Find middle → Reverse → Compare |
+| Intersection of Two Linked Lists (LC 160) | Two pointer length normalization |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Linked List Cycle II** | Find cycle start (two phases) | 142 |
-| **Happy Number** | Cycle detection on digit sums | 202 |
 | **Find the Duplicate Number** | Array as linked list | 287 |
-| **Palindrome Linked List** | Find middle → Reverse → Compare | 234 |
 | **Reorder List** | Find middle → Reverse → Merge | 143 |
-| **Intersection of Two Linked Lists** | Two pointer length normalization | 160 |
 | **Sort List** | Find middle for merge sort | 148 |
 | **Reverse Linked List II** | Dummy node + head insertion | 92 |
 | **Swap Nodes in Pairs** | Reverse in groups of k = 2 | 24 |
+| **Remove Nth Node From End of List** | Fast starts n steps ahead | 19 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Reverse Nodes in k-Group** | Count k nodes, reverse, reconnect | 25 |
-| **First Missing Positive** | Cyclic sort / index-as-hash, not fast/slow (see Pattern 05, Variation F) | 41 |
-| **Longest Duplicate Substring** | Binary Search + Rolling Hash | 1044 |
+| **Merge k Sorted Lists** | Dummy node + merge lists in pairs (divide and conquer); a min-heap also works (Pattern 16) | 23 |
 
 ---
 

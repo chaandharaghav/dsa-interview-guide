@@ -329,7 +329,7 @@ function firstTrue(lo, hi, condition):
 ```
 function lastTrue(lo, hi, condition):
     while lo < hi:
-        mid = lo + (hi - lo + 1) / 2  // Round up to avoid infinite loop
+        mid = hi - (hi - lo) / 2  // Round up to avoid infinite loop; no overflow when hi - lo = INT_MAX
         
         if condition(mid):
             lo = mid           // mid might be answer, search right
@@ -361,7 +361,7 @@ function floatBinarySearch(lo, hi, epsilon):
 ### Variation A: Koko Eating Bananas
 **Problem:** Find minimum eating speed to finish all bananas in H hours
 **Insight:** If speed K works, speed K+1 also works (faster eating)
-**Verification:** Sum of ceil(pile/K) for all piles ≤ H
+**Verification:** Sum of ceil(pile/K) for all piles ≤ H. In Java, compute `ceil` as `(pile + K - 1) / K` and keep the sum in a `long`: 10^4 piles of 10^9 at K = 1 sum to 10^13.
 
 ### Variation B: Capacity to Ship Packages
 **Problem:** Find minimum ship capacity to ship all packages in D days
@@ -413,7 +413,6 @@ These problems search for a *position* in an array, not for a value in an answer
 |---------|-------------|------|
 | **Koko Eating Bananas** | Binary search on speed, verify hours | 875 |
 | **Capacity To Ship Packages Within D Days** | Binary search on capacity | 1011 |
-| **Split Array Largest Sum** | Binary search on max sum | 410 |
 | **Find the Smallest Divisor** | Binary search on divisor | 1283 |
 | **Magnetic Force Between Two Balls** | Maximize minimum distance | 1552 |
 | **Minimum Limit of Balls in a Bag** | Binary search on max bag size | 1760 |
@@ -425,6 +424,7 @@ These problems search for a *position* in an array, not for a value in an answer
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Median of Two Sorted Arrays** | Binary search on partition | 4 |
+| **Split Array Largest Sum** | Binary search on max sum | 410 |
 | **Find Minimum in Rotated Sorted Array II** | 153 with duplicates; on `a[mid] == a[hi]`, do `hi -= 1` (worst case O(n)) | 154 |
 | **Kth Smallest Number in Multiplication Table** | BS on value + count rows | 668 |
 | **Find K-th Smallest Pair Distance** | BS on distance + count pairs | 719 |
@@ -508,7 +508,7 @@ while lo < hi:
 
 // CORRECT for "find last true":
 while lo < hi:
-    mid = (lo + hi + 1) / 2  // Round UP
+    mid = hi - (hi - lo) / 2  // Round UP without overflow (see Mistake 6)
     if condition:
         lo = mid
     else:
