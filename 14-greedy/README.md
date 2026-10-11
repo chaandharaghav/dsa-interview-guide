@@ -306,6 +306,12 @@ function partitionLabels(s):
 
 ## 7. Classic Interview Problems
 
+### EASY
+| Problem | Greedy Strategy | LC # |
+|---------|-----------------|------|
+| **Assign Cookies** | Sort both, match greedily | 455 |
+| **Lemonade Change** | Prefer keeping $5 bills | 860 |
+
 ### MEDIUM
 | Problem | Greedy Strategy | LC # |
 |---------|-----------------|------|
@@ -319,14 +325,12 @@ function partitionLabels(s):
 | **Boats to Save People** | Two pointers, pair heavy+light | 881 |
 | **Partition Labels** | Extend partition to include all occurrences | 763 |
 | **Queue Reconstruction by Height** | Sort and insert by position | 406 |
-| **Candy** | Two passes, left-to-right and right-to-left | 135 |
-| **Assign Cookies** | Sort both, match greedily | 455 |
-| **Lemonade Change** | Prefer keeping $5 bills | 860 |
-| **Minimum Number of Arrows** | Same as non-overlapping intervals | 452 |
+| **Minimum Number of Arrows** | Sort by end, like LC 435, but touching balloons share one arrow: start a new arrow only when `start > lastEnd` (LC 435 keeps an interval when `start >= lastEnd`) | 452 |
 
 ### HARD
 | Problem | Greedy Strategy | LC # |
 |---------|-----------------|------|
+| **Candy** | Two passes, left-to-right and right-to-left | 135 |
 | **Course Schedule III** | Sort by deadline, use max-heap | 630 |
 | **IPO** | Two heaps, pick affordable with max profit | 502 |
 | **Minimum Cost to Hire K Workers** | Ratio-based greedy + heap | 857 |

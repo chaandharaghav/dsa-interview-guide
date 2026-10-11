@@ -333,13 +333,13 @@ Use min-heap instead of queue in Kahn's algorithm.
 | **Find All Possible Recipes** | Topo sort with string nodes | 2115 |
 | **Minimum Height Trees** | Trim leaves iteratively | 310 |
 | **Loud and Rich** | Reverse topo sort | 851 |
+| **Course Schedule IV** | Topo sort + reachability | 1462 |
+| **Sequence Reconstruction** | Unique topo sort check | 444 |
 
 ### HARD
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Alien Dictionary** | Build graph from word comparisons | 269 |
-| **Course Schedule IV** | Topo sort + reachability | 1462 |
-| **Sequence Reconstruction** | Unique topo sort check | 444 |
 | **Parallel Courses III** | Topo sort with DP for longest path | 2050 |
 | **Sort Items by Groups Respecting Dependencies** | Two-level topo sort | 1203 |
 
@@ -393,6 +393,9 @@ function dfs(node):
 
 // CORRECT: Add after processing all neighbors (post-order)
 function dfs(node):
+    if visited[node]:
+        return
+    visited[node] = true   // Template 2 also detects cycles with GRAY
     for neighbor in graph[node]:
         dfs(neighbor)
     result.addFirst(node)  // Add to front for correct order

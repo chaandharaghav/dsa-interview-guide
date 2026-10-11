@@ -453,6 +453,7 @@ function countPaths(graph, target):
 | **All Paths From Source to Target** | DFS on DAG | 797 |
 | **Keys and Rooms** | DFS, collect keys | 841 |
 | **Shortest Bridge** | DFS to find island + BFS to expand | 934 |
+| **Evaluate Division** | Graph with weighted edges, DFS | 399 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
@@ -460,8 +461,7 @@ function countPaths(graph, target):
 | **Word Ladder** | BFS on word transformation graph | 127 |
 | **Word Ladder II** | BFS + backtracking for all paths | 126 |
 | **Alien Dictionary** | Topological sort from comparisons | 269 |
-| **Shortest Path in a Grid with Obstacles** | BFS with state (position + obstacles) | 1293 |
-| **Evaluate Division** | Graph with weighted edges, DFS | 399 |
+| **Shortest Path in a Grid with Obstacles Elimination** | BFS with state (position + obstacles) | 1293 |
 | **Reconstruct Itinerary** | Hierholzer's algorithm (Eulerian path) | 332 |
 | **Critical Connections** | Tarjan's algorithm (bridges) | 1192 |
 

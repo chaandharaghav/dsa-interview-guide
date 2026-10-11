@@ -468,6 +468,7 @@ function verticalOrder(root):
 | Same Tree | Compare structure and values |
 | Symmetric Tree | Compare left.left with right.right |
 | Path Sum | DFS with remaining sum |
+| Diameter of Binary Tree (LC 543) | Global max, height DFS |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
@@ -477,22 +478,21 @@ function verticalOrder(root):
 | **Binary Tree Right Side View** | BFS, last in level OR DFS right-first | 199 |
 | **Validate Binary Search Tree** | DFS with min/max bounds | 98 |
 | **Lowest Common Ancestor of Binary Tree** | DFS, return found nodes | 236 |
-| **Binary Tree Maximum Path Sum** | Global max with gain function | 124 |
 | **Construct Binary Tree from Preorder and Inorder** | D&C with hashmap | 105 |
 | **Kth Smallest Element in BST** | Inorder traversal | 230 |
-| **Serialize and Deserialize Binary Tree** | Preorder with null markers | 297 |
 | **Flatten Binary Tree to Linked List** | Reverse preorder (right, left, root) | 114 |
 | **Path Sum II** | DFS with path tracking | 113 |
-| **Diameter of Binary Tree** | Global max, height DFS | 543 |
 | **Count Good Nodes in Binary Tree** | DFS with max-so-far | 1448 |
+| **Recover Binary Search Tree** | Inorder to find swapped | 99 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Vertical Order Traversal** | BFS with column tracking | 987 |
 | **Binary Tree Cameras** | Greedy DFS from leaves | 968 |
-| **Recover Binary Search Tree** | Inorder to find swapped | 99 |
 | **Maximum Sum BST in Binary Tree** | DFS returning (isValid, min, max, sum) | 1373 |
+| **Binary Tree Maximum Path Sum** | Global max with gain function | 124 |
+| **Serialize and Deserialize Binary Tree** | Preorder with null markers | 297 |
 
 ---
 
@@ -583,6 +583,8 @@ function isValidBST(node):
 
 // CORRECT: Pass bounds down
 function isValidBST(node, min, max):
+    if node is null:
+        return true
     if node.val <= min or node.val >= max:
         return false
     return isValidBST(node.left, min, node.val) and
@@ -623,6 +625,8 @@ function findPaths(node, path):
 
 // CORRECT:
 function findPaths(node, path):
+    if node is null:
+        return
     path.add(node.val)
     findPaths(node.left, path)
     findPaths(node.right, path)
