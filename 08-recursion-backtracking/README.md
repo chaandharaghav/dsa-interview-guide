@@ -63,7 +63,7 @@ Brute Force Thinking:
 - This gives 2^n subsets
 - Enumerate all 2^n possibilities
 
-Time: O(n × 2^n)  // n = average subset size; each of 2^n subsets costs O(n) to copy
+Time: O(n × 2^n)  // n = number of elements; each of 2^n subsets costs up to O(n) to copy
 Space: O(n × 2^n) total to store all subsets; O(n) auxiliary stack only
 // Note: interviewers usually want total space here, not just auxiliary.
 ```
@@ -606,6 +606,19 @@ function backtrack(index, currentSum, target):
 - You only need the count, not all solutions
 - Same subproblems are solved multiple times
 - Problem has optimal substructure
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Backtracking for "count the ways" or "min/max cost" | Dynamic programming (Pattern 15) | Does the output list every solution, or only a number? Only a number, and two choice paths can reach the same (index, remaining) state → DP (LC 518 vs LC 39) |
+| Backtracking for "can you reach the target / is it possible" | Dynamic programming (Pattern 15) | Is n > 20? If yes, 2^n branches are too slow → DP over states (LC 416) |
+| Backtracking over a grid | BFS (Pattern 11) | Does the question ask for the shortest path, not all paths? If yes → BFS (LC 1091 vs LC 79) |
+| Backtracking for "can you reach the end / best arrangement" | Greedy (Pattern 14) | Can a fixed rule pick each step with no need to undo it? If yes, prove the rule, then use greedy (LC 55) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 

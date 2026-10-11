@@ -2,6 +2,8 @@
 
 The hardest interview problems require **combining multiple patterns**. This guide teaches you to recognize and solve these hybrid problems.
 
+> To identify each pattern in a combination, use the six steps in [How to Choose a Pattern](./how-to-choose-a-pattern.md).
+
 ---
 
 ## Why Pattern Combinations Matter
@@ -427,7 +429,7 @@ function shortestPathAllKeys(grid):
 
 ---
 
-### Combination 8: Union Find + Sorting/Processing Order
+### Combination 8: Union Find + HashMap
 **Classic Problem:** Accounts Merge (LC #721)
 
 **Why Two Patterns:**

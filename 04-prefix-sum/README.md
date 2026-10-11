@@ -250,9 +250,46 @@ function applyUpdatesToExisting(arr, updates):
 **Technique:** HashMap to store remainder frequencies
 
 ### Variation C: Maximum Subarray Sum
-**Problem Type:** Find maximum sum subarray
-**Key Insight:** max(prefix[j] - prefix[i]) where j > i
-**Alternative:** Kadane's algorithm (more efficient)
+**Problem Type:** Find maximum sum subarray (LC 53)
+**Key Insight:** max(prefix[j] - prefix[i]) where j > i. Track the minimum prefix seen so far: O(n) time, O(1) space.
+**Alternative:** Kadane's algorithm. It has the same O(n) time and O(1) space. It is the standard interview answer.
+
+**Kadane's algorithm: extend or restart.** At index i, the best subarray that ends at i has two options:
+- Extend: add arr[i] to the best subarray that ends at i-1.
+- Restart: begin a new subarray at arr[i].
+
+Pick the larger one. Restart happens when `current` (the best sum ending at i-1) is negative, because a negative prefix only lowers the total.
+
+**Link to DP:** Let dp[i] be the best sum of a subarray that ends at index i. Then `dp[i] = max(arr[i], dp[i-1] + arr[i])`, and the answer is the maximum dp[i]. Kadane keeps only dp[i-1], so space drops from O(n) to O(1).
+```
+function maxSubArray(arr):
+    current = arr[0]          // Best sum of a subarray ending at index i
+    best = arr[0]             // Best sum seen so far
+    
+    for i = 1 to n-1:
+        current = max(arr[i], current + arr[i])   // Restart or extend
+        best = max(best, current)
+    
+    return best
+```
+Initialize with arr[0], not 0. With 0, an all-negative array returns 0 instead of its largest element.
+
+**Maximum Product Subarray (LC 152):** Track both the max and the min product that ends at i. A negative arr[i] turns the smallest product into the largest. A zero resets both through the candidate arr[i].
+```
+function maxProduct(arr):
+    curMax = arr[0]
+    curMin = arr[0]
+    best = arr[0]
+    
+    for i = 1 to n-1:
+        // Build candidates from the OLD curMax and curMin before overwriting them
+        candidates = (arr[i], curMax * arr[i], curMin * arr[i])
+        curMax = max(candidates)
+        curMin = min(candidates)
+        best = max(best, curMax)
+    
+    return best
+```
 
 ### Variation D: Range XOR Queries
 **Problem Type:** XOR of elements in range
@@ -294,6 +331,8 @@ function applyUpdatesToExisting(arr, updates):
 | **Corporate Flight Bookings** | Difference array | 1109 |
 | **Car Pooling** | Difference array (timeline) | 1094 |
 | **Maximum Sum of Two Non-Overlapping Subarrays** | Prefix sum + tracking | 1031 |
+| **Maximum Subarray** | Kadane: extend or restart | 53 |
+| **Maximum Product Subarray** | Kadane variant: track max and min | 152 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
@@ -466,6 +505,20 @@ Difference: [1, 2, 2, -3, 2]  (diff[i] = arr[i] - arr[i-1])
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Prefix sum + hashmap for "shortest/longest subarray with sum ≥ k" | Sliding window (Pattern 01) | Are all values non-negative? If yes → sliding window, O(1) space (LC 209); if negatives are allowed → prefix sum + hashmap (LC 560) or prefix sum + monotonic deque (LC 862) |
+| Prefix sum for "range sum queries" | Fenwick tree (binary indexed tree: point update and prefix sum in O(log n)) | Does the array change between queries? If yes, a prefix array needs an O(n) rebuild per update → Fenwick tree (LC 307) |
+| Prefix sum for "add val to every element in [l, r]" | Difference array | Are the operations range updates, with reads only after all updates? If yes → difference array (LC 1109) |
+| Prefix sum for "range min/max" | Monotonic deque (Pattern 07) | Is the operation min or max? Subtraction cannot undo a min or max → deque for fixed windows (LC 239) |
+| Prefix sum + hashmap for "maximum subarray sum" | Kadane's algorithm | Does the problem give a target sum k? If yes → prefix sum + hashmap (LC 560); if it asks for the largest sum → Kadane (LC 53) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -493,6 +546,10 @@ Difference: [1, 2, 2, -3, 2]  (diff[i] = arr[i] - arr[i-1])
 │  2D PREFIX SUM:                                                  │
 │  - Build: prefix[i][j] = mat + up + left - diagonal              │
 │  - Query: bottom_right - top - left + top_left                   │
+│                                                                  │
+│  KADANE (Max Subarray):                                          │
+│  - cur = max(arr[i], cur + arr[i]); best = max(best, cur)        │
+│  - Init with arr[0]; for products track both max and min         │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```

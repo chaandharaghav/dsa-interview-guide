@@ -478,6 +478,19 @@ value = arr[stack.top()]
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Monotonic stack for "max of each window of size k" | Monotonic deque | Do elements expire from the old end as the window moves? If yes → deque, removals from both ends (LC 239) |
+| Monotonic deque for "kth largest in a stream/array" | Heap (Pattern 16) | Does the question ask for the kth largest instead of the max or min? If yes → size-k heap (LC 215, LC 703) |
+| Monotonic stack for "valid parentheses / decode string" | Plain stack | Does a pop depend on matching symbols instead of value order? If yes → plain stack (LC 20, LC 394) |
+| Monotonic stack for "trapping rain water" | Two pointers (Pattern 02) | Does each position need only the max to its left and the max to its right? If yes → two pointers, O(1) space (LC 42) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```

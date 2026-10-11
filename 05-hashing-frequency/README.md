@@ -257,6 +257,55 @@ function topKFrequent(arr, k):
 **Key Insight:** Hash substrings for O(1) comparison
 **Watch for:** Hash collisions, verify matches
 
+### Variation F: Cyclic Sort / Index-as-Hash
+**Recognition trigger:** values in [1..n] (or [0..n]) + O(1) extra space.
+**Key Insight:** When values are in [1..n], each value v has a target index: v−1. The array itself works as the hash table, so no HashMap is needed.
+**Two techniques:**
+1. **Cyclic sort:** swap each value into its target index value−1. Afterward, an index i with nums[i] != i+1 shows that i+1 is missing and nums[i] is a duplicate.
+2. **Negation marking:** for each value v, negate nums[v−1] to record "v was seen". Read values with abs(), because an earlier step may have negated them.
+
+```
+function cyclicSort(nums):        // values expected in [1..n]
+    missing = []
+    i = 0
+    while i < n:
+        v = nums[i]
+        // Swap only if v is in range and its target index does not already hold v.
+        // (Testing nums[i] != i+1 instead loops forever on duplicates.)
+        if v >= 1 and v <= n and nums[v - 1] != v:
+            swap(nums[i], nums[v - 1])   // Do not advance i: examine the new nums[i]
+        else:
+            i = i + 1
+    
+    for i = 0 to n-1:
+        if nums[i] != i + 1:
+            missing.add(i + 1)    // nums[i] is a duplicate or out of range
+    return missing
+
+function markSeen(nums):          // values in [1..n]
+    missing = [], duplicates = []
+    for i = 0 to n-1:
+        v = abs(nums[i])          // nums[i] may already be negated
+        if nums[v - 1] < 0:
+            duplicates.add(v)     // v was seen before (LC 442)
+        else:
+            nums[v - 1] = -nums[v - 1]
+    
+    for i = 0 to n-1:
+        if nums[i] > 0:
+            missing.add(i + 1)    // i+1 never appeared (LC 448)
+    return missing, duplicates
+```
+Each swap puts one value at its target index, so cyclic sort does at most n swaps: O(n) time, O(1) extra space.
+
+| Problem | How cyclic sort / index-as-hash applies |
+|---------|------------------------------------------|
+| Missing Number (LC 268) | Values in [0..n], length n. The target index of v is v. Value n has no slot, so skip it. Sum formula or XOR also work. |
+| Find All Numbers Disappeared (LC 448) | Negation marking; positive slots at the end are missing values |
+| Find All Duplicates (LC 442) | Negation marking; a slot that is already negative marks a duplicate |
+| First Missing Positive (LC 41) | Ignore values ≤ 0 or > n. After cyclic sort, the first i with nums[i] != i+1 gives i+1; if none, the answer is n+1 |
+| Find the Duplicate Number (LC 287) | The problem forbids modifying the array, so cyclic sort is not allowed → Floyd's cycle detection ([Pattern 03](../03-fast-slow-pointers/README.md), Template 5) |
+
 ---
 
 ## 8. Classic Interview Problems
@@ -269,6 +318,8 @@ function topKFrequent(arr, k):
 | Valid Anagram | Frequency map comparison |
 | Single Number | XOR or HashMap |
 | Intersection of Two Arrays | HashSet intersection |
+| Missing Number (LC 268) | Cyclic sort, or sum/XOR |
+| Find All Numbers Disappeared in an Array (LC 448) | Negate nums[v-1] to mark v as seen |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
@@ -285,13 +336,14 @@ function topKFrequent(arr, k):
 | **Copy List with Random Pointer** | HashMap for old→new mapping | 138 |
 | **Isomorphic Strings** | Two HashMaps for bidirectional mapping | 205 |
 | **Word Pattern** | Two-way mapping pattern↔word | 290 |
+| **Find All Duplicates in an Array** | Negation marking (index-as-hash) | 442 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Minimum Window Substring** | Two frequency maps + valid window | 76 |
 | **Substring with Concatenation of All Words** | Word frequency matching | 30 |
-| **First Missing Positive** | Array itself as hash table | 41 |
+| **First Missing Positive** | Array itself as hash table (cyclic sort, Variation F) | 41 |
 | **LFU Cache** | HashMap + Frequency buckets | 460 |
 | **All O'one Data Structure** | HashMap + Doubly Linked List | 432 |
 
@@ -490,6 +542,20 @@ Track minimum frequency separately
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Hashmap for "count letters / compare frequencies" | Counting array `int[26]` | Is the key set small and fixed (e.g. 26 lowercase letters)? If yes → counting array, no hashing (LC 242) |
+| Hashmap for "find the missing / duplicate values" | Cyclic sort (Variation F) | Are values in [1..n] and is extra space limited to O(1)? If yes → cyclic sort or negation marking (LC 448) |
+| Hashmap for "pair with sum = target" | Two pointers (Pattern 02) | Is the array already sorted? If yes → two pointers, O(1) space (LC 167) |
+| HashSet for "contains duplicate" | Sorting | Is O(1) extra space required, and may you reorder the input? If yes → sort, then compare neighbors in O(n log n) (LC 217) |
+| Hashmap + sort for "top k frequent" | Heap (Pattern 16) or bucket sort | Is the input a stream, or is k much smaller than n? If yes → size-k heap (LC 347) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -512,6 +578,10 @@ Track minimum frequency separately
 │  LONGEST CONSECUTIVE:                                            │
 │  - Put all in HashSet                                            │
 │  - Only count from sequence START (num-1 not in set)             │
+│                                                                  │
+│  CYCLIC SORT (values in [1..n], O(1) space):                     │
+│  - Swap nums[i] to index nums[i]-1, or negate nums[v-1] to mark  │
+│  - Must not modify array (LC 287) → Floyd, Pattern 03            │
 │                                                                  │
 │  DESIGN PROBLEMS:                                                │
 │  - LRU: HashMap + Doubly Linked List                             │

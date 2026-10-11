@@ -7,11 +7,22 @@
 
 ---
 
+## Start Here (Returning to DSA)
+
+1. **[How to Choose a Pattern](./how-to-choose-a-pattern.md)**: the six-step procedure, the 15 deciding questions, decision trees, 12 worked walkthroughs, and 20 recognition drills. This file is the core of the guide.
+2. **[Java Toolkit](./java-toolkit.md)**: the Java collections, the Java pitfalls that cost interviews, and a Java template for each core pattern.
+3. **[12-Week Study Plan](./study-plan.md)**: Week 0 is a re-entry week. It covers items 1 and 2.
+4. Work through the patterns in the order of the study plan. Each pattern file ends with a "Commonly Confused With" table. That table links back to the deciding questions.
+
+---
+
 ## 🆕 Quick Links
 
 | Resource | Description |
 |----------|-------------|
-| 📅 [10-Week Study Plan](./study-plan.md) | Day-by-day structured prep plan |
+| 🧭 [How to Choose a Pattern](./how-to-choose-a-pattern.md) | Decide which pattern to use, step by step |
+| ☕ [Java Toolkit](./java-toolkit.md) | Java collections, pitfalls, and templates |
+| 📅 [12-Week Study Plan](./study-plan.md) | Day-by-day structured prep plan |
 | 📋 [Ultimate Cheatsheet](./cheatsheet.md) | One-page reference for all patterns |
 | ⚡ [Tricks at a Glance](./tricks-at-a-glance.md) | See trigger → apply trick instantly (41 tricks, 7 categories) |
 | 📝 [Practice Solutions](./practice-solutions.md) | Step-by-step solutions to key problems |
@@ -39,10 +50,10 @@
 |---|---------|------------|----------|
 | 01 | [Sliding Window](./01-sliding-window/README.md) | ⭐⭐ | HIGH |
 | 02 | [Two Pointers](./02-two-pointers/README.md) | ⭐⭐ | HIGH |
-| 03 | [Fast & Slow Pointers](./03-fast-slow-pointers/README.md) | ⭐⭐ | MEDIUM |
+| 03 | [Fast & Slow Pointers + Linked List Techniques](./03-fast-slow-pointers/README.md) | ⭐⭐ | MEDIUM |
 | 04 | [Prefix Sum / Difference Array](./04-prefix-sum/README.md) | ⭐⭐ | HIGH |
 | 05 | [Hashing & Frequency Maps](./05-hashing-frequency/README.md) | ⭐⭐ | HIGH |
-| 06 | [Binary Search on Answer](./06-binary-search-on-answer/README.md) | ⭐⭐⭐ | HIGH |
+| 06 | [Binary Search (Classic & On Answer)](./06-binary-search-on-answer/README.md) | ⭐⭐⭐ | HIGH |
 | 07 | [Monotonic Stack / Queue](./07-monotonic-stack-queue/README.md) | ⭐⭐⭐ | HIGH |
 | 08 | [Recursion & Backtracking](./08-recursion-backtracking/README.md) | ⭐⭐⭐ | HIGH |
 | 09 | [Divide and Conquer](./09-divide-and-conquer/README.md) | ⭐⭐⭐ | MEDIUM |
@@ -56,6 +67,7 @@
 | 17 | [Trie (Prefix Tree)](./17-trie/README.md) | ⭐⭐⭐ | MEDIUM |
 | 18 | [Shortest Paths (Dijkstra, Bellman-Ford, Floyd-Warshall)](./18-shortest-paths/README.md) | ⭐⭐⭐ | HIGH |
 | 19 | [Bit Manipulation](./19-bit-manipulation/README.md) | ⭐⭐⭐ | MEDIUM |
+| 20 | [Intervals & Sweep Line](./20-intervals/README.md) | ⭐⭐⭐ | HIGH |
 
 ---
 
@@ -65,83 +77,37 @@
 When you see a new problem:
 1. **Minute 1-2:** Understand the problem. Repeat it back. Ask clarifying questions.
 2. **Minute 2-3:** Identify constraints. What's the input size? This hints at expected complexity.
-3. **Minute 3-4:** Pattern recognition. Which pattern(s) might apply?
+3. **Minute 3-4:** Pattern recognition. Run the steps in [How to Choose a Pattern](./how-to-choose-a-pattern.md).
 4. **Minute 4-5:** Propose approach. Start with brute force, then optimize.
 
-### Constraint-to-Complexity Cheat Sheet
+### Constraint-to-Complexity
 
-| Input Size (n) | Expected Complexity | Common Patterns |
-|----------------|---------------------|-----------------|
-| n ≤ 10 | O(n!), O(2^n) | Backtracking, Brute Force |
-| n ≤ 20 | O(2^n), O(n * 2^n) | Bitmask DP, Backtracking |
-| n ≤ 100 | O(n³) | Floyd-Warshall, 3D DP |
-| n ≤ 1,000 | O(n²) | 2D DP, Nested loops |
-| n ≤ 10,000 | O(n²) barely | Optimized n² or n log n |
-| n ≤ 100,000 | O(n log n), O(n) | Sorting, Sliding Window, Two Pointers |
-| n ≤ 1,000,000 | O(n), O(n log n) | Linear scan, Binary Search |
-| n ≤ 10^8 | O(n), O(log n) | Math, Binary Search |
-| n ≤ 10^12 | O(log n), O(1) | Math formula, Binary Search |
+The table that maps input size to the allowed complexity is in [How to Choose a Pattern, Step 1](./how-to-choose-a-pattern.md#step-1-read-the-constraints).
 
 ---
 
-## Quick Pattern Recognition Cheat Sheet
+## Pattern Recognition
 
-| If you see... | Think... |
-|---------------|----------|
-| "Subarray", "Substring", "Contiguous" | Sliding Window, Two Pointers |
-| "Sorted array" | Binary Search, Two Pointers |
-| "All permutations/combinations" | Backtracking |
-| "Maximum/Minimum with constraint" | DP, Binary Search on Answer, Greedy |
-| "Shortest path" | BFS (unweighted), Dijkstra (weighted) |
-| "Connected components" | DFS/BFS, Union Find |
-| "Dependency ordering" | Topological Sort |
-| "Tree structure" | DFS, BFS, Recursion |
-| "Overlapping subproblems" | Dynamic Programming |
-| "Make decisions at each step" | Greedy (if locally optimal = globally optimal) |
-| "Next greater/smaller element" | Monotonic Stack |
-| "Frequency", "Count occurrences" | HashMap |
-| "k-th largest/smallest" | Heap, QuickSelect |
-| "Cycle detection" | Fast & Slow Pointers, DFS |
-| "Top K", "K closest", "K most frequent" | Heap / Priority Queue |
-| "Running median", "median from stream" | Two Heaps (max-heap + min-heap) |
-| "Prefix", "autocomplete", "starts with", "multi-word grid search" | Trie |
-| "Weighted shortest path" | Dijkstra (non-neg weights), Bellman-Ford (neg/K-hops) |
-| "Single/missing/duplicate number in O(1) space" | XOR |
-| "n ≤ 20 + subset/visited tracking" | Bitmask DP |
+- Step-by-step procedure and deciding questions: [how-to-choose-a-pattern.md](./how-to-choose-a-pattern.md)
+- One-page "if you see... think..." table: [cheatsheet.md](./cheatsheet.md#-pattern-recognition-matrix)
 
 ---
 
-## Study Schedule Recommendation (8-10 weeks)
+## Study Schedule
 
-### Weeks 1-2: Foundation Patterns
-- Sliding Window
-- Two Pointers
-- Hashing & Frequency Maps
-- Prefix Sum
+The full day-by-day plan with problems is in [study-plan.md](./study-plan.md). Summary:
 
-### Weeks 3-4: Search & Stack Patterns
-- Binary Search on Answer
-- Monotonic Stack/Queue
-- Fast & Slow Pointers
-
-### Weeks 5-6: Tree & Graph Patterns
-- Tree DFS/BFS
-- Graph Traversal
-- Topological Sort
-- Union Find
-
-### Weeks 7-8: Advanced Patterns
-- Recursion & Backtracking
-- Divide and Conquer
-- Greedy
-
-### Weeks 9-10: Dynamic Programming
-- DP Identification
-- 1D DP
-- 2D DP
-- Interval DP
-- State Compression
+| Weeks | Topics |
+|-------|--------|
+| 0 | Re-entry: Java toolkit, how to choose a pattern, warm-up problems |
+| 1–2 | Sliding window, two pointers, fast/slow + linked lists, prefix sum, hashing, binary search |
+| 3 | Monotonic stack, backtracking, divide and conquer |
+| 4–5 | Trees, graph traversal, topological sort, union find |
+| 6–7 | Intervals, greedy, heap, trie, bit manipulation |
+| 8 | Shortest paths, MST, mixed recognition drills |
+| 9–11 | Dynamic programming |
+| 12 | Mock interviews and review |
 
 ---
 
-*Start with Pattern 01: Sliding Window →*
+*Start with [How to Choose a Pattern →](./how-to-choose-a-pattern.md), then [Pattern 01: Sliding Window](./01-sliding-window/README.md)*

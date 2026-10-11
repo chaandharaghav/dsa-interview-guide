@@ -79,7 +79,7 @@ Time:  O(V²)          acceptable when V ≤ 10³
 Space: O(V)
 ```
 
-### Why V² is Too Slow for Dense Graphs:
+### Why V² is Too Slow for Large Sparse Graphs:
 If V = 10^5, we do 10^10 operations. The inner scan for the minimum dist is the bottleneck.
 
 **The Waste:** Scanning all nodes to find the minimum when only a handful of distances changed.  
@@ -341,7 +341,7 @@ A 0-weight edge is "free" — the neighbour is just as cheap as the current node
 
 ### Variation E: Negative Weights → Shift + Dijkstra?
 **Common misconception:** "Just add a constant to all weights to make them non-negative."  
-**Why it fails:** Adding a constant c to every edge inflates paths with more edges disproportionately. A path with 3 edges costs 3c more than a path with 0 edges.  
+**Why it fails:** Adding a constant c to every edge inflates paths with more edges disproportionately. A path with 3 edges gains 3c, but a path with 1 edge gains only c, so the cheapest path can change.  
 **Correct approach:** Use Bellman-Ford whenever weights can be negative.
 
 ### Variation F: Bidirectional Dijkstra
@@ -443,9 +443,11 @@ A 0-weight edge is "free" — the neighbour is just as cheap as the current node
 // WRONG: Dijkstra finalises dist[u] when u is popped.
 // With negative weights, a cheaper path may arrive later.
 
-// Example: src=0, edges: 0→1 (weight 4), 0→2 (weight 1), 2→1 (weight -3)
-// Dijkstra pops node 1 with dist=4 first (before seeing 2→1 with -3)
-// Correct dist[1] = 1 + (-3) = -2, but Dijkstra returns 4. WRONG.
+// Example: src=0, edges: 0→1 (weight 2), 0→2 (weight 3), 2→1 (weight -2)
+// Dijkstra pops node 1 with dist=2 first (2 < 3), before seeing 2→1 with -2
+// Correct dist[1] = 3 + (-2) = 1, but a Dijkstra that finalises on pop keeps 2. WRONG.
+// (Template 1 has no visited[] array, so it re-pushes node 1 and recovers here,
+//  but with negative edges its running time can grow exponentially.)
 
 // CORRECT: Use Bellman-Ford whenever any edge weight is negative.
 ```
@@ -476,9 +478,9 @@ while heap is not empty:
     for each (v, w) in graph[u]:
         ...
 // A node can be pushed multiple times. Without the guard,
-// you reprocess it with a stale (larger) distance and may
-// push further stale entries, inflating the heap and
-// potentially causing incorrect updates.
+// you reprocess it with a stale (larger) distance and rescan
+// its edges. With non-negative weights the answer stays
+// correct, but the extra scans break the O((V+E) log V) bound.
 
 // CORRECT: Skip stale entries immediately after pop.
 while heap is not empty:
@@ -510,7 +512,7 @@ for k = 0 to n-1:                       // outermost: try each intermediate
 ```
 // WRONG: Leaving dp[i][i] = INF.
 // When the algorithm tries path i → k → i, it sees INF+INF = overflow.
-// Also, self-loop detection (dp[i][i] < 0) only works if the
+// Also, negative-cycle detection (dp[i][i] < 0) only works if the
 // baseline is 0, not INF.
 
 // CORRECT:
@@ -550,9 +552,10 @@ return dist[dst]
 // n = 500  → 1.25 × 10^8 ops  (borderline, often TLE in Java/Python)
 // n = 1000 → 10^9 ops          (definitely TLE)
 
-// CORRECT decision: If n > 200 and you only need single-source,
-// run Dijkstra from each source: O(n * (V+E) log V).
+// CORRECT decision: If n > 200 and you need all pairs with non-negative
+// weights, run Dijkstra from each source: O(V * (V+E) log V).
 // If edges are sparse, this is far faster than Floyd-Warshall.
+// If you only need one source, run Dijkstra once.
 ```
 
 ---
@@ -571,6 +574,20 @@ When you recognise a shortest-path problem, here is how to communicate it:
 > In this problem, [state your observation about constraints]. So I'll use [algorithm].
 >
 > Let me trace through the small example to confirm the algorithm gives the right answer before I write the full implementation..."
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Shortest path → Dijkstra | BFS, 0-1 BFS, or Bellman-Ford | What are the edge weights? None (all equal) → BFS. Only 0 and 1 → 0-1 BFS. Non-negative → Dijkstra. Any negative weight → Bellman-Ford. |
+| Cheapest route with "at most K stops" | Bellman-Ford with K+1 rounds | Does the problem limit the number of edges? Yes → Bellman-Ford. Dijkstra keyed by node alone fails; it works only if the state is (node, stops used). |
+| "Minimum cost to connect all cities" | MST: Kruskal or Prim ([Pattern 13](../13-union-find/README.md#application-5-kruskals-mst)) | Is the answer a path cost from one source, or the cheapest set of edges that connects all nodes? Set of edges → MST. |
+| Minimum cost on a grid | DP ([Pattern 15](../15-dynamic-programming/README.md)) | Can you move only right/down (no cycles)? Yes → DP. Moves in all 4 directions → Dijkstra. |
+| Distances between many pairs | Floyd-Warshall vs Dijkstra from each source | Is n ≤ ~200? Yes → Floyd-Warshall. Larger and sparse → Dijkstra from each source. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 

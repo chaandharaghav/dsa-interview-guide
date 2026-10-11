@@ -87,7 +87,7 @@ return count
 
 ```
 lowest_bit = n & (-n)
-// -n in two's complement = ~n + 1; all lower bits flip, lowest set bit stays
+// -n in two's complement = ~n + 1; bits above the lowest set bit flip, that bit and the zeros below it stay
 ```
 **Examples:** Fenwick Tree updates, LC 260 (partitioning by lowest differing bit)
 
@@ -148,7 +148,7 @@ function f(n):
 
 return f(b) ^ f(a - 1)
 ```
-**Examples:** LC 1310 (XOR Queries of a Subarray)
+**Examples:** LC 1486 (XOR Operation in an Array, O(1) solution)
 
 ---
 
@@ -244,7 +244,7 @@ return candidate
 
 **Trick:** One left-to-right pass builds the "left result" array. One right-to-left pass builds the "right result" array. Combine per index.
 
-**Examples:** LC 42, LC 238, LC 1800 (Maximum Ascending Subarray Sum variants). General pattern for any "how am I relative to everything on my left/right" question.
+**Examples:** LC 42, LC 238, LC 2012 (Sum of Beauty in the Array: prefix max and suffix min). General pattern for any "how am I relative to everything on my left/right" question.
 
 ---
 
@@ -292,6 +292,8 @@ return count
 
 **Trick:** Sliding window naturally handles "AT MOST k distinct." Exactly k = atMost(k) − atMost(k−1).
 
+**Precondition:** the counted quantity must never decrease when the window grows. Distinct counts meet this. The number of odd values in the window (LC 1248) also meets it. A sum meets it only when every value is ≥ 0 (LC 930 has only 0s and 1s). With negative values, use prefix sum + hashmap (3.2).
+
 ```
 function atMost(k):
     count = 0, left = 0, freq = {}
@@ -316,7 +318,7 @@ return atMost(k) - atMost(k - 1)
 
 **Trick:** Count total configurations − count invalid configurations.
 
-**Examples:** LC 1814 (Count Nice Pairs), number of pairs NOT satisfying a property.
+**Examples:** LC 2364 (Count Number of Bad Pairs: total pairs − good pairs), number of pairs NOT satisfying a property.
 
 ---
 
@@ -356,7 +358,7 @@ lcm(a, b) = a // gcd(a, b) * b   // divide first to avoid overflow
 ```
 function pow(x, n):
     if n == 0: return 1
-    if n < 0: return 1 / pow(x, -n)
+    if n < 0: return 1 / pow(x, -n)   // Java: store n in a long first; -Integer.MIN_VALUE overflows
     if n % 2 == 0:
         half = pow(x, n // 2)
         return half * half
@@ -371,7 +373,7 @@ function pow(x, n):
 
 **Trick:** n+1 items in n slots → at least one slot has two items. No searching needed — existence is guaranteed by pigeonhole.
 
-**Examples:** LC 287 (Find Duplicate Number — n+1 numbers in range [1..n]), LC 41 (First Missing Positive — n numbers in [1..n] range)
+**Examples:** LC 287 (Find Duplicate Number — n+1 numbers in range [1..n]), LC 41 (First Missing Positive — n numbers, so the answer lies in [1..n+1])
 
 ---
 
@@ -398,8 +400,9 @@ Geometric sum    = first * (ratio^count - 1) / (ratio - 1)
 next_index = (current_index + 1) % n
 
 // For circular subarray max:
-// Option 1: Max subarray in arr + max subarray in arr (length 2n)
+// Option 1: max subarray of length <= n in arr + arr (length 2n); needs prefix sums + monotonic deque
 // Option 2: max(linear_max_subarray, total_sum - linear_min_subarray)
+//           if linear_max_subarray < 0 (all values negative), return linear_max_subarray
 ```
 **Examples:** LC 918 (Maximum Sum Circular Subarray), LC 213 (House Robber II — split into two linear)
 
@@ -418,7 +421,7 @@ result = (a * b) % MOD
 inv_b = pow(b, MOD - 2, MOD)   // only for prime MOD
 result = (a * inv_b) % MOD
 ```
-**Examples:** LC 1269 (Number of Ways to Stay in Same Place), LC 70 (Climbing Stairs with large n)
+**Examples:** LC 1269 (Number of Ways to Stay in Same Place), LC 1220 (Count Vowels Permutation)
 
 ---
 
@@ -561,6 +564,7 @@ while fast and fast.next:
     slow = slow.next
     fast = fast.next.next
     if slow == fast: break
+if fast is null or fast.next is null: return null   // no cycle
 
 // Phase 2: find entry
 slow = head
@@ -685,7 +689,7 @@ while deque:
             else:
                 deque.push_back((dist[neighbor], neighbor))
 ```
-**Examples:** LC 1368 (Minimum Cost to Make at Least One Valid Path), LC 1765 (Map of Highest Peak)
+**Examples:** LC 1368 (Minimum Cost to Make at Least One Valid Path), LC 2290 (Minimum Obstacle Removal to Reach Corner)
 
 ---
 
@@ -709,7 +713,7 @@ for i in 1..n:
     else:
         dp[i] = other_transition
 ```
-**Examples:** LC 72 (Edit Distance), LC 1143 (LCS), LC 300 (LIS)
+**Examples:** LC 72 (Edit Distance), LC 1143 (LCS), LC 91 (Decode Ways)
 
 ---
 
@@ -769,7 +773,7 @@ for length in range(2, n + 1):
 
 **Trick:** total = n*(n-1)/2 for pairs, or total arrangements for other structures. Compute invalid count and subtract.
 
-**Examples:** LC 2351 (First Letter to Appear Twice), LC 1814 (Count Nice Pairs), any "count pairs that do NOT satisfy X" → invert.
+**Examples:** LC 2364 (Count Number of Bad Pairs), any "count pairs that do NOT satisfy X" → invert.
 
 ---
 
@@ -778,7 +782,7 @@ for length in range(2, n + 1):
 | Trigger Phrase | Trick | Category |
 |----------------|-------|----------|
 | Every number appears twice except one | XOR all | 1.1 |
-| Power of 2? O(1) | `n & (n-1) == 0 and n > 0` | 1.3 |
+| Power of 2? O(1) | `(n & (n-1)) == 0 and n > 0` | 1.3 |
 | Count 1-bits | Brian Kernighan: `n &= (n-1)` | 1.4 |
 | Count subarrays with XOR = k | Prefix XOR + hashmap | 1.7 |
 | Water trapped / rain water | Two-pass maxLeft/maxRight | 2.1 |

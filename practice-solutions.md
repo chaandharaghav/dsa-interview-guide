@@ -12,6 +12,7 @@ Given strings `s` and `t`, find the minimum window in `s` that contains all char
 ### Step 1: Recognize the Pattern
 - Keywords: "substring", "contains all characters", "minimum"
 - This is **variable-size sliding window** (finding shortest valid window)
+- **Deciding question:** [Q1](./how-to-choose-a-pattern.md#q1-contiguous-or-not) — The answer is a substring, which is contiguous, so a sliding window applies and subsequence DP does not.
 
 ### Step 2: Brute Force Analysis
 ```
@@ -74,7 +75,7 @@ function minWindow(s, t):
 2. Shrink **while valid** (not until invalid) for shortest window
 3. Update result **before** shrinking
 
-### Complexity: O(n) time, O(m) space
+### Complexity: O(n + m) time, O(A) space, where A = alphabet size (both maps hold at most A keys)
 
 ---
 
@@ -87,6 +88,7 @@ Find all unique triplets that sum to zero.
 - Looking for triplets (3 elements)
 - Sum condition
 - "Unique" means handle duplicates
+- **Deciding question:** [Q3](./how-to-choose-a-pattern.md#q3-is-the-input-sorted-or-can-i-sort-it) — The output is triplet values, not indices, so sorting is allowed and two pointers replace the Two Sum hashmap.
 
 ### Step 2: Approach
 Fix one element, then it becomes **Two Sum** on sorted array!
@@ -154,12 +156,14 @@ Koko has `piles` of bananas and `h` hours. Find minimum eating speed `k` to fini
 
 This is **Binary Search on Answer**!
 
+**Deciding question:** [Q7](./how-to-choose-a-pattern.md#q7-is-feasibility-monotonic-in-the-answer) — If speed k finishes within h hours, every speed above k also finishes, so binary search on the speed replaces trying every speed.
+
 ### Step 2: Define Verification Function
 ```
 function canFinish(piles, k, h):
-    hours = 0
+    hours = 0                       // Java: use long; the sum can exceed 2^31 - 1
     for pile in piles:
-        hours += ceil(pile / k)
+        hours += (pile + k - 1) / k   // ceil(pile / k) in integer math
     return hours <= h
 ```
 
@@ -198,6 +202,8 @@ Find the largest rectangle area in a histogram.
 For each bar at index i:
 - Rectangle height = height[i]
 - Width = distance between **previous smaller** and **next smaller** elements
+
+**Deciding question:** [Q12](./how-to-choose-a-pattern.md#q12-nearest-greatersmaller-per-element-or-per-window) — Each bar needs its own previous smaller bar and next smaller bar, so a monotonic stack fits, not a sliding-window deque.
 
 ### Step 2: Solution
 ```
@@ -256,6 +262,7 @@ Find if word exists in a grid by moving adjacent cells (no revisit).
 - Search for a path
 - Can't revisit cells
 - Need to explore all possibilities → **Backtracking**
+- **Deciding question:** [Q6](./how-to-choose-a-pattern.md#q6-do-subproblems-repeat) — A call depends on (row, col, index) and on the set of visited cells, so memoizing on (row, col, index) gives wrong answers, and backtracking is the correct tool.
 
 ### Step 2: Solution
 ```
@@ -315,6 +322,7 @@ Return course order to finish all courses (or empty if impossible).
 ### Step 1: Recognize the Pattern
 - "Order" with dependencies → **Topological Sort**
 - "Impossible" → Cycle detection
+- **Deciding question:** [Q10](./how-to-choose-a-pattern.md#q10-do-you-need-an-order-or-only-is-there-a-cycle) — The problem asks for a valid order, not only whether a cycle exists, so use topological sort (Kahn's algorithm), which also detects the cycle.
 
 ### Step 2: Solution (Kahn's Algorithm)
 ```
@@ -367,6 +375,8 @@ Find minimum coins to make amount. Return -1 if impossible.
 
 ### Step 1: Apply DP Framework
 
+**Deciding question:** [Q5](./how-to-choose-a-pattern.md#q5-can-a-locally-best-choice-need-to-be-undone-later) — Greedy fails: with coins {1, 3, 4} and amount 6, greedy takes 4 + 1 + 1 (3 coins), but 3 + 3 uses 2 coins, so use DP.
+
 **State:** dp[a] = minimum coins to make amount a
 
 **Transition:** dp[a] = min(dp[a - coin] + 1) for all coins
@@ -417,6 +427,8 @@ Answer: 2 (coins 3+3)
 ### Problem
 Find length of longest strictly increasing subsequence.
 
+**Deciding question:** [Q1](./how-to-choose-a-pattern.md#q1-contiguous-or-not) — A subsequence can skip elements, so no window exists, and DP replaces sliding window.
+
 ### Approach 1: O(n²) DP
 ```
 function lengthOfLIS(nums):
@@ -439,7 +451,7 @@ function lengthOfLIS(nums):
     
     for num in nums:
         // Find position to insert/replace
-        pos = binarySearch(tails, num)
+        pos = lowerBound(tails, num)  // first index with tails[pos] >= num
         
         if pos == tails.length:
             tails.add(num)  // Extend LIS
@@ -471,6 +483,8 @@ Answer: 4
 
 ### Problem
 Find minimum operations to convert word1 to word2 (insert, delete, replace).
+
+**Deciding question:** [Q6](./how-to-choose-a-pattern.md#q6-do-subproblems-repeat) — The brute-force recursion on (i, j) reaches the same pair from different branches, so memoize it as a 2D DP table.
 
 ### Step 1: State Definition
 dp[i][j] = min operations to convert word1[0:i] to word2[0:j]
@@ -523,6 +537,8 @@ function minDistance(word1, word2):
 
 ### Problem
 Houses in a circle. Can't rob adjacent. Find max money.
+
+**Deciding question:** [Q5](./how-to-choose-a-pattern.md#q5-can-a-locally-best-choice-need-to-be-undone-later) — Greedy that takes the largest house first fails: on the circle [1, 3, 4, 3] it takes 4 + 1 = 5, but 3 + 3 = 6, so use DP.
 
 ### Key Insight
 Circle means first and last are adjacent. Break into two cases:

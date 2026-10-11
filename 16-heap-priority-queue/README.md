@@ -235,7 +235,7 @@ function kClosest(points, k):
 
 **Why max-heap here?** Because we want the k SMALLEST distances, so we evict the LARGEST. The heap top is always "the farthest among our current k candidates."
 
-**Note:** You can also use a min-heap of all n points and pop k times, but that costs O(n + k log n). The size-k max-heap approach costs O(n log k) and uses O(k) space — better when k << n.
+**Note:** You can also heapify all n points into a min-heap and pop k times. That costs O(n + k log n) time but O(n) space, and it needs all points up front. The size-k max-heap approach costs O(n log k) time and O(k) space, and it works on a stream.
 
 ### Template 5: Merge K Sorted Lists (LC 23)
 ```
@@ -246,8 +246,8 @@ function mergeKLists(lists):
 
     // Seed heap with the head of each non-empty list
     for each list at index i in lists:
-        if list is not empty:
-            push (list[i].value, i, list[i]) onto heap
+        if lists[i] is not empty:
+            push (lists[i].value, i, lists[i]) onto heap
 
     while heap is not empty:
         (val, listIdx, node) = heap.pop()   // globally smallest unprocessed node
@@ -403,7 +403,7 @@ function minMeetingRooms(intervals):
 |---------|------|-------------|
 | Last Stone Weight | 1046 | Max-heap; simulate smashing the two heaviest |
 | Kth Largest Element in a Stream | 703 | Min-heap of size k; top = answer |
-| Find K Closest Numbers to X | 658 | Binary search + expand outward; or max-heap of size k |
+| Find K Closest Elements | 658 | Binary search + expand outward; or max-heap of size k |
 
 ### MEDIUM (Interview Favorites)
 | Problem | LC # | Key Insight |
@@ -436,11 +436,11 @@ function minMeetingRooms(intervals):
 
 ### 1. You Only Need One Global Maximum or Minimum
 A single linear scan finds the global max/min in O(n) with O(1) space.  
-A heap would cost O(n log n) to build, which is strictly worse.
+A heap needs O(n) extra space, and pushing items one at a time costs O(n log n). Both are strictly worse.
 
 ```
 // You want the single maximum:
-// BAD: build a max-heap and pop once — O(n log n)
+// BAD: push everything into a max-heap and pop once — O(n log n), O(n) space
 // GOOD: scan once and track running max — O(n)
 ```
 
@@ -567,6 +567,19 @@ When you recognize a heap problem, here is how to communicate it:
 > [For two-heap median:] I'll split the data around the median, keeping the lower half in a max-heap and the upper half in a min-heap, maintaining the invariant that left.size() equals right.size() or is exactly one larger.
 >
 > Let me trace a small example before coding..."
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Top k with a size-k heap | Sort | Is k close to n, or do you need every element in order? Yes → sort, O(n log n). |
+| Kth largest with a heap | Quickselect (partition around a pivot, recurse into one side) | Is the array static and queried once? Yes → quickselect, O(n) average. Data arrives as a stream → heap. |
+| Top k frequent with a heap | Bucket sort by frequency | Do the values you rank by lie in a small range? Frequencies lie in 1..n, so bucket `i` holds the elements seen `i` times → O(n). |
+| Sliding window median with two heaps | Sorted structure (`TreeMap` with counts) | Must elements leave the window? A heap cannot delete an arbitrary element in O(log n). Use lazy deletion, or a `TreeMap`, which deletes in O(log n) directly. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 

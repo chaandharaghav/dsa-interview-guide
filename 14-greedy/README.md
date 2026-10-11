@@ -417,6 +417,19 @@ if current.start < last.end:  // What about touching? [1,2] and [2,3]
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| "Minimum coins / minimum cost" by taking the biggest option first | DP ([Pattern 15](../15-dynamic-programming/README.md)) | Can a locally best choice ever need to be undone? Try a small counterexample. Coins {1, 3, 4}, amount 6: greedy takes 4+1+1 (3 coins), but 3+3 uses 2 coins. A counterexample exists → DP. |
+| Pick items under a weight limit | DP (0/1 knapsack) | Can an item be split into fractions? Yes → greedy by value/weight ratio. No → DP. |
+| Maximum non-overlapping intervals | DP + binary search (LC 1235) | Does each interval carry its own profit or weight? Yes → DP. Only the count matters → greedy by end time. |
+| Connect all nodes at minimum total cost | MST: Kruskal or Prim ([Pattern 13](../13-union-find/README.md#application-5-kruskals-mst)) | Is the answer one total for *all* nodes? Yes → MST, which is a proven greedy. A path cost from one source → Dijkstra. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```

@@ -26,7 +26,7 @@ Think of it like a **filing cabinet with labeled drawers**: instead of opening e
 
 ### Why Not Just Use a HashMap?
 
-A HashMap of strings gives O(L) for exact matches (hashing cost), but answering "does any stored word start with 'app'?" requires scanning all keys — back to O(n × L). A Trie answers that question in O(L) because you just walk to the node for 'p' (the third character) and check whether it has children. If it does, a prefix match exists.
+A HashMap of strings gives O(L) for exact matches (hashing cost), but answering "does any stored word start with 'app'?" requires scanning all keys — back to O(n × L). A Trie answers that question in O(L) because you just walk to the node for 'p' (the third character). If that path exists, a prefix match exists — some stored word passes through it.
 
 ### The Two Storage Choices:
 
@@ -120,7 +120,7 @@ When you insert "app", "apple", "apply" into a Trie:
 - Node 'a' is created once, shared by all three.
 - Node 'a→p' is created once, shared by all three.
 - Node 'a→p→p' is created once, shared by all three.
-- After the third 'p', the paths diverge: 'l' vs 'l→y'.
+- "app" ends at the second 'p' (isEnd = true). Both longer words continue to 'l', then diverge: 'e' vs 'y'.
 
 Querying "startsWith('ap')" walks two steps and returns true in O(2), regardless of having 10^6 words all starting with "ap".
 
@@ -325,8 +325,8 @@ function longestCommonPrefix(strs):
 function replaceWords(dictionary, sentence):
     // Build Trie from root words
     root = new TrieNode()
-    for each root in dictionary:
-        insert(root, root)   // same as standard insert
+    for each rootWord in dictionary:
+        insert(root, rootWord)   // same as standard insert
 
     words = split(sentence, " ")
     result = []
@@ -419,7 +419,6 @@ function findMaximumXOR(nums):
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Longest Common Prefix** | Sort + compare first/last, or traverse Trie until branch | 14 |
-| **Implement Trie** | Basic array-based TrieNode with insert/search/startsWith | 208 |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
@@ -543,7 +542,7 @@ children: array of 26    // only works for 'a'-'z'
 children: HashMap<Character, TrieNode>
 ```
 
-Always read the problem constraints before writing TrieNode. "All lowercase English letters" → array of 26. Anything else → HashMap. Getting this wrong doesn't cause a crash, but it causes `ArrayIndexOutOfBoundsException` for uppercase characters or corrupts the `children` array if indices overlap.
+Always read the problem constraints before writing TrieNode. "All lowercase English letters" → array of 26. Anything else → HashMap. Getting this wrong causes an `ArrayIndexOutOfBoundsException` for characters outside 'a'–'z' (for example, `'A' - 'a'` is -32).
 
 ### Mistake 5: Prefix vs Exact Search Confusion in Problem Logic
 ```
@@ -608,6 +607,19 @@ When you recognize a Trie problem, here's how to communicate it out loud:
 > [For LC 212:] The tricky part is Word Search II — rather than running one DFS per word, I'll build a Trie of all target words and run one DFS over the grid, using the Trie to prune paths that can't lead to any word. When I find a word, I'll null out its terminal marker in the Trie to prevent duplicates and shrink dead branches.
 >
 > Let me trace a small example before coding..."
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Dictionary of words with lookups | `HashSet<String>` | Does any query ask about a *prefix* ("starts with", autocomplete, shortest root)? No, only exact lookups → HashSet. |
+| Find many words in a grid | One DFS per word ([Pattern 8](../08-recursion-backtracking/README.md)) | Is there more than one target word? One word → plain grid DFS (LC 79). Many words → Trie + DFS (LC 212). |
+| Find one pattern inside a text | String matching (KMP) or sliding window | Is there a fixed word list to preprocess? No, one pattern and one text → no Trie. |
+| Prefix Trie for "does a word end with X?" | Trie of reversed words | Does the query look at the *end* of a word? Yes → insert each word reversed, then query the reversed suffix as a prefix (Stream of Characters, LC 1032). |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 

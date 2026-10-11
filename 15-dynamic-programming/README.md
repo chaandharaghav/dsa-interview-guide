@@ -42,6 +42,37 @@ Ask yourself: "Can I express the answer using answers to smaller versions of the
 
 If YES → likely DP
 
+### From Recursion to State: The Concrete Test
+The litmus question is abstract. This procedure is concrete. Write the brute-force recursion first. If the same arguments repeat, memoize. The arguments are the state.
+
+Worked example: **House Robber (LC 198).** You cannot rob two adjacent houses. Maximize the money.
+
+1. **List the choices at one step.** At house `i`, you rob it or skip it.
+2. **Write the brute-force recursion.** Each choice becomes one recursive call.
+   ```
+   rob(i) = max money from houses 0..i
+   rob(i) = max( rob(i-1),               // skip house i
+                 rob(i-2) + nums[i] )    // rob house i, so skip house i-1
+   rob(i) = 0 when i < 0                 // no houses left
+   ```
+3. **Expand the first calls and look for repeats.**
+   ```
+   rob(4) → rob(3), rob(2)
+   rob(3) → rob(2), rob(1)      ← rob(2) is computed a second time
+   ```
+   A repeated call means overlapping subproblems, so DP applies. If no call repeats, plain recursion is enough.
+4. **Name the state.** The state is the set of arguments that change between calls. Here it is `i` alone, so the table is one-dimensional: `dp[i]`.
+5. **Memoize.** Store `rob(i)` in `memo[i]` the first time. Return the stored value on later calls. Time drops from exponential (about 1.6^n calls) to O(n).
+6. **Convert to a table.** Fill `dp` from the smallest argument upward, so every value a cell needs already exists.
+   ```
+   dp[0] = nums[0]
+   dp[1] = max(nums[0], nums[1])
+   dp[i] = max(dp[i-1], dp[i-2] + nums[i])    for i = 2 to n-1
+   answer = dp[n-1]
+   ```
+
+These steps produce the five parts of Section 4. The arguments are the state. The recursion is the transition. The stopping condition is the base case. "Smallest argument first" is the order.
+
 ---
 
 ## 4. The DP Framework (Most Important Section)
@@ -169,7 +200,7 @@ for len = 2 to n:
     for i = 0 to n - len:
         j = i + len - 1
         for k = i to j-1:  // Try all split points
-            dp[i][j] = combine(dp[i][k], dp[k+1][j])
+            dp[i][j] = best(dp[i][j], combine(dp[i][k], dp[k+1][j]))  // best = min or max
 ```
 
 ### Pattern F: Decision Making DP
@@ -271,6 +302,7 @@ function knapsack(weights, values, capacity):
 ### Template 5: Unbounded Knapsack (1D optimized)
 ```
 function unboundedKnapsack(weights, values, capacity):
+    n = weights.length
     dp = new array[capacity + 1] filled with 0
     
     for w = 1 to capacity:
@@ -610,6 +642,19 @@ return dp[amount] == INFINITY ? -1 : dp[amount]
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Optimization with an obvious "best next step" | Greedy ([Pattern 14](../14-greedy/README.md)) | Can a locally best choice ever need to be undone? Test a counterexample: coins {1, 3, 4}, amount 6 → greedy gives 4+1+1, optimal is 3+3. A counterexample exists → DP. None, and you can argue an exchange proof → greedy. |
+| "Find combinations that sum to target" | Backtracking ([Pattern 8](../08-recursion-backtracking/README.md)) | Does the output list every solution, or one number (count, min, max, true/false)? List → backtracking (Combination Sum, LC 39). One number → DP (Coin Change II, LC 518). |
+| DP on a graph of states | Memoized DFS, BFS, or Dijkstra | Can the state graph contain a cycle? No cycles (a DAG, directed acyclic graph) → memoized DFS is DP. Cycles, such as grid moves in all 4 directions → BFS or Dijkstra ([Pattern 18](../18-shortest-paths/README.md)). |
+| DP over subsets of items | Bitmask DP ([Pattern 19](../19-bit-manipulation/README.md)) | Must the state record *which* items are used, and is n ≤ 20? Yes → `dp[mask]`. Only *how many* or *how much* matters → an ordinary index/capacity table. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -637,7 +682,7 @@ return dp[amount] == INFINITY ? -1 : dp[amount]
 │  - Two variables for Fibonacci-style                             │
 │                                                                  │
 │  RED FLAGS (Not DP):                                             │
-│  - Need actual path, not just length → Backtracking              │
+│  - Need to list ALL solutions, not count/optimize → Backtracking │
 │  - All elements independent → Greedy                             │
 │  - Graph shortest path → BFS/Dijkstra                            │
 │                                                                  │

@@ -467,8 +467,9 @@ rightPart = arr[mid+1...right]
 ```
 // WRONG: Creating new arrays at each level
 function merge(arr, left, mid, right):
-    result = new array[right - left + 1]  // Extra O(n) each call
-    // Total O(n log n) space across all calls!
+    result = new array[right - left + 1]  // New allocation in every call
+    // Total allocation is O(n log n); peak extra space is still O(n),
+    // because only one merge buffer is in use at a time. The cost is allocation time.
 
 // CORRECT: Reuse temp array or merge in-place
 // Pre-allocate temp array once
@@ -491,6 +492,19 @@ For recurrence T(n) = aT(n/b) + O(n^d):
 - Binary Search: T(n) = T(n/2) + O(1) → d=0, log_2(1)=0 → O(log n)
 - Naive Matrix Mult: T(n) = 8T(n/2) + O(n²) → d=2, log_2(8)=3 → O(n³)
 - Strassen's: T(n) = 7T(n/2) + O(n²) → d=2, log_2(7)≈2.8 → O(n^2.8)
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| D&C recursion on "f(n) from smaller f values" | Dynamic programming (Pattern 15) | Do two recursive branches call the same arguments? If yes, subproblems overlap → memoize or DP (LC 70, LC 509) |
+| D&C for "search in a sorted array" | Binary search (Pattern 06) | Does each step discard one half without solving it? If yes, there is no combine step → binary search (LC 704) |
+| D&C (Template 4) for "maximum subarray sum" | Kadane's algorithm (Pattern 04) | Is the input one array with no range queries? If yes → Kadane, O(n) instead of O(n log n) (LC 53) |
+| Quickselect for "kth largest" | Heap (Pattern 16) | Is the input a stream, or must the array stay unmodified? If yes → size-k heap, O(n log k); if no → quickselect, O(n) average (LC 215) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 

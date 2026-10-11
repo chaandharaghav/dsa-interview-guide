@@ -269,6 +269,34 @@ function kruskalMST(n, edges):
     return mstWeight
 ```
 
+**Recognize MST (minimum spanning tree):** The problem asks for the cheapest set of edges that connects *all* nodes. Typical wording: "connect all cities/points at minimum total cost". The answer is one total cost, not a path between two nodes. A path cost from one source is a shortest-path problem instead ([Pattern 18](../18-shortest-paths/README.md)).
+
+**Two algorithms, same answer:**
+- **Kruskal** (above): sort the edges, then add each edge whose endpoints are in different components. Time: O(E log E) for the sort. Use it when the input is an edge list.
+- **Prim** (below): grow one tree from a start node. A min-heap holds the edges that leave the tree. Time: O(E log V) with a heap. On a complete graph (every pair of nodes has an edge, as in LC 1584), use the array version: O(V²).
+
+```
+function primMST(n, graph):
+    // graph[u] = list of (v, weight), undirected
+    inTree = new boolean[n]
+    minHeap = [(0, 0)]                  // (edge weight, node); start at node 0
+    mstWeight = 0
+    added = 0
+
+    while minHeap is not empty and added < n:
+        (w, u) = minHeap.pop()
+        if inTree[u]:
+            continue                    // stale entry: u joined by a cheaper edge
+        inTree[u] = true
+        mstWeight += w
+        added += 1
+        for each (v, weight) in graph[u]:
+            if not inTree[v]:
+                minHeap.push((weight, v))
+
+    return added == n ? mstWeight : -1  // -1: graph is disconnected
+```
+
 ### Application 6: Redundant Connection (Find the Extra Edge)
 ```
 function findRedundantConnection(edges):
@@ -348,7 +376,8 @@ function find(x):
         x = parent[x]
     return x
 
-// CORRECT: Path compression makes it nearly O(1) amortized
+// CORRECT: Path compression gives O(log n) amortized on its own;
+// add union by rank/size (Template 2) to reach O(α(n)) ≈ O(1) amortized
 function find(x):
     if parent[x] != x:
         parent[x] = find(parent[x])  // Flatten the tree
@@ -401,10 +430,23 @@ if u == v:
 
 | Operation | Without Optimization | With Path Compression | With Both Optimizations |
 |-----------|---------------------|----------------------|------------------------|
-| Find | O(n) | O(log n) amortized | O(α(n)) ≈ O(1) |
-| Union | O(n) | O(log n) amortized | O(α(n)) ≈ O(1) |
+| Find | O(n) | O(log n) amortized | O(α(n)) ≈ O(1) amortized |
+| Union | O(n) | O(log n) amortized | O(α(n)) ≈ O(1) amortized |
 
 α(n) is the inverse Ackermann function, practically constant (< 5 for any realistic n).
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Connected components or cycle check | DFS/BFS ([Pattern 11](../11-graph-traversal/README.md)) | Is the full graph known before any query? Yes → one DFS pass is enough. Edges arrive over time with a query after each → Union Find. |
+| "Remove an edge" or "cut a connection" | Reverse the timeline, or rerun DFS | Does the problem delete edges? Union Find cannot undo a union. Process the deletions backward as additions (Bricks Falling When Hit, LC 803), or rerun DFS. |
+| "Redundant edge" in a directed graph | Union Find plus in-degree checks (LC 685) | Are the edges directed? Plain Union Find detects cycles only in undirected graphs. |
+| Minimum cost to connect all nodes | MST (Kruskal/Prim), not Dijkstra | Does the answer cover *all* nodes as one total, or a path from one source? All nodes → MST. One source → Dijkstra. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 

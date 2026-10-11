@@ -457,6 +457,19 @@ Some problems can be solved by either:
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Two pointers on "find two numbers that sum to target" | Hashmap (Pattern 05) | Is the array sorted, or may you sort it? If unsorted and the output needs original indices → hashmap (LC 1 vs LC 167) |
+| Two pointers on "longest/shortest subarray with property X" | Sliding window (Pattern 01) | Does the answer cover every element between the pointers? If yes → sliding window (LC 209) |
+| Same-direction slow/fast on an array | Fast & slow pointers (Pattern 03) | Do the pointers move at different speeds to find a cycle or a middle? If yes → Floyd's algorithm (LC 141, LC 876) |
+| Two pointers on "values in [1..n], find missing/duplicate" | Cyclic sort / index-as-hash (Pattern 05) | Are values in [1..n] and is extra space limited to O(1)? If yes → place each value at index value−1 (LC 448) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -489,4 +502,4 @@ Some problems can be solved by either:
 
 ---
 
-*Next: [Pattern 03: Fast & Slow Pointers →](../03-fast-slow-pointers/README.md)*
+*Next: [Pattern 03: Fast & Slow Pointers + Linked List Techniques →](../03-fast-slow-pointers/README.md)*

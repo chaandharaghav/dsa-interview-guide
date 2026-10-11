@@ -228,11 +228,12 @@ function shortestValidWindow(arr, target):
 ### Variation D: Counting Valid Windows
 **Problem Type:** Count subarrays with sum exactly equal to k
 **Trick:** Can't directly use sliding window for "exactly k"
-**Solution:** Count(sum ≤ k) - Count(sum ≤ k-1) OR use prefix sum + hashmap
+**Solution:** Count(sum ≤ k) - Count(sum ≤ k-1), only if all values are non-negative (e.g. LC 930, LC 1248)
+**Condition:** The atMost trick for sums requires every value ≥ 0. Removing a negative value from the left raises the window sum, so shrinking does not always restore sum ≤ k. With negative values, use prefix sum + hashmap (LC 560, Pattern 04).
 
-### Variation E: Sliding Window with Deque for Min/Max
+### Variation E: Sum of Subarray Minimums (uses a monotonic stack)
 **Problem Type:** Find sum of min of all subarrays
-**Key:** Maintain monotonic deque to track minimums efficiently
+**Key:** Not a sliding window. Use a monotonic stack to find the span where each element is the minimum, then count its contribution (LC 907, Pattern 07)
 
 ---
 
@@ -412,6 +413,19 @@ When you recognize a sliding window problem, here's how to communicate:
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Sliding window on "subarray sum = k" | Prefix sum + hashmap (Pattern 04) | Can values be negative? If yes, the window sum is not monotonic → prefix sum + hashmap (LC 560) |
+| Sliding window on "find a pair with sum = target" | Two pointers (Pattern 02) | Does the answer depend on 2 elements, or on every element in a contiguous range? 2 elements → two pointers (LC 167) |
+| Sliding window for "max of each window of size k" | Monotonic deque (Pattern 07) | Must the window state support removing the max or min? If yes → monotonic deque (LC 239) |
+| Sliding window on "longest common subsequence" | Dynamic programming (Pattern 15) | Does the problem say "subsequence"? If yes, elements need not be contiguous → DP (LC 1143) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -436,6 +450,7 @@ When you recognize a sliding window problem, here's how to communicate:
 │                                                                  │
 │  "EXACTLY K" PROBLEMS:                                           │
 │  - Use: atMost(k) - atMost(k-1)                                  │
+│  - For SUMS: only if all values ≥ 0 (else prefix sum + hashmap)  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```

@@ -1,4 +1,4 @@
-# Pattern 03: Fast & Slow Pointers (Floyd's Cycle Detection)
+# Pattern 03: Fast & Slow Pointers + Linked List Techniques
 
 ## 1. Pattern Name
 **Fast & Slow Pointers** (also known as Tortoise and Hare Algorithm)
@@ -235,7 +235,8 @@ function cycleLength(head):
 
 ### Template 5: Array as Linked List (Find Duplicate)
 ```
-// For array where each element is in range [1, n]
+// For array of length n+1 where each element is in range [1, n]
+// (length n+1 forces at least one duplicate; value n stays in bounds)
 // Element value = "next pointer" to that index
 function findDuplicate(nums):
     // Treat array as linked list: nums[i] points to index nums[i]
@@ -256,6 +257,88 @@ function findDuplicate(nums):
     
     return slow
 ```
+
+### Template 6: In-Place Linked List Reversal
+
+Reversal is not a fast/slow technique. It appears in the same problems (palindrome check, reorder list), so this file covers it. Each version runs in one pass: O(n) time, O(1) extra space.
+
+**Recognition trigger:** "reverse" + linked list, or "in-place" + linked list, or a step that needs the second half of a list in backward order.
+
+**6a. Reverse the whole list (LC 206):**
+```
+function reverseList(head):
+    prev = null
+    curr = head
+    
+    while curr is not null:
+        next = curr.next         // Save the rest of the list
+        curr.next = prev         // Point the current node backward
+        prev = curr              // Advance prev
+        curr = next              // Advance curr
+    
+    return prev                  // prev is the new head
+```
+
+**6b. Reverse a sublist from position left to right, 1-indexed (LC 92):**
+
+A dummy node is a placeholder node placed before `head`. It gives position 1 a predecessor, so `left = 1` needs no special case.
+```
+function reverseBetween(head, left, right):
+    dummy = new Node(0)
+    dummy.next = head
+    
+    // Step 1: Move 'before' to the node just before position left
+    before = dummy
+    for i = 1 to left - 1:
+        before = before.next
+    
+    // Step 2: Head insertion. Repeat (right - left) times:
+    // take the node after curr and move it to the front of the sublist
+    curr = before.next           // First node of the sublist; it ends up last
+    for i = 1 to right - left:
+        moved = curr.next
+        curr.next = moved.next
+        moved.next = before.next
+        before.next = moved
+    
+    return dummy.next
+    
+// Example: 1→2→3→4→5, left=2, right=4
+// after 1st move: 1→3→2→4→5
+// after 2nd move: 1→4→3→2→5
+```
+
+**6c. Reverse in groups of k (LC 25) — sketch:**
+```
+function reverseKGroup(head, k):
+    dummy = new Node(0)
+    dummy.next = head
+    groupPrev = dummy            // Node before the current group
+    
+    while true:
+        // Step 1: Find the kth node of the group. Stop if fewer than k nodes remain.
+        kth = groupPrev
+        for i = 1 to k:
+            kth = kth.next
+            if kth is null:
+                return dummy.next    // Last group shorter than k stays unchanged
+        groupNext = kth.next
+        
+        // Step 2: Reverse the k nodes (same loop as 6a, but stop at groupNext)
+        prev = groupNext         // The group's first node will point to groupNext
+        curr = groupPrev.next
+        while curr != groupNext:
+            next = curr.next
+            curr.next = prev
+            prev = curr
+            curr = next
+        
+        // Step 3: Reconnect. The old first node is now the group's last node.
+        oldFirst = groupPrev.next
+        groupPrev.next = kth
+        groupPrev = oldFirst
+```
+**Swap Nodes in Pairs (LC 24)** is `reverseKGroup(head, 2)`.
 
 ---
 
@@ -324,6 +407,7 @@ function kthFromEnd(head, k):
 | Linked List Cycle | Basic cycle detection |
 | Middle of Linked List | Fast travels 2x |
 | Remove Nth Node From End | Fast starts n steps ahead |
+| Reverse Linked List (LC 206) | Iterative prev/curr/next |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
@@ -335,11 +419,14 @@ function kthFromEnd(head, k):
 | **Reorder List** | Find middle → Reverse → Merge | 143 |
 | **Intersection of Two Linked Lists** | Two pointer length normalization | 160 |
 | **Sort List** | Find middle for merge sort | 148 |
+| **Reverse Linked List II** | Dummy node + head insertion | 92 |
+| **Swap Nodes in Pairs** | Reverse in groups of k = 2 | 24 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **First Missing Positive** | Use indices as "pointers" | 41 |
+| **Reverse Nodes in k-Group** | Count k nodes, reverse, reconnect | 25 |
+| **First Missing Positive** | Cyclic sort / index-as-hash, not fast/slow (see Pattern 05, Variation F) | 41 |
 | **Longest Duplicate Substring** | Binary Search + Rolling Hash | 1044 |
 
 ---
@@ -514,6 +601,19 @@ moving at same speed, they'll meet at cycle start.
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| Fast/slow for "does the list have a cycle?" | HashSet of visited nodes (Pattern 05) | Does the problem require O(1) extra space? If no, a hashset also works; if yes → Floyd's algorithm (LC 141) |
+| Floyd on "find the duplicate in [1..n]" | Cyclic sort (Pattern 05) | May you modify the array? If yes → cyclic sort (LC 442); if no → Floyd (LC 287) |
+| Fast/slow for "detect a cycle" in a graph | DFS with visited states (Patterns 11, 12) | Can a node have more than one outgoing edge? If yes, it is a graph, not a linked list → DFS or topological sort (LC 207) |
+| Fast/slow for "find a pair in a sorted array" | Opposite-direction two pointers (Pattern 02) | Do the pointers start at opposite ends and move by comparison? If yes → two pointers (LC 167) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -537,11 +637,15 @@ moving at same speed, they'll meet at cycle start.
 │  - Even length → returns second middle                           │
 │                                                                  │
 │  ARRAY AS LINKED LIST:                                           │
-│  - If values are in range [1,n], treat value as "next pointer"   │
+│  - Length n+1, values in [1,n]: treat value as "next pointer"    │
 │  - Duplicate value = cycle entrance                              │
 │                                                                  │
 │  NULL CHECKS:                                                    │
 │  - Always check: fast != null AND fast.next != null              │
+│                                                                  │
+│  REVERSAL:                                                       │
+│  - next = curr.next; curr.next = prev; prev = curr; curr = next  │
+│  - Sublist or k-group: start from a dummy node before head       │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```

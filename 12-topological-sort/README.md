@@ -84,7 +84,7 @@ function topologicalSort(numNodes, edges):
 ### Template 2: DFS-based Topological Sort
 ```
 function topologicalSortDFS(numNodes, edges):
-    graph = buildGraph(numNodes, edges)
+    graph = buildGraph(numNodes, edges)   // directed: add from → to only
     visited = new array[numNodes] filled with WHITE
     result = []
     
@@ -272,7 +272,7 @@ function minimumSemesters(n, relations):
 ### Template 7: All Topological Sorts (Backtracking)
 ```
 function allTopologicalSorts(n, edges):
-    graph = buildGraph(n, edges)
+    graph = buildGraph(n, edges)          // directed: add from → to only
     inDegree = computeInDegree(n, edges)
     
     result = []
@@ -397,6 +397,19 @@ function dfs(node):
         dfs(neighbor)
     result.addFirst(node)  // Add to front for correct order
 ```
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| "Can all courses be finished?" | Three-color DFS cycle check ([Pattern 11](../11-graph-traversal/README.md)) or Kahn's count | Does the output need the order itself? Yes → topological sort. Only yes/no → either method works; Kahn's count check is the shortest code. |
+| Cycle detection in any graph | Undirected: parent check or Union Find | Are the edges directed? Topological sort and three colors apply only to directed graphs. |
+| Longest path or "minimum time" with dependencies | Topological order + DP over that order | Does each task have a duration or weight? Yes → process nodes in topological order and keep `best[node]` (Parallel Courses III, LC 2050). |
+| Memoized DFS on a DAG (directed acyclic graph) | Either one | Do you need the order as output? No → memoized DFS computes the same values. The memo table is the DP; the recursion finishes nodes in reverse topological order. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 

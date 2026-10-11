@@ -287,7 +287,7 @@ function subsets(items):
 //   Number of items in mask:     popcount(mask)  (or Brian Kernighan loop)
 ```
 
-**NOTE:** When n is large (> ~20), use 1L << i in Java/C++ to avoid integer overflow — a 32-bit int cannot represent 1 << 31 correctly in signed arithmetic.
+**NOTE:** When i can reach 31 or more, use 1L << i in Java/C++ — in a 32-bit signed int, 1 << 31 is negative (Java gives Integer.MIN_VALUE), and 1 << 32 wraps around to 1 in Java.
 
 ---
 
@@ -349,7 +349,7 @@ function xorRange(a, b):
 ### Template 8: Bitmask DP
 ```
 // When n ≤ 20 and you need to track a subset of visited/assigned/covered items.
-// LC 847. Shortest Path Visiting All Nodes  |  LC 1284. Minimum Number of Flips
+// LC 847. Shortest Path Visiting All Nodes  |  LC 943. Find the Shortest Superstring
 
 // General bitmask DP skeleton:
 
@@ -418,7 +418,7 @@ function bitmaskDP(items):
 **Problem Type:** Assign n tasks to n workers optimally; find minimum cost Hamiltonian path.  
 **Key Insight:** `dp[mask][i]` = minimum cost to complete exactly the tasks in `mask`, ending on task i.  
 **Transition:** `dp[mask | (1<<j)][j] = min(..., dp[mask][i] + cost[i][j])` for each unvisited j.  
-**LC:** 1986 Minimum Number of Work Sessions to Finish the Tasks, 1284
+**LC:** 1986 Minimum Number of Work Sessions to Finish the Tasks, 1879 Minimum XOR Sum of Two Arrays
 
 ### Variation F: XOR Swap
 **Problem Type:** Swap two variables without a temporary variable (interview trivia).  
@@ -453,9 +453,9 @@ function bitmaskDP(items):
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Maximum XOR of Two Numbers in Array** | Greedy trie or linear algebra over GF(2) | 421 |
+| **Maximum XOR of Two Numbers in Array** | Greedy bit trie, or bit-by-bit prefix hash set | 421 |
 | **Shortest Path Visiting All Nodes** | BFS + bitmask DP; state = (node, visitedMask) | 847 |
-| **Minimum Number of Flips to Convert Binary Matrix** | Bitmask DP row-by-row | 1284 |
+| **Minimum Number of Flips to Convert Binary Matrix** | BFS over board states encoded as a bitmask (m, n ≤ 3) | 1284 |
 | **Number of Ways to Wear Different Hats** | Bitmask DP; dp[mask] = ways to assign hats | 1434 |
 
 ---
@@ -493,7 +493,7 @@ function bitmaskDP(items):
 - Solve LC 421 (Maximum XOR) — introduces trie-based greedy bit choice
 
 **Day 5:**
-- Attempt LC 1284 or LC 1434 — full bitmask DP with transitions
+- Attempt LC 1879 or LC 1434 — full bitmask DP with transitions
 - If stuck: write the state definition first (`dp[mask] = ...`), then the transition, then the base case
 
 ### Practice Methodology:
@@ -531,7 +531,7 @@ Zero has no set bits, so `0 & (0-1) = 0 & -1 = 0`. Always guard with `n > 0`.
 ### Mistake 2: Integer Overflow When Shifting with 1 << k
 ```
 // WRONG (Java/C++ with 32-bit int): 1 << 31 overflows signed int
-int mask = 1 << 31;       // undefined behavior / wrong result
+int mask = 1 << 31;       // C++: undefined behavior; Java: negative (Integer.MIN_VALUE)
 
 // CORRECT: Use a long literal
 long mask = 1L << 31;     // safe in Java; 64-bit value
@@ -554,7 +554,8 @@ function xorRange(a, b):
     return xorUpTo(b) ^ xorUpTo(a - 1)
 
 // Example: XOR(3..5) = 3^4^5 = 2
-// WRONG: xorUpTo(5) ^ xorUpTo(3) = 1 ^ 3 = 2  (accidentally right here)
+// WRONG:   xorUpTo(5) ^ xorUpTo(3) = 1 ^ 0 = 1  ← WRONG (drops the 3)
+// CORRECT: xorUpTo(5) ^ xorUpTo(2) = 1 ^ 3 = 2  ← CORRECT
 // Test edge a=1: XOR(1..5) should be xorUpTo(5)
 // WRONG formula: xorUpTo(5) ^ xorUpTo(1) = 1 ^ 1 = 0  ← WRONG
 // CORRECT:       xorUpTo(5) ^ xorUpTo(0) = 1 ^ 0 = 1  ← CORRECT
@@ -661,6 +662,19 @@ For bitmask DP problems:
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| "Find the number that appears once" | HashMap of counts ([Pattern 5](../05-hashing-frequency/README.md)) | Does the problem require O(1) extra space, and does every other value appear an even number of times? Yes → XOR. Other counts (for example, "appears 3 times") → count bits mod 3, or use a HashMap if O(n) space is allowed. |
+| "Generate all subsets" with a bitmask loop | Backtracking ([Pattern 8](../08-recursion-backtracking/README.md)) | Do you need to prune branches early (a sum limit, a duplicate skip)? Yes → backtracking. No pruning and n ≤ 20 → the mask loop is simpler. |
+| Backtracking over "which items are used" | Bitmask DP | Is n ≤ 20, and do different orders reach the same set of used items? Yes → `dp[mask]` computes each subset once. n > 20 → bitmask DP is too slow. |
+| Subarray XOR equals k | Prefix sum + HashMap ([Pattern 4](../04-prefix-sum/README.md)) | Does the problem ask about the XOR of a contiguous range? Yes → prefix XOR + HashMap of seen prefixes, the same steps as prefix sum with `^` in place of `+` and `-`. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -714,4 +728,4 @@ For bitmask DP problems:
 
 ---
 
-*Back to: [README →](../README.md)*
+*Next: [Pattern 20: Intervals & Sweep Line →](../20-intervals/README.md)*

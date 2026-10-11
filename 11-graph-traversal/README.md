@@ -573,6 +573,20 @@ if row < 0 or row >= rows or col < 0 or col >= cols:
 
 ---
 
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| "Find a path" in a graph or grid | BFS, not DFS | Does the problem ask for the *shortest* path or *minimum* steps, and does every edge cost the same? Yes → BFS. Any path, all paths, components, or a cycle → DFS. |
+| Shortest path with BFS | 0-1 BFS or Dijkstra ([Pattern 18](../18-shortest-paths/README.md)) | Do edges carry different costs? Costs only 0 or 1 → 0-1 BFS (a BFS that uses a deque: 0-cost neighbors go to the front). Other non-negative costs → Dijkstra. |
+| Count connected components with DFS | Union Find ([Pattern 13](../13-union-find/README.md)) | Do edges arrive one at a time, with a connectivity question after each one? Yes → Union Find. All edges known up front → DFS or BFS. |
+| Cycle detection with a `parent` check | Three-color DFS (Template 7) | Is the graph directed? Yes → three colors. The parent check works only for undirected graphs. |
+| Directed graph with dependencies | Topological sort ([Pattern 12](../12-topological-sort/README.md)) | Does the output need an *order* of the nodes? Yes → topological sort. Only "is there a cycle?" → three-color DFS is enough. |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
+
+---
+
 ## Quick Reference Card
 
 ```

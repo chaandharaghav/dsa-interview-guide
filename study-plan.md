@@ -1,13 +1,13 @@
-# 10-Week DSA Interview Prep Plan
+# 12-Week DSA Interview Prep Plan
 
-A structured, day-by-day plan to master DSA patterns for interviews.
+A day-by-day plan to learn the DSA patterns for interviews. Week 0 is a short re-entry week for developers who have not done DSA for a while.
 
 ---
 
 ## Before You Start
 
 ### Prerequisites Checklist
-- [ ] Comfortable with one programming language (Java or JavaScript in your case)
+- [ ] Comfortable with Java (read [java-toolkit.md](./java-toolkit.md) for the collections and pitfalls)
 - [ ] Understand basic data structures (arrays, linked lists, stacks, queues, trees, graphs)
 - [ ] Know Big O notation basics
 - [ ] LeetCode account ready
@@ -20,6 +20,33 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 | 60 min | Learn new pattern / theory |
 | 60 min | Solve 2-3 problems |
 | 30 min | Review solutions, note patterns |
+| 10 min | From Week 3: classify 3 unseen problems without solving them ([how-to-choose-a-pattern.md](./how-to-choose-a-pattern.md#part-4-how-to-train-recognition)) |
+
+### Rule for Every Problem
+Before you write code, write two lines: the pattern you predict, and the deciding question that chose it. Use the six steps in [How to Choose a Pattern](./how-to-choose-a-pattern.md). When your prediction is wrong, add one line to your misrecognition log.
+
+---
+
+## Week 0: Re-entry (2–3 days)
+
+### Day 1: Java for DSA
+**Read:** [java-toolkit.md](./java-toolkit.md)
+
+- [ ] Write from memory: `ArrayDeque` as a stack and as a queue, `PriorityQueue` with a comparator, `HashMap.merge`, `TreeMap.floorKey`
+- [ ] Read the "Java pitfalls" section. Write each CORRECT version once.
+
+### Day 2: The recognition procedure
+**Read:** [how-to-choose-a-pattern.md](./how-to-choose-a-pattern.md) (Part 1 and Part 2)
+
+- [ ] Learn the constraint → complexity table in Step 1
+- [ ] Read walkthroughs 1–4 in Part 3. Cover the solution and predict the pattern first.
+
+### Day 3: Warm-up
+- [ ] LC 1: Two Sum (Easy)
+- [ ] LC 20: Valid Parentheses (Easy)
+- [ ] LC 704: Binary Search (Easy)
+- [ ] LC 206: Reverse Linked List (Easy)
+- [ ] LC 104: Maximum Depth of Binary Tree (Easy)
 
 ---
 
@@ -56,6 +83,8 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 - [ ] LC 141: Linked List Cycle (Easy)
 - [ ] LC 142: Linked List Cycle II (Medium) ⭐
 - [ ] LC 287: Find the Duplicate Number (Medium) ⭐
+- [ ] LC 92: Reverse Linked List II (Medium) ⭐ - in-place reversal
+- [ ] LC 143: Reorder List (Medium) - middle + reverse + merge
 
 ### Day 6-7: Review & Practice
 - Revisit problems you struggled with
@@ -77,7 +106,8 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 
 **Key Practice:**
 - Prefix sum + HashMap technique
-- The "exactly k" = "at most k" - "at most k-1" trick
+- Prefix sum + hashmap works with negative values. The sliding window does not.
+- The "exactly k" = "at most k" − "at most k−1" trick is safe for counts of distinct values (LC 992). For sums, it requires all values ≥ 0. It fails on LC 560.
 
 ### Day 3-4: Hashing & Frequency Maps
 **Read:** [05-hashing-frequency/README.md](./05-hashing-frequency/README.md)
@@ -88,10 +118,12 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 - [ ] LC 128: Longest Consecutive Sequence (Medium) ⭐⭐
 - [ ] LC 146: LRU Cache (Medium) ⭐⭐
 
-### Day 5-6: Binary Search on Answer
+### Day 5-6: Binary Search (Classic & On Answer)
 **Read:** [06-binary-search-on-answer/README.md](./06-binary-search-on-answer/README.md)
 
 **Problems:**
+- [ ] LC 34: Find First and Last Position of Element in Sorted Array (Medium) ⭐ - lower/upper bound
+- [ ] LC 33: Search in Rotated Sorted Array (Medium) ⭐⭐
 - [ ] LC 875: Koko Eating Bananas (Medium) ⭐
 - [ ] LC 1011: Capacity To Ship Packages Within D Days (Medium) ⭐
 - [ ] LC 410: Split Array Largest Sum (Hard) ⭐⭐
@@ -195,14 +227,21 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 
 ---
 
-## Week 6: Greedy
+## Week 6: Greedy & Intervals
 
-### Day 1-4: Greedy Patterns
-**Read:** [14-greedy/README.md](./14-greedy/README.md)
+### Day 1-2: Intervals & Sweep Line
+**Read:** [20-intervals/README.md](./20-intervals/README.md)
 
 **Problems:**
 - [ ] LC 56: Merge Intervals (Medium) ⭐⭐
-- [ ] LC 435: Non-overlapping Intervals (Medium) ⭐
+- [ ] LC 57: Insert Interval (Medium) ⭐
+- [ ] LC 435: Non-overlapping Intervals (Medium) ⭐ - sort by end
+- [ ] LC 452: Minimum Number of Arrows to Burst Balloons (Medium)
+
+### Day 3-4: Greedy Patterns
+**Read:** [14-greedy/README.md](./14-greedy/README.md)
+
+**Problems:**
 - [ ] LC 55: Jump Game (Medium) ⭐
 - [ ] LC 45: Jump Game II (Medium) ⭐
 - [ ] LC 134: Gas Station (Medium) ⭐
@@ -211,11 +250,63 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 ### Day 5-7: Greedy Practice + Review
 - [ ] LC 763: Partition Labels (Medium) ⭐
 - [ ] LC 253: Meeting Rooms II (Medium) ⭐
-- Review: When does greedy work vs DP?
+- Review: When does greedy work vs DP? (Q5 in [how-to-choose-a-pattern.md](./how-to-choose-a-pattern.md#q5-can-a-locally-best-choice-need-to-be-undone-later))
 
 ---
 
-## Week 7: Dynamic Programming I - Foundation
+## Week 7: Heaps, Tries & Bits
+
+### Day 1-3: Heap / Priority Queue
+**Read:** [16-heap-priority-queue/README.md](./16-heap-priority-queue/README.md)
+
+**Problems:**
+- [ ] LC 215: Kth Largest Element in an Array (Medium) ⭐ - heap vs quickselect
+- [ ] LC 347: Top K Frequent Elements (Medium) ⭐⭐ - heap vs bucket sort
+- [ ] LC 23: Merge k Sorted Lists (Hard) ⭐⭐
+- [ ] LC 295: Find Median from Data Stream (Hard) ⭐⭐ - two heaps
+
+### Day 4-5: Trie
+**Read:** [17-trie/README.md](./17-trie/README.md)
+
+**Problems:**
+- [ ] LC 208: Implement Trie (Prefix Tree) (Medium) ⭐⭐
+- [ ] LC 211: Design Add and Search Words Data Structure (Medium) ⭐
+- [ ] LC 212: Word Search II (Hard) ⭐
+
+### Day 6-7: Bit Manipulation
+**Read:** [19-bit-manipulation/README.md](./19-bit-manipulation/README.md)
+
+**Problems:**
+- [ ] LC 136: Single Number (Easy)
+- [ ] LC 191: Number of 1 Bits (Easy)
+- [ ] LC 338: Counting Bits (Easy)
+- [ ] LC 137: Single Number II (Medium) ⭐
+
+---
+
+## Week 8: Graphs II - Weighted Graphs
+
+### Day 1-4: Shortest Paths
+**Read:** [18-shortest-paths/README.md](./18-shortest-paths/README.md)
+
+**Problems:**
+- [ ] LC 743: Network Delay Time (Medium) ⭐⭐ - Dijkstra
+- [ ] LC 787: Cheapest Flights Within K Stops (Medium) ⭐⭐ - Bellman-Ford with K rounds
+- [ ] LC 1631: Path With Minimum Effort (Medium) ⭐ - solve it two ways
+- [ ] LC 1368: Minimum Cost to Make at Least One Valid Path in a Grid (Hard) - 0-1 BFS
+
+### Day 5-6: Minimum Spanning Tree & Graph Review
+**Problems:**
+- [ ] LC 1584: Min Cost to Connect All Points (Medium) ⭐ - Kruskal or Prim
+- [ ] LC 127: Word Ladder (Hard) ⭐⭐ - BFS on an implicit graph
+
+### Day 7: Mixed Recognition Review
+- [ ] Do all 20 drills in [how-to-choose-a-pattern.md Part 5](./how-to-choose-a-pattern.md#part-5-recognition-drills) without looking at the answers
+- [ ] Read your misrecognition log. Find the deciding question that appears most in the log.
+
+---
+
+## Week 9: Dynamic Programming I - Foundation
 
 ### Day 1-7: 1D DP
 **Read:** [15-dynamic-programming/README.md](./15-dynamic-programming/README.md) (sections 1-7)
@@ -236,7 +327,7 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 
 ---
 
-## Week 8: Dynamic Programming II - Advanced
+## Week 10: Dynamic Programming II - Advanced
 
 ### Day 1-3: Two Sequence DP
 **Problems:**
@@ -258,7 +349,7 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 
 ---
 
-## Week 9: Dynamic Programming III - Mastery
+## Week 11: Dynamic Programming III - Mastery
 
 ### Day 1-2: Interval DP
 **Problems:**
@@ -279,7 +370,7 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 
 ---
 
-## Week 10: Mock Interviews & Review
+## Week 12: Mock Interviews & Review
 
 ### Day 1-2: Timed Practice
 - Set 45-minute timer
@@ -307,23 +398,26 @@ A structured, day-by-day plan to master DSA patterns for interviews.
 ## Tracking Progress
 
 ### Weekly Checklist
-Week 1: [ ] Sliding Window [ ] Two Pointers [ ] Fast/Slow
-Week 2: [ ] Prefix Sum [ ] Hashing [ ] Binary Search on Answer
+Week 0: [ ] Java Toolkit [ ] How to Choose a Pattern [ ] Warm-up
+Week 1: [ ] Sliding Window [ ] Two Pointers [ ] Fast/Slow + Linked List Reversal
+Week 2: [ ] Prefix Sum [ ] Hashing [ ] Binary Search (Classic & On Answer)
 Week 3: [ ] Monotonic Stack [ ] Backtracking [ ] Divide & Conquer
 Week 4: [ ] Tree DFS [ ] Tree BFS [ ] Tree Construction
 Week 5: [ ] Graph DFS/BFS [ ] Topological Sort [ ] Union Find
-Week 6: [ ] Greedy (Intervals) [ ] Greedy (Arrays)
-Week 7: [ ] 1D DP [ ] Basic DP Problems
-Week 8: [ ] 2D DP [ ] Knapsack [ ] Grid DP
-Week 9: [ ] Interval DP [ ] State Machine DP [ ] Hard DP
-Week 10: [ ] Mock Interviews [ ] Final Review
+Week 6: [ ] Intervals [ ] Greedy
+Week 7: [ ] Heap [ ] Trie [ ] Bit Manipulation
+Week 8: [ ] Shortest Paths [ ] MST [ ] Recognition Drills
+Week 9: [ ] 1D DP [ ] Basic DP Problems
+Week 10: [ ] 2D DP [ ] Knapsack [ ] Grid DP
+Week 11: [ ] Interval DP [ ] State Machine DP [ ] Hard DP
+Week 12: [ ] Mock Interviews [ ] Final Review
 
 ### Problem Count Goals
 - Easy: 20-30 problems
 - Medium: 80-100 problems ⭐
 - Hard: 20-30 problems
 
-**Total: ~130-150 problems**
+**Total: ~150-170 problems**
 
 ---
 

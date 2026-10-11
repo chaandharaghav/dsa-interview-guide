@@ -73,6 +73,8 @@ Master the **soft skills** that separate good coders from great interviewees.
 > 
 > Yes, I'll use [pattern] because [reason]."
 
+When two patterns both fit, say the deciding question aloud: "The values can be negative, so a sliding window will not work. I'll use prefix sums with a hashmap." The interviewer then sees that you rejected a pattern for a reason. The deciding questions are in [How to Choose a Pattern](./how-to-choose-a-pattern.md#step-4-ask-the-deciding-questions).
+
 ### Example:
 
 > "This problem asks for the 'minimum window containing all characters', which suggests **sliding window**. Let me verify:

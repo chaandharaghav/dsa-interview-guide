@@ -2,13 +2,16 @@
 
 Print this and keep it handy during practice sessions.
 
+> This table lists signals only. When two patterns both match, use the deciding questions in [How to Choose a Pattern](./how-to-choose-a-pattern.md#step-4-ask-the-deciding-questions).
+
 ---
 
 ## 🎯 Pattern Recognition Matrix
 
 | If you see... | Think... | Complexity |
 |---------------|----------|------------|
-| Contiguous subarray/substring | **Sliding Window** | O(n) |
+| Contiguous subarray/substring, all values ≥ 0 | **Sliding Window** | O(n) |
+| Contiguous + sum with negative values | **Prefix Sum + HashMap** (not sliding window) | O(n) |
 | Sorted array + pairs | **Two Pointers** | O(n) |
 | Linked list + cycle/middle | **Fast & Slow Pointers** | O(n) |
 | Range sum queries | **Prefix Sum** | O(1) per query |
@@ -30,6 +33,12 @@ Print this and keep it handy during practice sessions.
 | All-pairs shortest path, n ≤ 100 | **Floyd-Warshall** | O(n³) |
 | Find single/missing number, O(1) space | **XOR** | O(n) |
 | n ≤ 20, track visited subset | **Bitmask DP** | O(n × 2^n) |
+| Intervals: merge / overlap | **Sort by start** | O(n log n) |
+| Intervals: keep the most non-overlapping | **Sort by end (greedy)** | O(n log n) |
+| Max rooms / max overlap at one time | **Heap of end times or sweep line** | O(n log n) |
+| Sorted (or rotated sorted) array, find position | **Classic Binary Search** | O(log n) |
+| Values in [1..n], O(1) space | **Cyclic Sort / Index Marking** | O(n) |
+| Reverse part of a linked list | **In-place reversal (prev/curr/next) + dummy node** | O(n) |
 
 ---
 
@@ -83,101 +92,130 @@ Print this and keep it handy during practice sessions.
 
 ## 🔧 Quick Templates
 
+> Full Java templates and Java pitfalls: see [java-toolkit.md](./java-toolkit.md)
+
 ### Sliding Window (Variable)
-```
-left = 0
-for right in range(n):
-    # expand: add arr[right]
-    while invalid():
-        # shrink: remove arr[left]
-        left += 1
-    # update result with window [left, right]
+```java
+int longestValid(String s) {
+    int[] count = new int[128];
+    int left = 0, best = 0;
+    for (int right = 0; right < s.length(); right++) {
+        count[s.charAt(right)]++;                 // expand: add s[right]
+        while (count[s.charAt(right)] > 1) {      // invalid window
+            count[s.charAt(left)]--;              // shrink: remove s[left]
+            left++;
+        }
+        best = Math.max(best, right - left + 1);  // window [left, right] is valid
+    }
+    return best;
+}
 ```
 
 ### Two Pointers (Opposite)
-```
-left, right = 0, n-1
-while left < right:
-    if condition:
-        left += 1
-    else:
-        right -= 1
+```java
+boolean hasPairWithSum(int[] sorted, int target) {
+    int left = 0, right = sorted.length - 1;
+    while (left < right) {
+        int sum = sorted[left] + sorted[right];
+        if (sum == target) return true;
+        if (sum < target) left++;
+        else right--;
+    }
+    return false;
+}
 ```
 
 ### Binary Search
-```
-lo, hi = min_possible, max_possible
-while lo < hi:
-    mid = lo + (hi - lo) // 2
-    if can_achieve(mid):
-        hi = mid  # for first true
-    else:
-        lo = mid + 1
-return lo
+```java
+// First value in [lo, hi] where canAchieve is true (IntPredicate: java.util.function)
+int firstTrue(int lo, int hi, IntPredicate canAchieve) {
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (canAchieve.test(mid)) hi = mid;   // for first true
+        else lo = mid + 1;
+    }
+    return lo;
+}
 ```
 
 ### BFS
-```
-queue = [start]
-visited = {start}
-while queue:
-    node = queue.pop(0)
-    for neighbor in graph[node]:
-        if neighbor not in visited:
-            visited.add(neighbor)
-            queue.append(neighbor)
+```java
+void bfs(List<List<Integer>> graph, int start) {
+    Deque<Integer> queue = new ArrayDeque<>();   // poll() is O(1); list.remove(0) is O(n)
+    boolean[] visited = new boolean[graph.size()];
+    queue.offer(start);
+    visited[start] = true;
+    while (!queue.isEmpty()) {
+        int node = queue.poll();
+        for (int neighbor : graph.get(node)) {
+            if (!visited[neighbor]) {
+                visited[neighbor] = true;
+                queue.offer(neighbor);
+            }
+        }
+    }
+}
 ```
 
 ### DFS
-```
-def dfs(node, visited):
-    if node in visited:
-        return
-    visited.add(node)
-    for neighbor in graph[node]:
-        dfs(neighbor, visited)
+```java
+void dfs(List<List<Integer>> graph, int node, boolean[] visited) {
+    if (visited[node]) return;
+    visited[node] = true;
+    for (int neighbor : graph.get(node)) {
+        dfs(graph, neighbor, visited);
+    }
+}
 ```
 
 ### Backtracking
-```
-def backtrack(state):
-    if is_complete(state):
-        result.append(state.copy())
-        return
-    for choice in choices:
-        if is_valid(choice):
-            state.add(choice)
-            backtrack(state)
-            state.remove(choice)  # undo
+```java
+void backtrack(int[] choices, int start, List<Integer> state, List<List<Integer>> result) {
+    result.add(new ArrayList<>(state));        // copy, not a reference
+    for (int i = start; i < choices.length; i++) {
+        state.add(choices[i]);
+        backtrack(choices, i + 1, state, result);
+        state.remove(state.size() - 1);        // undo
+    }
+}
 ```
 
 ### Topological Sort (Kahn's)
-```
-in_degree = [0] * n
-# build in_degree from edges
-queue = [i for i in range(n) if in_degree[i] == 0]
-order = []
-while queue:
-    node = queue.pop(0)
-    order.append(node)
-    for neighbor in graph[node]:
-        in_degree[neighbor] -= 1
-        if in_degree[neighbor] == 0:
-            queue.append(neighbor)
-return order if len(order) == n else []  # cycle if not all included
+```java
+List<Integer> topoSort(int n, List<List<Integer>> graph) {
+    int[] inDegree = new int[n];
+    for (List<Integer> next : graph) for (int v : next) inDegree[v]++;
+    Deque<Integer> queue = new ArrayDeque<>();
+    for (int i = 0; i < n; i++) if (inDegree[i] == 0) queue.offer(i);
+    List<Integer> order = new ArrayList<>();
+    while (!queue.isEmpty()) {
+        int node = queue.poll();
+        order.add(node);
+        for (int neighbor : graph.get(node)) {
+            if (--inDegree[neighbor] == 0) queue.offer(neighbor);
+        }
+    }
+    return order.size() == n ? order : new ArrayList<>();   // cycle if not all included
+}
 ```
 
 ### Union Find
-```
-def find(x):
-    if parent[x] != x:
-        parent[x] = find(parent[x])  # path compression
-    return parent[x]
+```java
+int[] parent, size;   // init: parent[i] = i, size[i] = 1
 
-def union(x, y):
-    px, py = find(x), find(y)
-    if px != py:
-        parent[px] = py
+int find(int x) {
+    if (parent[x] != x) parent[x] = find(parent[x]);   // path compression
+    return parent[x];
+}
+
+boolean union(int x, int y) {
+    int px = find(x), py = find(y);
+    if (px == py) return false;
+    if (size[px] < size[py]) { int t = px; px = py; py = t; }
+    parent[py] = px;                                    // union by size: small under large
+    size[px] += size[py];
+    return true;
+}
 ```
 
 ---

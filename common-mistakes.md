@@ -227,7 +227,7 @@ Candidate: *assumes constraints and starts coding*
 - 10 min: Test, discuss
 
 **Signs you're spending too long:**
-- More than 5 minutes without writing any code
+- More than 10 minutes without writing any code
 - Still explaining after 10 minutes
 - No time left to test
 

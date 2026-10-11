@@ -481,7 +481,7 @@ function verticalOrder(root):
 | **Construct Binary Tree from Preorder and Inorder** | D&C with hashmap | 105 |
 | **Kth Smallest Element in BST** | Inorder traversal | 230 |
 | **Serialize and Deserialize Binary Tree** | Preorder with null markers | 297 |
-| **Flatten Binary Tree to Linked List** | Reverse postorder | 114 |
+| **Flatten Binary Tree to Linked List** | Reverse preorder (right, left, root) | 114 |
 | **Path Sum II** | DFS with path tracking | 113 |
 | **Diameter of Binary Tree** | Global max, height DFS | 543 |
 | **Count Good Nodes in Binary Tree** | DFS with max-so-far | 1448 |
@@ -628,6 +628,19 @@ function findPaths(node, path):
     findPaths(node.right, path)
     path.removeLast()  // Backtrack
 ```
+
+---
+
+## Commonly Confused With
+
+| Looks like... | But use... | The question that decides |
+|---|---|---|
+| DFS for "minimum depth / nearest leaf" | BFS | Is the answer the first node found by level (minimum depth, level values, right view)? If yes → BFS, which stops at the first leaf (LC 111, LC 102) |
+| BFS for "path sum / height / diameter" | DFS | Does each node need a value aggregated from its whole subtree or its root path? If yes → DFS (LC 543, LC 112) |
+| Plain binary-tree DFS on a BST | BST property | Does the problem say "binary search tree"? If yes, use left < root < right to skip one subtree, O(h) (LC 235 vs LC 236) or inorder for sorted order (LC 230) |
+| Tree DFS on a structure with cycles or shared children | Graph traversal (Pattern 11) | Can a node be reached by two different paths? If yes, it is a graph → track visited (LC 133) |
+
+> Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
 ---
 
