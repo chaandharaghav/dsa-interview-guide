@@ -215,11 +215,11 @@ function isPowerOfTwo(n):
 
 // Explanation:
 // n > 0: rules out 0, which falsely passes the bit test
-// n & (n-1) == 0: exactly one set bit means n-1 flips all lower bits,
+// (n & (n-1)) == 0: exactly one set bit means n-1 flips all lower bits,
 //                 AND produces zero
 ```
 
-**WARNING:** Always include `n > 0`. The number 0 satisfies `n & (n-1) == 0` because `0 & -1 == 0`, but 0 is not a power of 2.
+**WARNING:** Always include `n > 0`. The number 0 satisfies `(n & (n-1)) == 0` because `(0 & -1) == 0`, but 0 is not a power of 2.
 
 ---
 
@@ -273,14 +273,14 @@ function subsets(items):
     for mask = 0 to (1 << n) - 1:
         subset = []
         for i = 0 to n-1:
-            if (mask >> i) & 1 == 1:   // is item i in this subset?
+            if ((mask >> i) & 1) == 1:   // is item i in this subset?
                 subset.append(items[i])
         result.append(subset)
 
     return result
 
 // Bit operations for subset manipulation:
-//   Check if item i is in mask:  (mask >> i) & 1 == 1
+//   Check if item i is in mask:  ((mask >> i) & 1) == 1
 //   Add item i to mask:          mask | (1 << i)
 //   Remove item i from mask:     mask & ~(1 << i)
 //   Toggle item i in mask:       mask ^ (1 << i)
@@ -338,6 +338,7 @@ function xorUpTo(n):
 
 // XOR of integers from a to b (inclusive):
 function xorRange(a, b):
+    if a == 0: return xorUpTo(b)       // xorUpTo(-1) matches no case; XOR with 0 changes nothing
     return xorUpTo(b) ^ xorUpTo(a - 1)
 
 // Why off-by-one matters: it's f(b) ^ f(a-1), NOT f(b) ^ f(a).
@@ -365,12 +366,12 @@ function bitmaskDP(items):
     // Fill in order of increasing mask (more bits = more items visited)
     for mask = 1 to (1 << n) - 1:
         for last = 0 to n-1:
-            if (mask >> last) & 1 == 0: continue    // last not in mask
+            if ((mask >> last) & 1) == 0: continue    // last not in mask
             if dp[mask][last] == INFINITY: continue
 
             // Try adding each unvisited item next
             for next = 0 to n-1:
-                if (mask >> next) & 1 == 1: continue  // already visited
+                if ((mask >> next) & 1) == 1: continue  // already visited
                 newMask = mask | (1 << next)
                 cost = dp[mask][last] + transition(last, next)
                 dp[newMask][next] = min(dp[newMask][next], cost)
@@ -434,26 +435,26 @@ function bitmaskDP(items):
 |---------|-------------|------|
 | **Single Number** | XOR all — pairs cancel, survivor remains | 136 |
 | **Number of 1 Bits** | Brian Kernighan: n = n & (n-1) each step | 191 |
-| **Power of Two** | n > 0 AND n & (n-1) == 0 | 231 |
+| **Power of Two** | n > 0 AND (n & (n-1)) == 0 | 231 |
 | **Reverse Bits** | Extract LSB 32 times, shift into result | 190 |
 | **Missing Number** | XOR indices 0..n with array values | 268 |
+| **Counting Bits** | dp[i] = dp[i >> 1] + (i & 1) | 338 |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Single Number II** | Count bits mod 3; bit that appears once survives | 137 |
 | **Single Number III** | XOR all, partition by differing bit | 260 |
-| **Counting Bits** | dp[i] = dp[i >> 1] + (i & 1) | 338 |
 | **Subsets** | Iterate mask from 0 to 2^n - 1 | 78 |
 | **XOR Queries of a Subarray** | Prefix XOR + range formula | 1310 |
 | **Count Triplets That Form Two Equal XOR** | Prefix XOR; any split of equal halves works | 1442 |
 | **Iterator for Combination** | Bitmask enumeration with carry | 1286 |
 | **Minimum Flips to Make OR Equal** | Inspect each bit independently | 1318 |
+| **Maximum XOR of Two Numbers in Array** | Greedy bit trie, or bit-by-bit prefix hash set | 421 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Maximum XOR of Two Numbers in Array** | Greedy bit trie, or bit-by-bit prefix hash set | 421 |
 | **Shortest Path Visiting All Nodes** | BFS + bitmask DP; state = (node, visitedMask) | 847 |
 | **Minimum Number of Flips to Convert Binary Matrix** | BFS over board states encoded as a bitmask (m, n ≤ 3) | 1284 |
 | **Number of Ways to Wear Different Hats** | Bitmask DP; dp[mask] = ways to assign hats | 1434 |
@@ -551,6 +552,7 @@ function xorRange(a, b):
 
 // CORRECT: XOR(a..b) = XOR(1..b) ^ XOR(1..a-1)
 function xorRange(a, b):
+    if a == 0: return xorUpTo(b)
     return xorUpTo(b) ^ xorUpTo(a - 1)
 
 // Example: XOR(3..5) = 3^4^5 = 2
@@ -693,10 +695,10 @@ For bitmask DP problems:
 │  Missing number: XOR indices 0..n with array values     (LC 268)     │
 │                                                                      │
 │  BIT PROPERTY CHECKS:                                                │
-│  Is power of 2:  n > 0 AND n & (n-1) == 0              (LC 231)     │
+│  Is power of 2:  n > 0 AND (n & (n-1)) == 0            (LC 231)     │
 │  Count set bits: while n != 0: n = n & (n-1); count++  (LC 191)     │
 │  Lowest set bit: n & (-n)   [used in Fenwick Tree]                  │
-│  Check bit i:   (n >> i) & 1 == 1                                   │
+│  Check bit i:   ((n >> i) & 1) == 1                                 │
 │  Set bit i:      n | (1 << i)                                       │
 │  Clear bit i:    n & ~(1 << i)                                      │
 │  Toggle bit i:   n ^ (1 << i)                                       │
@@ -708,7 +710,7 @@ For bitmask DP problems:
 │                                                                      │
 │  BITMASK ENUMERATION (n ≤ 20):                                      │
 │  All subsets: for mask = 0 to (1<<n)-1                  (LC 78)     │
-│  Item i in mask: (mask >> i) & 1 == 1                               │
+│  Item i in mask: ((mask >> i) & 1) == 1                             │
 │  Add item i:  mask | (1 << i)                                       │
 │  Remove item i: mask & ~(1 << i)                                    │
 │                                                                      │

@@ -65,6 +65,7 @@ Worked example: **House Robber (LC 198).** You cannot rob two adjacent houses. M
 5. **Memoize.** Store `rob(i)` in `memo[i]` the first time. Return the stored value on later calls. Time drops from exponential (about 1.6^n calls) to O(n).
 6. **Convert to a table.** Fill `dp` from the smallest argument upward, so every value a cell needs already exists.
    ```
+   if n == 1: return nums[0]                  // dp[1] does not exist
    dp[0] = nums[0]
    dp[1] = max(nums[0], nums[1])
    dp[i] = max(dp[i-1], dp[i-2] + nums[i])    for i = 2 to n-1

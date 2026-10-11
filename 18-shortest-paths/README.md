@@ -254,8 +254,8 @@ function floydWarshall(n, edges):
         dp[i][i] = 0                          // distance to self is 0
 
     for each edge (u, v, w) in edges:
-        dp[u][v] = w
-        // If undirected: dp[v][u] = w
+        dp[u][v] = min(dp[u][v], w)           // keep the cheapest parallel edge; a positive self-loop cannot replace 0
+        // If undirected: dp[v][u] = min(dp[v][u], w)
 
     // CRITICAL: intermediate node k must be the OUTERMOST loop
     for k = 0 to n-1:                         // try each node as intermediate
@@ -361,11 +361,11 @@ A 0-weight edge is "free" — the neighbour is just as cheap as the current node
 | **Cheapest Flights Within K Stops** | Bellman-Ford (K+1 rounds) | Copy dist each round; K stops = K+1 edges | 787 |
 | **Find City With Smallest Neighbor Count** | Floyd-Warshall | All-pairs; n ≤ 100 | 1334 |
 | **Path With Minimum Effort** | Dijkstra on grid | State = cell; cost = max edge along path | 1631 |
+| **Path With Maximum Probability** | Dijkstra (max-heap) | Multiply probabilities; max-heap instead of min | 1514 |
 
 ### HARD (Differentiators)
 | Problem | Algorithm | Key Insight | LC # |
 |---------|-----------|-------------|------|
-| **Path With Maximum Probability** | Dijkstra (max-heap) | Multiply probabilities; max-heap instead of min | 1514 |
 | **Minimum Cost to Make Valid Path** | 0-1 BFS on grid | Following existing arrow = 0 cost, changing it = 1 | 1368 |
 | **Shortest Path Visiting All Nodes** | BFS + bitmask DP | State = (node, visitedMask); BFS for unweighted | 847 |
 
@@ -465,7 +465,7 @@ for round = 1 to K+1:
 for round = 1 to K+1:
     temp = copy of dist
     for each edge (u, v, w):
-        if dist[u] + w < temp[v]:       // read from dist (old), write to temp (new)
+        if dist[u] != INF and dist[u] + w < temp[v]:   // read from dist (old), write to temp (new)
             temp[v] = dist[u] + w
     dist = temp
 ```
@@ -505,7 +505,8 @@ for i = 0 to n-1:
 for k = 0 to n-1:                       // outermost: try each intermediate
     for i = 0 to n-1:
         for j = 0 to n-1:
-            dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j])
+            if dp[i][k] != INF and dp[k][j] != INF:     // INF + INF overflows
+                dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j])
 ```
 
 ### Mistake 5: Not Initialising dp[i][i] = 0 in Floyd-Warshall

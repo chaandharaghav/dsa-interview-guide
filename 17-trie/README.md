@@ -303,9 +303,9 @@ function longestCommonPrefix(strs):
         nonNullChildren = count of non-null entries in node.children
         if nonNullChildren != 1 or node.isEnd:
             break
-        for each (char, child) in node.children:
-            prefix.append(char)
-            node = child
+        (char, child) = the one non-null entry in node.children   // skip null slots
+        prefix.append(char)
+        node = child
     return join(prefix)
 
     // Option B: Simpler — sort and compare first vs last string
@@ -419,6 +419,7 @@ function findMaximumXOR(nums):
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Longest Common Prefix** | Sort + compare first/last, or traverse Trie until branch | 14 |
+| **Index Pairs of a String** | Scan text with Trie to find all matching word start positions | 1065 |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
@@ -428,13 +429,12 @@ function findMaximumXOR(nums):
 | **Replace Words** | Find shortest prefix root; walk Trie and stop at first isEnd | 648 |
 | **Map Sum Pairs** | Prefix sum via Trie; store values at nodes | 677 |
 | **Longest Word in Dictionary** | Insert all words; BFS/DFS through Trie keeping only isEnd paths | 720 |
-| **Index Pairs of a String** | Scan text with Trie to find all matching word start positions | 1065 |
+| **Maximum XOR of Two Numbers in Array** | Bit Trie (32 levels); greedy opposite-bit traversal | 421 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
 | **Word Search II** | Trie + grid DFS; prune empty Trie nodes after finding words | 212 |
-| **Maximum XOR of Two Numbers in Array** | Bit Trie (32 levels); greedy opposite-bit traversal | 421 |
 | **Palindrome Pairs** | Trie of reversed words; complex case analysis | 336 |
 | **Word Squares** | Trie to enumerate valid next words given column constraints | 425 |
 | **Stream of Characters** | Reversed Trie: insert reversed words, slide window on stream | 1032 |

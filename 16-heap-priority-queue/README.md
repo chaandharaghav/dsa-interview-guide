@@ -403,26 +403,26 @@ function minMeetingRooms(intervals):
 |---------|------|-------------|
 | Last Stone Weight | 1046 | Max-heap; simulate smashing the two heaviest |
 | Kth Largest Element in a Stream | 703 | Min-heap of size k; top = answer |
-| Find K Closest Elements | 658 | Binary search + expand outward; or max-heap of size k |
 
 ### MEDIUM (Interview Favorites)
 | Problem | LC # | Key Insight |
 |---------|------|-------------|
+| Find K Closest Elements | 658 | Binary search + expand outward; or max-heap of size k |
 | **Kth Largest Element in an Array** | 215 | Min-heap size k; also learnable via QuickSelect O(n) avg |
 | **K Closest Points to Origin** | 973 | Max-heap size k keyed by distance; evict farthest |
 | **Top K Frequent Elements** | 347 | Frequency map + min-heap size k (or bucket sort) |
 | **Sort Characters by Frequency** | 451 | Max-heap of (freq, char); reconstruct string |
-| **Merge K Sorted Lists** | 23 | Min-heap over list heads; O(N log k) |
 | **Task Scheduler** | 621 | Max-heap of task frequencies + cooldown queue |
 | **Meeting Rooms II** | 253 | Min-heap of end times; size = rooms needed |
 | **Reorganize String** | 767 | Max-heap of char frequencies; interleave greedily |
-| **Find Median from Data Stream** | 295 | Two-heap split; rebalance on every insert |
 | **K Pairs with Smallest Sums** | 373 | Min-heap over initial pairs; advance column on pop |
 | **Ugly Number II** | 264 | Min-heap with dedup; multiply by 2, 3, 5 on pop |
 
 ### HARD (Differentiators)
 | Problem | LC # | Key Insight |
 |---------|------|-------------|
+| **Merge K Sorted Lists** | 23 | Min-heap over list heads; O(N log k) |
+| **Find Median from Data Stream** | 295 | Two-heap split; rebalance on every insert |
 | **Sliding Window Median** | 480 | Two heaps + lazy deletion for expired elements |
 | **IPO (Maximize Capital)** | 502 | Two heaps: projects sorted by capital (min) + profit (max) |
 | **Trapping Rain Water II** | 407 | Min-heap BFS from boundary inward |
