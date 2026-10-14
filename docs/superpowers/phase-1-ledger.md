@@ -1,0 +1,5 @@
+# SDD ledger — plan: docs/superpowers/plans/2026-10-14-phase-1-lld.md
+Ruling: Opus reviewer subagents (review-brief.md) do the full per-page review instead of the main session reading every page — keeps the main context usable for ~230 pages; main session spot-checks and reads each report — cost if wrong: a reviewer misses an error; mitigated by the gate and spot checks.
+Ruling: run_java.py now runs every standalone block with main() (main class first) and compares the following expected-output block — drafts put main last; one-off script $TMPDIR/main_first.py reordered 06/07/03/11/04/05 — cost if wrong: none, programs verified by execution.
+Ruling: added tools/check_mermaid.py + tools/check-mermaid.sh (Mermaid 11 parse in headless Chrome; needs sandbox off + unpkg) — run at each batch end — cost if wrong: none.
+Ruling: runnable blocks run without runner-added imports (reviewer finding on 07); one-off /Users/raghav-17110/.tmp/add_imports.py adds explicit imports to finished pages — cost if wrong: none.
