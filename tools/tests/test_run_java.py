@@ -158,6 +158,12 @@ class RunnableBlockTest(unittest.TestCase):
     def test_main_class_not_first_fails(self):
         self.assertEqual(rj.main([str(self.page(self.MAIN_LAST))]), 1)
 
+    def test_runnable_block_needs_its_own_imports(self):
+        code = ("class Demo { public static void main(String[] a) "
+                "{ System.out.println(new ArrayList<Integer>().size()); } }")
+        self.assertEqual(rj.main([str(self.page(code, "0"))]), 1)
+        self.assertEqual(rj.main([str(self.page("import java.util.ArrayList;\n" + code, "0"))]), 0)
+
     def test_runtime_exception_fails(self):
         code = ("class Demo { public static void main(String[] a) "
                 "{ throw new IllegalStateException(); } }")

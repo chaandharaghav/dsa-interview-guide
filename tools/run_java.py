@@ -160,8 +160,10 @@ MAIN_METHOD = re.compile(r"\bstatic\s+void\s+main\s*\(")
 
 
 def run_block(block: Block, java: Path, expected):
-    """Run a standalone block that has a main method. Return None or an error text."""
-    name, source = candidates(block.body)[0]
+    """Run a block that has a main method exactly as written (no added imports), because
+    a reader copies it into a file and runs it. Return None or an error text."""
+    public = PUBLIC_TYPE.search(block.body)
+    name, source = (f"{public.group(1)}.java" if public else "Program.java"), block.body
     command = [str(java), "--source", "21"]
     if "preview" in block.markers:
         command.append("--enable-preview")
@@ -175,6 +177,9 @@ def run_block(block: Block, java: Path, expected):
             return "  program did not finish in 30 seconds"
     if result.returncode != 0:
         hint = ""
+        if "cannot find symbol" in result.stderr:
+            hint = ("\n  A runnable block must compile as written: add the import lines that "
+                    "the program needs.")
         if "can't find main" in result.stderr:
             hint = ("\n  Put the class that has main() first in the block, because the Java "
                     "source launcher runs the first top-level class.")
