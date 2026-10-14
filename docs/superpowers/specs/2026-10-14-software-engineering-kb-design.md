@@ -541,14 +541,14 @@ All KB content follows the writing standard from the user's `~/.claude/CLAUDE.md
 
 - The runner `tools/run_java.py` extracts every `java` block from the Markdown files. It compiles each block with JDK 21 (`javac --release 21`).
 - If a block is not a complete program, the runner wraps it in a class with common imports, first as class members and then as method statements. The support classes `ListNode` and `TreeNode` (`tools/java-support/`) are on the class path. If that compile also fails, the block needs the marker `<!-- fragment -->` in the line before it. The reviewer must approve each fragment marker.
-- Each LLD `Main.java` must run. Its output must match the expected output in the README.
+- Each LLD `Main.java` must run. Its output must match the expected output in the README. Each `java` block in a case-study README must be a contiguous copy of lines from that folder's `Main.java`; the runner checks the copy instead of compiling the excerpt.
 - Code that uses a preview feature compiles with `--enable-preview`. The page labels the feature as "preview in Java 21".
 - Spring and JPA examples compile against Spring Boot dependencies through Gradle, if the network allows the download. If it does not, the page states "checked against the Spring reference documentation, not compiled".
 - The runner does not compile existing DSA code with Java 21 flags that break Java 17. Existing DSA blocks compile with `--release 17`.
 
 ### 8.2 SQL
 
-- SQL examples run on SQLite 3.51 with the sample data on the page.
+- SQL examples run on the `sqlite3` command-line tool, SQLite 3.51, with the sample data on the page. (Python's `sqlite3` module on this machine links SQLite 3.35, which lacks `RIGHT JOIN`, so the runner uses the tool.)
 - If an example uses a PostgreSQL or MySQL feature, the page names the dialect. The reviewer checks the example against that vendor's documentation.
 
 ### 8.3 Facts

@@ -93,5 +93,50 @@ class CheckFileTest(unittest.TestCase):
         self.assertEqual(cf.check_file(path, text), [])
 
 
+FENCE = "`" * 3
+
+
+class ReviewFixesTest(unittest.TestCase):
+    path = Path("kb/java/01-language-core.md")
+
+    def test_questions_inside_code_fence_do_not_count(self):
+        hidden = FENCE + "text\n" + "".join(f'??? question "H{i}"\n' for i in range(4)) + FENCE
+        text = topic_page(priority="P2", questions=0, extra=hidden + "\n")
+        self.assertTrue(any("found 0" in e for e in cf.check_file(self.path, text)))
+
+    def test_questions_inside_html_comment_do_not_count(self):
+        hidden = "<!--\n" + "".join(f'??? question "H{i}"\n' for i in range(4)) + "-->\n"
+        text = topic_page(priority="P2", questions=0, extra=hidden)
+        self.assertTrue(any("found 0" in e for e in cf.check_file(self.path, text)))
+
+    def test_omit_marker_inside_code_fence_is_ignored(self):
+        hidden = FENCE + "text\n<!-- omit: Java Example -- x -->\n" + FENCE + "\n"
+        text = topic_page(skip="Java Example", extra=hidden)
+        self.assertTrue(any("Java Example" in e for e in cf.check_file(self.path, text)))
+
+    def test_sections_out_of_order_fail(self):
+        text = topic_page()
+        text = text.replace("## 1. Why It Matters", "## 1. Placeholder")
+        text = text.replace("## 10. Further Reading", "## 10. Further Reading\n\n## Why It Matters")
+        self.assertTrue(any("order" in e for e in cf.check_file(self.path, text)))
+
+    def test_untemplated_page_needs_priority(self):
+        errors = cf.check_file(Path("kb/lld/cheatsheet.md"), "# Cheatsheet\n")
+        self.assertTrue(any("priority" in e for e in errors))
+
+    def test_index_pages_need_no_priority(self):
+        for name in ("kb/lld/README.md", "kb/README.md", "kb/glossary.md", "kb/study-plan.md"):
+            self.assertEqual(cf.check_file(Path(name), "# Index\n"), [])
+
+    def test_question_bank_minimum(self):
+        text = "---\npriority: P1\n---\n# Bank\n" + '??? question "Q"\n    a\n' * 24
+        errors = cf.check_file(Path("kb/java/interview-question-bank.md"), text)
+        self.assertTrue(any("25" in e for e in errors))
+
+    def test_absolute_path_matches_template(self):
+        absolute = Path("/repo/kb/java/01-language-core.md")
+        self.assertEqual(cf.template_for(absolute), "topic")
+
+
 if __name__ == "__main__":
     unittest.main()

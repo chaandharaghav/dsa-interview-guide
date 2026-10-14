@@ -24,7 +24,7 @@ The script runs these checks. All of them must pass before a change is committed
 |---|---|
 | Unit tests | Tests the checker scripts in `tools/tests/` |
 | `tools/check_format.py` | Checks code line width, template sections, front matter, and question counts |
-| `tools/run_sql.py` | Runs the SQL examples on SQLite and compares results |
+| `tools/run_sql.py` | Runs the SQL examples on the `sqlite3` tool (SQLite 3.39 or newer) and compares results |
 | `tools/run_java.py` | Compiles every Java block with JDK 21 and runs every case-study `Main.java` |
 | `mkdocs build --strict` | Builds the site and fails on a broken link or anchor |
 

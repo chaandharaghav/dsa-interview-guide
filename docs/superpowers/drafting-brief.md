@@ -37,7 +37,7 @@ The KB follows ISO 24495-1 (plain language) with ASD-STE100 constraints. Apply t
 3. Tables may have any number of columns.
 4. A line in a code block has no more than 100 characters.
 5. Diagrams use Mermaid. A diagram that Mermaid cannot draw (for example, a memory layout) may use ASCII art inside a `text` code block.
-6. Internal links are relative `.md` links, for example `[caching](../fundamentals/03-caching.md)`. Link only to pages that exist, or to pages that your assignment says another drafter writes in the same batch. Do not use wikilinks.
+6. Internal links are relative `.md` links, for example `[caching](../fundamentals/03-caching.md)`. Link only to pages that exist, or to pages that your assignment says another drafter writes in the same batch. Do not use wikilinks. To refer to a planned page that does not exist yet, write its path from `kb/` in backticks, for example "see `kb/java/07-concurrency-basics.md`". A later phase finds these references and turns them into links.
 7. You may use these MkDocs Material extensions:
 
     ````markdown
@@ -71,7 +71,7 @@ The KB follows ISO 24495-1 (plain language) with ASD-STE100 constraints. Apply t
 
 Use the `##` headings below, with these exact names and in this order. You may put a number before a name (`## 3. How It Works`). You may add `###` subsections freely. If a section does not apply, omit it and add this marker anywhere in the file: `<!-- omit: <Section Name> -- <reason> -->`.
 
-Every page starts with front matter that gives its priority:
+Every page that you write starts with front matter that gives its priority. The only exceptions are `README.md` index pages, `kb/glossary.md`, and `kb/study-plan.md`. The existing DSA pages have no front matter; new pages need it even if they copy the structure of a DSA page:
 
 ```markdown
 ---
@@ -114,11 +114,11 @@ priority: P1
 
 `Main.java` rules:
 
-- One file. `public class Main` with a `main` method. All other types are package-private top-level types or nested types in the same file.
+- One file. `public class Main` with a `main` method is the first type in the file, because the Java source launcher runs the first top-level class. All other types are package-private top-level types after `Main`, or nested types.
 - Only the JDK 21 standard library. No external libraries.
 - The `main` method runs a demo scenario that shows each functional requirement.
 - The output is deterministic. Do not print timestamps, hash codes, thread names, or `Random` output without a fixed seed. If the demo uses threads, join them before printing results, and print only results that do not depend on the schedule.
-- The folder `README.md` copies the important classes into `## Key Code`. Keep the copies identical to `Main.java`.
+- The folder `README.md` copies the important classes into `## Key Code`. Each `java` block in the README must be a contiguous copy of lines from `Main.java` (blank lines and indentation may differ). `run_java.py` checks this, and it does not compile README blocks on their own, so an excerpt may stop inside a class. Do not add `...` or other changes inside a copied block. To skip lines, end the block and start a new block.
 
 ### 4.3 HLD case study
 
@@ -169,6 +169,8 @@ Topic pages and HLD case studies need at least this many `??? question` blocks:
 | P2 | 4 |
 | P3 | 2 |
 
+An `interview-question-bank.md` page needs at least 25 blocks. The checker counts only `??? question` lines outside code blocks and outside HTML comments.
+
 A model answer is the answer that a strong candidate gives in an interview. It is correct, complete, and structured: the direct answer first, then the reason, then the trade-off or the edge case. Write the answer that a senior engineer would accept, not a one-line definition.
 
 ## 6. Markers
@@ -181,7 +183,7 @@ A marker is an HTML comment on its own line, in the lines before a fenced block 
 | `<!-- preview -->` | The Java block uses a Java 21 preview feature. The text must say "preview in Java 21" |
 | `<!-- expected-output -->` | The `text` block holds the exact output of the folder's `Main.java` |
 | `<!-- sql-skip: <dialect> -->` | The SQL block uses PostgreSQL or MySQL syntax that SQLite does not run. Name the dialect in the text |
-| `<!-- sql-result -->` | The `text` block holds the result of the SQL block before it: a header line, then one line per row, cells joined by ` \| `, NULL for null |
+| `<!-- sql-result -->` | The `text` block holds the full output of the SQL block before it: for each statement that returns rows, a header line, then one line per row, cells joined by ` \| `, NULL for null. Put one query in a block that has a result block |
 | `<!-- omit: <Section> -- <reason> -->` | A template section is omitted on purpose |
 
 ## 7. Verification Duties
@@ -194,7 +196,11 @@ python3 tools/run_java.py <your files or folders>
 python3 tools/run_sql.py <your files>
 ```
 
-`run_java.py` compiles every `java` block with `javac --release 21`. A block compiles if it is a complete file, or a set of class members, or a set of statements. The runner adds imports for `java.util`, `java.util.function`, `java.util.stream`, `java.util.concurrent` (with `atomic` and `locks`), `java.io`, `java.nio.file`, `java.time`, and `java.math`. The classes `ListNode` and `TreeNode` (LeetCode shapes) are available. If a block uses another type, define that type in the block.
+Give folder paths or file paths. For a case-study `README.md`, the runner also runs the folder's `Main.java` and compares its output with `## Expected Output`.
+
+`run_sql.py` runs SQL on the `sqlite3` command-line tool, SQLite 3.51 (window functions, CTEs, `RIGHT JOIN`, and `FULL OUTER JOIN` work). Each page gets a fresh database, and SQL blocks run in page order, so put the `CREATE TABLE` and `INSERT` statements in a block before the queries.
+
+`run_java.py` compiles every `java` block outside case-study folders with `javac --release 21`. A block compiles if it is a complete file, or a set of class members, or a set of statements. The runner adds imports for `java.util`, `java.util.function`, `java.util.stream`, `java.util.concurrent` (with `atomic` and `locks`), `java.io`, `java.nio.file`, `java.time`, and `java.math`. The classes `ListNode` and `TreeNode` (LeetCode shapes) are available. If a block uses another type, define that type in the block. If a block fails, the runner prints the compiler errors for all three forms. Read the form that matches your intent.
 
 Facts:
 

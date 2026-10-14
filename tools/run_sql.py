@@ -1,76 +1,97 @@
 #!/usr/bin/env python3
-"""Run the ```sql blocks of each KB page on SQLite and compare results.
+"""Run the sql blocks of each KB page on SQLite and compare results.
 
 Usage: python3 tools/run_sql.py [PATH ...]   (default: kb)
+
+The runner uses the sqlite3 command-line tool, because the sqlite3 module that
+Python links can be older (3.35 on this machine) than the tool. KB_SQLITE
+overrides the tool path. The tool must be SQLite 3.39 or newer (RIGHT and FULL
+OUTER JOIN).
+
+Each page gets a fresh in-memory database. SQL blocks run in page order. A block
+after a `<!-- sql-skip: <dialect> -->` marker is skipped. A `text` block after
+a `<!-- sql-result -->` marker must equal the output of the SQL block before it:
+a header line, then one line per row, cells joined by " | ", NULL for null.
 """
-import sqlite3
+import os
+import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mdblocks import md_files, parse_blocks  # noqa: E402
 
-
-def format_rows(description, rows) -> str:
-    lines = [" | ".join(column[0] for column in description)]
-    for row in rows:
-        lines.append(" | ".join("NULL" if value is None else str(value) for value in row))
-    return "\n".join(lines)
+MIN_VERSION = (3, 39, 0)
+SETTINGS = ".bail on\n.headers on\n.mode list\n.separator \" | \"\n.nullvalue NULL\n"
 
 
-def _statements(body: str):
-    buffer = ""
-    for line in body.split("\n"):
-        buffer += line + "\n"
-        if sqlite3.complete_statement(buffer):
-            yield buffer.strip()
-            buffer = ""
-    if buffer.strip():
-        yield buffer.strip()
+def sqlite_tool() -> str:
+    return os.environ.get("KB_SQLITE") or shutil.which("sqlite3") or "sqlite3"
 
 
-def check_text(text: str, path: Path) -> list:
-    errors = []
-    connection = sqlite3.connect(":memory:")
-    last_result = None
+def sqlite_version(tool: str):
+    result = subprocess.run([tool, "--version"], capture_output=True, text=True)
+    match = re.match(r"(\d+)\.(\d+)\.(\d+)", result.stdout)
+    return tuple(int(part) for part in match.groups()) if match else None
+
+
+def _run(tool: str, history: list, body: str):
+    script = SETTINGS + ".output /dev/null\n"
+    script += "\n".join(history) + "\n.output stdout\n" + body + "\n"
+    result = subprocess.run([tool, "-batch", ":memory:"], input=script,
+                            capture_output=True, text=True, timeout=30)
+    return result.returncode, result.stdout, result.stderr
+
+
+def _normalize(text: str) -> str:
+    return "\n".join(line.rstrip() for line in text.strip("\n").split("\n"))
+
+
+def check_text(text: str, path: Path, tool: str = None) -> list:
+    tool = tool or sqlite_tool()
+    errors, history, last_result = [], [], None
     for block in parse_blocks(text, path):
         if block.lang == "sql":
-            if "sql-skip" in block.markers:
-                last_result = None
-                continue
             last_result = None
-            for statement in _statements(block.body):
-                try:
-                    cursor = connection.execute(statement)
-                except sqlite3.Error as error:
-                    errors.append(f"{path}:{block.line}: {error}")
-                    break
-                if cursor.description:
-                    last_result = format_rows(cursor.description, cursor.fetchall())
+            if "sql-skip" in block.markers:
+                continue
+            code, out, err = _run(tool, history, block.body)
+            if code != 0 or err.strip():
+                errors.append(f"{path}:{block.line}: {err.strip() or 'sqlite3 failed'}")
+                continue
+            history.append(block.body)
+            last_result = _normalize(out)
         elif "sql-result" in block.markers:
-            expected = "\n".join(line.rstrip() for line in block.body.strip().split("\n"))
+            expected = _normalize(block.body)
             if last_result is None:
-                errors.append(f"{path}:{block.line}: sql-result block has no query before it")
+                errors.append(f"{path}:{block.line}: sql-result block has no passing query "
+                              f"before it")
             elif last_result != expected:
                 errors.append(
                     f"{path}:{block.line}: SQL result differs\n--- actual ---\n{last_result}")
-    connection.close()
     return errors
 
 
 def main(argv: list) -> int:
+    tool = sqlite_tool()
+    version = sqlite_version(tool)
+    if version is None or version < MIN_VERSION:
+        print(f"sql: {tool} is missing or older than 3.39 (found {version})")
+        return 2
     paths = argv or ["kb"]
-    errors = []
-    pages = 0
+    errors, pages = [], 0
     for path in md_files(paths):
         text = path.read_text(encoding="utf-8")
-        if "```sql" not in text:
+        if not any(b.lang == "sql" for b in parse_blocks(text, path)):
             continue
         pages += 1
-        errors.extend(check_text(text, path))
+        errors.extend(check_text(text, path, tool))
     for error in errors:
         print(error)
-    print(f"sql: {pages} pages with SQL, {len(errors)} errors")
+    print(f"sql: {pages} pages with SQL, {len(errors)} errors "
+          f"(sqlite {'.'.join(map(str, version))})")
     return 1 if errors else 0
 
 

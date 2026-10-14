@@ -13,6 +13,7 @@ block after `<!-- expected-output -->` in the README.md of the same folder.
 """
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -40,17 +41,26 @@ LEGACY = re.compile(r"(^|/)kb/dsa/([^/]+\.md|(0\d|1\d|20)-[^/]+/README\.md)$")
 PUBLIC_TYPE = re.compile(
     r"^public\s+(?:(?:final|abstract|sealed|non-sealed|static)\s+)*"
     r"(?:class|interface|enum|record|@interface)\s+(\w+)", re.MULTILINE)
-IMPORT_LINE = re.compile(r"^\s*import\s+[\w.*]+\s*;\s*$", re.MULTILINE)
+IMPORT_LINE = re.compile(r"^\s*import\s+(?:static\s+)?[\w.*]+\s*;\s*$", re.MULTILINE)
 IMPORTS = "\n".join(f"import {p}.*;" for p in [
     "java.util", "java.util.function", "java.util.stream", "java.util.concurrent",
     "java.util.concurrent.atomic", "java.util.concurrent.locks", "java.io", "java.nio.file",
     "java.time", "java.math",
 ])
+FORM_NAMES = ["as a file", "as class members", "as method statements"]
 ENV = {k: v for k, v in os.environ.items() if k != "JAVA_TOOL_OPTIONS"}
 
 
+def _posix(path: Path) -> str:
+    return path.as_posix() if path.is_absolute() else path.resolve().as_posix()
+
+
 def release_for(path: Path) -> str:
-    return "17" if LEGACY.search(path.as_posix()) else "21"
+    return "17" if LEGACY.search(_posix(path)) else "21"
+
+
+def release_of(block: Block) -> str:
+    return "21" if "preview" in block.markers else release_for(block.path)
 
 
 def candidates(body: str) -> list:
@@ -67,13 +77,13 @@ def candidates(body: str) -> list:
     return forms
 
 
-def _javac(javac: Path, release: str, preview: bool, files: list, out: Path, cp: Path = None):
+def _javac(javac: Path, release: str, preview: bool, files: list, out: Path, cp: str = None):
     command = [str(javac), "--release", release, "-nowarn", "-Xlint:none", "-proc:none",
                "-d", str(out)]
     if preview:
         command.append("--enable-preview")
     if cp:
-        command += ["-cp", str(cp)]
+        command += ["-cp", cp]
     command += [str(f) for f in files]
     return subprocess.run(command, capture_output=True, text=True, env=ENV)
 
@@ -87,21 +97,33 @@ def build_support(javac: Path) -> Path:
 
 
 def compile_block(block: Block, javac: Path, support_cp: Path):
-    release = release_for(block.path)
+    """Return None if one form of the block compiles, else a report of each form's errors."""
+    release = release_of(block)
     preview = "preview" in block.markers
-    if preview:
-        release = "21"
-    first_error = None
-    for name, source in candidates(block.body):
-        work = Path(tempfile.mkdtemp(prefix="kb-java-"))
-        source_file = work / name
-        source_file.write_text(source, encoding="utf-8")
-        result = _javac(javac, release, preview, [source_file], work / "out", support_cp)
+    reports = []
+    for form_name, (name, source) in zip(FORM_NAMES, candidates(block.body)):
+        with tempfile.TemporaryDirectory(prefix="kb-java-") as work:
+            source_file = Path(work) / name
+            source_file.write_text(source, encoding="utf-8")
+            result = _javac(javac, release, preview, [source_file], Path(work) / "out",
+                            str(support_cp))
         if result.returncode == 0:
             return None
-        if first_error is None:
-            first_error = result.stderr or result.stdout
-    return first_error
+        errors = [line for line in (result.stderr or result.stdout).split("\n") if line.strip()]
+        reports.append(f"  [{form_name}]\n    " + "\n    ".join(errors[:6]))
+    return "\n".join(reports)
+
+
+def _code_lines(text: str) -> list:
+    return [line.strip() for line in text.split("\n") if line.strip()]
+
+
+def matches_main(block: Block, main_source: str) -> bool:
+    """True if the block's non-blank lines appear in Main.java as one contiguous run."""
+    wanted, have = _code_lines(block.body), _code_lines(main_source)
+    if not wanted:
+        return True
+    return any(have[i:i + len(wanted)] == wanted for i in range(len(have) - len(wanted) + 1))
 
 
 def _expected_output(readme: Path):
@@ -134,31 +156,58 @@ def run_program(main_java: Path, java: Path):
     return None
 
 
+def find_programs(paths: list) -> list:
+    """Main.java files under each folder argument, or next to each file argument."""
+    found = set()
+    for raw in paths:
+        path = Path(raw)
+        if path.is_dir():
+            found.update(path.rglob("Main.java"))
+        elif path.name == "Main.java":
+            found.add(path)
+        elif (path.parent / "Main.java").exists():
+            found.add(path.parent / "Main.java")
+    return sorted(found)
+
+
 def main(argv: list) -> int:
     paths = argv or ["kb"]
     javac, java = JDK / "bin" / "javac", JDK / "bin" / "java"
-    support = build_support(javac)
-    blocks = [b for f in md_files(paths)
+    if not javac.exists():
+        print(f"java: no JDK 21 found (tried {JDK}). Set KB_JDK21 to a JDK 21 home.")
+        return 2
+    md_paths = list(paths) + [str(p.parent / "README.md") for p in find_programs(paths)]
+    files = sorted(set(md_files(md_paths)))
+    blocks = [b for f in files
               for b in parse_blocks(f.read_text(encoding="utf-8"), f) if b.lang == "java"]
     skipped = [b for b in blocks if "fragment" in b.markers]
     to_compile = [b for b in blocks if "fragment" not in b.markers]
+    programs = find_programs(paths)
+    main_sources = {p.parent.resolve(): p.read_text(encoding="utf-8") for p in programs}
+    copies = [b for b in to_compile if b.path.parent.resolve() in main_sources]
+    standalone = [b for b in to_compile if b.path.parent.resolve() not in main_sources]
+    support = build_support(javac)
     with ThreadPoolExecutor(max_workers=8) as pool:
-        errors = list(pool.map(lambda b: compile_block(b, javac, support), to_compile))
+        errors = list(pool.map(lambda b: compile_block(b, javac, support), standalone))
+    shutil.rmtree(support, ignore_errors=True)
     failures = 0
-    for block, error in zip(to_compile, errors):
+    for block, error in zip(standalone, errors):
         if error:
             failures += 1
-            short = "\n".join(error.strip().split("\n")[:12])
             print(f"{block.path}:{block.line}: java block does not compile "
-                  f"(release {release_for(block.path)})\n{short}\n")
-    programs = sorted(p for raw in paths for p in Path(raw).rglob("Main.java"))
+                  f"(release {release_of(block)})\n{error}\n")
+    for block in copies:
+        if not matches_main(block, main_sources[block.path.parent.resolve()]):
+            failures += 1
+            print(f"{block.path}:{block.line}: java block is not a contiguous copy of the "
+                  f"folder's Main.java (case-study code blocks must be copied from Main.java)\n")
     program_failures = 0
     for program in programs:
         error = run_program(program, java)
         if error:
             program_failures += 1
             print(error + "\n")
-    print(f"java: {len(to_compile) - failures}/{len(to_compile)} blocks compile, "
+    print(f"java: {len(to_compile) - failures}/{len(to_compile)} blocks pass, "
           f"{len(skipped)} fragments skipped, "
           f"{len(programs) - program_failures}/{len(programs)} programs match")
     return 1 if failures or program_failures else 0

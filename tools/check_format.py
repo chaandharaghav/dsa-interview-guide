@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from mdblocks import front_matter, h2_headings, markers_anywhere, md_files, parse_blocks  # noqa: E402
+from mdblocks import (  # noqa: E402
+    front_matter, h2_headings, markers_anywhere, md_files, parse_blocks, prose_lines)
 
 MAX_CODE_WIDTH = 100
 MIN_QUESTIONS = {"P1": 8, "P2": 4, "P3": 2}
@@ -52,11 +53,14 @@ SECTIONS = {
     ],
 }
 COUNTS_QUESTIONS = {"topic", "hld-case"}
-QUESTION = re.compile(r'^\s*\?\?\?\+?\s+question\b', re.MULTILINE)
+QUESTION = re.compile(r'^\s*\?\?\?\+?\s+question\b')
+QUESTION_BANK = re.compile(r"(^|/)kb/.+question-bank\.md$")
+QUESTION_BANK_MINIMUM = 25
+NO_PRIORITY = re.compile(r"(^|/)kb/(README|glossary|study-plan)\.md$|(^|/)README\.md$")
 
 
 def _posix(path: Path) -> str:
-    return path.as_posix()
+    return path.resolve().as_posix() if not path.is_absolute() else path.as_posix()
 
 
 def template_for(path: Path):
@@ -84,25 +88,42 @@ def _omitted(text: str, path: Path, errors: list) -> set:
 def _check_sections(path: Path, text: str, template: str, errors: list) -> None:
     headings = [h.lower() for h in h2_headings(text)]
     omitted = _omitted(text, path, errors)
+    last_index, last_name = -1, None
     for section in SECTIONS[template]:
         wanted = section.lower()
         if wanted in omitted:
             continue
-        if not any(h.startswith(wanted) for h in headings):
+        found = [i for i, h in enumerate(headings) if h.startswith(wanted)]
+        if not found:
             errors.append(f"{path}: missing section '## {section}' ({template} template)")
+            continue
+        index = next((i for i in found if i > last_index), None)
+        if index is None:
+            errors.append(f"{path}: section '## {section}' is out of order "
+                          f"(it must come after '## {last_name}')")
+            continue
+        last_index, last_name = index, section
 
 
-def _check_priority(path: Path, text: str, template: str, errors: list) -> None:
+def _count_questions(text: str) -> int:
+    return sum(1 for line in prose_lines(text) if QUESTION.match(line))
+
+
+def _check_priority(path: Path, text: str, template, errors: list) -> None:
     priority = front_matter(text).get("priority")
     if priority not in MIN_QUESTIONS:
         errors.append(f"{path}: front matter needs 'priority: P1|P2|P3'")
         return
     if template in COUNTS_QUESTIONS:
-        found = len(QUESTION.findall(text))
         needed = MIN_QUESTIONS[priority]
-        if found < needed:
-            errors.append(
-                f"{path}: {priority} page needs {needed} '??? question' blocks, found {found}")
+    elif QUESTION_BANK.search(_posix(path)):
+        needed = QUESTION_BANK_MINIMUM
+    else:
+        return
+    found = _count_questions(text)
+    if found < needed:
+        errors.append(
+            f"{path}: page needs {needed} '??? question' blocks ({priority}), found {found}")
 
 
 def check_file(path: Path, text: str) -> list:
@@ -118,6 +139,7 @@ def check_file(path: Path, text: str) -> list:
     template = template_for(path)
     if template:
         _check_sections(path, text, template, errors)
+    if template or not NO_PRIORITY.search(_posix(path)):
         _check_priority(path, text, template, errors)
     return errors
 

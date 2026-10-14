@@ -82,15 +82,37 @@ def front_matter(text: str) -> dict:
     return result
 
 
-def h2_headings(text: str) -> list:
-    lines = text.split("\n")
+def _fenced_lines(lines: list) -> set:
     inside = set()
     for start, end, _, _ in _iter_fences(lines):
         inside.update(range(start, end + 1))
-    titles = []
+    return inside
+
+
+def prose_lines(text: str, skip_comments: bool = True) -> list:
+    """Return the lines outside fenced blocks (and outside multi-line HTML comments)."""
+    lines = text.split("\n")
+    fenced = _fenced_lines(lines)
+    result = []
+    in_comment = False
     for index, line in enumerate(lines):
-        if index in inside:
+        if index in fenced:
             continue
+        if skip_comments:
+            if in_comment:
+                if "-->" in line:
+                    in_comment = False
+                continue
+            if "<!--" in line and "-->" not in line.split("<!--", 1)[1]:
+                in_comment = True
+                continue
+        result.append(line)
+    return result
+
+
+def h2_headings(text: str) -> list:
+    titles = []
+    for line in prose_lines(text):
         match = H2.match(line)
         if match:
             titles.append(match.group("title"))
@@ -99,7 +121,7 @@ def h2_headings(text: str) -> list:
 
 def markers_anywhere(text: str, name: str) -> list:
     values = []
-    for line in text.split("\n"):
+    for line in prose_lines(text):
         match = MARKER.match(line)
         if match and match.group("name") == name:
             values.append(match.group("value") or "")
