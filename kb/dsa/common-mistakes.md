@@ -68,6 +68,7 @@ windowSize = right - left  // Should be right - left + 1
 ### Mistake 4: Mutating Input Unintentionally
 
 **Problem:**
+<!-- fragment -->
 ```java
 // Sorting modifies original array!
 Arrays.sort(nums);
@@ -87,6 +88,7 @@ grid[i][j] = 0;  // Can't use grid again
 ### Mistake 5: Integer Overflow
 
 **Dangerous operations:**
+<!-- fragment -->
 ```java
 // Overflow when calculating mid
 int mid = (left + right) / 2;  // Can overflow if left + right > INT_MAX
@@ -104,6 +106,7 @@ long result = (long) a * b;
 ### Mistake 6: Not Handling Null/Empty
 
 **Common crash:**
+<!-- fragment -->
 ```java
 if (head.next == null)  // Crashes if head is null!
 
@@ -128,6 +131,7 @@ if (head == null || head.next == null)
 ### Mistake 8: Inefficient String Operations
 
 **Problem:**
+<!-- fragment -->
 ```java
 // O(n²) due to string concatenation
 String result = "";

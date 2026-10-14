@@ -558,6 +558,7 @@ For `a = 2^31 - 1` and `b = -1`, `a - b` overflows to a negative number, and the
 ## 10. Common Mistakes Even Experienced Developers Make
 
 ### Mistake 1: Comparator Overflow
+<!-- fragment -->
 ```java
 // WRONG: overflows when values span the int range (LC 452)
 Arrays.sort(points, (a, b) -> a[1] - b[1]);
