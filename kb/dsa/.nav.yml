@@ -1,0 +1,38 @@
+nav:
+  - Overview: README.md
+  - how-to-choose-a-pattern.md
+  - java-toolkit.md
+  - study-plan.md
+  - Patterns:
+      - "01 · Sliding Window": 01-sliding-window
+      - "02 · Two Pointers": 02-two-pointers
+      - "03 · Fast & Slow Pointers": 03-fast-slow-pointers
+      - "04 · Prefix Sum & Difference Array": 04-prefix-sum
+      - "05 · Hashing & Frequency Maps": 05-hashing-frequency
+      - "06 · Binary Search": 06-binary-search-on-answer
+      - "07 · Monotonic Stack & Queue": 07-monotonic-stack-queue
+      - "08 · Recursion & Backtracking": 08-recursion-backtracking
+      - "09 · Divide and Conquer": 09-divide-and-conquer
+      - "10 · Tree DFS / BFS": 10-tree-patterns
+      - "11 · Graph Traversal": 11-graph-traversal
+      - "12 · Topological Sort": 12-topological-sort
+      - "13 · Union Find": 13-union-find
+      - "14 · Greedy": 14-greedy
+      - "15 · Dynamic Programming": 15-dynamic-programming
+      - "16 · Heap / Priority Queue": 16-heap-priority-queue
+      - "17 · Trie": 17-trie
+      - "18 · Shortest Paths": 18-shortest-paths
+      - "19 · Bit Manipulation": 19-bit-manipulation
+      - "20 · Intervals & Sweep Line": 20-intervals
+  - Reference:
+      - cheatsheet.md
+      - tricks-at-a-glance.md
+      - pattern-combinations.md
+      - practice-solutions.md
+      - common-mistakes.md
+  - Interview:
+      - interview-tips.md
+      - mock-interviews.md
+      - company-prep.md
+  - glob: "*"
+    ignore_no_matches: true

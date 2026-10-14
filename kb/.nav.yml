@@ -1,0 +1,19 @@
+nav:
+  - Start:
+      - Home: README.md
+      - study-plan.md
+      - glossary.md
+  - DSA: dsa
+  - LLD: lld
+  - HLD: hld
+  - Java: java
+  - Databases: databases
+  - Networking: networking
+  - Operating Systems: operating-systems
+  - API Design: api-design
+  - Security: security
+  - Engineering Practice: engineering-practice
+  - Behavioral: behavioral
+  - AI Engineering: ai-engineering
+  - glob: "*"
+    ignore_no_matches: true
