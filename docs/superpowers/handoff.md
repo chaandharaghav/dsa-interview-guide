@@ -33,8 +33,8 @@
 | `fundamentals/01-oop.md` | Yes | Done |
 | `fundamentals/02-solid.md` | Yes | Done |
 | `fundamentals/03-design-principles.md` | Yes | Done |
-| `fundamentals/04-uml-class-and-sequence-diagrams.md` | Yes | Was running at save time. Check that the page is complete, or review it again |
-| `fundamentals/05-domain-modeling.md` | Yes | Was running at save time. Same as 04 |
+| `fundamentals/04-uml-class-and-sequence-diagrams.md` | Yes | Done (finished after the save) |
+| `fundamentals/05-domain-modeling.md` | Yes | Done (finished after the save) |
 | `fundamentals/06-creational-patterns.md` | Yes | Done |
 | `fundamentals/07-structural-patterns.md` | Yes | Done |
 | `fundamentals/08-behavioral-patterns.md` | Yes | Done (finished after the save; links to case studies are now backticked paths) |
