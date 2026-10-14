@@ -200,7 +200,9 @@ Give folder paths or file paths. For a case-study `README.md`, the runner also r
 
 `run_sql.py` runs SQL on the `sqlite3` command-line tool, SQLite 3.51 (window functions, CTEs, `RIGHT JOIN`, and `FULL OUTER JOIN` work). Each page gets a fresh database, and SQL blocks run in page order, so put the `CREATE TABLE` and `INSERT` statements in a block before the queries.
 
-`run_java.py` compiles every `java` block outside case-study folders with `javac --release 21`. A block compiles if it is a complete file, or a set of class members, or a set of statements. The runner adds imports for `java.util`, `java.util.function`, `java.util.stream`, `java.util.concurrent` (with `atomic` and `locks`), `java.io`, `java.nio.file`, `java.time`, and `java.math`. The classes `ListNode` and `TreeNode` (LeetCode shapes) are available. If a block uses another type, define that type in the block. If a block fails, the runner prints the compiler errors for all three forms. Read the form that matches your intent.
+`run_java.py` compiles every `java` block outside case-study folders with `javac --release 21`. A block compiles if it is a complete file, or a set of class members, or a set of statements. The runner adds imports for `java.util`, `java.util.function`, `java.util.stream`, `java.util.concurrent` (with `atomic` and `locks`), `java.io`, `java.nio.file`, `java.time`, and `java.math`. The classes `ListNode` and `TreeNode` (LeetCode shapes) are available. If a block uses another type, define that type in the block.
+
+Runnable blocks: if a block has a `main` method, the runner also runs it with `java --source 21`. Put the class that has `main` first in the block, because the Java source launcher runs the first top-level class. If the page shows the program's output, put it in a `text` block directly after the Java block, with the `<!-- expected-output -->` marker before it. The runner compares the output exactly. Do not print values that change between runs (hash codes, times, thread names, unseeded `Random`). If a block fails, the runner prints the compiler errors for all three forms. Read the form that matches your intent.
 
 Facts:
 

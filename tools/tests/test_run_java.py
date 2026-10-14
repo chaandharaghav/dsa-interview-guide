@@ -128,5 +128,41 @@ class ErrorReportTest(unittest.TestCase):
         self.assertIn("undefinedName", error)
 
 
+@unittest.skipUnless(rj.JDK.joinpath("bin", "java").exists(), "JDK 21 not installed")
+class RunnableBlockTest(unittest.TestCase):
+    FENCE = "`" * 3
+
+    def page(self, code, expected=None):
+        folder = Path(tempfile.mkdtemp()) / "kb" / "lld" / "fundamentals"
+        folder.mkdir(parents=True)
+        text = f"{self.FENCE}java\n{code}\n{self.FENCE}\n"
+        if expected is not None:
+            text += f"\n<!-- expected-output -->\n{self.FENCE}text\n{expected}\n{self.FENCE}\n"
+        path = folder / "01-x.md"
+        path.write_text(text)
+        return path
+
+    MAIN_FIRST = ("class Demo {\n    public static void main(String[] a) "
+                  "{ System.out.println(new Helper().v()); }\n}\n"
+                  "class Helper { int v() { return 3; } }")
+    MAIN_LAST = ("class Helper { int v() { return 3; } }\n"
+                 "class Demo {\n    public static void main(String[] a) "
+                 "{ System.out.println(new Helper().v()); }\n}")
+
+    def test_main_first_with_matching_output_passes(self):
+        self.assertEqual(rj.main([str(self.page(self.MAIN_FIRST, "3"))]), 0)
+
+    def test_wrong_expected_output_fails(self):
+        self.assertEqual(rj.main([str(self.page(self.MAIN_FIRST, "4"))]), 1)
+
+    def test_main_class_not_first_fails(self):
+        self.assertEqual(rj.main([str(self.page(self.MAIN_LAST))]), 1)
+
+    def test_runtime_exception_fails(self):
+        code = ("class Demo { public static void main(String[] a) "
+                "{ throw new IllegalStateException(); } }")
+        self.assertEqual(rj.main([str(self.page(code))]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

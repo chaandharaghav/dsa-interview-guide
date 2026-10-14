@@ -156,6 +156,35 @@ def run_program(main_java: Path, java: Path):
     return None
 
 
+MAIN_METHOD = re.compile(r"\bstatic\s+void\s+main\s*\(")
+
+
+def run_block(block: Block, java: Path, expected):
+    """Run a standalone block that has a main method. Return None or an error text."""
+    name, source = candidates(block.body)[0]
+    command = [str(java), "--source", "21"]
+    if "preview" in block.markers:
+        command.append("--enable-preview")
+    with tempfile.TemporaryDirectory(prefix="kb-java-run-") as work:
+        source_file = Path(work) / name
+        source_file.write_text(source, encoding="utf-8")
+        try:
+            result = subprocess.run(command + [str(source_file)], cwd=work, capture_output=True,
+                                    text=True, timeout=30, env=ENV)
+        except subprocess.TimeoutExpired:
+            return "  program did not finish in 30 seconds"
+    if result.returncode != 0:
+        hint = ""
+        if "can't find main" in result.stderr:
+            hint = ("\n  Put the class that has main() first in the block, because the Java "
+                    "source launcher runs the first top-level class.")
+        lines = [line for line in result.stderr.split("\n") if line.strip()][:6]
+        return f"  program exits with code {result.returncode}\n    " + "\n    ".join(lines) + hint
+    if expected is not None and _normalize(result.stdout) != _normalize(expected):
+        return f"  output differs from the expected-output block\n--- actual ---\n{result.stdout}"
+    return None
+
+
 def find_programs(paths: list) -> list:
     """Main.java files under each folder argument, or next to each file argument."""
     found = set()
@@ -178,8 +207,16 @@ def main(argv: list) -> int:
         return 2
     md_paths = list(paths) + [str(p.parent / "README.md") for p in find_programs(paths)]
     files = sorted(set(md_files(md_paths)))
-    blocks = [b for f in files
-              for b in parse_blocks(f.read_text(encoding="utf-8"), f) if b.lang == "java"]
+    blocks, expected_after = [], {}
+    for f in files:
+        page_blocks = parse_blocks(f.read_text(encoding="utf-8"), f)
+        for index, block in enumerate(page_blocks):
+            if block.lang != "java":
+                continue
+            blocks.append(block)
+            following = page_blocks[index + 1] if index + 1 < len(page_blocks) else None
+            if following is not None and "expected-output" in following.markers:
+                expected_after[id(block)] = following.body
     skipped = [b for b in blocks if "fragment" in b.markers]
     to_compile = [b for b in blocks if "fragment" not in b.markers]
     programs = find_programs(paths)
@@ -196,6 +233,15 @@ def main(argv: list) -> int:
             failures += 1
             print(f"{block.path}:{block.line}: java block does not compile "
                   f"(release {release_of(block)})\n{error}\n")
+    runnable = [b for b, e in zip(standalone, errors)
+                if e is None and release_of(b) == "21" and MAIN_METHOD.search(b.body)]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        run_errors = list(pool.map(
+            lambda b: run_block(b, java, expected_after.get(id(b))), runnable))
+    for block, error in zip(runnable, run_errors):
+        if error:
+            failures += 1
+            print(f"{block.path}:{block.line}: java block does not run\n{error}\n")
     for block in copies:
         if not matches_main(block, main_sources[block.path.parent.resolve()]):
             failures += 1
@@ -207,7 +253,8 @@ def main(argv: list) -> int:
         if error:
             program_failures += 1
             print(error + "\n")
-    print(f"java: {len(to_compile) - failures}/{len(to_compile)} blocks pass, "
+    print(f"java: {len(to_compile) - failures}/{len(to_compile)} blocks pass "
+          f"({len(runnable)} programs run), "
           f"{len(skipped)} fragments skipped, "
           f"{len(programs) - program_failures}/{len(programs)} programs match")
     return 1 if failures or program_failures else 0
