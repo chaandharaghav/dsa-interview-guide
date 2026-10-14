@@ -481,6 +481,7 @@ Each topic page has these sections in this order. The writer may omit a section 
 9. **Extensions:** the follow-up changes interviewers ask for, and how the design handles each one.
 10. **Common Mistakes**
 11. **45-Minute Plan:** what to present in each part of the round.
+12. **Expected Output:** the exact output of `java Main.java`, in a `text` block after `<!-- expected-output -->`.
 
 `Main.java` is a single-file program. The command `java Main.java` runs it without a separate compile step. Its `main` method runs a demo scenario. The scenario prints output that shows the requirements work. The README shows the expected output.
 
@@ -538,8 +539,8 @@ All KB content follows the writing standard from the user's `~/.claude/CLAUDE.md
 
 ### 8.1 Java code
 
-- The runner `tools/run-java.sh` extracts every `java` block from the Markdown files. It compiles each block with JDK 21 (`javac --release 21`).
-- If a block is not a complete program, the runner wraps it in a class with common imports. If that compile also fails, the block needs the marker `<!-- fragment -->` in the line before it. The reviewer must approve each fragment marker.
+- The runner `tools/run_java.py` extracts every `java` block from the Markdown files. It compiles each block with JDK 21 (`javac --release 21`).
+- If a block is not a complete program, the runner wraps it in a class with common imports, first as class members and then as method statements. The support classes `ListNode` and `TreeNode` (`tools/java-support/`) are on the class path. If that compile also fails, the block needs the marker `<!-- fragment -->` in the line before it. The reviewer must approve each fragment marker.
 - Each LLD `Main.java` must run. Its output must match the expected output in the README.
 - Code that uses a preview feature compiles with `--enable-preview`. The page labels the feature as "preview in Java 21".
 - Spring and JPA examples compile against Spring Boot dependencies through Gradle, if the network allows the download. If it does not, the page states "checked against the Spring reference documentation, not compiled".
@@ -560,15 +561,15 @@ All KB content follows the writing standard from the user's `~/.claude/CLAUDE.md
 
 ### 8.4 Mechanical checks
 
-| Script | What it checks |
+| Check | What it checks |
 |---|---|
-| `tools/check-links.py` | Every relative link and every `#anchor` resolves |
-| `tools/check-format.py` | Code line width (rule 6.4), template section headings for each page type |
-| `tools/run-java.sh` | Section 8.1 |
-| `tools/run-sql.sh` | Section 8.2 |
-| `mkdocs build --strict` | The site builds without warnings |
+| `tools/check_format.py` | Code line width (rule 6.4), template section headings for each page type, `priority` front matter, question minimums |
+| `tools/run_java.py` | Section 8.1 |
+| `tools/run_sql.py` | Section 8.2 |
+| `mkdocs build --strict` | Every relative link and every `#anchor` resolves (MkDocs `validation` settings), and the site builds without warnings |
+| `tools/check-all.sh` | Runs the tool unit tests and all four checks above |
 
-Every phase ends only when all five checks pass.
+Every phase ends only when `tools/check-all.sh` exits with code 0. The marker conventions for these tools are in `docs/superpowers/drafting-brief.md`, section 6.
 
 ### 8.5 Opus review checklist
 
@@ -581,7 +582,7 @@ A Sonnet subagent writes a draft. Opus (the main session) then checks the draft 
 5. The page follows the writing rules (section 7).
 6. The page does not repeat content that has its home on another page (section 4). It links to that page.
 7. The terms match `glossary.md`.
-8. The mechanical checks pass.
+8. `tools/check-all.sh` passes.
 9. The depth matches the priority. A P1 page has at least 8 interview questions with model answers. A P2 page has at least 4. A P3 page has at least 2.
 10. The page covers every item that section 3 lists for it.
 
