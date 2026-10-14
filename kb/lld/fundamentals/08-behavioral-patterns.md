@@ -3,7 +3,7 @@ priority: P1
 ---
 # Behavioral Design Patterns
 
-A behavioral pattern describes how objects communicate and how they share responsibility for an algorithm. This page covers the eleven behavioral patterns of the Gang of Four (GoF) catalog that interviews ask most: Chain of Responsibility, Command, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor, and Interpreter (in brief). It also covers Null Object, which is not a GoF pattern but is common in Java code. Each pattern has its own block under [How It Works](#how-it-works).
+A behavioral pattern describes how objects communicate and how they share responsibility for an algorithm. This page covers all eleven behavioral patterns of the Gang of Four (GoF) catalog: Chain of Responsibility, Command, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor, and Interpreter (in brief). It also covers Null Object, which is not a GoF pattern but is common in Java code. Each pattern has its own block under [How It Works](#how-it-works).
 
 ## Why It Matters
 
@@ -17,9 +17,9 @@ LLD interviews use behavioral patterns more than any other family. Case studies 
 
 **Delegation**: an object handles a request by passing it to a second object. Strategy, State, Command, Chain of Responsibility, and Mediator all use delegation. See [OOP](01-oop.md) for composition versus inheritance.
 
-**Polymorphism**: a call on an interface type runs the method of the concrete type at run time. Every behavioral pattern replaces a conditional (`if` or `switch`) with polymorphism. The [SOLID page](02-solid.md) explains why this supports the Open-Closed Principle (add behavior by adding a class, not by editing a method).
+**Polymorphism**: a call on an interface type runs the method of the concrete type at run time. Most behavioral patterns replace a conditional (`if` or `switch`) with polymorphism. Iterator and Memento are exceptions: they hide a representation and do not replace a conditional. The [SOLID page](02-solid.md) explains why this supports the Open-Closed Principle (add behavior by adding a class, not by editing a method).
 
-**Callback**: code that you pass to another piece of code, which calls it later. A listener (Observer), a command, and a strategy are all callbacks. In Java 21 a lambda expression is the shortest way to write a callback when the interface has one abstract method (a functional interface).
+**Callback**: code that you pass to another piece of code, which calls it later. A listener (Observer), a command, and a strategy are all callbacks. Since Java 8, a lambda expression is the shortest way to write a callback when the interface has one abstract method (a functional interface).
 
 **Double dispatch**: choosing the method to run from the run-time types of two objects, not one. Java dispatches on the run-time type of the receiver only. The Visitor pattern simulates double dispatch with two calls. See [Visitor](#visitor).
 
@@ -180,7 +180,7 @@ r-3 approved by director
 r-4 rejected: no approver
 ```
 
-There are two forms of the pattern. In the **first-match form** (above), exactly one handler handles the request. In the **pipeline form**, every handler does its part and then forwards the request, for example a logging chain where each appender writes the record. A servlet `Filter` chain is a pipeline where each filter can also stop the chain. The [logging framework case study](../case-studies/08-logging-framework/README.md) uses a chain.
+There are two forms of the pattern. In the **first-match form** (above), exactly one handler handles the request. In the **pipeline form**, every handler does its part and then forwards the request, for example a logging chain where each appender writes the record. A servlet `Filter` chain is a pipeline where each filter can also stop the chain. The logging framework case study (`kb/lld/case-studies/08-logging-framework/README.md`) uses a chain.
 
 **When to use**
 
@@ -196,8 +196,8 @@ There are two forms of the pattern. In the **first-match form** (above), exactly
 
 **JDK and framework examples**
 
-- `jakarta.servlet.FilterChain` (and `javax.servlet.FilterChain` before Jakarta EE 9): each `Filter` calls `chain.doFilter(request, response)` to pass the request on or does not call it to stop the request.
-- `java.util.logging.Logger` passes a log record to its parent logger when `useParentHandlers` is true. This is a chain of loggers.
+- `jakarta.servlet.FilterChain` (and `javax.servlet.FilterChain` before Jakarta EE 9): each `Filter` calls `chain.doFilter(request, response)` to pass the request on or does not call it to stop the request. This is the pipeline form.
+- `java.util.logging.Logger` publishes a log record to its own handlers. If `getUseParentHandlers()` is true (the default), the logger also publishes the record to the handlers of its parent, and so on up the logger tree. This is the pipeline form: every logger in the chain gets the record, and the parent logger's level does not filter it again.
 - Exception handling is a chain: the JVM looks for a matching `catch` block in each enclosing frame until one matches.
 - Spring Security's `FilterChainProxy` runs a list of security filters in order.
 
@@ -424,6 +424,7 @@ For a small command you can use a lambda: `Runnable` is a command with `execute`
 
 - `java.lang.Runnable` and `java.util.concurrent.Callable` are command interfaces. `ExecutorService.submit` is the invoker that queues them.
 - `javax.swing.Action` is a command that menus and buttons share.
+- `javax.swing.undo.UndoableEdit` is a command with `undo()`, `redo()`, `canUndo()`, and `canRedo()`. `javax.swing.undo.UndoManager` is the history that holds the edits.
 - `java.util.Timer` and `ScheduledExecutorService` store tasks and run them later.
 - Database migrations, job queues, and "undo" stacks in editors use the same idea.
 
@@ -568,9 +569,9 @@ Points to know for an interview:
 
 - **Independent positions.** Each call to `iterator()` returns a new iterator with its own position, so two loops over the same collection do not interfere.
 - **Fail-fast.** The iterators of `ArrayList` and `HashMap` throw `ConcurrentModificationException` if the collection changes during iteration by any means except the iterator's own `remove()`. The javadoc says that this behavior is best-effort and that you must not depend on it for correctness.
-- **Weakly consistent.** The iterators of `ConcurrentHashMap` and `CopyOnWriteArrayList` never throw that exception. `CopyOnWriteArrayList` iterates over a snapshot.
+- **Weakly consistent and snapshot iterators.** The iterators of `ConcurrentHashMap` are weakly consistent: they do not throw `ConcurrentModificationException`, and they may or may not show changes made after the iterator was created. The iterators of `CopyOnWriteArrayList` are snapshot iterators: they iterate over the array as it was when the iterator was created, and they do not throw that exception either.
 - **Internal and external iteration.** `Iterator` is external iteration: the client controls the loop. `Iterable.forEach` and streams are internal iteration: the collection controls the loop and calls your code.
-- **Return an iterator or a view, not the list.** To expose the elements without the representation, return `Iterator`, `Iterable`, a `Stream`, or an unmodifiable view such as `Collections.unmodifiableList` or `List.copyOf`.
+- **Return an iterator or a view, not the list.** To expose the elements without the representation, return `Iterator`, `Iterable`, a `Stream`, an unmodifiable view (`Collections.unmodifiableList`), or an unmodifiable copy (`List.copyOf`). A view shows later changes to the internal list. A copy does not.
 
 **When to use**
 
@@ -585,7 +586,7 @@ Points to know for an interview:
 
 **JDK examples**
 
-- `java.util.Iterator`, `ListIterator`, `Iterable`, and `Spliterator` (the iterator of parallel streams).
+- `java.util.Iterator`, `ListIterator`, `Iterable`, and `Spliterator` (the iterator that every stream uses; it can split its elements for parallel work).
 - Every class in `java.util` that implements `Collection` returns an `Iterator`.
 - `java.util.Scanner` implements `Iterator<String>`. `java.sql.ResultSet` gives a cursor with the same idea (`next()`), but it does not implement `Iterator`.
 
@@ -765,8 +766,9 @@ The trade-off: the mediator can grow into a god object that knows every rule. Ke
 
 **JDK and framework examples**
 
-- `ExecutorService` sits between the code that submits a task and the worker threads. The submitter does not know which worker runs the task.
-- Spring `ApplicationContext` mediates between beans: beans find each other through the container and not by direct construction. Spring MVC's `DispatcherServlet` coordinates the handler mapping, the handler, and the view resolver.
+- `javax.swing.ButtonGroup` makes a set of buttons mutually exclusive. The buttons do not reference each other. When the user selects one button, the group clears the selection of the others. This is the closest JDK match to the GoF intent (GoF use a dialog that coordinates its widgets as the example).
+- Spring MVC's `DispatcherServlet` coordinates the handler mapping, the handler, and the view resolver. These components do not call each other.
+- `ExecutorService` and `Timer` appear in some lists of Mediator examples. They are a weak match: the tasks do not communicate through the executor. The executor is the invoker of Command (see [Command](#command)).
 
 ### Memento
 
@@ -811,7 +813,7 @@ classDiagram
         +restore(snapshot)
     }
     class Snapshot {
-        <<record>>
+        <<immutable>>
         -text : String
         -cursor : int
     }
@@ -913,8 +915,9 @@ Memento and Command both support undo, with different trade-offs. A command stor
 
 **JDK examples**
 
-- `java.io.Serializable` with `ObjectOutputStream` saves the state of an object to bytes, and `ObjectInputStream` restores it. This is a commonly cited use of the idea, but serialization has its own security risks. See the [creational patterns](06-creational-patterns.md) page for the Singleton attack by deserialization.
-- For a snapshot of a collection, `List.copyOf(list)` creates an immutable copy.
+- `javax.swing.undo.StateEditable` and `javax.swing.undo.StateEdit`. The originator implements `StateEditable` (`storeState(Hashtable)` and `restoreState(Hashtable)`). `StateEdit` asks the originator for its state before and after an edit, and restores either state on undo or redo. The caretaker does not interpret the stored state.
+- Some lists cite `java.io.Serializable` as Memento. It is a weak match. Serialization writes the private fields to a byte stream that any code can read and change, which is the opposite of the memento's encapsulation goal. Deserialization of untrusted data is also a security risk. See the [creational patterns](06-creational-patterns.md) page for the Singleton attack by deserialization.
+- For a snapshot of a collection, `List.copyOf(list)` creates an unmodifiable copy. The copy is shallow: it does not copy the elements.
 
 ### Observer
 
@@ -1060,7 +1063,7 @@ A subject holds a strong reference to each listener. If a short-lived object (a 
 Ways to prevent it:
 
 - Unsubscribe in a lifecycle method (`close`, `onDestroy`), or return a handle from `subscribe` as in the example. Use `try`-with-resources if the handle implements `AutoCloseable`.
-- Hold listeners through `WeakReference` so that the subject does not keep them alive. The cost: a listener that nothing else references can disappear, and the subject must clean up cleared references. Use this only if the lifetime rules are clear.
+- Hold listeners through `WeakReference` so that the subject does not keep them alive. The cost: a listener that nothing else references can disappear at the next garbage collection. A lambda passed directly to `subscribe` has no other reference, so it stops receiving events at a random time. The subject must also remove cleared references. Use this only if the lifetime rules are clear.
 - Give a listener the same lifetime as the subject, so that no leak is possible.
 
 A lambda or an inner class that captures `this` keeps the whole enclosing object alive. This is a common source of the leak.
@@ -1287,7 +1290,7 @@ Details to decide:
 - **Stateless states can be shared.** A state class without fields can be one shared instance (a singleton or an enum constant), so that transitions do not allocate objects.
 - **Enum with behavior.** An `enum` whose constants override methods gives the State pattern in one file. See [domain modeling](05-domain-modeling.md) for enums versus class hierarchies.
 
-The [vending machine](../case-studies/07-vending-machine/README.md) and [elevator](../case-studies/04-elevator-system/README.md) case studies use State.
+The vending machine (`kb/lld/case-studies/07-vending-machine/README.md`) and elevator (`kb/lld/case-studies/04-elevator-system/README.md`) case studies use State.
 
 **When to use**
 
@@ -1410,7 +1413,7 @@ The output is:
 
 **Strategy with lambdas.** If the strategy interface has one abstract method, each strategy is a lambda or a method reference. You do not need one class for each strategy. Java already has strategy interfaces: `Comparator<T>` (sort order), `Function<T, R>`, `Predicate<T>`, and `Supplier<T>`. If a strategy needs state or several methods, or has a name that appears in logs and configuration, use a class.
 
-The strategy can be chosen at construction time (as above), passed as a method argument (`list.sort(comparator)`), or swapped with a setter. Recommendation: prefer constructor injection, and make the strategy stateless so that clients can share it between threads. The [parking lot](../case-studies/01-parking-lot/README.md) and [rate limiter](../case-studies/03-rate-limiter/README.md) case studies use Strategy.
+The strategy can be chosen at construction time (as above), passed as a method argument (`list.sort(comparator)`), or swapped with a setter. Recommendation: prefer constructor injection, and make the strategy stateless so that clients can share it between threads. The parking lot (`kb/lld/case-studies/01-parking-lot/README.md`) and rate limiter (`kb/lld/case-studies/03-rate-limiter/README.md`) case studies use Strategy.
 
 **When to use**
 
@@ -1428,7 +1431,8 @@ The strategy can be chosen at construction time (as above), passed as a method a
 
 - `java.util.Comparator` with `Collections.sort`, `List.sort`, `TreeMap`, and `PriorityQueue`.
 - `java.util.concurrent.ThreadPoolExecutor` takes a `RejectedExecutionHandler` strategy for a full queue (`AbortPolicy`, `CallerRunsPolicy`, `DiscardPolicy`, and `DiscardOldestPolicy`) and a `ThreadFactory`.
-- `java.util.zip` and `javax.crypto` choose an algorithm by name or by object (`Cipher.getInstance("AES/GCM/NoPadding")`).
+- `java.util.zip.Checksum` has interchangeable implementations (`CRC32`, `Adler32`, `CRC32C`). `CheckedInputStream` takes any `Checksum` and does not know which algorithm runs.
+- `javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")` selects an algorithm implementation by name at run time. A factory method picks the strategy here.
 - `java.util.function` interfaces in `Stream` operations.
 
 ### Template Method
@@ -1576,16 +1580,16 @@ Template Method uses inheritance. It follows the **Hollywood principle**: the ba
 
 - The steps vary independently, or you need to change them at run time. A subclass is fixed at compile time. Use Strategy.
 - The hierarchy would have one subclass. Keep the code in one class.
-- You call an overridable method from a constructor of the base class. The subclass method runs before the subclass fields are set.
+- The base class would call the steps from its constructor. Do not do this in any form: the subclass method runs before the subclass fields are set.
 
 **JDK and framework examples**
 
 - `java.io.InputStream.read(byte[], int, int)` calls the abstract `read()` for each byte, and a subclass needs to implement only `read()`.
 - `java.util.AbstractList`, `AbstractMap`, and `AbstractCollection` implement most methods through a few abstract ones (`get` and `size` for `AbstractList`).
 - `jakarta.servlet.http.HttpServlet.service` calls `doGet`, `doPost`, and the other `do*` methods.
-- `java.util.concurrent.locks.AbstractQueuedSynchronizer` calls the methods `tryAcquire` and `tryRelease`, which subclasses implement.
+- `java.util.concurrent.locks.AbstractQueuedSynchronizer`: the `final` methods `acquire` and `release` hold the queueing logic and call the protected hooks `tryAcquire` and `tryRelease`. The hooks throw `UnsupportedOperationException` by default, and a subclass (for example the `Sync` class inside `ReentrantLock`) redefines them.
 - Spring `JdbcTemplate` and the other `*Template` classes fix the flow (open, execute, close) and call your callbacks. Their style is Template Method with callbacks (Strategy) and not inheritance.
-- JUnit 5 lifecycle methods (`@BeforeEach`, `@AfterEach`) run in a fixed order around each test.
+- JUnit 5 lifecycle methods (`@BeforeEach`, `@AfterEach`) run in a fixed order around each test. This is the same idea (a fixed flow that calls your code) with annotations instead of overriding.
 
 ### Visitor
 
@@ -1924,11 +1928,11 @@ The tree here is built in code. A real rule engine also needs a **parser** that 
 
 **When not to use**: the grammar is large, because each rule becomes a class and the tree is slow. Use a parser generator (ANTLR), an expression library (Spring Expression Language, MVEL), or a scripting engine. For rules that only developers change, plain Java code or a `Predicate` composed with `and`, `or`, and `negate` is shorter.
 
-**JDK examples**: `java.util.regex.Pattern` compiles a regular expression into an internal tree of nodes and matches against it. `java.text.Format` and its subclasses (`MessageFormat`, `DecimalFormat`) interpret a pattern string. Both are matches by purpose and not by documented structure.
+**JDK examples**: in OpenJDK, `java.util.regex.Pattern` compiles a regular expression into an internal tree of `Node` objects and matches against it. This is an implementation detail, not part of the API. `java.text.Format` and its subclasses (`MessageFormat`, `DecimalFormat`) interpret a pattern string. Both are matches by purpose and not by documented structure.
 
 ### Null Object
 
-Null Object is not a GoF pattern. It appears in *Pattern Languages of Program Design 3* (Woolf, 1998), and Java code uses the idea in many places.
+Null Object is not a GoF pattern. Bobby Woolf described it in the chapter "Null Object" of *Pattern Languages of Program Design 3* (1998), and Java code uses the idea in many places.
 
 **Intent**: provide an object that implements the interface and does nothing, so that clients need no `null` check.
 
@@ -2044,7 +2048,7 @@ Rules for a null object: it is stateless, so one shared instance is enough. It m
 - `Collections.emptyList()`, `emptyMap()`, and `emptySet()` return an immutable empty collection and not `null`.
 - `InputStream.nullInputStream()`, `OutputStream.nullOutputStream()`, `Reader.nullReader()`, and `Writer.nullWriter()` (all since Java 11) do nothing.
 - SLF4J's `org.slf4j.helpers.NOPLogger` is a logger that discards every message.
-- `Comparator.naturalOrder()` and `Function.identity()` are neutral strategies in the same spirit.
+- `Function.identity()` and `UnaryOperator.identity()` are neutral strategies in the same spirit: they return the input unchanged. The Java example below uses `LongUnaryOperator.identity()` as a "no discount" strategy.
 
 ### Comparing the patterns
 
@@ -2119,7 +2123,7 @@ Recommendation: write the straight code first. Add a pattern when you see its tr
 
 ## Java Example
 
-The next program joins five patterns in one order flow. A chain of validation checks (Chain of Responsibility) rejects bad orders. A discount lambda (Strategy) computes the price. An enum with behavior (State) controls the order lifecycle. A list of listeners (Observer) sends notifications. A null object (`AuditLog.NONE`) removes the null checks for the optional audit log. Run it with `java Demo.java` (Java 21).
+The next program joins five patterns in one order flow. A chain of validation checks (Chain of Responsibility) rejects bad orders. The chain here is the light form from the trade-offs table: a list of checks in order, and the loop stops at the first check that rejects the request. A discount lambda (Strategy) computes the price. An enum with behavior (State) controls the order lifecycle. A list of listeners (Observer) sends notifications. A null object (`AuditLog.NONE`) removes the null checks for the optional audit log. Run it with `java Demo.java` (Java 21).
 
 ```java
 import java.util.ArrayList;
@@ -2383,17 +2387,17 @@ audit: rejected o-3
 
     I define `OrderListener` with one method, `onPlaced(OrderEvent)`. `OrderService` keeps a `CopyOnWriteArrayList<OrderListener>`, so a listener can subscribe or unsubscribe during a notification without a `ConcurrentModificationException`. `subscribe` returns a `Runnable` that unsubscribes. The event is an immutable `record`.
 
-    Decisions. First, exceptions: one failing listener must not stop the other listeners, so I catch and log per listener. Second, threads: I notify on the caller's thread by default, so the order of notification is the order of subscription. If a listener is slow, I hand the event to an executor, and I document that listeners must be thread-safe. Third, delivery: an in-memory list loses events if the process stops, so for guaranteed delivery I use a message broker or an outbox table.
+    Decisions. First, exceptions: one failing listener must not stop the other listeners, so I catch and log per listener. Second, order: the list keeps insertion order, so listeners get events in the order of subscription, and I state this in the contract. Third, threads: I notify on the caller's thread by default, so the listener runs before `place` returns and sees events in the order that they happen. If a listener is slow, I hand the event to an executor, and I document that listeners must be thread-safe and that the order across listeners is no longer fixed. Fourth, delivery: an in-memory list loses events if the process stops, so for guaranteed delivery I use a message broker or an outbox table.
 
 ??? question "What is the Visitor pattern, and what is double dispatch?"
 
-    Visitor puts an operation outside a class hierarchy. Each element has `accept(visitor)`, which calls `visitor.visitX(this)`. Java dispatches an overridden method on the run-time type of the receiver only. The first call (`item.accept(visitor)`) selects the code of the real element class. The second call (`visitor.visitBook(this)`) happens where the compiler knows the static type of `this`, so it selects the right overload. Two calls give a choice by two types. This is double dispatch.
+    Visitor puts an operation outside a class hierarchy. Each element has `accept(visitor)`, which calls `visitor.visitX(this)`. Java dispatches an overridden method on the run-time type of the receiver only. The first call (`item.accept(visitor)`) selects the code of the real element class. The second call (`visitor.visitBook(this)`) is a virtual call on the visitor, so it selects the code of the real visitor class (`TaxVisitor` or `ReceiptVisitor`). Two virtual calls give a choice by two run-time types. This is double dispatch. If the visitor methods are overloads with one name (`visit(Book)`, `visit(Food)`), the compiler picks the overload inside `accept`, where the static type of `this` is the element class. A call `visitor.visit(item)` with the static type `Item` cannot do that, which is why the `accept` step exists.
 
     Visitor fits a stable set of element types and a growing set of operations. A new element type edits every visitor. In Java 21, I use a sealed interface with records and a `switch` expression with type patterns instead. The compiler rejects a `switch` without `default` that misses a permitted type, so I keep the safety and drop the boilerplate.
 
 ??? question "Chain of Responsibility: when do you use it, and what are the risks?"
 
-    Use it when more than one object can handle a request, the handler is not known in advance, and the set or the order of handlers changes. Examples: a refund approval by amount, a logging pipeline, a request filter chain, a cash dispenser that tries the 100 note, then the 50 note. Each handler holds the next one and either handles the request or forwards it.
+    Use it when more than one object can handle a request, the handler is not known in advance, and the set or the order of handlers changes. Examples: a refund approval by amount, a logging pipeline, a request filter chain, a cash dispenser that tries the 100 note, then the 50 note. Each handler holds the next one. In the first-match form (refund approval), a handler either handles the request or forwards it. In the pipeline form (filters, logging, the cash dispenser), each handler does its part and forwards the rest: the 100 handler dispenses as many 100 notes as it can and passes the remainder to the 50 handler.
 
     Risks: a request can reach the end of the chain and no one handles it, so I add a final handler that reports the error. A long chain adds calls and makes debugging harder. A cycle in the chain gives an infinite loop. The order of the links is part of the behavior, so I build the chain in one place.
 
@@ -2479,7 +2483,7 @@ audit: rejected o-3
 | Mediator that grows into a god object | One class has all rules and many reasons to change | One mediator for each interaction. Keep the logic of a peer in the peer |
 | Listener that never unsubscribes | Memory leak (lapsed listener problem) | Return a handle from `subscribe`, and unsubscribe in `close` |
 | A failing listener stops the notification loop | Later listeners miss the event | Catch and log exceptions for each listener |
-| Notifying listeners while holding a lock | Deadlock if a listener calls back into the subject | Copy the listener list, release the lock, and then notify |
+| Notifying listeners while holding a lock | A listener is code that the subject does not control. If the listener takes another lock, or waits for a thread that needs the subject's lock, the two threads can deadlock. A slow listener also blocks every caller of the subject | Copy the listener list, release the lock, and then notify |
 | Using `java.util.Observable` | Deprecated since Java 9, unspecified order, class not interface | Define a typed listener interface |
 | State transitions spread over the context and the states | Nobody knows where a transition happens | Keep each transition in the state class or in one table |
 | Strategy chosen by a `switch` inside the context | The `switch` is the problem that Strategy removes | Pass the strategy in, or look it up from a `Map` |
@@ -2506,18 +2510,18 @@ audit: rejected o-3
 | Visitor vs `instanceof` chain | Visitor uses double dispatch and the compiler checks each element type. An `instanceof` chain has no such check | Does the compiler report a missing type? |
 | Interpreter vs Composite | Composite is the structure (a tree). Interpreter adds a grammar and an evaluation on that tree | Does the tree represent sentences of a language? |
 | Null Object vs `Optional` | Null Object hides the absence. `Optional` shows it to the caller | Must the caller act on the absence? |
-| Template Method vs Factory Method | Factory Method is a Template Method step that creates an object. See [creational patterns](06-creational-patterns.md) | Does the overridden step create an object? |
+| Template Method vs Factory Method | A template method often calls a factory method as one of its steps. The factory method is the step that creates an object. See [creational patterns](06-creational-patterns.md) | Does the overridden step create an object? |
 | Facade vs Mediator | A facade is a one-way entry to a subsystem. A mediator coordinates peers that know it. See [structural patterns](07-structural-patterns.md) | Do the subsystem classes call back to the coordinator? |
 
 ## Quick Reference Card
 
 | Pattern | Trigger phrase | Key move | JDK example |
 |---|---|---|---|
-| Chain of Responsibility | "First handler that fits" | Each handler holds the next. Add a final handler | `FilterChain`, nested `Logger` parents |
-| Command | "Undo", "queue", "log" | Request as an object with `execute` and `undo`. History of two stacks | `Runnable`, `Callable`, `Action` |
+| Chain of Responsibility | "First handler that fits" | Each handler holds the next. Add a final handler | `FilterChain`, `Logger` parent handlers |
+| Command | "Undo", "queue", "log" | Request as an object with `execute` and `undo`. History of two stacks | `Runnable`, `Callable`, `Action`, `UndoableEdit` |
 | Iterator | "Loop without knowing the structure" | Implement `Iterable`. Each iterator keeps its own position | `Iterator`, `Iterable`, `Spliterator` |
-| Mediator | "Peers reference each other" | Peers talk to one coordinator that holds the rules | `ExecutorService` (by structure) |
-| Memento | "Snapshot", "rollback" | Immutable snapshot that only the originator can read | `Serializable` (commonly cited) |
+| Mediator | "Peers reference each other" | Peers talk to one coordinator that holds the rules | `javax.swing.ButtonGroup` |
+| Memento | "Snapshot", "rollback" | Immutable snapshot that only the originator can read | `StateEditable` with `StateEdit` |
 | Observer | "When X changes, tell others" | Typed listener list, immutable event, unsubscribe handle | `PropertyChangeListener`, `Flow` |
 | State | "Behavior depends on state" | One class per state. The state sets the next state | `Thread.State` (enum only) |
 | Strategy | "Several ways to do it" | Interface, or a lambda. Inject it | `Comparator`, `RejectedExecutionHandler` |
@@ -2540,7 +2544,7 @@ Rules to remember:
 ## Further Reading
 
 - Gamma, Helm, Johnson, Vlissides. *Design Patterns: Elements of Reusable Object-Oriented Software*. Addison-Wesley, 1994. The original catalog. Read the Intent, Applicability, and Consequences sections of each behavioral pattern.
-- Woolf, Bobby. "The Null Object Pattern". In *Pattern Languages of Program Design 3*. Addison-Wesley, 1998. The source of the Null Object pattern.
+- Woolf, Bobby. "Null Object". In Martin, Riehle, Buschmann (eds.), *Pattern Languages of Program Design 3*, pp. 5–18. Addison-Wesley, 1998. The source of the Null Object pattern.
 - [`java.util.Observable` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Observable.html). The deprecation notice and the three recommended replacements.
 - [`java.util.Observer` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Observer.html). Shows `@Deprecated(since="9")`.
 - [`java.util.concurrent.Flow` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Flow.html). The reactive streams interfaces in the JDK.
@@ -2548,8 +2552,12 @@ Rules to remember:
 - [`java.util.ArrayList` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayList.html). Describes fail-fast iterators and that they are best effort.
 - [`java.util.Comparator` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Comparator.html). The JDK strategy interface.
 - [`java.nio.file.FileVisitor` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/FileVisitor.html). A visitor in the JDK.
-- [`ThreadPoolExecutor.RejectedExecutionHandler` in the `ThreadPoolExecutor` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html). Four rejection policies as strategies.
+- [`java.util.concurrent.ThreadPoolExecutor` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html). The "Rejected tasks" section describes the four nested `RejectedExecutionHandler` policies, which are strategies.
+- [`java.util.logging.Logger` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.logging/java/util/logging/Logger.html). How a logger publishes to its parent's handlers.
+- [`java.util.concurrent.locks.AbstractQueuedSynchronizer` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html). The "Usage" section lists the hook methods that a subclass redefines.
+- [`javax.swing.undo.StateEditable` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.desktop/javax/swing/undo/StateEditable.html). A Memento-style interface in the JDK.
+- [`javax.swing.ButtonGroup` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.desktop/javax/swing/ButtonGroup.html). A Mediator-style coordinator in the JDK.
 - [JEP 409: Sealed Classes](https://openjdk.org/jeps/409). Final in Java 17.
 - [JEP 440: Record Patterns](https://openjdk.org/jeps/440). Final in Java 21.
 - [JEP 441: Pattern Matching for switch](https://openjdk.org/jeps/441). Final in Java 21. Defines the exhaustive `switch` over sealed types.
-- [Jakarta Servlet specification: `FilterChain`](https://jakarta.ee/specifications/servlet/). The filter chain as Chain of Responsibility.
+- [`jakarta.servlet.FilterChain` javadoc (Jakarta Servlet 6.0)](https://jakarta.ee/specifications/servlet/6.0/apidocs/jakarta.servlet/jakarta/servlet/FilterChain.html). The filter chain as Chain of Responsibility.

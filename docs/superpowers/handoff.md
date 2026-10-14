@@ -38,8 +38,8 @@
 | `fundamentals/06-creational-patterns.md` | Yes | Done |
 | `fundamentals/07-structural-patterns.md` | Yes | Done |
 | `fundamentals/08-behavioral-patterns.md` | Yes | Was running at save time. The reviewer also had to change links to case studies into backticked paths |
-| `fundamentals/09-concurrency-in-lld.md` | The drafter was running at save time. Check that the page is complete | Not started |
-| `fundamentals/10-architectural-patterns.md` | Same as 09 | Not started |
+| `fundamentals/09-concurrency-in-lld.md` | Yes (drafter finished after the WIP commit) | Not started |
+| `fundamentals/10-architectural-patterns.md` | Yes (same) | Not started |
 | `fundamentals/11-anti-patterns.md` | Yes | Done |
 | `how-to-approach-lld.md` | Yes | Was running at save time |
 | `machine-coding-round.md` | Yes | Was running at save time |
@@ -55,6 +55,14 @@ Any agent that was running at save time may have stopped partway. In the next se
 5. Batch 3 and Batch 4: the 24 case studies (assignments C1 to C12 in the phase plan). Run at most 5 drafters at the same time.
 6. Batch 5: cheatsheet, practice page, `kb/lld/README.md` index, `kb/lld/.nav.yml` titles, glossary terms, study plan track, and home page status.
 7. Then Phase 2 (HLD): write its plan in the same form as the Phase 1 plan.
+
+## Notes for the 09 and 10 Review
+
+Give these points to the Opus reviewer:
+
+- The pages use short references (`java/07`, `java/08`, `databases/04`, `operating-systems/03`, `hld/fundamentals/16`). Change each one to the full backticked path from the spec inventory, for example `kb/java/07-concurrency-basics.md`.
+- Claims the drafter did not verify: the Fowler catalog summaries for Repository, Unit of Work, Service Layer, and DTO; the MVC dates and attribution (Reenskaug, Xerox PARC) and the MVP/MVVM table; Fowler's CQRS warning (paraphrased); the Guava `Striped`, jcstress, and MapStruct mentions; "ConcurrentHashMap locks the head node of a bin (JDK 8+)"; `LinkedBlockingQueue` uses two locks and `ArrayBlockingQueue` uses one.
+- Page 09 passed 7 runs in a row, so its thread demos are stable.
 
 ## Open Items
 
