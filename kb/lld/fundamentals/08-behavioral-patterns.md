@@ -1568,7 +1568,7 @@ json rows: 2
 2
 ```
 
-Template Method uses inheritance. It follows the **Hollywood principle**: the base class calls the subclass ("do not call us, we call you"). The cost is the coupling of inheritance (see the fragile base class problem on the [OOP page](01-oop.md)). If the varying step is one small function, pass it as a lambda (Strategy) and avoid the subclass.
+Template Method uses inheritance. It follows the **Hollywood principle**: the base class calls the subclass ("do not call us, we will call you"). The cost is the coupling of inheritance (see the fragile base class problem on the [OOP page](01-oop.md)). If the varying step is one small function, pass it as a lambda (Strategy) and avoid the subclass.
 
 **When to use**
 
@@ -1580,7 +1580,7 @@ Template Method uses inheritance. It follows the **Hollywood principle**: the ba
 
 - The steps vary independently, or you need to change them at run time. A subclass is fixed at compile time. Use Strategy.
 - The hierarchy would have one subclass. Keep the code in one class.
-- The base class would call the steps from its constructor. Do not do this in any form: the subclass method runs before the subclass fields are set.
+- The flow must run inside the base class constructor. A constructor that calls an overridable step runs the subclass method before the subclass fields are set. Run the template method after construction instead.
 
 **JDK and framework examples**
 

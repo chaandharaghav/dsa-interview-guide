@@ -37,7 +37,7 @@
 | `fundamentals/05-domain-modeling.md` | Yes | Was running at save time. Same as 04 |
 | `fundamentals/06-creational-patterns.md` | Yes | Done |
 | `fundamentals/07-structural-patterns.md` | Yes | Done |
-| `fundamentals/08-behavioral-patterns.md` | Yes | Was running at save time. The reviewer also had to change links to case studies into backticked paths |
+| `fundamentals/08-behavioral-patterns.md` | Yes | Done (finished after the save; links to case studies are now backticked paths) |
 | `fundamentals/09-concurrency-in-lld.md` | Yes (drafter finished after the WIP commit) | Not started |
 | `fundamentals/10-architectural-patterns.md` | Yes (same) | Not started |
 | `fundamentals/11-anti-patterns.md` | Yes | Done |
