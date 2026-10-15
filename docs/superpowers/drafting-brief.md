@@ -238,6 +238,7 @@ If a link target does not exist yet, write the link anyway only if the assignmen
 
 - Write only the files that your assignment names. Do not edit other files.
 - Do not commit. Do not run `git` commands that change the repo.
+- Other agents work at the same time. Put your scratch files (scripts, temporary copies) in a subfolder of the scratchpad named after your assignment, for example `scratchpad/c9/`, so that no other agent overwrites them.
 - Finish with a review note as your final message. The note lists:
   1. each file written, with its line count;
   2. the output of the three verification commands (the summary lines);
