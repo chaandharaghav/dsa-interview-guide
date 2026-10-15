@@ -66,6 +66,12 @@ Any agent that was running at save time may have stopped partway. In the next se
 Fundamentals 09 and 10: reviewed and committed. All Batch 1 and Batch 2 pages are done. Mermaid check passed for C1 to C5.
 Case-study files are not committed until their review finishes. If the session stops, run `git status` to see the drafted folders, then review the ones whose review did not finish.
 
+## Phase 1 Batch 5 and Phase 2 Status (session 2)
+
+- LLD Batch 5: `kb/lld/README.md` (index), `kb/lld/.nav.yml`, `kb/lld/cheatsheet.md`, and `kb/lld/practice-and-mock-interviews.md` are written but not committed. Commit them after the C12 review, together with the glossary terms, the study-plan LLD track, and the home-page status.
+- Phase 2 plan: `docs/superpowers/plans/2026-10-15-phase-2-hld.md` (committed).
+- Phase 2 drafters running: H1 to H5 (HLD fundamentals 01 to 08). Next: H6 to H11, then D1 to D3, P1, S1 to S12.
+
 ## Next Steps, in Order
 
 1. Run the Opus review of `fundamentals/09` and `fundamentals/10` (the only unreviewed pages; see the notes below). Every other Batch 1 and Batch 2 page is reviewed and committed. No agent is running.
