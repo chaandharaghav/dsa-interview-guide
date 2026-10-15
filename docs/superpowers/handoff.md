@@ -23,8 +23,9 @@
 | Phase | Status |
 |---|---|
 | 0: restructure, site, tools | Done. Reviewed by an Opus reviewer. All findings fixed |
-| 1: LLD | In progress: Batch 1 and Batch 2 drafted, reviews partly done |
-| 2 to 11 | Not started |
+| 1: LLD | Done (2026-10-15): 13 pages, 24 case studies, cheatsheet, practice page, all Opus-reviewed |
+| 2: HLD | In progress (plan: `docs/superpowers/plans/2026-10-15-phase-2-hld.md`) |
+| 3 to 11 | Not started |
 
 ## Phase 1 Detail
 
@@ -68,7 +69,7 @@ Case-study files are not committed until their review finishes. If the session s
 
 ## Phase 1 Batch 5 and Phase 2 Status (session 2)
 
-- LLD Batch 5: `kb/lld/README.md` (index), `kb/lld/.nav.yml`, `kb/lld/cheatsheet.md`, and `kb/lld/practice-and-mock-interviews.md` are written but not committed. Commit them after the C12 review, together with the glossary terms, the study-plan LLD track, and the home-page status.
+- LLD Batch 5: done and committed.
 - Phase 2 plan: `docs/superpowers/plans/2026-10-15-phase-2-hld.md` (committed).
 - Phase 2 drafters running: H1 to H5 (HLD fundamentals 01 to 08). Next: H6 to H11, then D1 to D3, P1, S1 to S12.
 
