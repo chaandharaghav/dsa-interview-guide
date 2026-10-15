@@ -104,25 +104,34 @@ To compute a neighbor, the code in the Java example finds the center of the cell
 | Cell shape changes with latitude | A cell is a rectangle in degrees, so its width in meters falls with the cosine of the latitude, and a "square" cell becomes a thin strip | Pick the precision per region, or compute the cell window from the radius at the query latitude |
 | Dense cells | A cell in a city center holds thousands of objects, while a rural cell holds none | Use a finer precision in dense regions, or use a quadtree that adapts |
 
-**Real systems.** Redis stores geo data as a sorted set and says `GEOADD` interleaves latitude and longitude bits into a 52-bit integer geohash that serves as the sorted-set score. The command documentation says a bounding-box or radius query checks the 1 + 8 areas that cover the shape and discards members outside it. The valid latitudes are -85.05112878 to 85.05112878 degrees. Redis computes distance with the Haversine formula and says the worst-case error is up to 0.5 percent. Elasticsearch and several other stores also use geohash-style cells for geo aggregations.
+**Real systems.** Redis stores geo data as a sorted set and says `GEOADD` interleaves latitude and longitude bits into a 52-bit integer geohash that serves as the sorted-set score. The command documentation says a bounding-box or radius query checks the 1 + 8 areas that cover the shape and discards members outside it. The valid latitudes are -85.05112878 to 85.05112878 degrees. Redis computes distance with the Haversine formula and says the worst-case error is up to 0.5 percent. Elasticsearch offers a `geohash_grid` aggregation that groups `geo_point` and `geo_shape` values into geohash cells of a chosen precision.
 
 ### Quadtree
 
-A **quadtree** divides a square region into four equal quadrants (NW, NE, SW, SE) and divides a quadrant again when it holds too many points. Finkel and Bentley introduced the point-search structure in 1974 ("Quad Trees: A Data Structure for Retrieval on Composite Keys", *Acta Informatica* 4(1)).
+A **quadtree** is a tree in which each internal node has four children, one for each quadrant (NW, NE, SW, SE) of the node's region. Two variants matter:
+
+- The **point quadtree** of Finkel and Bentley (1974, "Quad Trees: A Data Structure for Retrieval on Composite Keys", *Acta Informatica* 4(1)) stores one point in each node and splits the node's region at that point. The shape of the tree depends on the insertion order.
+- The **PR quadtree** (point-region quadtree) splits a square region at its center into four equal quadrants, and stores points only in the leaves. The *bucket* PR quadtree lets a leaf hold up to a *capacity* of points before it splits. The rest of this section and the Java example use the bucket PR quadtree, because a nearby-search index splits a cell when it holds too many points.
+
+The diagram shows the tree that the Java example below builds: 10 points in the square 0 to 100, with a leaf capacity of 3.
 
 ```mermaid
 flowchart TD
-    R["Root: whole region, 10 points"] --> NW["NW: 1 point (leaf)"]
-    R --> NE["NE: 2 points (leaf)"]
-    R --> SW["SW: split, 6 points"]
-    R --> SE["SE: 1 point (leaf)"]
-    SW --> SW1["SW-NW: 1 point"]
-    SW --> SW2["SW-NE: 3 points"]
-    SW --> SW3["SW-SW: split, 2 points"]
+    R["Root: 0..100, 10 points"] --> NW["NW: 1 point, I (leaf)"]
+    R --> NE["NE: 2 points, D E (leaf)"]
+    R --> SW["SW: 0..50, split, 4 points"]
+    R --> SE["SE: 3 points, F G H (leaf)"]
+    SW --> SW1["SW-NW: 0 points"]
+    SW --> SW2["SW-NE: 0 points"]
+    SW --> SW3["SW-SW: 0..25, split, 4 points"]
     SW --> SW4["SW-SE: 0 points"]
+    SW3 --> L1["NW: 1 point, B"]
+    SW3 --> L2["NE: 0 points"]
+    SW3 --> L3["SW: 1 point, A"]
+    SW3 --> L4["SE: 2 points, C J"]
 ```
 
-**Dynamic quadtree.** Each leaf holds up to a *capacity* of points (for example 100). When an insert pushes a leaf over the capacity, the leaf splits into four children and hands its points down. A dense area gets deep, small cells. An empty area stays one large cell. The tree adapts to the data.
+**Dynamic quadtree** (a bucket PR quadtree that changes with the data). Each leaf holds up to a *capacity* of points (for example 100). When an insert pushes a leaf over the capacity, the leaf splits into four children and hands its points down. A dense area gets deep, small cells. An empty area stays one large cell. The tree adapts to the data.
 
 - *Insert*: walk from the root to the leaf that contains the point, add it, and split if the leaf is over capacity. Cost: O(depth).
 - *Range query*: start at the root. If the node's square does not overlap the query rectangle, skip the whole subtree. If the node is a leaf, test its points. Otherwise recurse into the four children.
@@ -142,7 +151,7 @@ A dynamic quadtree lives in memory, because its shape changes. Each node holds f
 | Works in a database column | No | Yes |
 | Rebalancing after bursts | Splits and merges | None, or a re-keying job |
 
-**Depth guard.** If many points have the same coordinates, splitting never separates them, and the tree recurses forever. Cap the depth, or let a leaf at the maximum depth exceed the capacity. The runnable example below omits this guard to stay short.
+**Depth guard.** If more points than the capacity have the same coordinates, splitting never separates them, and the tree recurses until the stack overflows. Cap the depth, and let a leaf at the maximum depth exceed the capacity. The runnable example below does this with `MAX_LEVEL`.
 
 ### S2 Cells
 
@@ -169,19 +178,19 @@ Approximate S2 cell sizes (from the S2 "Cell Statistics" page; the values are av
 | 20 | 77 m2 | Part of a building |
 | 30 | 0.74 cm2 | Leaf |
 
-MongoDB (its `2dsphere` index) and CockroachDB (its spatial index) build on S2 cells. Check the vendor documentation of the product version that you use before you state this in an interview.
+CockroachDB documents that its spatial index uses the S2 library: it divides the space into a quadtree of S2 cells numbered along a Hilbert curve, stores a covering of cells for each shape, and keeps the index as a GIN index from cell to shapes. MongoDB's `2dsphere` index also builds its keys from S2 cell coverings, but the MongoDB manual does not document this: it describes only the behavior of the index. The evidence is MongoDB's issue tracker (for example SERVER-19072, "More compact 2dsphere geo index format", which proposes to store S2 cell IDs as 64-bit integers instead of strings) and conference talks. In an interview, name CockroachDB as the documented example.
 
 ### H3 Hexagons
 
 H3 is Uber's hexagonal hierarchical grid (open source at `h3geo.org`). It divides the globe into hexagonal cells at 16 resolutions, 0 to 15.
 
-**Why hexagons.** Each hexagon has 6 neighbors, and the center of a hexagon is the same distance from the center of each neighbor. A square has 4 edge neighbors at one distance and 4 corner neighbors at a longer distance (the ratio is the square root of 2). With equal neighbor distances, "within *k* rings" approximates a circle well. This suits demand and supply analysis, such as surge pricing, where each cell is a unit of a map and its neighbors matter equally.
+**Why hexagons.** Each hexagon has 6 neighbors, and all 6 share an edge with it. On a flat hexagon grid, the center of a hexagon is the same distance from the center of each neighbor. The H3 documentation ("Aggregation") states that squares have two different neighbor distances, triangles have three, and for hexagons "all neighbors are equidistant". H3 lies on a sphere, so its distances are equal only approximately. A square has 4 edge neighbors at one distance and 4 corner neighbors at a longer distance (the ratio is the square root of 2). With equal neighbor distances, "within *k* rings" approximates a circle well. This suits demand and supply analysis, such as surge pricing, where each cell is a unit of a map and its neighbors matter equally.
 
 **Facts from the H3 documentation.**
 
 - H3 resolutions run from 0 (average hexagon area about 4.36 million km2, 122 cells for the whole Earth) to 15 (average area about 0.9 m2, about 569.7 trillion cells).
 - There are always exactly 12 **pentagons** at every resolution. The shape of an icosahedron (the base shape) forces them. Code that processes cells must accept a pentagon with 5 neighbors.
-- The hierarchy has an aperture of 7: a cell has seven children. The H3 documentation says hexagons do not cleanly subdivide into seven finer hexagons, and that the grid approximates the subdivision by rotating its orientation at each level. A child cell is therefore **not exactly contained** in its parent, so a parent-child relation is an approximation and not an exact containment (unlike geohash and S2).
+- The hierarchy has an aperture of 7: a cell has seven children. The H3 documentation says hexagons do not cleanly subdivide into seven finer hexagons, and that the grid approximates the subdivision by rotating its orientation at each level. A child cell is therefore **not exactly contained** in its parent in geographic terms (unlike geohash and S2). The documentation adds that "logical containment in the index is exact": each cell ID has exactly one parent ID, so the hierarchy of IDs is well defined, but the area of the seven children does not match the area of the parent at the edges.
 
 | Resolution | Average hexagon area (approximate) | Average edge length (approximate) | Typical use |
 |---|---|---|---|
@@ -205,8 +214,8 @@ An **R-tree** (Guttman, 1984) is a balanced tree like a B-tree, but each node st
 **PostGIS.** The PostGIS documentation says that PostGIS uses an R-tree index implemented on top of GiST (Generalized Search Tree), and calls GiST the most commonly used and versatile spatial index method. Practical points:
 
 - `CREATE INDEX ... USING GIST (geom)` builds the index. The `&&` operator compares bounding boxes and uses the index.
-- `ST_DWithin(a, b, distance)` is the radius filter that uses the index. `ST_Distance(a, b) < d` on its own does not use the index efficiently, so write `ST_DWithin`.
-- The `<->` operator returns a distance that a GiST index can use to order results, so `ORDER BY geom <-> point LIMIT k` is an indexed kNN query.
+- `ST_DWithin(a, b, distance)` is the radius filter that uses the index: its documentation says it includes a bounding-box comparison that uses any available index. `ST_Distance(a, b) < d` has no such bounding-box step, so the planner cannot use the spatial index for it. Write `ST_DWithin`.
+- The `<->` operator returns a distance that a GiST index can use to order results, so `ORDER BY geom <-> point LIMIT k` is an indexed kNN query. The PostGIS documentation says the index applies only when `<->` is in the `ORDER BY` clause and one side is a constant. For `geography`, the kNN distance uses a sphere, not a spheroid.
 - The `geography` type measures in meters on a spheroid. The `geometry` type works on a plane in the units of its coordinate system.
 - The PostGIS documentation says SP-GiST (quad-tree and k-d tree style) and BRIN are available for some data. It states that SP-GiST and BRIN have no kNN support at present. Check the documentation of your version.
 
@@ -281,7 +290,7 @@ Recommendation: for a static data set in a database, use PostGIS. For moving obj
 
 ## Java Example
 
-The first program is a geohash encoder, a decoder for the cell bounds, a neighbor function, and a nearby search. It indexes places by 6-character geohash, so each cell is about 1.2 km by 0.6 km (approximate). It then shows the edge problem: two places 21 m apart, one on each side of longitude 0, have no common prefix, and a query of only the query cell misses one of them. The 9-cell query finds both. The encoder reproduces the example from the Wikipedia article: the point 57.64911, 10.40744 gives `u4pruydqqvj` at 11 characters.
+The first program is a geohash encoder, a decoder for the cell bounds, a neighbor function, and a nearby search. It first shows the edge problem: two places 21 m apart, one on each side of longitude 0, have no common prefix. The nearby search then uses a 2 km radius. It indexes places by 5-character geohash, so each cell is about 4.9 km high and, at latitude 51.5, about 3 km wide (approximate). Both sides are at least the radius, so the 9-cell query covers the whole circle. A query of only the query cell finds B and misses A (21 m away, across the prime meridian) and C (1303 m away, in the cell to the north). The 9-cell query finds all three. D is in the north-east cell, but it is 5.6 km away, so the exact-distance filter removes it. E (Paris) is in none of the 9 cells. The encoder reproduces the example from the Wikipedia article: the point 57.64911, 10.40744 gives `u4pruydqqvj` at 11 characters.
 
 ```java
 import java.util.ArrayList;
@@ -305,7 +314,7 @@ public class Main {
         // 3. Neighbors of a cell.
         System.out.println("neighbors(u4pruy) = " + Geohash.neighbors("u4pruy"));
 
-        // 4. The edge problem: two points 30 m apart on both sides of the prime meridian.
+        // 4. The edge problem: two points about 21 m apart on both sides of the prime meridian.
         double lat = 51.5000;
         String west = Geohash.encode(lat, -0.0001, 7);
         String east = Geohash.encode(lat, 0.0002, 7);
@@ -313,14 +322,15 @@ public class Main {
                 + ", common prefix length " + commonPrefix(west, east));
         System.out.printf("distance = %.1f m%n", Geohash.distanceMeters(lat, -0.0001, lat, 0.0002));
 
-        // 5. Nearby search: index places by 6-character geohash, then query 9 cells.
+        // 5. Nearby search with a 2 km radius. A 5-character cell is about 4.9 km high and
+        // 3 km wide at latitude 51.5, so each side is at least the radius and 9 cells suffice.
         List<Place> places = List.of(
                 new Place("A", 51.5000, -0.0001),
                 new Place("B", 51.5000, 0.0002),
                 new Place("C", 51.5100, 0.0100),
                 new Place("D", 51.5400, 0.0500),
                 new Place("E", 48.8566, 2.3522));
-        int precision = 6;
+        int precision = 5;
         Map<String, List<Place>> index = new HashMap<>();
         for (Place p : places) {
             String cell = Geohash.encode(p.lat(), p.lon(), precision);
@@ -368,6 +378,9 @@ class Geohash {
     private static final String BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
 
     static String encode(double lat, double lon, int length) {
+        if (lat < -90 || lat > 90 || lon < -180 || lon > 180 || length < 1) {
+            throw new IllegalArgumentException("bad input: " + lat + ", " + lon + ", " + length);
+        }
         double latMin = -90, latMax = 90, lonMin = -180, lonMax = 180;
         StringBuilder sb = new StringBuilder();
         boolean lonBit = true; // bit 0 is longitude, then the bits alternate
@@ -409,6 +422,9 @@ class Geohash {
         boolean lonBit = true;
         for (char c : hash.toCharArray()) {
             int v = BASE32.indexOf(c);
+            if (v < 0) {
+                throw new IllegalArgumentException("not a geohash character: " + c);
+            }
             for (int i = 4; i >= 0; i--) {
                 int bit = (v >> i) & 1;
                 if (lonBit) {
@@ -458,7 +474,7 @@ class Geohash {
         double dl = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dp / 2) * Math.sin(dp / 2)
                 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
-        return 2 * r * Math.asin(Math.sqrt(a));
+        return 2 * r * Math.asin(Math.sqrt(Math.min(1.0, a))); // rounding can push a above 1
     }
 }
 ```
@@ -472,12 +488,18 @@ neighbors(u4pruy) = [u4prux, u4pruz, u4prvp, u4pruw, u4prvn, u4prut, u4pruv, u4p
 west cell gcpuzzr, east cell u10hbp2, common prefix length 0
 distance = 20.8 m
 query cell only: [B(0 m)]
-query 9 cells:   [A(21 m), B(0 m)]
+query 9 cells:   [A(21 m), B(0 m), C(1303 m)]
 ```
 
-Limits of this code: the `neighbors` method skips the neighbors beyond a pole and does not merge cells near the poles. It computes a neighbor by re-encoding the shifted center, which is simple and correct away from the poles. A cell with 6 characters (about 1.2 km wide at the equator, narrower at latitude 51.5) is smaller than the 2 km query radius, so the 9-cell query in this demo would not cover the whole 2 km radius in general. The demo uses points that are close to the query point so that the border behavior stays visible. In a real service, choose the precision from the radius, as the recommendation above says.
+Edge cases of this code:
 
-The second program is a dynamic point quadtree with a leaf capacity of 3. It prints the tree size, and it shows that a range query visits fewer nodes in a sparse area (5 of 13 nodes) than in a dense one. The counter includes each child that the code looks at before the overlap check rejects it.
+- *180-degree meridian*: `neighbors` wraps the longitude. The east neighbor of `xbpb` (the cell west of longitude 180 at the equator) is `8000` (the cell east of longitude -180).
+- *Poles*: a cell in the top row (or the bottom row) has no neighbor beyond the pole, so `neighbors` returns 5 cells instead of 8. Points on the far side of the pole (longitude plus 180 degrees) can be close in meters, and this code does not find them. That is acceptable for a service that does not serve the polar regions.
+- *Points exactly on a border*: `encode` puts a point that lies exactly on a split line into the upper half (east or north), so each border point belongs to exactly one cell. The point (0, 0) encodes to `s000`. Longitude 180 and latitude 90 are the end of the last interval, so they fall into the last cell (`xbpb` and `upbp` at 4 characters).
+- *Re-encoding*: the method computes a neighbor by moving the center of the cell by one cell size and encoding again. The bounds are sums of powers of two, so the arithmetic is exact in a `double` up to 12 characters.
+- *Precision and radius*: the 9-cell query covers the circle only if each cell side is at least the radius at the query latitude. The demo meets this rule. A 6-character cell (about 0.6 km high) would miss C.
+
+The second program is a dynamic bucket PR quadtree with a leaf capacity of 3. It is the tree in the diagram above. It prints the tree size, and it shows that a range query visits fewer nodes in a sparse area (5 of 13 nodes) than in a dense one. The counter includes each child that the code looks at before the overlap check rejects it.
 
 ```java
 import java.util.ArrayList;
@@ -516,26 +538,36 @@ public class Main {
 record Pt(String name, double x, double y) { }
 
 class Quadtree {
-    private final double x0, y0, x1, y1; // the square [x0, x1) x [y0, y1)
+    private static final int MAX_LEVEL = 20; // depth guard: identical points cannot split forever
+    private final double x0, y0, x1, y1;     // the square [x0, x1) x [y0, y1)
     private final int capacity;
+    private final int level;                  // 0 for the root
     private List<Pt> points = new ArrayList<>(); // null after a split
     private Quadtree[] kids;                     // NW, NE, SW, SE after a split
 
     Quadtree(double x0, double y0, double x1, double y1, int capacity) {
+        this(x0, y0, x1, y1, capacity, 0);
+    }
+
+    private Quadtree(double x0, double y0, double x1, double y1, int capacity, int level) {
         this.x0 = x0;
         this.y0 = y0;
         this.x1 = x1;
         this.y1 = y1;
         this.capacity = capacity;
+        this.level = level;
     }
 
     void insert(Pt p) {
+        if (level == 0 && (p.x() < x0 || p.x() >= x1 || p.y() < y0 || p.y() >= y1)) {
+            throw new IllegalArgumentException("point outside the root square: " + p);
+        }
         if (kids != null) {
             kids[childIndex(p)].insert(p);
             return;
         }
         points.add(p);
-        if (points.size() > capacity) {
+        if (points.size() > capacity && level < MAX_LEVEL) {
             split();
         }
     }
@@ -543,9 +575,12 @@ class Quadtree {
     private void split() {
         double mx = (x0 + x1) / 2;
         double my = (y0 + y1) / 2;
+        int next = level + 1;
         kids = new Quadtree[] {
-            new Quadtree(x0, my, mx, y1, capacity), new Quadtree(mx, my, x1, y1, capacity),
-            new Quadtree(x0, y0, mx, my, capacity), new Quadtree(mx, y0, x1, my, capacity)};
+            new Quadtree(x0, my, mx, y1, capacity, next),  // NW
+            new Quadtree(mx, my, x1, y1, capacity, next),  // NE
+            new Quadtree(x0, y0, mx, my, capacity, next),  // SW
+            new Quadtree(mx, y0, x1, my, capacity, next)}; // SE
         List<Pt> old = points;
         points = null;
         for (Pt p : old) {
@@ -738,10 +773,12 @@ query box (50,35)-(65,50) = [F, G], nodes visited = 5
 ## Further Reading
 
 - Gustavo Niemeyer, geohash (`http://geohash.org/` and the Wikipedia article "Geohash", `https://en.wikipedia.org/wiki/Geohash`). The origin, the base-32 alphabet, and the edge-case discussion.
-- Finkel and Bentley, "Quad Trees: A Data Structure for Retrieval on Composite Keys", *Acta Informatica* 4(1), 1974. The original quadtree. I did not open the paper while drafting this page.
+- Finkel and Bentley, "Quad Trees: A Data Structure for Retrieval on Composite Keys", *Acta Informatica* 4(1), pages 1 to 9, 1974. The original point quadtree.
 - Guttman, "R-Trees: A Dynamic Index Structure for Spatial Searching", ACM SIGMOD 1984. The original R-tree.
 - S2 Geometry documentation, "The S2 Cell Hierarchy" (`https://s2geometry.io/devguide/s2cell_hierarchy`) and "S2 Cell Statistics" (`https://s2geometry.io/resources/s2cell_statistics`). Cell construction, the Hilbert curve, 64-bit IDs, `S2RegionCoverer`, and the size table.
 - H3 documentation (`https://h3geo.org/docs/`), including "Table of Cell Areas" (`https://h3geo.org/docs/core-library/restable`) and "Indexing" (`https://h3geo.org/docs/highlights/indexing`). Resolutions, the 12 pentagons, and the aperture-7 hierarchy.
+- Samet, "The Quadtree and Related Hierarchical Data Structures", *ACM Computing Surveys* 16(2), pages 187 to 260, 1984. The survey that compares the point quadtree, the PR quadtree, and the region quadtree.
+- CockroachDB documentation, "Spatial Indexes" (`https://docs.cockroachlabs.com/docs/stable/spatial-indexes`). An S2-based spatial index in a distributed SQL database.
 - PostGIS documentation, "Spatial Indexes" (`https://postgis.net/docs/using_postgis_dbmanagement.html`). GiST as an R-tree, SP-GiST, BRIN, and the `&&` operator.
 - Redis documentation, `GEOADD` (`https://redis.io/docs/latest/commands/geoadd/`). The 52-bit geohash score, the latitude limits, and the Haversine error bound.
 - Kleppmann, *Designing Data-Intensive Applications*, chapter 3, section on multi-column indexes. Why a B-tree fails for two-dimensional queries.

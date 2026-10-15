@@ -119,7 +119,7 @@ Apache Spark is a batch engine that also runs micro-batch streams. Its data stru
 
 **Lazy evaluation.** The Spark programming guide says that all transformations are lazy: they do not compute a result right away, they remember the transformations applied to a base dataset, and Spark computes them when an *action* needs a result for the driver program. `map`, `filter`, and `reduceByKey` are transformations. `count`, `collect`, `reduce`, and `saveAsTextFile` are actions. Laziness lets Spark see the whole plan, so it can combine steps and skip work.
 
-**Fault tolerance by lineage.** Spark does not replicate each dataset. It remembers the chain of transformations that built each partition (the *lineage*). If a node fails and a partition is lost, Spark computes only that partition again, from its lineage. The guide states that a lost cached partition "will automatically be recomputed using the transformations that originally created it". The programmer can call `persist()` or `cache()` to keep a dataset in memory for reuse. The guide says `cache()` uses the `MEMORY_ONLY` level.
+**Fault tolerance by lineage.** Spark does not replicate each dataset. It remembers the chain of transformations that built each partition (the *lineage*). If a node fails and a partition is lost, Spark computes only that partition again, from its lineage. The guide states that a lost cached partition "will automatically be recomputed using the transformations that originally created it". The programmer can call `persist()` or `cache()` to keep a dataset in memory for reuse. The RDD guide says `cache()` on an RDD uses the `MEMORY_ONLY` level. The Java and Scala Dataset API documents a different default for `cache()` on a DataFrame: `MEMORY_AND_DISK`.
 
 **Narrow and wide transformations, and the shuffle.**
 
@@ -146,7 +146,7 @@ Rules that keep a Spark job fast:
 3. Watch for *data skew*: if one key holds most of the records, one task gets most of the work, and the job waits for it. Fixes: add a random *salt* to the hot key, then aggregate twice; or broadcast the small side of a join, so the large side does not shuffle.
 4. Choose the partition count so that a partition is not too small (task overhead) and not too large (memory spill).
 
-**Structured Streaming.** Spark's stream API uses the same DataFrame operations. The engine runs the query as a series of small batches (*micro-batches*). The Spark documentation states that Structured Streaming can give end-to-end exactly-once semantics, under the condition that each source is replayable (for example Kafka, which lets the engine re-read an offset range) and each sink is idempotent. The engine tracks event-time windows and uses `withWatermark` to bound the state that it keeps and to decide when to drop late data. The engine saves offsets and state to a checkpoint location. The cost of micro-batching is a latency floor of about the batch interval. Flink processes record by record and reaches lower latency.
+**Structured Streaming.** Spark's stream API uses the same DataFrame operations. By default, the engine runs the query as a series of small batch jobs (*micro-batches*). The programming guide says this reaches end-to-end latencies as low as 100 milliseconds. Spark also has a *continuous processing* mode (since Spark 2.3). The guide marks it as experimental, and it gives latencies of about 1 millisecond with only an at-least-once guarantee. The Spark documentation states that Structured Streaming gives end-to-end exactly-once semantics under any failure when three conditions hold: each source is replayable (for example Kafka, which lets the engine re-read an offset range), the engine records the offset range of each trigger with checkpointing and write-ahead logs, and each sink is idempotent. The engine tracks event-time windows and uses `withWatermark` to bound the state that it keeps and to decide when to drop late data. The cost of micro-batching is a latency floor of about the batch interval. Flink processes record by record and reaches lower latency.
 
 ### Event Time, Windows, and Watermarks
 
@@ -222,7 +222,7 @@ sequenceDiagram
     Note over S,K: After a crash: restore checkpoint n, reset source offsets, replay
 ```
 
-**Kafka Streams.** Kafka Streams is a library, not a cluster. The application runs as normal Java processes, and Kafka provides the log, the partitioning, and the group membership. It keeps state in local *state stores* (RocksDB by default). Each state store has a *changelog topic* in Kafka, a compacted log of every update to the store. After a failure or a rebalance, a task rebuilds its store by reading the changelog. *Standby replicas* keep warm copies on other instances to shorten that recovery. The unit of parallelism is the input partition: one *task* handles one partition (per sub-topology). Kafka Streams supports tumbling, hopping, sliding, and session windows. Its *grace period* controls how long a window waits for out-of-order records. A record that arrives after the grace period is dropped for that window.
+**Kafka Streams.** Kafka Streams is a library, not a cluster. The application runs as normal Java processes, and Kafka provides the log, the partitioning, and the group membership. It keeps state in local *state stores*. The DSL's stateful operators use RocksDB by default (`dsl.store.suppliers.class` defaults to the RocksDB store suppliers). Each state store has a *changelog topic* in Kafka, a compacted log of every update to the store. After a failure or a rebalance, a task rebuilds its store by reading the changelog. *Standby replicas* keep warm copies on other instances to shorten that recovery. The setting `num.standby.replicas` sets their number, and its default is 0. The unit of parallelism is the input partition. For each sub-topology, Kafka Streams creates as many *tasks* as the largest partition count among the sub-topology's input topics, and task *i* reads partition *i* of each input topic. Kafka Streams supports tumbling, hopping, sliding, and session windows. Its *grace period* controls how long a window waits for out-of-order records. A record that arrives after the grace period is dropped for that window.
 
 | Aspect | Flink | Kafka Streams | Spark Structured Streaming |
 |---|---|---|---|
@@ -268,7 +268,7 @@ flowchart LR
     V2 --> Q
 ```
 
-Jay Kreps, in "Questioning the Lambda Architecture" (O'Reilly Radar, 2014), describes Lambda as an approach to build stream processing applications on top of MapReduce and Storm. He credits its good idea (keep the input immutable and make reprocessing explicit). He then names its cost: "You implement your transformation logic twice", and the team must maintain code that has to produce the same result in two complex distributed systems. He did not expect that unifying frameworks would remove this cost.
+Jay Kreps, in "Questioning the Lambda Architecture" (O'Reilly Radar, 2014), describes Lambda as an approach to build stream processing applications on top of MapReduce and Storm. He credits its good idea (keep the input immutable and make reprocessing explicit). He then names its cost: "You implement your transformation logic twice, once in the batch system and once in the stream processing system", and the team must maintain code that has to produce the same result in two complex distributed systems. About frameworks that compile one program to both systems (for example Summingbird), he wrote: "This definitely makes things a little better, but I don't think it solves the problem."
 
 **Kappa architecture.** Kreps proposes one processing path. The system retains the full input log in Kafka (for 30 days of reprocessing, set the retention to 30 days). To change the logic:
 
@@ -276,7 +276,7 @@ Jay Kreps, in "Questioning the Lambda Architecture" (O'Reilly Radar, 2014), desc
 2. When the new job catches up, switch the application to the new table.
 3. Stop the old job and delete its table.
 
-Kreps notes that the cost is temporary extra storage and a burst of writes during the reload. He judges the efficiency to be about the same as Lambda, and the gain to be that the team builds, tests, debugs, and operates one system. The name "Kappa" came later from the community. Kreps wrote that it is perhaps too simple to deserve a Greek letter.
+Kreps notes that the cost is temporary extra storage for the second output table during the reload. He calls the efficiency and resource trade-offs between the two approaches "somewhat of a wash", and the gain is that the team builds, tests, debugs, and operates one system. Kreps proposed the name himself: "Maybe we could call this the Kappa Architecture, though it may be too simple of an idea to merit a Greek letter."
 
 | Aspect | Lambda | Kappa |
 |---|---|---|
@@ -287,7 +287,7 @@ Kreps notes that the cost is temporary extra storage and a burst of writes durin
 | Main cost | Two codebases that must agree | Log storage, replay time, and a stream engine that can hold large state |
 | Weak point | Logic drift between the paths | Very large history, or logic that needs data that the log does not hold |
 
-Recommendation: choose Kappa when the stream engine can express the whole computation and the log retention covers the reprocessing horizon (Kafka tiered storage extends retention cheaply). Choose Lambda, or a batch layer next to the stream, when you must recompute over data that is much older than the log, or when the batch job needs full-scan operations that the stream engine does not express. A *lakehouse* variant writes the stream to table formats on object storage (see [storage types](10-storage-types.md)), so that the same table serves streaming reads and batch queries. Flink and Spark also run the same program in a bounded (batch) mode, which narrows the gap that Lambda was built around. The Dataflow paper makes a related point: the Lambda architecture does not solve the completeness problem by producing correct answers sooner. It gives a low-latency estimate, with a promise of correctness once the batch job runs, and the paper's model gives that behavior inside one pipeline through triggers and multiple panes.
+Recommendation: choose Kappa when the stream engine can express the whole computation and the log retention covers the reprocessing horizon (Kafka tiered storage, KIP-405, moves old log segments to object storage and makes long retention cheaper. It was early access in Kafka 3.6 and became production-ready in Kafka 3.9). Choose Lambda, or a batch layer next to the stream, when you must recompute over data that is much older than the log, or when the batch job needs full-scan operations that the stream engine does not express. A *lakehouse* variant writes the stream to table formats on object storage (see [storage types](10-storage-types.md)), so that the same table serves streaming reads and batch queries. Flink runs the same DataStream program as a batch job when you set `execution.runtime-mode` to `BATCH` (the default is `STREAMING`, and `AUTOMATIC` chooses from the boundedness of the sources). Spark runs the same DataFrame logic as a batch job (`spark.read`) or as a stream (`spark.readStream`). Both narrow the gap that Lambda was built around. The Dataflow paper makes a related point: the Lambda architecture does not solve the completeness problem by producing correct answers sooner. It gives a low-latency estimate, with a promise of correctness once the batch job runs, and the paper's model gives that behavior inside one pipeline through triggers and multiple panes.
 
 ### Where Each Appears in a Design
 
@@ -496,7 +496,7 @@ Assumption: the code keeps one global watermark and ignores the `key` field. A r
 
     - Flink: checkpoints with barriers give exactly-once state. For end-to-end, the sink must join the checkpoint (a transactional Kafka producer, or an idempotent sink).
     - Kafka Streams: `processing.guarantee=exactly_once_v2` commits the consumed offsets, the state changes, and the output records in one Kafka transaction.
-    - Spark Structured Streaming: a replayable source plus an idempotent sink.
+    - Spark Structured Streaming: a replayable source, offsets recorded in the checkpoint and write-ahead log, and an idempotent sink. The experimental continuous processing mode gives only at-least-once.
 
     The limit: the guarantee covers state and the transactional sink. It does not cover a side effect outside the transaction, such as an email or a payment API call. For those, I use an idempotency key or an outbox.
 
@@ -589,7 +589,7 @@ Assumption: the code keeps one global watermark and ignores the `key` field. A r
 - **Windows:** tumbling (no overlap), sliding (overlap, size/slide copies), session (gap per key, merging).
 - **Late data:** drop and count, allowed lateness, side output, retraction.
 - **Dataflow questions:** what, where (event time), when (processing time, triggers), how (discarding, accumulating, retracting).
-- **Flink:** keyed state, RocksDB or heap, barrier checkpoints, savepoints for upgrades. **Kafka Streams:** library, RocksDB with changelog topics, `exactly_once_v2`. **Spark SS:** micro-batch, replayable source, idempotent sink.
+- **Flink:** keyed state, RocksDB or heap, barrier checkpoints, savepoints for upgrades. **Kafka Streams:** library, RocksDB with changelog topics, `exactly_once_v2`. **Spark SS:** micro-batch by default (continuous mode is experimental and at-least-once), replayable source, checkpoint, idempotent sink.
 - **Exactly-once is an effect:** at-least-once delivery plus idempotence or an atomic commit. It stops at side effects outside the transaction.
 - **Lambda:** two paths plus a merge, two codebases. **Kappa:** one path, replay a retained log into a new table, switch, delete the old.
 - **Say in the interview:** the latency requirement, the time domain, the watermark bound, the late-data policy, and the sink's duplicate behavior.
@@ -600,7 +600,9 @@ Assumption: the code keeps one global watermark and ignores the `key` field. A r
 - Akidau et al., "The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing", Proceedings of the VLDB Endowment 8(12), 2015 (`https://www.vldb.org/pvldb/vol8/p1792-Akidau.pdf`). Event time, windows, watermarks, triggers, and accumulation modes.
 - Jay Kreps, "Questioning the Lambda Architecture", O'Reilly Radar, 2014 (`https://www.oreilly.com/radar/questioning-the-lambda-architecture/`). The argument for one stream path with replay.
 - Apache Spark, "RDD Programming Guide" (`https://spark.apache.org/docs/latest/rdd-programming-guide.html`). Lazy transformations, shuffle cost, persistence, and recovery.
-- Apache Spark, "Structured Streaming Programming Guide" (`https://spark.apache.org/docs/latest/streaming/index.html`). Micro-batch model, watermarks, and the exactly-once conditions.
+- Apache Spark, "Structured Streaming Programming Guide" (`https://spark.apache.org/docs/latest/streaming/index.html`), with its "Getting Started" page (`https://spark.apache.org/docs/latest/streaming/getting-started.html`) for the exactly-once conditions and its "Performance Tips" page for continuous processing. Micro-batch model, watermarks, and fault tolerance.
+- Apache Flink documentation, "Execution Mode (Batch/Streaming)" (`https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/execution_mode/`). The `execution.runtime-mode` setting.
+- Apache Kafka 3.9.0 release announcement (`https://kafka.apache.org/blog/2024/11/06/apache-kafka-3.9.0-release-announcement/`). Tiered storage (KIP-405) declared production-ready.
 - Apache Flink documentation, "Stateful Stream Processing" (`https://nightlies.apache.org/flink/flink-docs-stable/docs/concepts/stateful-stream-processing/`). Keyed state, state backends, barriers, and savepoints.
 - Apache Flink documentation, "Fault Tolerance Guarantees of Data Sources and Sinks" (`https://nightlies.apache.org/flink/flink-docs-stable/docs/connectors/datastream/guarantees/`). Which connectors give exactly-once.
 - Apache Flink documentation, "Generating Watermarks" (`https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/event-time/generating_watermarks/`). Bounded out-of-orderness and idleness.
