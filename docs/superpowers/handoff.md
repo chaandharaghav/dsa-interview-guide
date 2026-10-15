@@ -67,6 +67,12 @@ Any agent that was running at save time may have stopped partway. In the next se
 Fundamentals 09 and 10: reviewed and committed. All Batch 1 and Batch 2 pages are done. Mermaid check passed for C1 to C5.
 Case-study files are not committed until their review finishes. If the session stops, run `git status` to see the drafted folders, then review the ones whose review did not finish.
 
+## NO NEW AGENTS (2026-10-15, user instruction)
+
+The user said: do not start any more agents. Running agents finish on their own: Opus reviews of S4 (07–08), S7 (13, 16), S8 (14–15), S9 (17–18), S10 (19–20); Sonnet drafters S11 (21–22) and S12 (23–25).
+
+When the session resumes: ask the user before starting agents. Still to do for HLD: Opus reviews of S11 and S12 drafts; Batch 6 (cheatsheet, practice page, `kb/hld/README.md` index, `kb/hld/.nav.yml`, glossary terms, study-plan HLD track, home-page status). Reviewed and committed case studies so far: 01–06, 09–12.
+
 ## RESUMED (2026-10-15, after a stop)
 
 The user stopped the session once to save usage, then resumed it. Running after the resume: Opus reviews of H1, H7, H8, H9; Sonnet drafter D2. Queued: reviews of H10, H11, D1; drafter D3, P1, S1 to S12.
