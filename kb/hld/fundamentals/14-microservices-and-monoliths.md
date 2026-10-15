@@ -27,7 +27,7 @@ Almost every HLD answer draws boxes labeled "service", and the interviewer asks 
 
 **Database per service**: each service owns its data store, and no other service reads or writes that store directly. Other services use the API of the owner.
 
-**Conway's law**: the structure of a system copies the communication structure of the organization that builds it (Melvin Conway, 1968). Service boundaries and team boundaries influence each other, so design both together.
+**Conway's law**: the structure of a system copies the communication structure of the organization that builds it. Melvin Conway stated it in "How Do Committees Invent?" (*Datamation*, April 1968): "organizations which design systems (in the broad sense used here) are constrained to produce designs which are copies of the communication structures of these organizations". Service boundaries and team boundaries influence each other, so design both together.
 
 **API gateway**: one entry point that receives client requests and routes them to services. It also handles cross-cutting concerns such as authentication, rate limiting, and TLS termination.
 
@@ -91,12 +91,12 @@ Why a modular monolith is a serious option: Fowler observes that almost all succ
 |---|---|---|
 | New product, small team (one to two teams), requirements still change | Modular monolith | Cheapest to build and run. Boundaries can still move |
 | One part of the system needs a different scaling profile (an image-processing worker, a search index) | Monolith plus one separate service for that part | Split only where the need is real |
-| Many teams (a rule of thumb is more than 8 to 10 engineers working on the same code) block each other's releases | Microservices along team lines | Independent deployment is the benefit that pays for the cost |
+| Several teams share one deployable unit and block each other's releases | Microservices along team lines | Independent deployment is the benefit that pays for the cost |
 | Parts need different availability or compliance (payments with stricter rules) | Separate service for that part | The isolation is the requirement |
 | Parts need different technology (a machine learning model in Python, the rest in Java) | Separate service for that part | A process boundary is the cleanest way |
 | The team has no automated deployment, no monitoring, and no on-call practice | Monolith | Microservices need infrastructure automation (Lewis and Fowler list it as a characteristic) |
 
-The number "8 to 10 engineers" is a rule of thumb and has no primary source. State the reasoning in an interview (release coordination cost grows with the number of people who share one deployable unit), not the number.
+No primary source gives a team size at which the split pays. State the reasoning in an interview instead of a number: the cost of release coordination grows with the number of teams that share one deployable unit, and a split pays when that cost is higher than the cost of operating a distributed system.
 
 Recommendation: in an interview, state a starting point and the trigger that would change it. For example: "I start with a modular monolith. I split out the payments module when its compliance rules or release rhythm differ from the rest, or when a second team needs to deploy it independently."
 
@@ -111,9 +111,9 @@ Use these criteria in this order.
 5. **Team ownership.** A service should fit one team (Conway's law). A service that two teams must change for each feature has a wrong boundary.
 6. **Scaling and failure isolation.** A part that needs ten times the capacity of the rest, or that must stay up when the rest fails, justifies a boundary.
 
-Tests for a boundary after the split: (a) Does a typical feature change one service? (b) Can one service deploy without a coordinated deploy of another? (c) Does a typical request cross only a few services (two or three)? (d) Does each service own its data? If the answer to (a) or (b) is no, the services are coupled. The section "Failure Modes" names this the distributed monolith.
+Tests for a boundary after the split: (a) Does a typical feature change one service? (b) Can one service deploy without a coordinated deploy of another? (c) Does a typical request cross only a few services? (d) Does each service own its data? If the answer to (a) or (b) is no, the services are coupled. The section "Failure Modes" names this the distributed monolith.
 
-Size: "micro" does not mean a number of lines. A common guideline is that a team can own, understand, and rewrite the service in a short time. Do not give a line count in an interview.
+Size: "micro" does not mean a number of lines. Recommendation: size a service so that one team can own it and understand all of it. Do not give a line count in an interview.
 
 ### Data Ownership and Its Consequences
 
@@ -121,7 +121,7 @@ Lewis and Fowler describe decentralized data management: each service manages it
 
 | Consequence | What changes | What you do |
 |---|---|---|
-| No cross-service join | A query that joins orders and customers across two services is not possible in SQL | **API composition**: the caller (or a gateway) calls both services and joins in memory. For read-heavy views, keep a **read model**: a copy of the needed fields, updated from events (see `kb/hld/fundamentals/16-event-driven-architecture.md`) |
+| No cross-service join | A query that joins orders and customers across two services is not possible in SQL | **API composition**: the caller (or a gateway) calls both services and joins in memory. For read-heavy views, keep a **read model**: a copy of the needed fields, updated from events (see [event-driven architecture](16-event-driven-architecture.md)) |
 | No cross-service ACID transaction | A business action that spans services cannot commit or roll back as one | A **saga**: a sequence of local transactions, each with a compensating action. Lewis and Fowler say to avoid distributed transactions and to accept eventual consistency with compensation. See `kb/hld/distributed-systems/03-distributed-transactions.md` |
 | Data duplication | A service keeps a copy of data that another service owns (the customer name on an order) | Name one owner. Copies are read-only caches that the owner's events update. Accept staleness |
 | Referential integrity is not enforced by the database | An order can point to a customer that was deleted | Treat ids as references that can dangle. Handle "not found". Use soft deletes or events |
@@ -153,7 +153,7 @@ Functions (each is a decision, and a gateway does not have to do all of them):
 | Function | Detail |
 |---|---|
 | Routing | Map a path, host, or header to a service. Hide internal service names and addresses from clients |
-| Authentication | Check the token at the edge, then pass the identity inward. See `kb/hld/fundamentals/21-security-in-design.md` and `kb/security/03-authorization-oauth-oidc-jwt.md` |
+| Authentication | Check the token at the edge, then pass the identity inward. See [security in design](21-security-in-design.md) and `kb/security/03-authorization-oauth-oidc-jwt.md` |
 | Rate limiting | Limit by key before the traffic reaches a service. See [rate limiting algorithms](13-rate-limiting-algorithms.md) |
 | TLS termination | Decrypt at the edge. See [load balancing, DNS, and CDN](02-load-balancing-dns-cdn.md) |
 | Protocol translation | Accept REST from clients and call gRPC services inside. See [communication patterns](09-communication-patterns.md) |
@@ -171,11 +171,11 @@ Gateway versus load balancer versus service mesh: a load balancer spreads traffi
 
 Instances start, stop, and move. A caller needs the address of a healthy instance.
 
-**Registration.** *Self-registration*: each instance registers itself with the registry and sends heartbeats. *Third-party registration*: the platform registers instances (Kubernetes does this for pods that pass their readiness check). In both cases an instance that stops sending heartbeats, or that fails its health check, leaves the list.
+**Registration.** *Self-registration*: each instance registers itself with the registry and sends heartbeats. *Third-party registration*: the platform registers instances. In Kubernetes, the EndpointSlice controller adds the pods that match the selector of a Service, and "if the readiness probe returns a failed state, the EndpointSlice controller removes the Pod's IP address from the EndpointSlices of all Services that match the Pod" (Kubernetes documentation). In both cases an instance that stops sending heartbeats, or that fails its health check, stops receiving traffic.
 
 **Client-side discovery.** The caller queries the registry, gets the list of instances, and picks one itself (round robin, least loaded, and so on). The caller needs a discovery library and a load-balancing policy. The benefit is no extra network hop and full control of the policy. The cost is logic in each client, in each language.
 
-**Server-side discovery.** The caller sends the request to a fixed address (a load balancer or a proxy). The proxy queries the registry and forwards the request. The caller needs no discovery code. The cost is one more hop and one more component to keep available.
+**Server-side discovery.** The caller sends the request to a fixed address (a load balancer or a proxy). The proxy queries the registry and forwards the request. The caller needs no discovery code. The cost is one more hop and one more component to keep available. Kubernetes is an exception to the extra hop: in each of its modes (`iptables`, `ipvs`, `nftables`), `kube-proxy` writes packet-forwarding rules into the kernel of each node, and the kernel of the caller's node rewrites the destination of each new connection to one pod, so no proxy process sits in the path.
 
 ```mermaid
 flowchart LR
@@ -194,7 +194,7 @@ flowchart LR
 
 | Aspect | Client-side | Server-side |
 |---|---|---|
-| Extra hop | No | Yes |
+| Extra hop | No | Yes for a load balancer or a proxy. No for a Kubernetes Service through `kube-proxy` (kernel rules on the caller's node) |
 | Logic in the caller | Yes (library for each language) | No |
 | Load-balancing policy | Chosen by the caller | Chosen by the proxy |
 | Failure of the registry | The caller can use its cached list | The proxy can use its cached list |
@@ -202,8 +202,8 @@ flowchart LR
 
 **Examples from the documentation.**
 
-- **Kubernetes.** A *Service* gives a set of pods one stable name and virtual IP (the cluster IP). The Service controller continuously matches pods to the Service selector and updates the *EndpointSlices* for the Service. The cluster DNS gives each Service a name of the form `my-svc.my-namespace.svc.cluster.local`, and a pod that asks for `my-svc` in its own namespace resolves it through the search domains. A normal Service resolves to the cluster IP, and the node proxy (`kube-proxy`) spreads the connections over the pods. A *headless* Service (`clusterIP: None`) has no cluster IP, and its DNS name resolves to the IP addresses of all selected pods, so a client can do client-side load balancing. This is server-side discovery by default and client-side discovery with a headless Service.
-- **Consul.** Consul keeps a service catalog as the source of truth. A new instance registers with its IP address and port. Health checks remove unhealthy instances from the catalog, so they stop receiving requests. Consumers find services through DNS (or the HTTP API). Consul servers use the Raft protocol for consensus, and agents use gossip through the Serf library.
+- **Kubernetes.** A *Service* gives a set of pods one stable name and virtual IP (the cluster IP). The Service controller continuously matches pods to the Service selector and updates the *EndpointSlices* for the Service. The cluster DNS gives each Service a name of the form `my-svc.my-namespace.svc.cluster.local`, and a pod that asks for `my-svc` in its own namespace resolves it through the search domains. A normal Service resolves to the cluster IP. On each node, `kube-proxy` configures the node "to capture traffic to the Service's `clusterIP` and `port`, and redirect that traffic to one of the Service's endpoints". In the default `iptables` mode (Kubernetes 1.37; the documentation says that a future version changes the default to `nftables`), the rules "by default, select a backend Pod at random" when a client connects, or use session affinity if the Service sets it. A *headless* Service (`clusterIP: None`) has no cluster IP, `kube-proxy` does not handle it, and for a headless Service with a selector, DNS returns A or AAAA records "that point directly to the Pods backing the Service", so a client can do client-side load balancing. This is server-side discovery by default and client-side discovery with a headless Service.
+- **Consul.** Consul keeps a service catalog as the single source of truth. A new instance registers with its IP address and port. Each instance has health checks, and consumers see only the instances whose checks pass. Consumers query Consul in two ways. The DNS interface answers a name of the form `<service>.service.consul`. By default it excludes "only nodes whose health checks are failing as critical", so instances in the warning state stay in the answers; the `only_passing` option also excludes warning instances (Consul DNS configuration reference). The HTTP API endpoint `/v1/health/service/<service>?passing` returns "only nodes with all checks in the `passing` state". A *TTL check* inverts the direction: the application must call `PUT /v1/agent/check/pass/<check_id>` periodically, and "if the check is not set to passing within the specified duration, then the check will be set to the failed state" (Consul HTTP API documentation). Consul servers use the Raft protocol for consensus, and agents use gossip through the Serf library.
 
 **Pitfalls.** DNS caching: a client or a library that caches an address for longer than the instance lives sends requests to a dead address. Respect the TTL (see [load balancing, DNS, and CDN](02-load-balancing-dns-cdn.md)). The registry itself must be highly available, because it is a dependency of every call. A health check that is too shallow (the process runs) sends traffic to an instance that cannot reach its database. A check that is too deep (it calls the database) makes every instance fail at once when the database fails. Use a readiness check for "can serve now" and a liveness check for "must restart" (see [reliability patterns](12-reliability-patterns.md)).
 
@@ -226,11 +226,11 @@ flowchart LR
 
 **Data plane and control plane.** The *data plane* is the set of proxies that carry the traffic. The *control plane* configures them and issues certificates. In Istio, the data plane is Envoy proxies that run as sidecars next to each service, and the control plane is `istiod`, which provides service discovery, configuration, and certificate management. Istio lists mutual TLS between workloads, retries, failovers, circuit breakers, fault injection, and percentage-based traffic splits as features (Istio documentation).
 
-**Mutual TLS (mTLS)**: both sides of a connection present a certificate, so each side proves its identity, and the traffic is encrypted. In Linkerd, mTLS applies by default to all TCP traffic between meshed pods. The `identity` component issues each proxy a certificate bound to the Kubernetes ServiceAccount of the pod, and the certificates expire after 24 hours and rotate automatically (Linkerd documentation).
+**Mutual TLS (mTLS)**: both sides of a connection present a certificate, so each side proves its identity, and the traffic is encrypted. In Linkerd, mTLS applies by default "for all TCP traffic between meshed pods". A certificate authority called `identity` in the control plane issues each proxy a certificate that is bound to the Kubernetes ServiceAccount of the pod. The certificates "expire after 24 hours and are automatically rotated" (Linkerd documentation).
 
 **Retries and timeouts.** Linkerd configures retries and timeouts per route (annotations on HTTPRoute or GRPCRoute resources, or on a Service). Its documentation says to use retries only on idempotent methods and warns that retries add load, so a service that is already under strain can be pushed down further. See [reliability patterns](12-reliability-patterns.md) for retry budgets and storms.
 
-**Sidecar and sidecar-less.** The classic design puts one proxy in each pod. Istio also offers *ambient mode*, which has no sidecar in the application pods. A per-node Layer 4 proxy called `ztunnel` handles mTLS, L4 authorization, and telemetry. An optional *waypoint proxy* (an Envoy deployment) adds Layer 7 features, and you deploy it only where you need them. Sidecar and ambient workloads can coexist in one mesh (Istio documentation). Linkerd uses a proxy in each pod and its documentation does not call it a sidecar on the mTLS page.
+**Sidecar and sidecar-less.** The classic design puts one proxy in each pod. Istio also offers *ambient mode*, which has no sidecar in the application pods. A per-node Layer 4 proxy called `ztunnel` handles mTLS, L4 authorization, and telemetry. An optional *waypoint proxy* (an Envoy deployment) adds Layer 7 features, and you deploy it only where you need them. Sidecar and ambient workloads can coexist in one mesh (Istio documentation). Linkerd uses the sidecar design: its data plane is `linkerd2-proxy`, a micro-proxy written in Rust that runs "as sidecar containers in the pods" (Linkerd architecture documentation).
 
 **What a mesh does not replace.** A mesh does not give business-level fallback logic, idempotency of operations, or authorization based on business rules. Retries from a proxy are safe only for idempotent calls. A mesh also adds a proxy hop (extra latency and CPU for each call), more components to operate, and an upgrade path. Recommendation: adopt a mesh when you run many services, need uniform mTLS and traffic policy, and cannot rely on every team to use the same client library. Do not adopt it for five services.
 
@@ -240,7 +240,7 @@ flowchart LR
 |---|---|---|---|
 | Synchronous request-response | REST or gRPC (see [communication patterns](09-communication-patterns.md)) | The caller needs the answer now (a price, an authorization) | Temporal coupling: the callee must be up. Latency adds up along the chain. Failures propagate |
 | Asynchronous messaging | A queue or a log (see [message queues and streams](08-message-queues-and-streams.md)) | The caller does not need the result now (send an email, update a search index) | Eventual consistency, harder debugging, duplicate messages |
-| Event-driven | Services publish events that others consume (see `kb/hld/fundamentals/16-event-driven-architecture.md`) | Many consumers react to one fact, and the publisher must not know them | Hard to see the whole flow. Schema versioning |
+| Event-driven | Services publish events that others consume (see [event-driven architecture](16-event-driven-architecture.md)) | Many consumers react to one fact, and the publisher must not know them | Hard to see the whole flow. Schema versioning |
 
 Rules for synchronous chains. Every call needs a timeout and a bounded retry with backoff and jitter. A chain multiplies unavailability: if a request needs 10 services in series and each has 99.9% availability, the request has `0.999^10 ≈ 0.990`, that is 99.0%, about 87 hours of downtime a year against about 8.8 hours for one service (the serial availability formula from [scalability and availability](01-scalability-and-availability.md)). Reduce the chain length, make some calls asynchronous, or degrade gracefully when a non-critical call fails. Use a circuit breaker and a bulkhead on each call to a dependency (see [reliability patterns](12-reliability-patterns.md)).
 
@@ -252,10 +252,10 @@ In a monolith, a stack trace shows what a request did. In services, one request 
 
 1. The first service (usually the gateway) creates a **trace id** and a **span id** for the request.
 2. Each service that handles the request creates a child **span** with its own span id, the start time, the duration, and tags.
-3. Each service passes the trace id to the next call in a header. The W3C Trace Context standard defines the `traceparent` header for this purpose.
+3. Each service passes the trace id and its own span id to the next call in a header. The W3C Trace Context Recommendation (Level 1, 2021) defines the `traceparent` header for this purpose. It has four fields: `version`, `trace-id` (16 bytes, the id of the whole trace), `parent-id` (8 bytes, the span id of the caller), and `trace-flags` (for example, the sampled flag).
 4. Each service exports its spans to a collector, which assembles the spans of one trace into a tree.
 
-The model comes from Google's Dapper system (Sigelman et al., 2010), and OpenTelemetry is the common instrumentation standard today. Include the trace id in every log line, so that logs and traces connect. The need grows with the number of services: a request through eight services with no trace is not debuggable. Tracing is a requirement of a microservice system, not an extra. The practice (sampling, tools) lives in `kb/engineering-practice/08-observability.md`, and what to measure in a design is in `kb/hld/fundamentals/20-observability-in-design.md`.
+The model comes from Google's Dapper system (Benjamin H. Sigelman and seven co-authors, Google Technical Report dapper-2010-1, April 2010), and OpenTelemetry is the common instrumentation standard today. Include the trace id in every log line, so that logs and traces connect. The need grows with the number of services: a request through eight services with no trace is not debuggable. Tracing is a requirement of a microservice system, not an extra. The practice (sampling, tools) lives in `kb/engineering-practice/08-observability.md`, and what to measure in a design is in [observability in design](20-observability-in-design.md).
 
 ### Migration with the Strangler Fig Pattern
 
@@ -276,7 +276,7 @@ Steps:
 
 1. Put a **facade** (a gateway or a reverse proxy) in front of the monolith. At first it forwards all traffic to the monolith.
 2. Pick one capability with a clear boundary and low coupling (the "edge" of the system).
-3. Build the new service. Copy or sync the data that it needs (change data capture is one way, see `kb/hld/fundamentals/16-event-driven-architecture.md`).
+3. Build the new service. Copy or sync the data that it needs (change data capture is one way, see [event-driven architecture](16-event-driven-architecture.md)).
 4. Route a small share of traffic for that capability to the new service (a canary), compare results, then route all of it.
 5. Remove the old code in the monolith for that capability.
 6. Repeat for the next capability.
@@ -443,11 +443,13 @@ final class RoundRobinClient {
         if (live.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(live.get(next++ % live.size()));
+        // floorMod keeps the index valid after the counter overflows to a negative value.
+        return Optional.of(live.get(Math.floorMod(next++, live.size())));
     }
 }
 
 // A gateway routes by the longest matching path prefix, then picks an instance of the service.
+// A prefix matches whole path segments only, so "/api/users" does not match "/api/usersettings".
 final class Gateway {
     private final ServiceRegistry registry;
     private final Map<String, String> routes = new TreeMap<>();
@@ -465,7 +467,7 @@ final class Gateway {
         String bestPrefix = null;
         for (String prefix : routes.keySet()) {
             boolean longer = bestPrefix == null || prefix.length() > bestPrefix.length();
-            if (path.startsWith(prefix) && longer) {
+            if (matches(path, prefix) && longer) {
                 bestPrefix = prefix;
             }
         }
@@ -477,6 +479,10 @@ final class Gateway {
                 s -> new RoundRobinClient(registry, s));
         return client.pick().map(address -> address + " (" + service + ")")
                 .orElse("503 no live instance of " + service);
+    }
+
+    private static boolean matches(String path, String prefix) {
+        return path.equals(prefix) || path.startsWith(prefix + "/");
     }
 }
 ```
@@ -514,7 +520,7 @@ How to read the output: at `t=8000` the picker has called four times, so the rot
 
     Procedure: list the business capabilities (orders, payments, inventory). Look for places where one word has two meanings (bounded contexts). Make sure each service owns the data that it changes, because two services that must update the same rows in one transaction probably belong together. Match the boundary to a team (Conway's law).
 
-    Test after the split: a typical feature should change one service, a service should deploy alone, and a typical request should cross two or three services. If not, the boundary is wrong, and the system is a distributed monolith. A split along layers (a "data service" and a "logic service") makes every feature touch every service.
+    Test after the split: a typical feature should change one service, a service should deploy alone, and a typical request should cross only a few services. If not, the boundary is wrong, and the system is a distributed monolith. A split along layers (a "data service" and a "logic service") makes every feature touch every service.
 
 ??? question "Each service has its own database. How do you do a query that needs data from two services?"
 
@@ -522,7 +528,7 @@ How to read the output: at `t=8000` the picker has called four times, so the rot
 
     API composition: the caller (a gateway, a BFF, or the service that needs the data) calls both services and joins the results in memory. It is simple and always fresh. The cost is latency (two calls, in parallel if possible), and the join is in memory, so it does not suit large result sets.
 
-    Read model: a service keeps a copy of the fields it needs, and the owner's events update the copy. Reads are fast and need no call. The cost is eventual consistency and the work to maintain the copy. This is the query side of CQRS (see `kb/hld/fundamentals/16-event-driven-architecture.md`).
+    Read model: a service keeps a copy of the fields it needs, and the owner's events update the copy. Reads are fast and need no call. The cost is eventual consistency and the work to maintain the copy. This is the query side of CQRS (see [event-driven architecture](16-event-driven-architecture.md)).
 
     For analytics across all services, stream events or change data capture into a warehouse.
 
@@ -544,15 +550,15 @@ How to read the output: at `t=8000` the picker has called four times, so the rot
 
 ??? question "Client-side or server-side service discovery? Give examples."
 
-    In client-side discovery, the caller queries the registry and picks an instance. It saves a hop and gives the caller control of the balancing policy, but each client needs a discovery library. gRPC with a name resolver and Netflix Eureka work this way. A Kubernetes headless Service supports it, because its DNS name resolves to the IP addresses of all selected pods.
+    In client-side discovery, the caller queries the registry and picks an instance. It saves a hop and gives the caller control of the balancing policy, but each client needs a discovery library. gRPC works this way: the name resolver gives the client channel a list of server addresses, and a load-balancing policy in the client picks a backend for each RPC. Netflix Eureka works this way too: the Eureka client is a Java library with "a built-in load balancer that does basic round-robin load balancing". A Kubernetes headless Service supports it, because its DNS name resolves to the IP addresses of all selected pods.
 
-    In server-side discovery, the caller sends the request to a fixed address (a load balancer or proxy), and the proxy looks up the instance. The caller needs no library and stays simple, but there is one more hop and one more component to keep available. A normal Kubernetes Service (a cluster IP with `kube-proxy`) and a cloud load balancer work this way.
+    In server-side discovery, the caller sends the request to a fixed address (a load balancer or proxy), and the proxy looks up the instance. The caller needs no library and stays simple, but there is one more hop and one more component to keep available. A normal Kubernetes Service (a cluster IP with `kube-proxy` rules) and a cloud load balancer work this way. With `kube-proxy`, the kernel of the caller's node picks the pod, so the Service costs no extra proxy hop.
 
-    Both need health checks, so that unhealthy instances leave the list. In Kubernetes the readiness probe controls whether a pod receives traffic. In Consul a failing health check removes the instance from the catalog. Mention DNS caching as the common failure.
+    Both need health checks, so that unhealthy instances leave the list. In Kubernetes, a failed readiness probe makes the EndpointSlice controller remove the pod's IP address from the EndpointSlices of the matching Services, so the pod stops receiving Service traffic but keeps running. In Consul, an instance whose check fails no longer appears in DNS answers or in health API results filtered with `passing`. Mention DNS caching as the common failure.
 
 ??? question "What is a service mesh, and when do you need one?"
 
-    A service mesh moves service-to-service networking out of the application code into proxies that sit next to each instance. A data plane of proxies carries the traffic, and a control plane configures the proxies and issues certificates. The mesh gives mutual TLS, retries and timeouts, load balancing, traffic splitting for canary releases, and uniform metrics, without code changes. Istio uses Envoy sidecars controlled by `istiod`. Linkerd uses a proxy in each pod and applies mTLS to meshed TCP traffic by default, with certificates that rotate every 24 hours.
+    A service mesh moves service-to-service networking out of the application code into proxies that sit next to each instance. A data plane of proxies carries the traffic, and a control plane configures the proxies and issues certificates. The mesh gives mutual TLS, retries and timeouts, load balancing, traffic splitting for canary releases, and uniform metrics, without code changes. Istio uses Envoy sidecars controlled by `istiod`. Linkerd uses a sidecar proxy in each pod and applies mTLS to meshed TCP traffic by default, with certificates that expire after 24 hours and rotate automatically.
 
     Need: it pays off with many services, in several languages, where you want uniform mTLS and traffic policy and cannot depend on each team to use the same client library. Cost: an extra proxy hop for each call, more components to run and upgrade, and a learning curve. A mesh does not remove the need for idempotent operations: a proxy retry is safe only for idempotent calls. For five services, a client library and a gateway are enough. Istio's ambient mode removes the per-pod sidecar and uses a per-node proxy for L4, with optional waypoint proxies for L7.
 
@@ -594,11 +600,11 @@ How to read the output: at `t=8000` the picker has called four times, so the rot
 
 ??? question "Where do authentication and authorization happen in a microservice system?"
 
-    Authentication at the edge: the gateway validates the token and passes the identity inward (for example in a signed internal token or headers that only the gateway can set). Service-to-service authentication uses mTLS and workload identity, which a mesh can supply. Authorization decisions that depend on business rules belong in the service that owns the data, because only that service knows the rules. See `kb/hld/fundamentals/21-security-in-design.md`.
+    Authentication at the edge: the gateway validates the token and passes the identity inward (for example in a signed internal token or headers that only the gateway can set). Service-to-service authentication uses mTLS and workload identity, which a mesh can supply. Authorization decisions that depend on business rules belong in the service that owns the data, because only that service knows the rules. See [security in design](21-security-in-design.md).
 
 ??? question "How do you version a service API without breaking callers?"
 
-    Prefer backward-compatible changes: add fields, do not remove or rename them, and make new fields optional. When a break is unavoidable, run two versions in parallel (a version in the path or a header), migrate the callers, and then remove the old version. Consumer-driven contract tests tell the provider which callers depend on which fields. Events need schema versioning too (see `kb/hld/fundamentals/16-event-driven-architecture.md`).
+    Prefer backward-compatible changes: add fields, do not remove or rename them, and make new fields optional. When a break is unavoidable, run two versions in parallel (a version in the path or a header), migrate the callers, and then remove the old version. Consumer-driven contract tests tell the provider which callers depend on which fields. Events need schema versioning too (see [event-driven architecture](16-event-driven-architecture.md)).
 
 ??? question "Should each microservice use a different programming language and database?"
 
@@ -661,15 +667,20 @@ How to read the output: at `t=8000` the picker has called four times, so the rot
 
 ## Further Reading
 
-- [Martin Fowler and James Lewis, "Microservices" (2014)](https://martinfowler.com/articles/microservices.html): the standard description of the characteristics, including decentralized data and design for failure.
+- [James Lewis and Martin Fowler, "Microservices" (March 2014)](https://martinfowler.com/articles/microservices.html): the standard description of the characteristics, including decentralized data and design for failure.
 - [Martin Fowler, "MonolithFirst" (2015)](https://martinfowler.com/bliki/MonolithFirst.html): the argument for starting with a monolith and the microservice premium.
 - [Martin Fowler, "StranglerFigApplication"](https://martinfowler.com/bliki/StranglerFigApplication.html): the pattern for gradual replacement of a legacy system.
-- [Microservices.io, "Database per service" and the pattern language by Chris Richardson](https://microservices.io/patterns/data/database-per-service.html): the data patterns (saga, API composition, outbox).
+- [Microservices.io, "Database per service" and the pattern language by Chris Richardson](https://microservices.io/patterns/data/database-per-service.html): the pattern and its links to saga, API composition, and CQRS. The [transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html) has its own page.
 - [Kubernetes documentation, "Service"](https://kubernetes.io/docs/concepts/services-networking/service/) and ["DNS for Services and Pods"](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/): Services, EndpointSlices, DNS names, headless Services.
-- [Consul documentation, service discovery](https://developer.hashicorp.com/consul/docs/concepts/service-discovery) and [architecture](https://developer.hashicorp.com/consul/docs/architecture): the catalog, health checks, and the Raft and gossip layers.
+- [Kubernetes documentation, "Virtual IPs and Service Proxies"](https://kubernetes.io/docs/reference/networking/virtual-ips/): what `kube-proxy` does in each mode, and the random backend choice in iptables mode.
+- [Kubernetes documentation, "Pod Lifecycle"](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/): readiness probes and their effect on EndpointSlices.
+- [Consul documentation, service discovery](https://developer.hashicorp.com/consul/docs/use-case/service-discovery) and [architecture](https://developer.hashicorp.com/consul/docs/architecture): the catalog, health checks, and the Raft and gossip layers.
+- [Consul HTTP API, health endpoints](https://developer.hashicorp.com/consul/api-docs/health), [agent check endpoints](https://developer.hashicorp.com/consul/api-docs/agent/check), and [DNS configuration reference](https://developer.hashicorp.com/consul/docs/reference/agent/configuration-file/dns): the `passing` filter, TTL checks, and `only_passing`.
 - [Istio documentation, architecture](https://istio.io/latest/docs/ops/deployment/architecture/) and [ambient mode](https://istio.io/latest/docs/ambient/overview/): the data plane, `istiod`, ztunnel, and waypoint proxies.
-- [Linkerd documentation, automatic mTLS](https://linkerd.io/2/features/automatic-mtls/) and [retries and timeouts](https://linkerd.io/2/features/retries-and-timeouts/): default mTLS, certificate rotation, retry configuration, and the warning on retries.
-- [W3C, "Trace Context"](https://www.w3.org/TR/trace-context/): the `traceparent` header.
-- [Sigelman et al., "Dapper, a Large-Scale Distributed Systems Tracing Infrastructure" (Google, 2010)](https://research.google/pubs/dapper-a-large-scale-distributed-systems-tracing-infrastructure/): the origin of the span and trace model.
-- Eric Evans, *Domain-Driven Design* (2003): bounded contexts. Sam Newman, *Building Microservices*, 2nd edition (O'Reilly, 2021): boundaries, migration, and operations.
+- [Linkerd documentation, automatic mTLS](https://linkerd.io/docs/features/automatic-mtls/), [retries and timeouts](https://linkerd.io/docs/features/retries-and-timeouts/), and [architecture](https://linkerd.io/2/reference/architecture/): default mTLS, certificate rotation, retry configuration, the warning on retries, and the sidecar proxy.
+- [Netflix Eureka wiki, "Eureka at a glance"](https://github.com/Netflix/eureka/wiki/Eureka-at-a-glance) and [gRPC, "Custom Load Balancing Policies"](https://grpc.io/docs/guides/custom-load-balancing/): two examples of client-side discovery and load balancing.
+- [W3C Recommendation, "Trace Context" Level 1 (23 November 2021)](https://www.w3.org/TR/trace-context/): the `traceparent` header.
+- [Sigelman et al., "Dapper, a Large-Scale Distributed Systems Tracing Infrastructure" (Google Technical Report dapper-2010-1, April 2010)](https://research.google/pubs/dapper-a-large-scale-distributed-systems-tracing-infrastructure/): the origin of the span and trace model.
+- [Melvin E. Conway, "How Do Committees Invent?" (*Datamation*, April 1968)](https://www.melconway.com/Home/Committees_Paper.html): the paper behind Conway's law.
+- Eric Evans, *Domain-Driven Design: Tackling Complexity in the Heart of Software* (Addison-Wesley, 2003): bounded contexts. Sam Newman, *Building Microservices*, 2nd edition (O'Reilly, 2021): boundaries, migration, and operations.
 - Related pages: [scalability and availability](01-scalability-and-availability.md), [load balancing, DNS, and CDN](02-load-balancing-dns-cdn.md), [choosing a database](04-choosing-a-database.md), [message queues and streams](08-message-queues-and-streams.md), [communication patterns](09-communication-patterns.md), [reliability patterns](12-reliability-patterns.md), [rate limiting algorithms](13-rate-limiting-algorithms.md).
