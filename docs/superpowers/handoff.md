@@ -52,7 +52,7 @@ Any agent that was running at save time may have stopped partway. In the next se
 |---|---|---|---|
 | C1 | 01-parking-lot, 02-lru-and-lfu-cache | Yes | Done, committed |
 | C2 | 03-rate-limiter, 04-elevator-system | Yes | Done, committed |
-| C3 | 05-movie-ticket-booking, 06-splitwise | Yes | Running |
+| C3 | 05-movie-ticket-booking, 06-splitwise | Yes | Done, committed |
 | C4 | 07-vending-machine, 08-logging-framework | Yes | Done, committed |
 | C5 | 09-tic-tac-toe, 10-snake-and-ladder | Yes | Done, committed |
 | C6 | 11-chess, 12-atm | Yes | Running |
