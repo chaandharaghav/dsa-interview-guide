@@ -279,7 +279,7 @@ Two designs:
 1. **Pub-sub channel per user or per room.** Each gateway subscribes to the channel of each user that it holds. A sender publishes to the channel. Redis Pub/Sub, Kafka, or NATS can carry it. The Redis documentation states that Pub/Sub "exhibits at-most-once message delivery semantics": if a subscriber cannot handle a message (for example after a network disconnect), "the message is forever lost". So a disconnected gateway misses messages. Store messages in a database as well, and let the client fetch what it missed on reconnect. Redis Streams store messages and support at-least-once delivery, if the design needs that from Redis.
 2. **Connection registry.** A shared store (for example Redis) maps `userId` to `gatewayId`. The sender looks up the gateway and calls it directly. The registry entry has a TTL that the gateway refreshes, so that entries of crashed gateways expire.
 
-The gateway tier is stateful, so it scales by connection count, not by request rate. Keep business logic out of it. The gateway only holds connections and forwards messages, and stateless services behind it do the work. The chat case study (`kb/hld/case-studies/06-chat-system.md`) uses this design.
+The gateway tier is stateful, so it scales by connection count, not by request rate. Keep business logic out of it. The gateway only holds connections and forwards messages, and stateless services behind it do the work. The [chat case study](../case-studies/06-chat-system.md) uses a variant of the connection registry: each gateway holds one lease for all its entries, instead of a TTL on each entry, so that a crashed gateway's entries expire together and a restarted gateway cannot revive them.
 
 ### Connection-Scale Arithmetic
 
