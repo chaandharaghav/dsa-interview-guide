@@ -23,7 +23,7 @@ Consensus is the problem of making several nodes agree on one value even when so
 
 **Leader**: a node that orders the commands. Followers accept the order. If the leader fails, the nodes elect a new leader.
 
-**Term (Raft)**: a number that counts elections. Each term has at most one leader. The term works as a logical clock (see [failures and time](01-failures-and-time.md)): a node that sees a larger term learns that its information is old. Paxos calls the same idea a *ballot number*, and ZooKeeper calls it an *epoch*.
+**Term (Raft)**: a number that counts elections. Each term has at most one leader. The term works as a logical clock (see [failures and time](01-failures-and-time.md)): a node that sees a larger term learns that its information is old. Paxos calls the same idea a *proposal number* (a *ballot number* in "The Part-Time Parliament"), and ZooKeeper calls it an *epoch*.
 
 **Log entry**: one command, with its position (index) and the term in which the leader received it.
 
@@ -73,7 +73,7 @@ Each node is in one of three states.
 ```mermaid
 stateDiagram-v2
     [*] --> Follower
-    Follower --> Candidate: election timeout, no leader heard
+    Follower --> Candidate: election timeout, no AppendEntries from leader and no vote granted
     Candidate --> Candidate: election timeout, split vote, new term
     Candidate --> Leader: receives votes from a majority
     Candidate --> Follower: sees a leader or a larger term
@@ -91,13 +91,13 @@ Time is divided into terms. A term starts with an election. If a candidate wins,
 
 #### Leader election
 
-A follower that does not hear from a leader for one election timeout becomes a candidate. It does these steps:
+A follower becomes a candidate if one election timeout passes without an `AppendEntries` from the current leader and without the follower granting its vote to a candidate (Figure 2 of the paper). It does these steps:
 
 1. It increments `currentTerm`, votes for itself, and resets its election timer.
 2. It sends `RequestVote` to all other nodes in parallel.
 3. Each node that receives it grants its vote if all of these conditions hold: the candidate's term is not smaller than the node's term, the node has not voted for a different candidate in this term, and the candidate's log is at least as up to date as the node's log. The node stores its vote on disk before it replies.
 4. If the candidate receives votes from a majority (counting its own), it becomes leader and immediately sends heartbeats to all nodes to establish its authority.
-5. If the candidate receives `AppendEntries` from a node with a term that is not smaller than its own, it returns to follower.
+5. If the candidate receives `AppendEntries` from a server that claims to be leader, with a term that is not smaller than its own, it recognizes that leader and returns to follower. If any RPC request or response carries a larger term, it also returns to follower.
 6. If neither happens before the election timeout (a split vote), the candidate starts a new election with a larger term.
 
 **Up to date.** The voter compares the last entries of the two logs. The log with the larger last term is more up to date. If the last terms are equal, the longer log is more up to date. This rule is the *election restriction*. It makes sure that a new leader has all committed entries, because a committed entry is on a majority, and a candidate needs a majority of votes, so at least one voter has the entry and refuses a candidate that lacks it.
@@ -130,7 +130,11 @@ The numbers of the entries in the diagram are an example. If the election splits
 
 **Timing requirement.** Raft stays available when `broadcastTime << electionTimeout << MTBF`, where `broadcastTime` is the time to send an RPC to every node in parallel and receive the responses, and MTBF is the mean time between failures of one node. The paper states that broadcast time may range from 0.5 ms to 20 ms depending on the storage technology (because the receiver writes to disk before it answers), and that the election timeout is therefore likely between 10 ms and 500 ms. The paper recommends a conservative value of 150 to 300 ms. Safety does not depend on timing. Only the availability does.
 
-**A node that returns from a partition.** A node that was cut off keeps incrementing its term each time its election timeout fires, and it does not win because the other nodes do not vote for it. When it reconnects, its large term makes the current leader step down, and the cluster runs a new election, although nothing was wrong. Ongaro's dissertation describes a *pre-vote* phase to avoid this: a candidate first asks whether a majority would vote for it, without changing any term. The paper (section 6) describes a related rule: a node that hears from a current leader within the minimum election timeout ignores `RequestVote`.
+**A node that returns from a partition.** A node that was cut off keeps incrementing its term each time its election timeout fires, and it does not win because the other nodes do not vote for it. When it reconnects, its large term reaches the cluster "either through the server's RequestVote requests or through its AppendEntries response" (Ongaro's dissertation, section 9.6), the current leader steps down, and the cluster runs a new election, although nothing was wrong.
+
+The dissertation describes the *Pre-Vote* extension to avoid this: "a candidate only increments its term if it first learns from a majority of the cluster that they would be willing to grant the candidate their votes (if the candidate's log is sufficiently up-to-date, and the voters have not received heartbeats from a valid leader for at least a baseline election timeout)". Both conditions matter. The dissertation (section 4.2.3) shows that a check of the log alone does not stop a disruptive server. A partitioned node cannot increment its term while it is cut off, and after it reconnects, the other nodes still hear from the leader, so they refuse the pre-vote. The dissertation recommends Pre-Vote "in deployments that would benefit from additional robustness". etcd's Raft library (`go.etcd.io/raft/v3`) has a `PreVote` field in its `Config`, documented as enabling "the Pre-Vote algorithm described in raft thesis section 9.6".
+
+The paper (section 6) describes a related rule for removed servers: "if a server receives a RequestVote RPC within the minimum election timeout of hearing from a current leader, it does not update its term or grant its vote". This rule does not cover the rejoining node completely, because the node's large term also reaches the leader in its `AppendEntries` responses.
 
 #### Log replication
 
@@ -164,7 +168,7 @@ The steps:
 2. It sends `AppendEntries` to all followers in parallel. Each message carries the entries that follow `prevLogIndex`.
 3. A follower accepts the message only if its log has an entry at `prevLogIndex` with the term `prevLogTerm`. This is the *consistency check*. If the check passes, the follower deletes any existing entry that conflicts with a new one (same index, different term) and all entries after it, appends the new entries, and replies success.
 4. When the entry is stored on a majority (the leader counts itself), the leader marks it committed, applies the command to its state machine, and replies to the client.
-5. The leader includes `leaderCommit` in later messages. A follower sets its `commitIndex` to the smaller of `leaderCommit` and the index of its last new entry, and applies the committed entries in order.
+5. The leader includes `leaderCommit` in later messages. If `leaderCommit` is larger than the follower's `commitIndex`, the follower sets its `commitIndex` to the smaller of `leaderCommit` and the index of its last new entry, and applies the committed entries in order. The condition keeps `commitIndex` from moving backward.
 
 **Log matching.** Two properties follow from the consistency check and from the rule that a leader creates at most one entry for each index in a term: if two entries in different logs have the same index and term, they store the same command, and the logs are identical in all entries up to that index.
 
@@ -210,9 +214,15 @@ The paper uses **joint consensus**, a two-phase change:
 1. The leader writes a log entry for a joint configuration `C_old,new`. A node uses the latest configuration in its log as soon as it appends it, even before it is committed. While `C_old,new` is active, an election or a commit needs a separate majority from the old configuration and a separate majority from the new one. Nodes from both configurations can be leader.
 2. When `C_old,new` is committed, the leader writes an entry for `C_new`. When `C_new` is committed, the old configuration is irrelevant, and nodes that are not in `C_new` can shut down.
 
-No point exists at which `C_old` and `C_new` can both decide alone. The paper also covers three issues. A new node first joins as a non-voting member and catches up, so that it does not slow commits. A leader that is not in `C_new` steps down after it commits `C_new`. A removed node can disrupt the cluster by running elections, and the rule that ignores `RequestVote` within the minimum election timeout of a leader's heartbeat prevents it.
+No point exists at which `C_old` and `C_new` can both decide alone. The paper also covers three issues. A new node first joins as a non-voting member and catches up, so that it does not slow commits. A leader that is not in `C_new` steps down after it commits `C_new`. A removed node can disrupt the cluster by running elections with new terms, and the rule that ignores `RequestVote` within the minimum election timeout of hearing from a current leader helps avoid it (the paper's wording).
 
-Ongaro's dissertation (2014) also describes a simpler method: change one node at a time. Any majority of the old configuration and any majority of the new configuration overlap when the two differ by one node, so no joint phase is needed. Many implementations use this method. The etcd FAQ says that, when you replace a failed member, you remove it first and then add its replacement.
+Ongaro's dissertation (2014, chapter 4) describes a simpler method: add or remove one server at a time. "When adding a single server to a cluster or removing a single server from a cluster, any majority of the old cluster overlaps with any majority of the new cluster", so the leader can switch directly to the new configuration with no joint phase. The rules:
+
+1. The leader appends the new configuration `C_new` as a log entry. Each server uses the latest configuration in its log as soon as it appends it, committed or not, and the leader counts the majority of `C_new` to commit the entry.
+2. The change is complete when the `C_new` entry is committed. The leader does not start another change before this point, because "overlapped configuration changes could degrade to unsafe situations".
+3. The leader does not append a configuration entry until it has committed an entry from its current term. Ongaro reported in 2015, on the raft-dev mailing list, that the algorithm in the dissertation had a safety bug without this rule: two concurrent changes across a change of leader could produce majorities that do not overlap. The fix he gave is "a leader may not append a new configuration entry until it has committed an entry from its current term". In practice, the leader waits until the no-op of its term is committed. Joint consensus does not have this bug.
+
+A larger change, for example replacing three servers, runs as a series of single-server changes. The dissertation recommends the single-server method over joint consensus, "since handling arbitrary changes requires extra complexity". The etcd FAQ says: "When replacing an etcd node, it's important to remove the member first and then add its replacement".
 
 #### Log compaction
 
@@ -226,7 +236,7 @@ A read can go through the log, which is slow, or it can be answered by the leade
 
 #### Raft in production
 
-The Raft website lists implementations. Etcd, Consul, CockroachDB, and TiKV are well-known users of Raft. For etcd, the documentation states that Raft is leader-based, that the leader handles all requests that need consensus, and that a follower forwards such a request to the leader.
+The Raft website lists implementations. These systems document their use of Raft: etcd, Consul ("Raft is a consensus algorithm that Consul implements"), CockroachDB (each range of data has its own Raft group), and TiKV (its README describes "the implementation of the Raft consensus algorithm in Rust"). For etcd, the FAQ states: "Raft is leader-based; the leader handles all client requests which need cluster consensus", and "Any request that requires consensus sent to a follower is automatically forwarded to the leader".
 
 ### Paxos in brief
 
@@ -285,8 +295,10 @@ sequenceDiagram
     B->>ZK: watch /election/guid-n_0000000001
     C->>ZK: watch /election/guid-n_0000000002
     Note over A: A crashes. Its session expires
-    ZK-->>B: znode 0000000001 deleted
-    Note over B: B is now the smallest. B is leader
+    ZK-->>B: watch event: znode 0000000001 deleted
+    B->>ZK: getChildren /election
+    ZK-->>B: 0000000002, 0000000003
+    Note over B: B has the smallest number. B is leader
 ```
 
 Watching only the next znode avoids the *herd effect*: if all candidates watched the leader's znode, each leader failure would send a notification to every candidate, and every candidate would then read the children. The ZooKeeper documentation points out that this makes a spike of operations on the servers.
@@ -308,7 +320,13 @@ etcd stores keys in a replicated, ordered key-value store on top of Raft. Its do
 - Each change to the store gets a **revision**, and the documentation states that operations occur in a total order, which the revision implies. A key records the revision at which it was created and the revision of its last modification.
 - A **watch** reports changes to a key or a range, in order.
 
-The election pattern uses these primitives: each candidate creates a key under an election prefix, attached to its own lease, in a transaction that records the creation revision. The candidate with the lowest creation revision is the leader. The others watch the key that precedes theirs, as in the ZooKeeper recipe. If the leader stops renewing its lease, the key is deleted, the watcher sees the event, and the next candidate takes over. The etcd client libraries provide this pattern (the Go client has an `Election` type in its `concurrency` package). The creation revision, which increases with each election, is a usable fencing token.
+The election pattern uses these primitives. The Go client implements it in the `Election` type of its `concurrency` package, and the package documentation states that "only one can be the leader at a time". The mechanism below comes from the package source (`election.go` and `key.go`), not from the documentation:
+
+1. `Campaign` writes a key under the election prefix, named after the candidate's lease ID and attached to that lease, in a transaction that creates the key only if it does not exist. The key's creation revision records the candidate's place in line.
+2. The candidate waits until every key under the prefix with a smaller creation revision is deleted. To wait, it reads the key with the largest creation revision below its own and watches that one key for deletion, then repeats. This is the predecessor watch of the ZooKeeper recipe.
+3. When no older key is left, the candidate with the lowest creation revision is the leader. If the leader stops renewing its lease, the lease expires, etcd deletes the key, the next candidate's watch fires, and it takes over.
+
+`Election.Rev()` "returns the leader key's creation revision, if elected". The creation revision increases with each new leader, so it is a usable fencing token.
 
 The same caution as with ZooKeeper applies. The lease expires on the server's time, and the leader finds out later. A leader that pauses can wake up after the lease expired. Check the token at the resource.
 
@@ -316,7 +334,11 @@ The same caution as with ZooKeeper applies. The lease expires on the server's ti
 
 #### Leader election inside a database or a message broker
 
-The same pattern appears in databases and brokers. Older versions of Kafka elected the controller through a ZooKeeper ephemeral znode, and newer versions use a Raft-based controller quorum. MongoDB replica sets elect a primary with a protocol that is based on Raft. PostgreSQL has no built-in election, so tools such as Patroni use a distributed key-value store (etcd, ZooKeeper, or Consul) as the consensus layer (see [replication](../fundamentals/05-replication.md)).
+The same pattern appears in databases and brokers.
+
+- **Kafka.** Older versions of Kafka elected the controller through a ZooKeeper ephemeral znode. KIP-500 replaced ZooKeeper with a self-managed metadata quorum (KRaft), and KIP-595 describes its protocol as "a sort of Raft dialect which is heavily influenced by Kafka's log replication protocol". The Kafka 4.0 upgrade notes state: "Apache Kafka 4.0 only supports KRaft mode - ZooKeeper mode has been removed."
+- **MongoDB.** Replica sets with protocol version 1 (`pv1`) elect a primary with terms. The MongoDB documentation states that "`pv1` uses the concept of term" and that it "prevents double voting" through terms. The documentation does not name Raft. MongoDB's engineers describe the protocol as one that "derives from Raft", with replicas that pull new entries instead of a leader that pushes them (Zhou and Mu, NSDI 2021).
+- **PostgreSQL.** PostgreSQL has no built-in election, so tools such as Patroni use an external store as the consensus layer. The Patroni documentation lists "ZooKeeper, etcd, Consul or Kubernetes" (see [replication](../fundamentals/05-replication.md)).
 
 ### What consensus costs
 
@@ -324,10 +346,10 @@ The same pattern appears in databases and brokers. Older versions of Kafka elect
 |---|---|
 | Latency of a write | One round trip from the leader to a majority, plus the time to flush the log to disk on each node of that majority. The Raft paper gives 0.5 to 20 ms for the broadcast time, depending on storage |
 | Throughput | The leader handles all writes, so its CPU, network, and disk limit the throughput. More nodes do not add write throughput. Batching and pipelining raise it |
-| Quorum size | A write needs `⌊n/2⌋ + 1` nodes. More nodes make the quorum larger and the slowest node of the quorum matters more. The etcd FAQ says that write performance suffers with larger clusters |
+| Quorum size | A write needs `⌊n/2⌋ + 1` nodes. More nodes make the quorum larger and the slowest node of the quorum matters more. The etcd FAQ says that in a larger cluster "the write performance suffers because data must be replicated across more machines" |
 | Availability | The cluster stops accepting writes when it has no majority. It tolerates `⌊(n-1)/2⌋` failures |
 | Wide-area latency | If the nodes are in different regions, every commit waits for the round trip to the nearest majority. This is derived: the leader needs `⌊n/2⌋` follower replies, so the latency is the round trip to the `⌊n/2⌋`-th nearest follower |
-| Disk | Each node must flush before it replies. A slow disk makes the leader slow, even if the network is fast. The etcd FAQ gives a case in which a slow disk makes a leader unable to commit within the election timeout |
+| Disk | Each node must flush before it replies. A slow disk makes the leader slow, even if the network is fast. The etcd FAQ states that "disk latency is part of leader liveness": a leader that waits on a slow disk cannot commit new proposals, and the cluster can lose that leader |
 
 **Odd node counts.** The etcd documentation gives the table of majority and failure tolerance:
 
@@ -341,9 +363,9 @@ The same pattern appears in databases and brokers. Older versions of Kafka elect
 | 6 | 4 | 2 |
 | 7 | 4 | 3 |
 
-An even number gives no gain: 4 nodes tolerate 1 failure, the same as 3 nodes, and they need a larger quorum. A network partition of an even-sized cluster can also split it into two equal halves, and neither half has a majority. The etcd FAQ recommends an odd number of members. It says that Google's Chubby, a long-running production lock service, runs five nodes, that a five-member cluster tolerates two failures, and that this is enough in most cases.
+An even number gives no gain: 4 nodes tolerate 1 failure, the same as 3 nodes, and they need a larger quorum. A network partition of an even-sized cluster can also split it into two equal halves, and neither half has a majority. The etcd FAQ recommends an odd number of members, and it states that "adding a member to bring the size of cluster up to an even number doesn't buy additional fault tolerance". It also says that "Google Chubby lock service, similar to etcd and widely deployed within Google for many years, suggests running five nodes", and that "an etcd cluster probably should have no more than seven nodes".
 
-**What not to do.** Do not place consensus on the data path of a high-volume store. Keep the replicated log for small, critical data (leader identity, configuration, metadata, locks), and use partitioning, with one consensus group for each partition, for large data. Spanner (Paxos) and CockroachDB (Raft) run a consensus group for each range of data. See [partitioning and sharding](../fundamentals/06-partitioning-and-sharding.md).
+**What not to do.** Do not place consensus on the data path of a high-volume store. Keep the replicated log for small, critical data (leader identity, configuration, metadata, locks), and use partitioning, with one consensus group for each partition, for large data. Spanner runs a Paxos group for each tablet (a set of key ranges), and CockroachDB runs a Raft group for each range of data. See [partitioning and sharding](../fundamentals/06-partitioning-and-sharding.md).
 
 ## Trade-offs and When to Use
 
@@ -419,7 +441,7 @@ public class RaftElectionDemo {
         }
         int majority = nodes.size() / 2 + 1;
         if (votes >= majority) {
-            candidate.role = "LEADER";
+            candidate.role = Role.LEADER;
             System.out.println("  node " + candidate.id + " wins with " + votes
                     + " votes (majority is " + majority + ") and becomes leader of term "
                     + candidate.term);
@@ -430,11 +452,13 @@ public class RaftElectionDemo {
     }
 }
 
+enum Role { FOLLOWER, CANDIDATE, LEADER }
+
 class RaftNode {
     final int id;
     int term;
     Integer votedFor;
-    String role = "FOLLOWER";
+    Role role = Role.FOLLOWER;
     boolean alive = true;
     final List<Integer> log = new ArrayList<>();
 
@@ -453,7 +477,7 @@ class RaftNode {
     void becomeCandidate() {
         term++;
         votedFor = id;
-        role = "CANDIDATE";
+        role = Role.CANDIDATE;
     }
 
     boolean handleRequestVote(int candidateTerm, int candidateId,
@@ -464,7 +488,7 @@ class RaftNode {
         if (candidateTerm > term) {
             term = candidateTerm;
             votedFor = null;
-            role = "FOLLOWER";
+            role = Role.FOLLOWER;
         }
         boolean notVotedForOther = votedFor == null || votedFor == candidateId;
         boolean candidateUpToDate = candLastTerm > lastLogTerm()
@@ -478,7 +502,7 @@ class RaftNode {
 
     @Override
     public String toString() {
-        return "node " + id + ": " + (alive ? role : "CRASHED") + ", term " + term
+        return "node " + id + ": " + (alive ? role.name() : "CRASHED") + ", term " + term
                 + ", log terms " + log;
     }
 }
@@ -541,7 +565,7 @@ Read the output as follows. In step 3, node 3 has an empty log and requests vote
 
     **Reason:** 3 nodes tolerate 1 failure. 4 nodes also tolerate 1 failure, because the majority is 3. The fourth node adds cost and a larger quorum and gives no extra tolerance. 5 nodes tolerate 2, and 7 nodes tolerate 3. An even-sized cluster that a partition splits in two equal halves has no majority on either side.
 
-    **Trade-off:** a larger cluster tolerates more failures and has slower writes, because the leader waits for more replies and the slowest node of the quorum matters more. The etcd documentation says that Google's experience, with Chubby, suggests five nodes, and that a larger cluster reduces write performance.
+    **Trade-off:** a larger cluster tolerates more failures and has slower writes, because the leader waits for more replies and the slowest node of the quorum matters more. The etcd FAQ notes that Chubby "suggests running five nodes", that a larger cluster has worse write performance, and that an etcd cluster "probably should have no more than seven nodes".
 
 ??? question "What is the FLP result, and how do real systems get around it?"
 
@@ -587,7 +611,9 @@ Read the output as follows. In step 3, node 3 has an empty log and requests vote
 
     **Reason:** a direct switch lets two different majorities (old and new configuration) exist at once, and each can elect a leader. Joint consensus uses a transitional configuration `C_old,new` in which every decision needs a majority of both the old and the new configuration. After `C_old,new` is committed, the leader writes `C_new`. Changing one node at a time works because any majority of the old and any majority of the new configuration overlap when the sets differ by one node.
 
-    **Edge case:** a new node first joins as a non-voting learner and catches up, so that it does not stall commits. A leader that is not in the new configuration steps down after it commits `C_new`. The etcd FAQ says to remove the failed member first and then add its replacement.
+    **Rules for the single-server method:** a server uses a configuration entry as soon as it appends it. The leader starts the next change only after the previous `C_new` entry is committed. The leader appends a configuration entry only after it has committed an entry from its current term (the no-op). Ongaro added this last rule in 2015, after he found that the dissertation's version could produce two non-overlapping majorities when changes overlapped a change of leader.
+
+    **Edge case:** a new node first joins as a non-voting learner and catches up, so that it does not stall commits. A leader that is not in the new configuration steps down after it commits `C_new`. A removed server that keeps starting elections is ignored by servers that heard from the leader within the minimum election timeout. The etcd FAQ says to remove the failed member first and then add its replacement, because adding first raises the quorum size without adding fault tolerance.
 
 ??? question "A read-heavy service uses etcd. How do you get linearizable reads, and what do they cost?"
 
@@ -601,11 +627,15 @@ Read the output as follows. In step 3, node 3 has an empty log and requests vote
 
 ??? question "What happens if the leader is partitioned from the majority?"
 
-    The majority side elects a new leader with a higher term and continues. The old leader cannot commit, because it cannot reach a majority, so clients that talk to it get no successful writes. When the partition heals, the old leader sees the higher term, steps down, and discards its uncommitted entries. The leader did not acknowledge the entries that it did not commit.
+    The majority side elects a new leader with a higher term and continues. The old leader cannot commit, because it cannot reach a majority, so clients that talk to it get no successful writes. When the partition heals, the old leader sees the higher term, steps down, and discards its uncommitted entries. The leader did not acknowledge the entries that it did not commit. One risk remains during the partition: if the old leader answers reads from its local state without first confirming its leadership with a majority, it returns stale data. The read rule (heartbeats with a majority before the reply) prevents this.
 
 ??? question "Can Raft lose a committed entry?"
 
-    No, if the safety rules hold and a majority of the nodes keep their disks. An entry is committed when a majority stores it, and the election restriction means that only a node with every committed entry can win. If a majority of nodes lose their data, the guarantee fails, which is the reason that nodes must flush the log to stable storage before they reply.
+    No, if the safety rules hold and no node loses its persistent state (`currentTerm`, `votedFor`, and the log). An entry is committed when a majority stores it, and the election restriction means that only a node with every committed entry can win.
+
+    The condition is every node, not a majority. Example: five nodes, and an entry is committed on S1, S2, and S3. S3 loses its disk and restarts with an empty log and no vote record. S5, which lacks the entry, can now win an election with votes from S3, S4, and itself, and it overwrites the entry on S1 and S2. The proof in the paper (section 5.4.3) relies on a voter that "still stored the entry when it voted".
+
+    A rule that follows from the paper: a node flushes its log and its vote to stable storage before it replies to an RPC (Figure 2). Recommendation: do not let a node that lost its disk rejoin with the same identity. Remove it and add it back as a new member through a membership change, so that it catches up as a non-voting member first.
 
 ??? question "Why does a node store `votedFor` and `currentTerm` on disk?"
 
@@ -617,7 +647,7 @@ Read the output as follows. In step 3, node 3 has an empty log and requests vote
 
 ??? question "How do you size the election timeout in practice?"
 
-    Measure the broadcast time, including the disk flush, and choose a timeout that is about 10 times larger, and much smaller than the time between failures. The Raft paper suggests 150 to 300 ms for typical data-center networks. In a wide-area cluster, increase both the heartbeat interval and the election timeout, as the etcd FAQ explains, because a timeout that is too short causes repeated elections.
+    Measure the broadcast time, including the disk flush, and choose a timeout that is about 10 times larger (the paper says "an order of magnitude"), and much smaller than the time between failures. The Raft paper recommends "a conservative election timeout such as 150–300ms". In a wide-area cluster, increase both values. The etcd FAQ says to set the heartbeat interval to roughly the round-trip time between the machines, and the election timeout to at least 5 times the heartbeat interval, because "with longer latencies, the default etcd configuration may cause frequent elections or heartbeat timeouts".
 
 ### Red Flags
 
@@ -652,7 +682,7 @@ Read the output as follows. In step 3, node 3 has an empty log and requests vote
 | Consensus and two-phase commit | Consensus tolerates the failure of a minority and makes progress as long as a majority works. Two-phase commit needs all participants to agree and blocks if the coordinator fails (see [distributed transactions](03-distributed-transactions.md)) | Is the agreement about one value among replicas, or a commit across different resources? |
 | Leader election and a distributed lock | Election names one long-lived leader. A lock grants a short exclusive use of a resource. Both need fencing (see [distributed locks and leases](05-distributed-locks-and-leases.md)) | Does the holder run for a long time as a role, or for a short time as a critical section? |
 | Quorum read and linearizable read | A quorum of `R + W > N` in a leaderless store does not give linearizability. A consensus read does (see [consistency and CAP](../fundamentals/07-consistency-and-cap.md)) | Does the store use a consensus log? |
-| Term, epoch, and fencing token | A term (Raft), an epoch (Zab, Paxos ballot) and a fencing token are all numbers that increase with each leader. A fencing token is the value that a resource checks | Which number does the resource compare? |
+| Term, epoch, ballot, and fencing token | A term (Raft), an epoch (Zab), a proposal or ballot number (Paxos), and a fencing token are all numbers that increase with each leader or proposal. A fencing token is the value that a resource checks | Which number does the resource compare? |
 | Committed and applied | Committed means that the entry is safe in the log. Applied means that the state machine ran it | Has the state machine run the command? |
 | Replication and consensus | Replication copies data. Consensus makes the nodes agree on the order and on the leader (see [replication](../fundamentals/05-replication.md)) | Must all nodes agree on one order? |
 | Raft term and wall-clock time | A term counts elections and has no relation to time | Am I comparing leaders or moments? |
@@ -666,7 +696,7 @@ Read the output as follows. In step 3, node 3 has an empty log and requests vote
 - Election: timeout, term + 1, vote for self, `RequestVote`. A voter checks the term, one vote for each term, and the candidate's log is at least as up to date. Majority wins. Randomized timeouts (150 to 300 ms in the paper).
 - Replication: the leader appends and sends `AppendEntries` with `prevLogIndex` and `prevLogTerm`. The consistency check keeps the logs matched. Committed when it is on a majority, and only counting entries of the current term.
 - Safety: Election Safety, Leader Append-Only, Log Matching, Leader Completeness, State Machine Safety.
-- Membership: joint consensus or one node at a time. Snapshots compact the log.
+- Membership: joint consensus or one node at a time. One at a time: one change in flight, and no change until the leader has committed an entry of its own term. Snapshots compact the log.
 - Reads: a leader needs the commit index and a heartbeat majority for a linearizable read.
 - Paxos: prepare (promise) and accept. A proposer adopts the highest-numbered accepted value. A distinguished proposer gives progress. Multi-Paxos is a log of instances.
 - ZooKeeper election: ephemeral sequential znodes, watch the predecessor. etcd election: a lease and a revision. Both need fencing for old leaders.
@@ -676,7 +706,11 @@ Read the output as follows. In step 3, node 3 has an empty log and requests vote
 
 - Ongaro and Ousterhout. "In Search of an Understandable Consensus Algorithm". USENIX ATC 2014. The Raft paper, with the full rules in its Figure 2. <https://raft.github.io/raft.pdf>
 - The Raft website and visualization: <https://raft.github.io/>. A list of implementations and an animation of elections and replication.
-- Ongaro. "Consensus: Bridging Theory and Practice". PhD dissertation, Stanford University, 2014. Single-server membership changes, pre-vote, and client interaction.
+- Ongaro. "Consensus: Bridging Theory and Practice". PhD dissertation, Stanford University, 2014. Single-server membership changes (chapter 4), Pre-Vote (section 9.6), and client interaction. <https://web.stanford.edu/~ouster/cgi-bin/papers/OngaroPhD.pdf>
+- Ongaro. Message to the raft-dev mailing list on a bug in single-server membership changes, July 2015. The safety bug in the dissertation's single-server method and its fix. <https://groups.google.com/g/raft-dev/c/t4xj6dJTP6E>
+- Zhou and Mu. "Fault-Tolerant Replication with Pull-Based Consensus in MongoDB". USENIX NSDI 2021. MongoDB's Raft-derived replication protocol. <https://www.usenix.org/conference/nsdi21/presentation/zhou>
+- Apache Kafka. KIP-595, "A Raft Protocol for the Metadata Quorum": <https://cwiki.apache.org/confluence/display/KAFKA/KIP-595%3A+A+Raft+Protocol+for+the+Metadata+Quorum>. The KRaft protocol. The Kafka 4.0 upgrade notes state that ZooKeeper mode was removed.
+- etcd Go client, package `concurrency` (`Election`): <https://pkg.go.dev/go.etcd.io/etcd/client/v3/concurrency>. The election API. The source files `election.go` and `key.go` show the creation-revision order.
 - Lamport. "Paxos Made Simple". ACM SIGACT News 32(4), 2001. A short, plain statement of Paxos and Multi-Paxos. <https://lamport.azurewebsites.net/pubs/paxos-simple.pdf>
 - Lamport. "The Part-Time Parliament". ACM Transactions on Computer Systems 16(2), 1998. The original Paxos paper.
 - Fischer, Lynch, and Paterson. "Impossibility of Distributed Consensus with One Faulty Process". Journal of the ACM 32(2), 1985. The FLP result.

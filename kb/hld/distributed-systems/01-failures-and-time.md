@@ -15,7 +15,7 @@ Interviewers use this topic to test whether a candidate designs for failure. Que
 
 **Partial failure**: some parts of a system fail while other parts keep working, and the surviving parts may not know which parts failed. A program on one machine usually either works or crashes as a whole. A distributed program has no such guarantee.
 
-**Asynchronous network**: a network model in which a message can take any amount of time to arrive, or can be lost, and in which no bound on processing speed exists. The model is a safe assumption for the Internet and for a data center under load. A *synchronous* model has known bounds on message delay and processing time. A *partially synchronous* model has bounds that hold most of the time but are not known in advance (Dwork, Lynch, and Stockmeyer, 1988).
+**Asynchronous network**: a network model in which a message can take any amount of time to arrive, or can be lost, and in which no bound on processing speed exists. The model is a safe assumption for the Internet and for a data center under load. A *synchronous* model has known bounds on message delay and processing time. A *partially synchronous* model (Dwork, Lynch, and Stockmeyer, 1988) has one of two forms: bounds exist but the algorithm does not know them, or known bounds exist but hold only after an unknown time (the *global stabilization time*). Consensus algorithms such as Raft and Paxos stay safe in the asynchronous model and need partial synchrony only to make progress.
 
 **Network partition**: a failure in which the network splits the nodes into groups that cannot exchange messages. See [consistency and CAP](../fundamentals/07-consistency-and-cap.md) for its effect on the CAP trade-off.
 
@@ -29,7 +29,7 @@ Interviewers use this topic to test whether a candidate designs for failure. Que
 
 **Wall clock (time-of-day clock)**: a clock that returns the date and time, for example the Unix time in milliseconds. A synchronization protocol can set it forward or backward. Java: `System.currentTimeMillis()` and `Instant.now()`.
 
-**Monotonic clock**: a clock that only moves forward and that measures elapsed time on one machine. Its absolute value has no meaning. Java: `System.nanoTime()`.
+**Monotonic clock**: a clock that measures elapsed time on one machine and that a change of the time of day does not move. Its absolute value has no meaning. Java: `System.nanoTime()`. The JDK 21 javadoc does not use the word "monotonic". It says that `nanoTime` "can only be used to measure elapsed time and is not related to any other notion of system or wall-clock time".
 
 **Clock drift**: the rate at which a clock gains or loses time compared with true time. A quartz clock in a server drifts by an amount that depends on temperature and load. **Clock skew** is the difference between the readings of two clocks at the same instant.
 
@@ -70,20 +70,20 @@ sequenceDiagram
     Note over S: Without an idempotency key, the transfer runs twice
 ```
 
-The client has only one safe action: retry in a way that does no harm if the first request succeeded. That is the reason for idempotency keys (see `kb/hld/fundamentals/12-reliability-patterns.md`) and for the design of exactly-once claims (see [distributed transactions](03-distributed-transactions.md)).
+The client has only one safe action: retry in a way that does no harm if the first request succeeded. That is the reason for idempotency keys (see [reliability patterns](../fundamentals/12-reliability-patterns.md)) and for the design of exactly-once claims (see [distributed transactions](03-distributed-transactions.md)).
 
 A timeout also does not say that the work was undone. The node that timed out may keep running the request. If the system gives the work to another node, two nodes may run the same work. This is the root of the split-brain problem in [replication](../fundamentals/05-replication.md) and of the lock problem in [distributed locks and leases](05-distributed-locks-and-leases.md).
 
 ### The fallacies of distributed computing
 
-L. Peter Deutsch and others at Sun Microsystems listed assumptions that developers make about networks and that are false. The list has eight items. Each wrong assumption leads to a specific design defect.
+L. Peter Deutsch and others at Sun Microsystems listed assumptions that developers make about networks and that are false. Deutsch's list (1994) has seven items, and James Gosling added the eighth ("the network is homogeneous") in 1997. Each wrong assumption leads to a specific design defect.
 
 | Fallacy | What is true | Design consequence |
 |---|---|---|
 | The network is reliable | Packets are lost, duplicated, reordered, and delayed | Use timeouts, retries with backoff, idempotent operations, and acknowledgements |
-| Latency is zero | A call over the network takes orders of magnitude longer than a local call (see `kb/hld/back-of-envelope-estimation.md`) | Batch calls, cache, and avoid chatty APIs |
+| Latency is zero | A call over the network takes orders of magnitude longer than a local call (see [back-of-envelope estimation](../back-of-envelope-estimation.md)) | Batch calls, cache, and avoid chatty APIs |
 | Bandwidth is infinite | Links have a limit, and the limit is shared | Compress, paginate, and send deltas instead of full state |
-| The network is secure | Traffic can be read or changed on the path | Encrypt in transit and authenticate each peer (see `kb/hld/fundamentals/21-security-in-design.md`) |
+| The network is secure | Traffic can be read or changed on the path | Encrypt in transit and authenticate each peer (see [security in design](../fundamentals/21-security-in-design.md)) |
 | Topology does not change | Nodes join, leave, and move. Routes change | Use service discovery, and do not hard-code addresses |
 | There is one administrator | Several teams and companies run parts of the path | Version the APIs, and expect different configurations |
 | Transport cost is zero | Serialization, bandwidth, and network hardware cost money and CPU | Include network cost in capacity plans |
@@ -102,7 +102,7 @@ The simplest failure detector is a fixed timeout on heartbeats: if no heartbeat 
 - A short T detects a real crash fast, and it also marks slow nodes as dead. A false positive can trigger a failover, a data copy, or a leader election that the system did not need, and the extra load can slow more nodes. This chain is a *cascading failure*.
 - A long T avoids false positives, and the system stays down longer after a real crash.
 
-No timeout value is correct for all network conditions, because the delay of a response changes with load. The theory agrees: in an asynchronous system no failure detector can be both complete and accurate in all runs, and this is related to the FLP result (see [consensus and leader election](02-consensus-and-leader-election.md)). A practical system picks a detector that adapts.
+No timeout value is correct for all network conditions, because the delay of a response changes with load. The theory agrees. Chandra and Toueg (1996) classified failure detectors by *completeness* (every crashed node is eventually suspected) and *accuracy* (live nodes are not suspected). A perfect detector, which is both complete and always accurate, cannot be built in an asynchronous system, because a slow node and a crashed node look the same. Chandra and Toueg showed that consensus is solvable with a much weaker detector that is accurate only eventually, and even that detector needs some timing assumption to implement, which agrees with the FLP result (see [consensus and leader election](02-consensus-and-leader-election.md)). A practical system picks a detector that adapts.
 
 #### The phi accrual failure detector
 
@@ -114,9 +114,9 @@ The monitoring node works in three steps:
 2. It estimates the distribution of the intervals. The paper assumes a normal distribution, with the mean and variance taken from the window.
 3. When the time since the last heartbeat is `t`, it computes `P_later(t)`, the probability that a heartbeat arrives later than `t`, and returns `phi = -log10(P_later(t))`.
 
-The paper explains the scale: with a threshold of 1, about 10 percent of suspicions are wrong; with 2, about 1 percent; with 3, about 0.1 percent. Each increase of 1 in the threshold lowers the chance of a wrong suspicion by a factor of 10. Because the detector learns from recent intervals, the same threshold adapts to a fast and calm network and to a slow and noisy network. Apache Cassandra uses this detector. Its configuration option `phi_convict_threshold` sets the phi value at which a node counts as down, and the default is 8 (Cassandra documentation).
+The paper explains the scale: if a node suspects at a threshold of 1, "the likeliness that we will make a mistake (i.e., the decision will be contradicted in the future by the reception of a late heartbeat) is about 10%"; at 2 it is about 1 percent, and at 3 about 0.1 percent. Each increase of 1 in the threshold lowers the chance of a wrong suspicion by a factor of 10. Because the detector learns from recent intervals, the same threshold adapts to a fast and calm network and to a slow and noisy network. Apache Cassandra uses this detector. Its configuration option `phi_convict_threshold` sets the phi value at which a node counts as down, and the default is 8 (Cassandra documentation).
 
-A gossip protocol often carries the heartbeats in a large cluster, so that each node does not need to ping every other node (see `kb/hld/distributed-systems/04-probabilistic-data-structures.md`).
+A gossip protocol often carries the heartbeats in a large cluster, so that each node does not need to ping every other node (see [probabilistic data structures](04-probabilistic-data-structures.md)).
 
 !!! info "A failure detector gives a suspicion, not a fact"
     Whatever detector a system uses, a node that the detector marks as dead may be alive. Safety must not depend on the detector being right. A correct design uses fencing tokens or a consensus protocol to keep a falsely suspected node from doing harm (see [distributed locks and leases](05-distributed-locks-and-leases.md)).
@@ -128,18 +128,20 @@ A machine has two kinds of clock.
 | | Wall clock (time-of-day) | Monotonic clock |
 |---|---|---|
 | Java API | `System.currentTimeMillis()`, `Instant.now()` | `System.nanoTime()` |
-| Meaning | A date and time that other machines can read | A counter with no fixed origin. Only the difference between two readings on one machine has meaning (JDK javadoc for `nanoTime`) |
-| Can jump | Yes. NTP can step it, an administrator can set it, and a leap second can repeat or skip a second | No. It does not go backward |
+| Meaning | A date and time that other machines can read | Nanoseconds "since some fixed but arbitrary origin time (perhaps in the future, so values may be negative)". The javadoc states that the values "become meaningful only when the difference between two such values, obtained within the same instance of a Java virtual machine, is computed" |
+| Can jump | Yes. NTP can step it, an administrator can set it, and a leap second can repeat or skip a second | A step of the wall clock does not move it, because the javadoc states that it "is not related to any other notion of system or wall-clock time". The javadoc does not use the word "monotonic" |
 | Use for | Timestamps for humans and logs, and expiry dates that all nodes must read in the same way | Timeouts, durations, and elapsed time |
 | Compare across machines | Only if the clocks are synchronized, and then only within the error of the synchronization | Not meaningful |
 
 Rule: measure a duration with the monotonic clock, and use the wall clock only for a point in time.
 
+The javadoc of `nanoTime` also gives the correct form of a timeout check. Write `System.nanoTime() - startTime >= timeoutNanos`, not `System.nanoTime() >= startTime + timeoutNanos`, "because of the possibility of numerical overflow". The difference of two readings is correct across an overflow of the `long` value, and the sum is not.
+
 #### Why clocks differ
 
 Each machine has a quartz oscillator. The oscillator runs a little fast or a little slow, and the rate depends on temperature. Google's Spanner paper uses an assumed worst-case drift of 200 microseconds per second for its servers. At that rate, a clock that is not corrected for 30 seconds can be wrong by up to 6 milliseconds. A synchronization protocol corrects the clock at intervals, so the error grows between corrections and shrinks at each correction.
 
-NTP estimates the offset between the local clock and a server from the timestamps of a request and a response, and it assumes that the network delay is the same in both directions. If the delays differ, the estimate has an error. A client that is far from a time source, or on a congested link, has a larger error. NTP's accuracy is approximately from under one millisecond on a quiet local network to tens of milliseconds over the public Internet (the order of magnitude from the ntp.org documentation; the number depends on the network). If the offset is large, NTP may *step* the clock, which moves it backward or forward at once. For small offsets, it *slews* the clock, which changes the rate for a time and avoids a jump.
+NTP estimates the offset between the local clock and a server from the timestamps of a request and a response, and it assumes that the network delay is the same in both directions. If the delays differ, the estimate has an error. A client that is far from a time source, or on a congested link, has a larger error. The NTP FAQ on ntp.org (section 5.1.3.1) gives approximate figures: "The typical accuracy on the Internet ranges from about 5ms to 100ms, possibly varying with network delays", and machines "on the same quiet subnet" can stay within one millisecond of each other. The numbers depend on the network and on the time server. NTP also computes an estimate of its maximum error, the *root synchronization distance* (RFC 5905), but `System.currentTimeMillis()` returns one number and does not report that error to the application. If the offset is large, NTP may *step* the clock, which moves it backward or forward at once. For small offsets, it *slews* the clock, which changes the rate for a time and avoids a jump.
 
 Other sources of wrong time:
 
@@ -154,7 +156,7 @@ A wall-clock timestamp is therefore a measurement with an error, not a point. Tw
 - **Last-write-wins (LWW) conflict resolution.** The system keeps the write with the larger timestamp. If node A's clock is ahead of node B's clock by 50 ms, and B writes 20 ms after A, A's write carries the larger timestamp, and B's later write is dropped. The client of B received a success response, and the data is lost. Cassandra resolves conflicts by timestamp this way (see [replication](../fundamentals/05-replication.md) and [CRDTs and conflict resolution](06-crdts-and-conflict-resolution.md)).
 - **Leases and expiry.** A node that holds a lease with an expiry time checks its own clock. If its clock runs slow, or the node pauses, it believes that it holds the lease after the lease expired. See [distributed locks and leases](05-distributed-locks-and-leases.md).
 - **Ordering events from several nodes by timestamp.** The order can contradict the order in which the events caused each other.
-- **Transaction timestamps.** A database that uses timestamps for snapshots must handle the uncertainty. Spanner waits out the uncertainty (see TrueTime below). CockroachDB uses hybrid logical clocks and a maximum allowed clock offset. Its documentation says that the `--max-offset` default is 500 ms, and that nodes stop if the observed offset exceeds the limit, to avoid reading inconsistent data.
+- **Transaction timestamps.** A database that uses timestamps for snapshots must handle the uncertainty. Spanner waits out the uncertainty (see TrueTime below). CockroachDB uses hybrid logical clocks and a maximum allowed clock offset. Its documentation says that the `--max-offset` default is 500 ms, and that "if observed clock offsets exceed this limit, servers will crash to minimize the likelihood of reading inconsistent data". The transaction layer page gives the exact trigger: a node crashes when its clock is out of sync with at least half of the other nodes by 80 percent of the maximum offset.
 
 ### Ordering events without a trusted clock: Lamport clocks
 
@@ -168,7 +170,7 @@ Lamport (1978) observed that many systems need only the order of events that can
 2. A sender attaches its timestamp to the message.
 3. A receiver `j` of a message with timestamp `T` sets `L_j = max(L_j, T) + 1`. The result is the timestamp of the receive event.
 
-These rules give the clock condition: along a chain of local steps and messages, every step raises the counter.
+Lamport's rule IR2(b) requires only that the receiver set its clock "greater than or equal to its present value and greater than" `T`. The value `max(L_j, T) + 1` is the smallest value that meets the rule and also counts the receive as a new event. These rules give the clock condition: along a chain of local steps and messages, every step raises the counter.
 
 **Total order.** To make a total order from the timestamps, break ties with the node identifier. Event `a` on node `i` comes before event `b` on node `j` if `L(a) < L(b)`, or if `L(a) = L(b)` and `i < j`. Lamport used this total order to build a distributed mutual-exclusion algorithm in the same paper. All nodes that use the rule agree on one order of the events.
 
@@ -200,6 +202,8 @@ A vector clock keeps one counter for each of the `n` nodes. Node `i` holds a vec
 1. Before each local event, including a send, node `i` sets `V_i[i] = V_i[i] + 1`. A send attaches a copy of `V_i`.
 2. On receiving a message with vector `M`, node `i` sets `V_i[k] = max(V_i[k], M[k])` for every `k`, and then `V_i[i] = V_i[i] + 1`.
 
+Mattern (1989) states the rules with the increment first: a node "ticks" its own entry before each event, and on a receive it then takes the component-wise maximum. The two orders give the same vector, because a message from another node never carries a larger value for entry `i` than node `i` holds: only node `i` increments entry `i`.
+
 **Comparing two vectors `x` and `y`.**
 
 - `x` is before `y` (`x → y`) if `x[k] <= y[k]` for every `k`, and `x[k] < y[k]` for at least one `k`.
@@ -208,13 +212,13 @@ A vector clock keeps one counter for each of the `n` nodes. Node `i` holds a vec
 
 For vector clocks, the relation is exact: `a → b` if and only if `V(a) < V(b)`. This is the advantage over a Lamport clock, and the cost is a vector of `n` integers on every message and every stored value.
 
-**Use in storage systems.** Dynamo (DeCandia et al., 2007) attached a vector clock to each version of an object. When a read finds two versions whose vectors are concurrent, the system returns both versions, and the application or a merge rule resolves the conflict. Dynamo truncated old entries when the clock grew beyond a limit, and this made the clock approximate. Riak used the same idea. When the nodes in the vector are the replicas (and not the clients), the structure is a *version vector*, which is the topic of [CRDTs and conflict resolution](06-crdts-and-conflict-resolution.md). The anomaly types for concurrent writes are in [replication](../fundamentals/05-replication.md).
+**Use in storage systems.** Dynamo (DeCandia et al., 2007) attached a vector clock to each version of an object. When a read finds two versions whose vectors are concurrent, the system returns both versions, and the application or a merge rule resolves the conflict. The entries of Dynamo's vector clocks belong to the servers that coordinate writes, not to clients. Each entry also stores the time at which that server last updated it, and when the number of (node, counter) pairs reaches a threshold ("say 10", in the paper's words), Dynamo removes the oldest pair. The paper states that "this truncation scheme can lead to inefficiencies in reconciliation as the descendant relationships cannot be derived accurately", and that the problem had not surfaced in production. Riak used the same idea. When the nodes in the vector are the replicas (and not the clients), the structure is a *version vector*, which is the topic of [CRDTs and conflict resolution](06-crdts-and-conflict-resolution.md). The anomaly types for concurrent writes are in [replication](../fundamentals/05-replication.md).
 
 **Cost.** The size of the vector grows with the number of nodes that write. A system with many clients that write must either use server identifiers in the vector or prune the vector, which loses precision.
 
 ### Hybrid logical clocks
 
-A Lamport or vector clock gives causal order and has no relation to real time. A wall clock has a relation to real time and no causal guarantee. Kulkarni, Demirbas, Madappa, Avva, and Leone (2014) proposed the hybrid logical clock (HLC) to get both.
+A Lamport or vector clock gives causal order and has no relation to real time. A wall clock has a relation to real time and no causal guarantee. Kulkarni, Demirbas, Madeppa, Avva, and Leone (2014) proposed the hybrid logical clock (HLC) to get both.
 
 An HLC timestamp is a pair `(l, c)`:
 
@@ -246,9 +250,9 @@ Spanner (Corbett et al., 2012) takes the opposite approach: it keeps real time a
 | `TT.after(t)` | True if `t` has definitely passed |
 | `TT.before(t)` | True if `t` has definitely not arrived |
 
-Google data centers have time master machines. Most have GPS receivers, and the others have atomic clocks. The two sources fail in different ways, and this gives protection against a failure of one source. Each server polls several masters. The paper reports that the uncertainty `ε` is a sawtooth function of time that varies from about 1 ms to 7 ms over each 30-second poll interval, so `ε` is about 4 ms most of the time (the figures are from the paper for Google's 2012 production environment).
+Google data centers have time master machines. Most have GPS receivers, and the others have atomic clocks. The two sources fail in different ways, and this gives protection against a failure of one source. Each server polls several masters. The paper defines the instantaneous error bound `ε` as half of the width of the interval, and `ε̄` as its average. It reports that `ε` "is typically a sawtooth function of time, varying from about 1 to 7 ms over each poll interval", that `ε` "is therefore 4 ms most of the time", and that the poll interval is 30 seconds (approximate figures for Google's 2012 production environment).
 
-Spanner uses TrueTime for *external consistency*: if transaction T1 commits before transaction T2 starts, then T1's commit timestamp is smaller than T2's. The mechanism is commit wait. The coordinator picks a commit timestamp `s` that is no smaller than `TT.now().latest`. Then it waits until `TT.after(s)` is true before it makes the data visible and releases locks. The wait is about `2 × ε`, which is about 8 ms at the average `ε` (approximate; derived from the paper). Reads at a timestamp use the same bound, so a read-only transaction needs no locks.
+Spanner uses TrueTime for *external consistency*: if transaction T1 commits before transaction T2 starts, then T1's commit timestamp is smaller than T2's. The mechanism is commit wait. The coordinator picks a commit timestamp `s` that is no smaller than `TT.now().latest`. Then it waits until `TT.after(s)` is true before it lets any coordinator replica apply the commit record, so no client sees the data before `s` has passed. The paper states that "the expected wait is at least 2 ∗ ε̄", which is about 8 ms at `ε̄` = 4 ms, and that "this wait is typically overlapped with Paxos communication". In the paper's microbenchmark with one replica, commit wait was "about 5ms". Because commit timestamps follow real time, a read-only transaction can read at a chosen timestamp without locks, from any replica whose *safe time* (the timestamp up to which the replica is known to be up to date) is at least that timestamp.
 
 The lesson for design: a system that wants to order events by real time needs a bound on clock error, and it pays latency equal to the bound. Few organizations can run GPS and atomic clock masters.
 
@@ -376,7 +380,7 @@ Read the output as follows. `b1` receives `m1` with timestamp 2, and B's counter
 
 ### Vector clock
 
-The program runs the same message pattern with vector clocks, and it prints how each pair of events compares.
+The program uses vector clocks with the same two messages: `m1` from A to B, and `m2` from B to C. It has fewer local events than the Lamport program (B sends `m2` as its second event, and A has no third event), and it prints how pairs of events compare.
 
 ```java
 import java.util.Arrays;
@@ -583,13 +587,13 @@ The programs have no networking, no threads, and no pruning of vectors. A real i
 
     **Design:** the client creates a unique key for each logical payment and sends it with every attempt. The server stores the key with the result in the same transaction as the payment. On a repeat of the key, the server returns the stored result. The client uses exponential backoff with jitter, and it stops after a limit and shows the user a "pending" state. A background reconciliation job compares the payment records with the provider's records.
 
-    **Trade-off:** the idempotency store needs storage and a retention period, and the key must be generated before the first attempt. See `kb/hld/fundamentals/12-reliability-patterns.md` and [distributed transactions](03-distributed-transactions.md).
+    **Trade-off:** the idempotency store needs storage and a retention period, and the key must be generated before the first attempt. See [reliability patterns](../fundamentals/12-reliability-patterns.md) and [distributed transactions](03-distributed-transactions.md).
 
 ??? question "Why can't you order events from two servers by their timestamps?"
 
     **Direct answer:** the clocks of the two servers differ, and a timestamp comparison is only as accurate as the skew between them.
 
-    **Reason:** each wall clock drifts. NTP corrects it, and the remaining error ranges from under a millisecond on a quiet network to tens of milliseconds over the Internet (approximate). If two events are closer in real time than the skew, the order of their timestamps may be wrong. The clock can also jump backward when NTP steps it. Last-write-wins on timestamps then drops a write that the client saw succeed.
+    **Reason:** each wall clock drifts. NTP corrects it, and the remaining error is within about one millisecond on a quiet local network and about 5 to 100 ms over the Internet (approximate figures from the NTP FAQ). If two events are closer in real time than the skew, the order of their timestamps may be wrong. The clock can also jump backward when NTP steps it. Last-write-wins on timestamps then drops a write that the client saw succeed.
 
     **Alternatives:** if the order matters only for events that can affect each other, use a Lamport clock or a vector clock, which order by causality. If the timestamps must stay near real time, use a hybrid logical clock. If the order must match real time across the world, use TrueTime-style bounded clocks and wait out the uncertainty, or use a single sequencer or a consensus log.
 
@@ -621,7 +625,7 @@ The programs have no networking, no threads, and no pruning of vectors. A real i
 
     **Mechanism:** `TT.now()` returns `[earliest, latest]`, and the real time lies inside. The coordinator of a read-write transaction chooses a commit timestamp `s` that is not less than `TT.now().latest`. It then waits until `TT.after(s)` is true (commit wait) before it makes the commit visible. Any transaction that starts after the commit is visible gets a later timestamp, so the timestamp order matches the real-time order.
 
-    **Cost:** the commit wait is about the width of the uncertainty. The paper reports `ε` of about 1 to 7 ms, with an average of about 4 ms (approximate, Google's 2012 environment). The system needs GPS receivers and atomic clocks in each data center.
+    **Cost:** the paper states that the expected commit wait is at least `2 × ε̄`, the average width of the interval. It reports `ε` of about 1 to 7 ms, about 4 ms most of the time (approximate, Google's 2012 environment), so the wait is about 8 ms, and Spanner overlaps it with Paxos communication. The system needs GPS receivers and atomic clocks in each data center.
 
     **Alternative:** CockroachDB has no special hardware. It uses hybrid logical clocks and a configured maximum clock offset, and it restarts a read that finds a value inside its uncertainty window.
 
@@ -629,9 +633,9 @@ The programs have no networking, no threads, and no pruning of vectors. A real i
 
     **Direct answer:** the wall clock can jump, so the measured duration can be negative or too long. Use `System.nanoTime()`.
 
-    **Reason:** NTP can step the wall clock, and an administrator can set it. A leap second can repeat a second. The JDK documentation states that `nanoTime` has an arbitrary origin and that the difference between two readings in one JVM is the elapsed time. It is not tied to the wall clock.
+    **Reason:** NTP can step the wall clock, and an administrator can set it. A leap second can repeat a second. The JDK 21 javadoc states that `nanoTime` "can only be used to measure elapsed time and is not related to any other notion of system or wall-clock time", that its origin is arbitrary (values may be negative), and that only the difference between two readings in the same JVM instance has meaning. Compare with `System.nanoTime() - start >= timeoutNanos`, which the javadoc recommends because the form `nanoTime() >= start + timeoutNanos` can overflow.
 
-    **Edge case:** `nanoTime` is valid only within one JVM on one machine. A deadline that crosses machines, such as a lease expiry stored in a database, needs a wall-clock time and a margin for skew, or a design that does not depend on clocks (a fencing token).
+    **Edge case:** `nanoTime` values are comparable only within one JVM instance. The javadoc states that "other virtual machine instances are likely to use a different origin", so a restarted process cannot compare a stored reading with a new one. A deadline that crosses machines, such as a lease expiry stored in a database, needs a wall-clock time and a margin for skew, or a design that does not depend on clocks (a fencing token).
 
 ### Follow-up Questions
 
@@ -658,7 +662,7 @@ The programs have no networking, no threads, and no pruning of vectors. A real i
 - Resolving write conflicts with last-write-wins and not mentioning that it drops writes.
 - Treating a timeout as proof that the remote operation failed.
 - Using retries with no idempotency.
-- Saying that NTP makes clocks equal. NTP bounds the difference to an error that can be tens of milliseconds, and it can step a clock.
+- Saying that NTP makes clocks equal. NTP reduces the difference to an error of about 5 to 100 ms over the Internet (NTP FAQ, approximate), and it can step a clock.
 - Stating that a Lamport timestamp shows causality in both directions.
 - Claiming that a failure detector can be both accurate and fast in an asynchronous network.
 
@@ -685,34 +689,38 @@ The programs have no networking, no threads, and no pruning of vectors. A real i
 | Vector clock and version vector | A vector clock orders events in processes. A version vector orders the versions of replicated data and has one entry for each replica | Is the vector tracking events or data versions? |
 | Clock skew and clock drift | Skew is the difference between two clocks now. Drift is the rate at which one clock gains or loses time | Am I comparing two clocks, or watching one clock over time? |
 | Crash failure and partition | A crash stops a node. A partition leaves nodes running that cannot reach each other | Is the node down, or is only the link down? |
-| TrueTime and NTP | NTP gives a best estimate and no explicit bound. TrueTime returns an interval that bounds the error | Does the API report the uncertainty? |
+| TrueTime and NTP | NTP computes an estimate of its maximum error (the root synchronization distance), but the time-of-day API returns one number and the application does not see the error. TrueTime returns an interval to the application, and Spanner waits on it | Does the API report the uncertainty to the application? |
 
 ## Quick Reference Card
 
 - Partial failure: the caller cannot tell a lost request, a crash, a lost response, and a slow server apart. Retry with idempotency keys.
-- Fallacies (Deutsch): the network is reliable; latency is zero; bandwidth is infinite; the network is secure; topology does not change; there is one administrator; transport cost is zero; the network is homogeneous.
+- Fallacies (Deutsch's seven, plus Gosling's eighth, "the network is homogeneous"): the network is reliable; latency is zero; bandwidth is infinite; the network is secure; topology does not change; there is one administrator; transport cost is zero; the network is homogeneous.
 - Failure detection: a heartbeat with a timeout is a guess. The phi accrual detector returns `phi = -log10(P_later(t))`, and a threshold of 1, 2, or 3 gives about 10 percent, 1 percent, or 0.1 percent wrong suspicions. Cassandra default threshold: 8.
 - Wall clock for a point in time, monotonic clock (`System.nanoTime()`) for a duration.
 - Wall clocks drift and step. Last-write-wins with skewed clocks loses writes.
 - Lamport: `L = max(L, T) + 1` on receive. `a → b` implies `L(a) < L(b)`. The reverse is false.
 - Vector clock: take the element-wise maximum on receive and add 1 to your own entry. It detects concurrency. The size grows with the nodes.
 - HLC: a pair `(l, c)`, with `l` close to wall time and `c` as a counter. It has a fixed size and keeps causality.
-- TrueTime: an interval `[earliest, latest]` with `ε` about 1 to 7 ms. Commit wait gives external consistency.
+- TrueTime: an interval `[earliest, latest]`. `ε` (half the width) is about 1 to 7 ms, about 4 ms on average (2012). Commit wait (expected at least `2 × ε̄`) gives external consistency.
 - Safety must not depend on a clock or a failure detector being right. Use fencing tokens or consensus.
 
 ## Further Reading
 
 - Lamport. "Time, Clocks, and the Ordering of Events in a Distributed System". Communications of the ACM 21(7), 1978. The happened-before relation, logical clocks, and the total order. <https://lamport.azurewebsites.net/pubs/time-clocks.pdf>
 - Deutsch (and Gosling). "Fallacies of Distributed Computing". Sun Microsystems, 1994 to 1997. The list of eight false assumptions. Search for the title; the original is a short list, and the explanation by Rotem-Gal-Oz ("Fallacies of Distributed Computing Explained") gives each one in detail.
-- Hayashibara, Défago, Yared, and Katayama. "The φ Accrual Failure Detector". IEEE SRDS 2004. The definition of phi and the experiments on thresholds.
+- Hayashibara, Défago, Yared, and Katayama. "The φ Accrual Failure Detector". IEEE SRDS 2004, and JAIST research report IS-RR-2004-010. The definition of phi and the experiments on thresholds. <https://www.jaist.ac.jp/~defago/files/pdf/IS_RR_2004_010.pdf>
+- Chandra and Toueg. "Unreliable Failure Detectors for Reliable Distributed Systems". Journal of the ACM 43(2), 1996. Completeness and accuracy, and the weakest detector that solves consensus.
+- Dwork, Lynch, and Stockmeyer. "Consensus in the Presence of Partial Synchrony". Journal of the ACM 35(2), 1988. The two forms of partial synchrony.
+- Mattern. "Virtual Time and Global States of Distributed Systems". Parallel and Distributed Algorithms, 1989. The vector clock rules and the proof that vector order equals causal order. <https://vs.inf.ethz.ch/publ/papers/VirtTimeGlobStates.pdf>
 - Corbett et al. "Spanner: Google's Globally-Distributed Database". OSDI 2012. The TrueTime API, the uncertainty `ε`, and commit wait. <https://static.googleusercontent.com/media/research.google.com/en//archive/spanner-osdi2012.pdf>
-- Kulkarni, Demirbas, Madappa, Avva, and Leone. "Logical Physical Clocks and Consistent Snapshots in Globally Distributed Databases". 2014 (technical report, University at Buffalo, and OPODIS 2014). The HLC algorithm and its bounds. <https://cse.buffalo.edu/tech-reports/2014-04.pdf>
-- Fischer, Lynch, and Paterson. "Impossibility of Distributed Consensus with One Faulty Process". Journal of the ACM 32(2), 1985. Why no failure detector or timeout solves consensus in an asynchronous system.
+- Kulkarni, Demirbas, Madeppa, Avva, and Leone. "Logical Physical Clocks and Consistent Snapshots in Globally Distributed Databases". 2014 (technical report, University at Buffalo, and OPODIS 2014). The HLC algorithm and its bounds. <https://cse.buffalo.edu/tech-reports/2014-04.pdf>
+- Fischer, Lynch, and Paterson. "Impossibility of Distributed Consensus with One Faulty Process". Journal of the ACM 32(2), 1985. Why no deterministic protocol can guarantee that consensus terminates in an asynchronous system with one crash.
 - DeCandia et al. "Dynamo: Amazon's Highly Available Key-value Store". SOSP 2007. Vector clocks on object versions, and the reduction of their size.
 - Kleppmann. *Designing Data-Intensive Applications*, chapter 8 ("The Trouble with Distributed Systems"). Unreliable networks, unreliable clocks, process pauses, and the limits of knowledge.
 - Bailis and Kingsbury. "The Network is Reliable". ACM Queue 12(7), 2014. Reports of real network partitions.
-- Mills et al. RFC 5905, "Network Time Protocol Version 4: Protocol and Algorithms Specification", 2010. The NTP algorithms. <https://www.rfc-editor.org/rfc/rfc5905>
+- Mills et al. RFC 5905, "Network Time Protocol Version 4: Protocol and Algorithms Specification", 2010. The NTP algorithms and the root synchronization distance (the estimate of maximum error). <https://www.rfc-editor.org/rfc/rfc5905>
+- The NTP FAQ, section 5.1.3 (accuracy): <https://www.ntp.org/ntpfaq/ntp-s-algo/>. The approximate accuracy on a local network and over the Internet.
 - Apache Cassandra documentation, "cassandra.yaml" (`phi_convict_threshold`): <https://cassandra.apache.org/doc/latest/cassandra/managing/configuration/cass_yaml_file.html>. The default value of the phi threshold.
 - CockroachDB documentation, "Transaction Layer" (time and hybrid logical clocks) and `cockroach start` (`--max-offset`): <https://www.cockroachlabs.com/docs/stable/architecture/transaction-layer.html>. How a database uses HLCs and a clock offset limit.
 - Cloudflare. "How and why the leap second affected Cloudflare DNS", 2017: <https://blog.cloudflare.com/how-and-why-the-leap-second-affected-cloudflare-dns/>. A real failure that a wall clock caused.
-- Oracle. JDK 21 API documentation for `System.nanoTime()` and `System.currentTimeMillis()`. The statements on origin and on the time scale.
+- Oracle. JDK 21 API documentation for `System.nanoTime()` and `System.currentTimeMillis()`: <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/System.html#nanoTime()>. The statements on origin, on elapsed time, and on the overflow-safe comparison.
