@@ -7,7 +7,7 @@ A machine-coding round is a timed coding session in which you build a small work
 
 ## Why It Matters
 
-Several Indian product companies are reported to use a machine-coding round before or next to the system design rounds. The round decides the result for many candidates, because a program that does not run fails the round, however good the ideas are. The skills also apply on the job: you break a requirement list into modules, you keep the code easy to change, and you show that the program works. The round rewards a plan, a clean structure, and discipline with time more than it rewards knowledge of patterns.
+Candidate reports (listed in the format section below) describe a machine-coding round at several Indian product companies, often as an early round in the process. In those reports, a program that does not run fails the round, however good the ideas are. The skills also apply on the job: you break a requirement list into modules, you keep the code easy to change, and you show that the program works. The round rewards a plan, a clean structure, and discipline with time more than it rewards knowledge of patterns.
 
 ## Core Concepts
 
@@ -35,9 +35,9 @@ The sources below are accounts of candidates and interview-preparation sites. Th
 
 | Source | What it reports | Detail |
 |---|---|---|
-| [Udaan SDE-1 experience (GeeksforGeeks, 2021)](https://www.geeksforgeeks.org/?p=561821) | A candidate's account of the Udaan machine-coding round | 90 minutes of coding and 30 minutes of evaluation or explanation. Task: a program that calls a news API and shows headlines, search results, and sources. Object-oriented design was required, and any language was allowed. The code had to run without compile errors and show all the functions. The author lists clean, extensible code and good modeling as goals |
-| [PhonePe interview process (DesignGurus)](https://www.designgurus.io/answers/detail/what-is-the-phonepe-interview-process-like-round-by-round) | A summary of candidate reports for PhonePe | The round is reported at about 90 minutes, followed by a review of about 15 to 30 minutes. The page lists "working code, class design, extensibility" as the focus. One report mentions a requirement to add a feature without a rewrite of the existing classes. Some reports say up to two hours |
-| [Flipkart interview process (DesignGurus)](https://www.designgurus.io/answers/detail/what-is-the-flipkart-interview-process-like-round-by-round) | A summary of candidate reports for Flipkart | 90 to 120 minutes, and a longer session for some senior candidates. A console application. Several reports say that the candidate uses their own laptop and editor. Classes must have sensible separation, and a new requirement must be possible without a rewrite |
+| [Udaan SDE-1 experience (GeeksforGeeks, 2021)](https://www.geeksforgeeks.org/interview-experiences/udaan-interview-experience-for-sde-1-2021/) | A candidate's account of the Udaan machine-coding round | 90 minutes of coding and 30 minutes of evaluation or explanation. Task: a program that calls a news API, parses the JSON, and shows headlines, search results, and sources. Object-oriented design was required, any language was allowed, and internet access was allowed. The code had to run without compile errors and show all the functions. The author lists clean, extensible code, good modeling, class separation, and support for extensions as the goals |
+| [PhonePe interview process (DesignGurus)](https://www.designgurus.io/answers/detail/what-is-the-phonepe-interview-process-like-round-by-round) | A summary of candidate reports for PhonePe | The round is reported at about 90 minutes, followed by a review of about 15 to 30 minutes. The page lists "working code, class design, extensibility" as the focus. One report mentions a requirement to add a feature without a rewrite of the existing classes. Some reports say up to two hours. One report describes the coding part as a take-home task |
+| [Flipkart interview process (DesignGurus)](https://www.designgurus.io/answers/detail/what-is-the-flipkart-interview-process-like-round-by-round) | A summary of candidate reports for Flipkart | 90 to 120 minutes, and a longer session for some senior candidates. Usually a console application. Several reports say that the candidate uses their own laptop and editor. Classes must have sensible separation, and a new requirement must be possible without a rewrite |
 
 The common points in these three sources:
 
@@ -92,23 +92,28 @@ A recommendation for a 90-minute and a 120-minute session. Change the numbers to
 | Phase | 90 minutes | 120 minutes | Output |
 |---|---|---|---|
 | Read, clarify, plan | 10 | 12 | Requirement list, assumptions, a sketch of 5 to 8 classes |
-| Model and contracts | 10 | 12 | Entities, enums, interfaces, and exceptions that compile |
-| Core flow end to end | 25 | 30 | One use case, from the driver down to the repository and back |
-| Remaining required features | 15 | 22 | Each required feature through the same layers |
+| Model and contracts | 8 | 12 | Entities, enums, interfaces, and exceptions that compile |
+| Core flow end to end | 22 | 31 | One use case, from the driver down to the repository and back, with its check |
+| Remaining required features | 20 | 27 | Each required feature through the same layers, each with its check |
 | Validation and edge cases | 8 | 12 | Checks on input, duplicates, limits, conflicts |
-| Self-tests and driver | 10 | 14 | Checks for the main rules, and a demo that shows all features |
-| Bonus features | 5 | 8 | Only after everything above works |
-| Cleanup and checklist | 7 | 10 | Names, dead code, formatting, run from a clean build, notes |
+| Self-tests and driver | 8 | 10 | The final demo that shows all features, and the missing checks |
+| Bonus features | 6 | 8 | Only after everything above works |
+| Cleanup and checklist | 8 | 8 | Names, dead code, formatting, run from a clean build, notes |
 | **Total** | **90** | **120** | |
 
-The rule of the plan: get one use case to run from the driver to the storage and back by minute 40 of 90. A thin end-to-end flow first, then widen. A program with ten half-written classes that does not run scores below a program with four classes that runs.
+The rule of the plan: get one use case to run from the driver to the storage and back by minute 40 of 90 (minute 55 of 120). A thin end-to-end flow first, then widen. A program with ten half-written classes that does not run scores below a program with four classes that runs.
+
+Two more rules:
+
+- Write the check for a rule when you write the rule. The "self-tests and driver" phase completes the demo. It is not the first time that you test.
+- Keep a working version. If the round allows `git`, commit each time a feature runs (`git commit -am "booking works"`). If not, copy the folder. A change that breaks the build late in the round then costs one revert and not the whole submission.
 
 ### Step 3. Package layout
 
-Group files by role. The layout below is a recommendation and not a standard. It works for most statements.
+Group files by role. The package names below are a recommendation and not a standard. The `src/main/java` and `src/test/java` folders follow the Maven standard directory layout, which Gradle also uses by default, so the project opens in an IDE or a build tool without configuration.
 
 ```text
-src/
+src/main/java/
   com/example/booking/
     Main.java                    driver: wires the objects and runs the demo
     model/                       entities, value objects, enums
@@ -127,7 +132,7 @@ src/
       BookingException.java
     cli/                         input parsing and output formatting
       CommandProcessor.java
-test/
+src/test/java/
   com/example/booking/
     BookingServiceTest.java
 NOTES.md                         assumptions, how to run, design decisions, limits
@@ -137,11 +142,11 @@ Layer rules:
 
 | Layer | Holds | May use | Must not |
 |---|---|---|---|
-| `model` | Data and the rules of one object (invariants) | Nothing else in the project | Read input, print, or call a service |
+| `model` | Data and the rules of one object (invariants) | `exception` only | Read input, print, or call a service |
 | `repository` | Storage and lookup | `model` | Hold business rules |
 | `service` | Use cases and rules across objects | `model`, `repository` interfaces, `strategy` | Parse text or print |
 | `strategy` | One rule for each class, behind an interface | `model` | Hold state of other layers |
-| `cli` (driver) | Input parsing and output text | `service` | Hold business rules |
+| `cli` (driver) | Input parsing and output text | `service`, `model` (to format results), `exception` | Hold business rules |
 
 The dependency arrows point inward: `cli` to `service` to `repository` and `model`. A `model` class does not know the `service`. See [architectural patterns](fundamentals/10-architectural-patterns.md) for layered and hexagonal designs, and the reason for constructor injection.
 
@@ -210,22 +215,26 @@ You have three options. The statement or the interviewer states which are allowe
 |---|---|---|---|
 | `assert` statements | None. Part of the language | `AssertionError` if the check fails | You have no framework. Run with `-ea` |
 | A small check helper | A few lines | A clear message and a count | You want a run that fails or passes without flags |
-| JUnit 5 | A build file and the dependency | A report for each test | The environment has Maven or Gradle and the rules allow a dependency |
+| JUnit Jupiter (JUnit 5 or JUnit 6) | A build file and the dependency | A report for each test | The environment has Maven or Gradle and the rules allow a dependency |
 
 **Plain `assert` checks.** The `assert` statement throws an `AssertionError` if its condition is false. The JVM disables assertions by default, so a failing `assert` does nothing unless you run with `-ea` (the `-enableassertions` flag), for example `java -ea Main`. State the flag in the notes. Do not use `assert` to validate user input, because the check disappears when assertions are off. See JLS 14.10.
 
 ```java
-class AssertDemo {
+class TotalCheck {
     static int total(int price, int quantity) {
-        assert price >= 0 : "price must not be negative";
         return price * quantity;
+    }
+
+    // Run with java -ea. Without the flag, the JVM skips the assert.
+    static void checkTotal() {
+        assert total(5, 3) == 15 : "total of 5 x 3 must be 15";
     }
 }
 ```
 
 **A check helper.** An `expect` method that throws an `AssertionError` on each run, with or without `-ea`. The example below uses this form. It keeps a count, so the output shows how many checks ran.
 
-**JUnit 5.** JUnit is the standard framework for Java tests. A test is a method with `@Test`. The class under test needs no change. A test framework is not part of the JDK, so a program that uses it needs a build tool. Use it only if the environment gives you one. The block below is a fragment, because it needs the JUnit dependency.
+**JUnit Jupiter.** JUnit is a test framework for Java. Jupiter is its programming model in JUnit 5 and in JUnit 6, the current major version, which requires Java 17 or later. Both versions use the same `org.junit.jupiter.api` annotations and assertions that the block below uses. A test is a method with `@Test`. The class under test needs no change. A test framework is not part of the JDK, so a program that uses it needs a build tool. Use it only if the environment gives you one. The block below is a fragment, because it needs the JUnit dependency.
 
 <!-- fragment -->
 ```java
@@ -324,7 +333,7 @@ The list comes from the criteria in the sources above and from the failure signs
 | Cannot explain the code in the review | The code may not be your own work | Keep the design small enough to explain. Rehearse a 3-minute walkthrough |
 | Cannot add the new requirement | The extensibility claim is false | Practice the change on your own design before the round |
 
-A rejection report is an anecdote and not a rule. One public report on a different site describes a candidate who produced working code and was rejected for code that was not modular or extensible. Treat that as a reminder that the code must also be well structured. The Udaan source above says the same from the other side: clean, extensible code and good modeling are goals next to working code.
+Working code is the gate, and it is not enough. The Udaan source above lists clean, extensible code and good modeling as goals next to working code, and the DesignGurus pages list class design and extensibility next to working code.
 
 ## Trade-offs and When to Use
 
@@ -333,14 +342,15 @@ A rejection report is an anecdote and not a rule. One public report on a differe
 | Layout | Many files in packages | One file with several top-level types | Packages, if the rules allow. One file if the environment is a single-file editor or a source launcher. Keep the same separation |
 | Storage | `HashMap` field in the service | Repository interface with in-memory classes | The interface. It costs one file, and the review often asks about a database |
 | Interfaces | One for every class | Only at variation points | Variation points and repositories |
-| Patterns | Several, to show knowledge | Few, only for a real requirement | Few. Strategy and Observer are the most common fit. Evaluators score unneeded patterns as a weakness |
-| Tests | `assert` | Check helper | JUnit 5 | `assert` or a helper in a plain `javac` environment. JUnit if a build tool exists and the rules allow it |
+| Patterns | Several, to show knowledge | Few, only for a real requirement | Few. Use a pattern only where the statement names a variation (pricing rules, a life cycle, notifications). The sources score over-engineering as a weakness |
+| Package grouping | By layer (`model`, `service`, `repository`) | By feature (`booking`, `room`), with layers inside | By layer for a 90-minute statement with one or two features. By feature when the statement has several independent features, because each feature then changes in one folder |
+| Tests | `assert` or a check helper | JUnit Jupiter | `assert` or a helper in a plain `javac` environment. JUnit if a build tool exists and the rules allow it |
 | Input | Parse commands | Hard-coded demo | Parse commands if the statement gives a command format. A hard-coded demo if it does not |
 | Concurrency | Ignore | Lock the shared state | Lock if the statement mentions concurrent users. Otherwise, one sentence in the notes |
 | Language features | Records, `Optional`, streams, switch expressions | Plain classes | Modern Java where it reduces code. Do not use a feature that you cannot explain |
 | Order of work | Breadth first (all classes, then logic) | Thin vertical slice, then widen | The vertical slice. It gives a running program early |
 
-When not to use the round format: if you have no tested compile-and-run setup, prepare it before the round. A broken build tool wastes the first 15 minutes. Prepare a template project that compiles, with an empty `Main` and a test class.
+Prepare the environment before the round. If you have no tested compile-and-run setup, a broken build tool can cost the first part of the session. Prepare a template project that compiles, with an empty `Main` and a test class, and learn the IDE shortcuts that generate constructors and `equals` methods. The Udaan candidate gives the same advice.
 
 ## Java Example
 
@@ -359,9 +369,9 @@ Design notes:
 
 - `TimeSlot` is a record. Its constructor rejects a start that is not before the end. `overlaps` compares the half-open interval `[start, end)`, so back-to-back slots do not overlap.
 - `RoomRepository` and `BookingRepository` are interfaces with in-memory implementations.
-- `BookingService.book` is `synchronized`. The overlap check and the save are one compound action. See [concurrency in LLD](fundamentals/09-concurrency-in-lld.md).
-- `CommandProcessor` is the parser layer. It turns every failure into an `ERROR:` line, so one bad line does not stop the run.
-- `SelfTests` uses an `expect` helper, so the checks run without `-ea`.
+- Every public method of `BookingService` is `synchronized`. The overlap check and the save in `book` are one compound action. The repositories use plain `HashMap` and `ArrayList`, so the reads (`list`) and the other writes (`addRoom`, `cancel`) also take the lock. Without it, a read can run during a write and see a broken list. See [concurrency in LLD](fundamentals/09-concurrency-in-lld.md).
+- `CommandProcessor` is the parser layer. It checks the number of arguments before it uses them, and it turns every failure into an `ERROR:` line, so one bad line does not stop the run.
+- `SelfTests` uses an `expect` helper, so the checks run without `-ea`. It keeps its count in an instance field, not in static state. One check starts 8 threads that book the same slot and expects exactly one success.
 
 ```java
 import java.time.LocalTime;
@@ -371,9 +381,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class RoomBookingApp {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         BookingService service = new BookingService(
                 new InMemoryRoomRepository(), new InMemoryBookingRepository());
         CommandProcessor cli = new CommandProcessor(service);
@@ -386,6 +397,7 @@ class RoomBookingApp {
             "BOOK r2 09:00 10:00",
             "BOOK r1 11:00 10:00",
             "BOOK r1 9am 10am",
+            "BOOK r1 12:00",
             "LIST r1",
             "CANCEL b1",
             "LIST r1",
@@ -396,7 +408,7 @@ class RoomBookingApp {
             System.out.println("> " + line);
             System.out.println(cli.execute(line));
         }
-        SelfTests.run();
+        new SelfTests().run();
     }
 }
 
@@ -484,14 +496,15 @@ class BookingService {
         this.bookings = bookings;
     }
 
-    void addRoom(String id, int capacity) {
+    synchronized void addRoom(String id, int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity must be positive");
         }
         rooms.save(new Room(id, capacity));
     }
 
-    // synchronized: the overlap check and the save must run as one step.
+    // The overlap check and the save must run as one step, so book holds the lock.
+    // The other methods take the same lock, because the repositories are not thread-safe.
     synchronized Booking book(String roomId, TimeSlot slot) {
         rooms.findById(roomId)
                 .orElseThrow(() -> new BookingException("Unknown room: " + roomId));
@@ -511,7 +524,7 @@ class BookingService {
         }
     }
 
-    List<Booking> list(String roomId) {
+    synchronized List<Booking> list(String roomId) {
         return bookings.findByRoom(roomId);
     }
 }
@@ -528,34 +541,46 @@ class CommandProcessor {
         try {
             return switch (p[0]) {
                 case "ADD_ROOM" -> {
+                    requireArguments(p, 2);
                     service.addRoom(p[1], Integer.parseInt(p[2]));
                     yield "OK room " + p[1];
                 }
                 case "BOOK" -> {
+                    requireArguments(p, 3);
                     TimeSlot slot = new TimeSlot(LocalTime.parse(p[2]), LocalTime.parse(p[3]));
                     yield "OK booking " + service.book(p[1], slot).id();
                 }
                 case "CANCEL" -> {
+                    requireArguments(p, 1);
                     service.cancel(p[1]);
                     yield "OK cancelled " + p[1];
                 }
-                case "LIST" -> service.list(p[1]).toString();
+                case "LIST" -> {
+                    requireArguments(p, 1);
+                    yield service.list(p[1]).toString();
+                }
                 default -> "ERROR: unknown command " + p[0];
             };
         } catch (BookingException | IllegalArgumentException e) {
             return "ERROR: " + e.getMessage();
         } catch (DateTimeParseException e) {
             return "ERROR: time must look like HH:mm";
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return "ERROR: missing argument";
+        }
+    }
+
+    // tokens[0] is the command name, so a command with n arguments has n + 1 tokens.
+    private static void requireArguments(String[] tokens, int count) {
+        if (tokens.length != count + 1) {
+            throw new IllegalArgumentException(
+                    tokens[0] + " needs " + count + " argument(s), got " + (tokens.length - 1));
         }
     }
 }
 
 class SelfTests {
-    private static int checks = 0;
+    private int checks = 0;
 
-    static void run() {
+    void run() throws InterruptedException {
         BookingService service = new BookingService(
                 new InMemoryRoomRepository(), new InMemoryBookingRepository());
         service.addRoom("r1", 4);
@@ -568,17 +593,38 @@ class SelfTests {
         expect(service.list("r1").size() == 2, "back-to-back slots do not overlap");
         expectFailure(() -> service.book("r1", nine), "overlap is rejected");
         expectFailure(() -> service.book("nope", nine), "unknown room is rejected");
+
+        // Concurrency rule: 8 threads book the same slot, and exactly one succeeds.
+        service.addRoom("r2", 4);
+        AtomicInteger successes = new AtomicInteger();
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            Thread t = new Thread(() -> {
+                try {
+                    service.book("r2", nine);
+                    successes.incrementAndGet();
+                } catch (BookingException expected) {
+                    // The slot is taken. This is the expected result for 7 threads.
+                }
+            });
+            threads.add(t);
+            t.start();
+        }
+        for (Thread t : threads) {
+            t.join();
+        }
+        expect(successes.get() == 1, "one of 8 concurrent bookings succeeds");
         System.out.println("Self-tests passed: " + checks);
     }
 
-    private static void expect(boolean condition, String name) {
+    private void expect(boolean condition, String name) {
         if (!condition) {
             throw new AssertionError("FAILED: " + name);
         }
         checks++;
     }
 
-    private static void expectFailure(Runnable action, String name) {
+    private void expectFailure(Runnable action, String name) {
         try {
             action.run();
         } catch (BookingException expected) {
@@ -606,6 +652,8 @@ ERROR: Unknown room: r2
 ERROR: Start must be before end
 > BOOK r1 9am 10am
 ERROR: time must look like HH:mm
+> BOOK r1 12:00
+ERROR: BOOK needs 3 argument(s), got 2
 > LIST r1
 [Booking[id=b1, roomId=r1, slot=09:00-10:00], Booking[id=b2, roomId=r1, slot=10:00-11:00]]
 > CANCEL b1
@@ -616,7 +664,7 @@ OK cancelled b1
 ERROR: Unknown booking: b1
 > FLY r1
 ERROR: unknown command FLY
-Self-tests passed: 4
+Self-tests passed: 5
 ```
 
 How the program maps to the evaluation criteria:
@@ -626,8 +674,8 @@ How the program maps to the evaluation criteria:
 | Working code | The output shows R1 to R5, including each failure case |
 | Modularity | `CommandProcessor` parses, `BookingService` holds the rules, repositories store, and records hold data |
 | Extensibility | A database needs two new classes that implement the repository interfaces. A new input format needs a new parser. A capacity rule needs one check in `book` |
-| Error handling | Five different bad lines give five clear messages, and the run continues |
-| Tests | `SelfTests` covers the happy path, the boundary (back-to-back slots), and two failure rules |
+| Error handling | Seven different bad lines give seven clear messages, and the run continues |
+| Tests | `SelfTests` covers the happy path, the boundary (back-to-back slots), two failure rules, and the concurrency rule |
 | Right-sized design | No pattern is named. The interfaces exist only where storage may change |
 
 Limits of this example (state them in a review):
@@ -635,7 +683,7 @@ Limits of this example (state them in a review):
 - `list` returns bookings in the insertion order. A `Room` holds a capacity that the booking rule does not use. The statement had no rule for it.
 - `nextId` is an `int` inside a `synchronized` method. A second service instance would restart the ids. An `AtomicLong` or an id generator class is the fix.
 - `findByRoom` scans a list. An index (`Map<String, List<Booking>>`) or a sorted structure by start time gives faster lookup, and the repository interface lets you change it without a change to the service.
-- The service has a single lock. Two rooms could book in parallel with one lock for each room. For this round the single lock is the simpler and correct choice.
+- The service has a single lock for all methods. Two rooms could book in parallel with one lock for each room, but then the repositories must be thread-safe too (for example, a `ConcurrentHashMap` from room id to a list that the room lock guards). For this round the single lock is the simpler and correct choice.
 
 ## Interview Angle
 
@@ -647,7 +695,7 @@ Limits of this example (state them in a review):
 
 ??? question "How do you plan 90 minutes?"
 
-    I spend about 10 minutes to read the statement, clarify, and list required and bonus features. I spend 10 minutes to write the model, the interfaces, and the exceptions. Then I build one use case end to end, from the driver to the repository and back, in about 25 minutes, so that a running program exists by minute 40. I add the remaining required features through the same layers in 15 minutes, add validation and edge cases in 8 minutes, and write the checks and the demo in 10 minutes. Bonus features come only after that, in 5 minutes, and the last 7 minutes go to cleanup, the notes, and the checklist. I compile every 10 minutes, so that an error does not stay hidden.
+    I spend about 10 minutes to read the statement, clarify, and list required and bonus features. I spend 8 minutes to write the model, the interfaces, and the exceptions. Then I build one use case end to end, from the driver to the repository and back, in about 22 minutes, so that a running program exists by minute 40. I add the remaining required features through the same layers in 20 minutes, with a check for each rule as I write it. I add validation and edge cases in 8 minutes, and complete the demo and the missing checks in 8 minutes. Bonus features come only after that, in about 6 minutes, and the last 8 minutes go to cleanup, the notes, and the checklist. I compile and run every 10 minutes, so that an error does not stay hidden, and I commit each working state so that I can revert a late break.
 
 ??? question "What do evaluators score, and which criterion costs the most when it fails?"
 
@@ -659,7 +707,7 @@ Limits of this example (state them in a review):
 
 ??? question "How do you test without JUnit?"
 
-    I have two options in a plain `javac` environment. The first is the `assert` statement, run with `java -ea`. It throws `AssertionError` on a failed condition, and the JVM disables assertions by default, so I must give the flag and state it in the notes. The second is a small `expect(condition, name)` helper that throws `AssertionError` and counts the checks. It runs without a flag, and I prefer it for that reason. I test the happy path, each failure rule, each boundary, and the concurrency rule (join the threads, then check the count). If the environment has Maven or Gradle and the rules allow it, I use JUnit 5, with `@Test` and `assertThrows`.
+    I have two options in a plain `javac` environment. The first is the `assert` statement, run with `java -ea`. It throws `AssertionError` on a failed condition, and the JVM disables assertions by default, so I must give the flag and state it in the notes. The second is a small `expect(condition, name)` helper that throws `AssertionError` and counts the checks. It runs without a flag, and I prefer it for that reason. I test the happy path, each failure rule, each boundary, and the concurrency rule (join the threads, then check the count). If the environment has Maven or Gradle and the rules allow it, I use JUnit Jupiter (JUnit 5 or JUnit 6), with `@Test` and `assertThrows`.
 
 ??? question "How do you handle input parsing?"
 
@@ -683,7 +731,7 @@ Limits of this example (state them in a review):
 
 ??? question "What makes a candidate with working code fail the round?"
 
-    The reports describe three causes. The first is a structure problem: all the logic sits in one class or in `main`, so the evaluator sees no modularity. The second is no extensibility: a new rule needs edits in many places. The third is no review ability: the candidate cannot explain the code or cannot add the new requirement. A fourth cause is over-engineering, where the program has many layers and an unfinished core. A public report on a different site describes working code with a rejection for code that was not modular or extensible. It is one report, and I treat it as a warning and not as a rule.
+    Working code is the gate, and the evaluators then score the design. Four causes follow from the criteria that the reports list. The first is a structure problem: all the logic sits in one class or in `main`, so the evaluator sees no modularity. The second is no extensibility: a new rule needs edits in many places, and the evaluator finds this when they ask for a new requirement in the review. The third is no review ability: the candidate cannot explain the code or cannot add the new requirement. The fourth is over-engineering, where the program has many layers and an unfinished core. Smaller causes add to these: poor names, no validation, and no tests.
 
 ### Follow-up Questions
 
@@ -697,7 +745,7 @@ Limits of this example (state them in a review):
 
 ??? question "Why does `book` use `synchronized`, and what is the cost?"
 
-    The overlap check and the save are one compound action. Without a lock, two threads can both see a free slot and both save a booking. The method-level lock is correct and short. The cost is that bookings of different rooms wait for each other. A lock for each room gives more parallelism, and for one machine and a small statement the single lock is the simpler choice. I would state the trade-off.
+    The overlap check and the save are one compound action. Without a lock, two threads can both see a free slot and both save a booking. The method-level lock is correct and short. The other methods (`addRoom`, `cancel`, `list`) also take the lock, because the repositories use a plain `HashMap` and `ArrayList`. A read without the lock could run while `book` adds to the list, and it could see a broken list or throw `ConcurrentModificationException`. The cost is that all calls wait for each other, including bookings of different rooms. A lock for each room gives more parallelism, but it also needs thread-safe repositories. For one process and a small statement, the single lock is the simpler choice. I would state the trade-off.
 
 ??? question "How do you make the output deterministic?"
 
@@ -719,7 +767,6 @@ Limits of this example (state them in a review):
 - `null` for failure, empty `catch` blocks, public mutable fields.
 - No test or self-check.
 - A candidate who cannot explain a class, or cannot add the requested feature in the review.
-- A claim such as "company X asks the parking lot problem" with no source.
 
 ## Common Mistakes
 
@@ -745,7 +792,7 @@ Limits of this example (state them in a review):
 |---|---|---|
 | Machine-coding round vs LLD whiteboard round | The machine-coding round is a long timed session that produces running code. The whiteboard round is a short discussion with a diagram and partial code. See [how to approach LLD](how-to-approach-lld.md) | Does the evaluator run the program? |
 | Machine-coding round vs DSA round | A DSA round gives one algorithmic problem with a complexity target. A machine-coding round gives a feature list and scores structure and extensibility | Is the problem a model with many features or one algorithm? |
-| Machine-coding round vs take-home assignment | A take-home gives days and often allows a framework. A machine-coding round has a fixed session and a review. One DesignGurus report describes a take-home coding part for one company, so formats vary | Is the time fixed to one session? |
+| Machine-coding round vs take-home assignment | A take-home gives days and often allows a framework. A machine-coding round has a fixed session and a review. The DesignGurus PhonePe page cites one report that describes the coding part as a take-home task, so formats vary | Is the time fixed to one session? |
 | Driver class vs unit test | The driver shows the features by a scenario and prints. A unit test checks one rule and fails with a message | Does the code check a result, or does it only print? |
 | `assert` vs `expect` helper vs JUnit | `assert` is a language statement, off by default. A helper runs on each run. JUnit is a framework with a report and needs a dependency | Can I run with `-ea`, and is a build tool available? |
 | Repository vs service | A repository stores and finds objects. A service holds the rules and the workflow | Does the class apply a business rule? |
@@ -757,7 +804,7 @@ Limits of this example (state them in a review):
 
 **Scored**: working code, modularity, extensibility, naming, tests, error handling, edge cases, right-sized design, review.
 
-**Time (90 min)**: 10 read and plan, 10 model, 25 core flow, 15 other features, 8 validation, 10 tests and demo, 5 bonus, 7 cleanup.
+**Time (90 min)**: 10 read and plan, 8 model, 22 core flow (running by minute 40), 20 other features, 8 validation, 8 demo and tests, 6 bonus, 8 cleanup. Write each check with its rule. Commit each working state.
 
 **Layers**: `cli` (driver) to `service` to `repository` interfaces and `model`. Rules in `service` and `model`. No printing or parsing there.
 
@@ -771,18 +818,18 @@ Limits of this example (state them in a review):
 
 **Before submission**: it compiles clean, the demo shows every required feature and one failure, the output format matches, the output is the same on each run, the names state roles, the notes list the run command and the assumptions, and you can explain each class in one sentence.
 
-**Avoid**: bonus first, everything in `main`, many patterns on an unfinished core, `null` for failure, claims without sources.
+**Avoid**: bonus first, everything in `main`, many patterns on an unfinished core, `null` for failure, a late change with no working version to revert to.
 
 ## Further Reading
 
-- [Udaan SDE-1 interview experience (GeeksforGeeks)](https://www.geeksforgeeks.org/?p=561821). A candidate's account of a 90-minute coding session and a 30-minute evaluation. Read it for the format and the stated goals.
+- [Udaan SDE-1 interview experience (GeeksforGeeks)](https://www.geeksforgeeks.org/interview-experiences/udaan-interview-experience-for-sde-1-2021/). A candidate's account of a 90-minute coding session and a 30-minute evaluation. Read it for the format and the stated goals.
 - [PhonePe interview process (DesignGurus)](https://www.designgurus.io/answers/detail/what-is-the-phonepe-interview-process-like-round-by-round). A summary of candidate reports on the round duration and the criteria.
 - [Flipkart interview process (DesignGurus)](https://www.designgurus.io/answers/detail/what-is-the-flipkart-interview-process-like-round-by-round). A summary of candidate reports on the length, the console application, and the grading.
 - [JLS 14.10 The `assert` Statement](https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-14.10). Defines when an `assert` throws `AssertionError` and that assertions can be disabled.
 - [The `java` command (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html). Documents `-ea` and `-enableassertions` and the source-file mode.
 - [JEP 330: Launch Single-File Source-Code Programs](https://openjdk.org/jeps/330). Defines how `java File.java` compiles and runs the first top-level class.
-- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/). The reference for `@Test`, `@BeforeEach`, and `assertThrows`.
-- [Maven: Introduction to the Standard Directory Layout](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html). The `src/main/java` and `src/test/java` convention behind the layout in step 3.
+- [JUnit User Guide](https://docs.junit.org/current/user-guide/). The reference for `@Test`, `@BeforeEach`, and `assertThrows`. The current guide documents JUnit 6, which requires Java 17. The old `junit.org/junit5` URL redirects here.
+- [Maven: Introduction to the Standard Directory Layout](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html). The `src/main/java` and `src/test/java` folders that the layout in step 3 uses.
 - [`ConcurrentHashMap` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html). States that single operations are atomic and compound actions need external coordination.
 - [`HashMap` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/HashMap.html). States that the map makes no guarantee about the order of its entries.
 - [JLS 8.10 Record Classes](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.10). The rules for records and compact constructors.

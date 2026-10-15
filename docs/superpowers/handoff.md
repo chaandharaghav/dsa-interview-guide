@@ -41,14 +41,14 @@
 | `fundamentals/09-concurrency-in-lld.md` | Yes (drafter finished after the WIP commit) | Not started |
 | `fundamentals/10-architectural-patterns.md` | Yes (same) | Not started |
 | `fundamentals/11-anti-patterns.md` | Yes | Done |
-| `how-to-approach-lld.md` | Yes | Was running at save time |
-| `machine-coding-round.md` | Yes | Was running at save time |
+| `how-to-approach-lld.md` | Yes | Done (finished after the save) |
+| `machine-coding-round.md` | Yes | Done (finished after the save) |
 
 Any agent that was running at save time may have stopped partway. In the next session, compare each such file with the WIP commit (`git diff`). Then run a fresh Opus review of each file whose review did not finish.
 
 ## Next Steps, in Order
 
-1. Finish the Batch 1 and Batch 2 reviews (see the table).
+1. Run the Opus review of `fundamentals/09` and `fundamentals/10` (the only unreviewed pages; see the notes below). Every other Batch 1 and Batch 2 page is reviewed and committed. No agent is running.
 2. Run `python3 "$TMPDIR/add_imports.py"` on pages whose runnable blocks lack imports. If `$TMPDIR` was cleared, regenerate the script: for each Java block with `main` that fails to compile as written, add explicit `import` lines for the missing JDK classes. `tools/run_java.py kb/lld` lists these blocks as "does not run ... cannot find symbol".
 3. Run `tools/check-all.sh` and `tools/check-mermaid.sh kb/lld`. Fix the failures.
 4. Commit Batch 1 and Batch 2 (`docs: add LLD fundamentals and procedure pages`).

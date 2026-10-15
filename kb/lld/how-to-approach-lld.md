@@ -62,6 +62,8 @@ flowchart TD
 
 The dotted arrow shows that a design is not a straight line. If the interviewer adds a requirement, you go back to the entities, change the model, and then continue.
 
+Steps 4 to 7 overlap in a real round. While you draw the relationships and the diagram, you see the variation points ("pricing changes", "the machine has modes"), and you draw the Strategy or State interface in the diagram at once. Step 7 is the moment where you say each pattern choice and its rejected alternative aloud. It is not a separate design phase that starts after the diagram is complete. Interviewers also add follow-up requirements during the round, not only at the end, so step 10 can happen at any point.
+
 ## How It Works
 
 ### Step 1. Clarify requirements
@@ -70,6 +72,8 @@ Spend the first 5 minutes on questions. An LLD statement is short on purpose. Th
 
 | Group | Question to ask | Example for a parking lot |
 |---|---|---|
+| Format | How much code do you expect: a class diagram with signatures, or compiling code for the main flow? | Do you want me to write code, and in which editor? |
+| Priority | Which two or three flows matter most? | Is the core flow "park and exit", and are reports secondary? |
 | Scope | Which features are in scope, and which are out? | Do we include payment? Do we include a display board? |
 | Actors | Who uses the system? | Driver, attendant, admin? |
 | Scale | How big is one instance? | How many floors, how many spots? |
@@ -83,7 +87,8 @@ Spend the first 5 minutes on questions. An LLD statement is short on purpose. Th
 
 Rules for this step:
 
-- Ask closed questions that have a short answer ("Is payment in scope?"), because an open question ("What do you want?") wastes time.
+- Ask the format and priority questions first. The answers decide how you spend the rest of the round.
+- After the priority question, ask closed questions that have a short answer ("Is payment in scope?"), because an open question ("What do you want?") wastes time.
 - Write each answer as a numbered requirement. Label an unanswered question as an assumption: "Assumption: in-memory storage."
 - Stop at 5 minutes. If the interviewer says "your choice", pick the simpler option and say so.
 
@@ -179,6 +184,14 @@ A design pattern is a named solution to a design problem that repeats. Choose a 
 | "Millions of similar small objects" | Flyweight | Share the immutable part | [Structural](fundamentals/07-structural-patterns.md) |
 | "Two dimensions that vary" (shape and color, device and remote) | Bridge | `k + c` classes, not `k × c` | [Structural](fundamentals/07-structural-patterns.md) |
 | "The same null check repeats in many places" | Null Object | A do-nothing implementation replaces `null` | [Behavioral](fundamentals/08-behavioral-patterns.md) |
+| "Walk through a custom collection without exposing its structure" (playlist, board cells) | Iterator | The caller uses `Iterator` and does not see the internal array or tree | [Behavioral](fundamentals/08-behavioral-patterns.md) |
+| "A fixed number of expensive, reusable resources" (connections, workers) | Object Pool | Callers borrow and return. The pool limits the count | [Creational](fundamentals/06-creational-patterns.md) |
+
+A pattern from the table is the answer to a variation that the requirements name. The simpler form is often enough:
+
+- State: if the object has two or three states and little behavior for each, an enum with a transition check is enough. Use one class per state when each state has several methods with different behavior (a vending machine with insert, select, dispense, and refund).
+- Strategy: if the rule has one variant and no stated change, a private method is enough. A `java.util.function` interface (`Function`, `Predicate`) is a Strategy with no new type.
+- Observer: with one listener, a `Consumer` callback is enough. A listener list is for two or more listeners.
 
 State each choice in one sentence with the rejected alternative: "I use Strategy for fee rules, because the interviewer said that pricing changes. A `switch` on vehicle type would force an edit in `FeeCalculator` for each new rule." The [creational page](fundamentals/06-creational-patterns.md), [structural page](fundamentals/07-structural-patterns.md), and [behavioral page](fundamentals/08-behavioral-patterns.md) show each pattern in Java.
 
@@ -199,7 +212,7 @@ Rules:
 
 - Write compiling code, not pseudocode. If you run out of time, a class with a method body that throws `UnsupportedOperationException("not in scope")` is better than a missing class.
 - Name each class after its role (`FeeCalculator`) and each method after its action (`brew`, not `process`).
-- Keep each method short. If a method has more than one level of nesting, extract a method.
+- Keep each method short. If a method has more than two levels of nesting, extract a method.
 - Do not write getters and setters for every field. Give each class behavior. See [anti-patterns](fundamentals/11-anti-patterns.md) (anemic model) and [design principles](fundamentals/03-design-principles.md) (tell, don't ask).
 - Write the code for the interviewer's top-ranked use cases. Name the others and move on.
 
@@ -219,7 +232,7 @@ The [concurrency page](fundamentals/09-concurrency-in-lld.md) has the full compa
 
 ### Step 10. Discuss extensions
 
-Keep the last 2 to 5 minutes for extensions. For each likely change, name the class to add and the classes that stay unchanged. This proves the design is open for extension. The typical changes:
+Keep the last 3 to 5 minutes for extensions. Interviewers also ask for extensions in the middle of the round. Answer each one with the same method. For each likely change, name the class to add and the classes that stay unchanged. This proves the design is open for extension. The typical changes:
 
 - A new variant of an existing thing (a new vehicle type, a new payment method).
 - A new rule (a new discount, a new fee).
@@ -232,21 +245,21 @@ If a change forces an edit in many classes (shotgun surgery), say so and explain
 
 ### Time budget
 
-The budget is a recommendation, not a standard. Change the proportions if the interviewer asks for more code or more discussion.
+Recommendation: the budget below is this KB's recommendation, not a published standard. A scheduled slot is not all working time. The introductions at the start and your questions to the interviewer at the end take part of the slot, so the budget plans for about 40 working minutes in a 45-minute slot and about 54 in a 60-minute slot. Patterns (step 7) have no separate phase, because you choose them while you draw the diagram and define the signatures. Change the proportions if the interviewer asks for more code or more discussion (the format question in step 1 tells you which).
 
-| Phase | 45-minute round | 60-minute round |
+| Phase | 45-minute slot | 60-minute slot |
 |---|---|---|
-| 1. Clarify requirements | 5 | 5 |
-| 2-3. Use cases and entities | 7 | 8 |
-| 4-5. Relationships and class diagram | 8 | 10 |
-| 6. Interfaces and signatures | 5 | 6 |
-| 7. Choose patterns | 3 | 4 |
-| 8. Core code | 12 | 17 |
-| 9. Concurrency | 3 | 5 |
-| 10. Extensions | 2 | 5 |
+| Introductions, and your questions at the end | 5 | 6 |
+| 1. Clarify requirements | 5 | 6 |
+| 2-3. Use cases and entities | 5 | 7 |
+| 4-5, 7. Relationships, class diagram, and pattern choices | 8 | 10 |
+| 6. Interfaces and signatures | 4 | 5 |
+| 8. Core code | 12 | 16 |
+| 9. Concurrency | 2 | 4 |
+| 10. Extensions | 4 | 6 |
 | **Total** | **45** | **60** |
 
-Checkpoints for a 45-minute round: by minute 12, the entity list is on the board. By minute 20, the diagram is done. By minute 28, you start code. If you are behind at a checkpoint, cut the next phase and say that you cut it.
+Checkpoints for a 45-minute slot, counted from the start of the slot (the checkpoints place the introductions at the start): by minute 15, the entity list is on the board. By minute 23, the diagram is done. By minute 27, you start code. If you are behind at a checkpoint, cut the next phase and say that you cut it.
 
 ### What interviewers score
 
@@ -254,7 +267,7 @@ Companies publish no common rubric for LLD interviews. The rubric below is this 
 
 | Criterion | Strong signal | Weak signal |
 |---|---|---|
-| Requirements | Asks 5 to 10 targeted questions, states assumptions, limits scope | Starts to draw at once, or asks no question |
+| Requirements | Asks 5 to 10 targeted questions, asks which flows matter most, states assumptions, limits scope | Starts to draw at once, or asks no question |
 | Domain model | Entities match the statement. Responsibilities are clear. Value objects and enums are used | One god class. Classes named `Manager` or `Helper`. Anemic data classes |
 | Design quality | Interfaces at the extension points. Composition over inheritance. SOLID without a lecture | Deep inheritance. `if` chains on type. Patterns with no reason |
 | Pattern use | A pattern for each smell, and a rejected alternative | A pattern for its own sake. Wrong pattern name |
@@ -448,6 +461,7 @@ The code below is the complete program. It follows the diagram. The concurrency 
 - The compound action is "check all ingredients, then take them". Without protection, two threads both check 30 ml of water, both pass, and both take it. The stock then becomes negative.
 - Every method of `Inventory` is `synchronized`, so the check and the take run as one step. One machine has one inventory, so one lock is enough (lock granularity: the whole inventory). A lock for each ingredient would need a fixed lock order to avoid deadlock, and it would give no gain for three ingredients.
 - The loop over `Ingredient.values()` gives a fixed order, so the error message and the alert order do not depend on map iteration order.
+- The listener runs only when the stock crosses the threshold (from at or above it to below it). A check of "below the threshold" alone would repeat the alert on every brew after the crossing.
 - The listener runs inside the lock. A slow listener would block all brews. Step 10 names this limit.
 
 ```java
@@ -575,8 +589,10 @@ class Inventory {
             if (needed == 0) {
                 continue;
             }
+            int before = stock.getOrDefault(ingredient, 0);
             int left = stock.merge(ingredient, -needed, Integer::sum);
-            if (left < lowThreshold) {
+            // Alert once, when the stock crosses the threshold.
+            if (before >= lowThreshold && left < lowThreshold) {
                 lowStockListener.accept(ingredient);
             }
         }
@@ -628,11 +644,11 @@ Read the output against the requirements:
 | Output line | Requirement |
 |---|---|
 | `Menu: [espresso, latte]` | R3 (the menu is sorted because the map is a `ConcurrentSkipListMap`) |
-| Three `Served` lines | R3 |
-| `Failed: Not enough MILK` | R5. The third latte took the last milk, so the fourth latte fails on milk |
-| `Water left: 110` | R5. Three brews took 30 ml each: 200 minus 90 is 110. The failed latte took no water |
+| Three `Served` lines (one espresso, two lattes) | R3 |
+| `Failed: Not enough MILK` | R5. The second latte took the last milk (300 minus 2 × 150 is 0), so the third latte fails on milk |
 | `Failed: Unknown beverage: mocha` | R4 |
-| `Alerts: [LOW MILK, LOW COFFEE_BEANS]` | R6. After the second latte, milk is 0 and beans are 6, both below 20. Water (110) is not |
+| `Water left: 110` | R5. Three brews took 30 ml each: 200 minus 90 is 110. The failed latte took no water |
+| `Alerts: [LOW MILK, LOW COFFEE_BEANS]` | R6. The second latte took milk from 150 to 0 and beans from 24 to 6. Both crossed the threshold of 20. Water (110) did not. Each ingredient alerts once |
 | `served=5 failed=15` | R7. The stock covers exactly 5 espressos. The lock lets exactly 5 threads succeed |
 
 ### Step 10: extensions
@@ -657,13 +673,13 @@ This table is what you say in the last two minutes of the round.
 
     Answer in the order of the ten steps, with the purpose of each.
 
-    1. I clarify requirements for about 5 minutes: scope, actors, scale, rules, failure, concurrency. I write the answers as numbered requirements and label my assumptions.
+    1. I clarify requirements for about 5 minutes: how much code the interviewer expects, which flows matter most, then scope, actors, scale, rules, failure, concurrency. I write the answers as numbered requirements and label my assumptions.
     2. I list the use cases, one sentence for each actor goal.
     3. I take the nouns and verbs of the statement, and sort the nouns into entities, value objects, and enums. I give each verb to the class that owns the data.
     4. I define the relationships: composition, aggregation, inheritance, and the multiplicities. I prefer composition.
     5. I draw a class diagram of 5 to 10 classes.
     6. I write the public signatures: inputs, results, errors. This is the contract.
-    7. I choose a design pattern only where a requirement smell asks for it, and I name the rejected alternative.
+    7. I choose a design pattern only where a requirement smell asks for it, and I name the rejected alternative. In practice I see these variation points while I draw the diagram, so steps 4 to 7 overlap.
     8. I write the core code for the main use cases.
     9. I find the shared mutable state and protect each compound action.
     10. I finish with extensions: for each change, the class to add and the classes that stay.
@@ -674,6 +690,8 @@ This table is what you say in the last two minutes of the round.
 
     I ask questions in groups, and I state my assumption after each answer.
 
+    - Format: how much code the interviewer expects (signatures only, or compiling code for the main flow).
+    - Priority: which two or three flows matter most, so that I code those first.
     - Scope: which features are in, which are out.
     - Actors: who uses the system.
     - Scale: how many floors, items, or users in one instance.
@@ -708,7 +726,7 @@ This table is what you say in the last two minutes of the round.
 
 ??? question "What do you do when you run out of time?"
 
-    I decide at the checkpoints, not at the end. If I am behind at minute 20 of a 45-minute round, I cut the diagram detail. If I am behind at minute 28, I write the code for the single most important use case, and I write the other methods as signatures. I tell the interviewer what I cut and why: "I skip the display board and show the allocation and exit flow. The display board is an Observer, and this is how I would add it." Compiling code for one use case with named gaps scores higher than pseudocode for all use cases.
+    I decide at the checkpoints, not at the end. If the diagram is not done at minute 23 of a 45-minute slot, I cut the diagram detail. If I have not started code by minute 27, I write the code for the single most important use case, and I write the other methods as signatures. I tell the interviewer what I cut and why: "I skip the display board and show the allocation and exit flow. The display board is an Observer, and this is how I would add it." Compiling code for one use case with named gaps scores higher than pseudocode for all use cases.
 
 ??? question "What is the difference between an LLD interview and an HLD interview?"
 
@@ -717,6 +735,14 @@ This table is what you say in the last two minutes of the round.
 ??? question "When do you choose inheritance, and when composition?"
 
     I choose inheritance only for a true is-a relationship where a subclass can replace the superclass everywhere (the Liskov Substitution Principle) and the hierarchy is stable. I choose composition when I want to reuse behavior or to vary behavior at run time: the class holds a collaborator through an interface, and I swap the collaborator. In the coffee machine, a latte is not a subclass of an espresso. It is a recipe with different amounts, so it is data. Deep hierarchies and subclasses that override methods to do nothing are the signs of wrong inheritance. See [OOP](fundamentals/01-oop.md) and [anti-patterns](fundamentals/11-anti-patterns.md).
+
+??? question "Should the parking lot (or the coffee machine) be a Singleton?"
+
+    No, in most designs. The statement says "one parking lot", but that is a fact about the deployment, not a rule that the class must enforce. A Singleton gives the class global state: a test cannot create a second lot with different floors, and every caller depends on a static accessor instead of a constructor parameter. I create one instance in `main` (or in the composition root) and pass it to the classes that need it. That gives "exactly one instance" in practice and keeps the class testable. I accept a Singleton only for a stateless or infrastructure object where a second instance would be a bug, and even then I prefer injection. If the interviewer insists, I write it as an enum Singleton or a holder class, and I say that it is thread-safe and why. See [creational patterns](fundamentals/06-creational-patterns.md).
+
+??? question "Do you always use the State pattern for an object with a status?"
+
+    No. I use the State pattern when the behavior of several methods depends on the state, and each state has different rules for those methods. A vending machine fits: insert coin, select, dispense, and refund each behave differently in idle, has-money, and sold-out. For an order that moves through four statuses and only needs "is this transition allowed?", an enum with a transition table (for example, an `EnumMap` from each status to its allowed next statuses) is shorter and as clear. The deciding question is: "Does each state change what several methods do?" If yes, I use State. If the state only guards transitions, I use an enum. I state the choice and the rejected alternative.
 
 ### Follow-up Questions
 
@@ -788,7 +814,7 @@ Read this before an interview.
 
 **The ten steps**
 
-1. Clarify (5 min): scope, actors, scale, variants, rules, failure, concurrency, storage, extensions.
+1. Clarify (5 min): format, priority flows, scope, actors, scale, variants, rules, failure, concurrency, storage, extensions.
 2. Use cases: one sentence per actor goal.
 3. Entities: nouns into entity, value object, enum, or attribute. Verbs go to the owner of the data.
 4. Relationships: prefer composition. Inheritance only for a true is-a.
@@ -799,7 +825,7 @@ Read this before an interview.
 9. Concurrency: shared state, compound action, simplest protection, lock order.
 10. Extensions: add a class, change nothing else.
 
-**Time (45 min)**: 5 / 7 / 8 / 5 / 3 / 12 / 3 / 2. Checkpoints at minutes 12, 20, and 28.
+**Time (45-minute slot)**: intro and closing 5, clarify 5, use cases and entities 5, diagram and patterns 8, signatures 4, code 12, concurrency 2, extensions 4. Checkpoints at minutes 15, 23, and 27. Ask first how much code the interviewer expects.
 
 **Smell to pattern**: state changes behavior - State. Many ways - Strategy. Notify - Observer. Pass along - Chain of Responsibility. Undo - Command. Optional fields - Builder. Add features - Decorator. Tree - Composite. Wrong interface - Adapter. One entry - Facade.
 
@@ -817,6 +843,7 @@ Read this before an interview.
 - [`java.util.concurrent.ConcurrentSkipListMap` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentSkipListMap.html). The sorted, thread-safe map in the example.
 - [`java.util.EnumMap` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/EnumMap.html). The map that iterates in the order of the enum constants.
 - [`java.util.Map.copyOf` in the `Map` javadoc (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html). The unmodifiable copy for the defensive copy in `Recipe`.
-- [JLS 17.4 Memory Model](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.4). Why `synchronized` gives both atomicity and visibility.
+- [JLS 17.1 Synchronization](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.1). Defines the monitor of each object, and why only one thread at a time runs a `synchronized` method of one object (mutual exclusion, which makes the check and the take one step).
+- [JLS 17.4 Memory Model](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.4). Defines happens-before, and why a thread that takes a monitor sees the writes of the thread that released it (visibility).
 
 Case studies that apply this procedure: `kb/lld/case-studies/01-parking-lot/README.md`, `kb/lld/case-studies/07-vending-machine/README.md`, `kb/lld/case-studies/04-elevator-system/README.md`. For the long-form coding round, read the [machine-coding round](machine-coding-round.md) page.
