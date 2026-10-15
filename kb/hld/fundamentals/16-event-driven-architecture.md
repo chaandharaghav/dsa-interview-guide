@@ -7,7 +7,7 @@ An event-driven architecture (EDA) is a design in which components communicate b
 
 ## Why It Matters
 
-Interviewers use the words "event-driven", "event sourcing", and "CQRS" as if they mean one thing, and they probe whether you know that they do not. Questions such as "how does the search index learn about a new order?", "how do you keep a read model in sync?", and "how do you audit every change to an account?" all lead to this page. On the job, the choice between "tell the other service" (a command) and "announce what happened" (an event) sets the coupling of your services for years, and event sourcing and CQRS are expensive to adopt and hard to remove. Fowler reports that most CQRS projects that he has seen "have not been so good".
+Interviewers use the words "event-driven", "event sourcing", and "CQRS" as if they mean one thing, and they probe whether you know that they do not. Questions such as "how does the search index learn about a new order?", "how do you keep a read model in sync?", and "how do you audit every change to an account?" all lead to this page. On the job, the choice between "tell the other service" (a command) and "announce what happened" (an event) sets the coupling of your services for years, and event sourcing and CQRS are expensive to adopt and hard to remove. Fowler reports that "the majority of cases" of CQRS that he has run into "have not been so good".
 
 ## Core Concepts
 
@@ -121,6 +121,14 @@ flowchart LR
 - `read(stream, fromVersion)`: returns the events of one aggregate in order.
 - A *global order* (a position in the whole log) lets projections read all events in order.
 
+**Global position and commit order.** If the store is a relational table, an identity column or a sequence gives the global position. PostgreSQL and MySQL assign that value when the row is inserted, not when the transaction commits. Transaction T1 can take position 10, transaction T2 can take position 11, and T2 can commit first. A projection that reads up to position 11 and stores "last position = 11" never sees event 10 when T1 commits. The event is lost for that projection. Fixes:
+
+- Let a single writer append to the log, so that the position order is the commit order.
+- Read only up to a safe high-water mark, below which no transaction is still in flight. In PostgreSQL 13 and later, one way is to store the transaction ID (`pg_current_xact_id()`) with each event. The projection reads only events whose transaction ID is below `pg_snapshot_xmin(pg_current_snapshot())`, the oldest transaction that is still active. It orders the events by `(transaction_id, position)` and stores that pair as its checkpoint, not the position alone. PostgreSQL assigns the transaction ID at the first write of the transaction, so a transaction with a lower ID can still hold a higher position, and a position-only checkpoint would again skip events.
+- Track progress per stream (by stream version) where the projection allows it, and accept that a cross-stream order is only approximate.
+
+Assumption: the transaction-ID method is a technique that PostgreSQL-based event stores use. The PostgreSQL documentation describes the functions, not this use of them.
+
 A relational database works as an event store. The table needs a unique constraint on `(stream_id, version)`, which gives the optimistic concurrency check for free: the second concurrent insert with the same version fails.
 
 **Command handling** in four steps:
@@ -134,7 +142,7 @@ A relational database works as an event store. The table needs a unique constrai
 
 **Projections.** A **projection** is a function that reads events and builds a view for one purpose: a balance per account, a search index, a daily report. Projections are disposable: if the logic changes, delete the view and rebuild it from position 0. This is the main way that event sourcing supports new features: a new projection over old events answers a question that nobody asked when the events were written.
 
-**Snapshots.** Replaying a stream with a million events on every command is slow. A **snapshot** stores the aggregate state at a version. To load, read the latest snapshot and then the events after its version. Fowler's description: the state "can be cached anywhere you like", because it is purely derivable from the log. Rules:
+**Snapshots.** Replaying a stream with a million events on every command is slow. A **snapshot** stores the aggregate state at a version. To load, read the latest snapshot and then the events after its version. Fowler (2005) states the principle behind it: "Since an application state is purely derivable from the event log, you can cache it anywhere you like." He describes snapshots of the state, for example one at the end of each working day. Rules:
 
 - A snapshot is an optimization. Delete it, and the system still works from events.
 - Take a snapshot every `N` events (for example every 100 to 1 000, depending on the event size and the load time) or on a schedule, in a background job.
@@ -163,7 +171,7 @@ Recommendation: apply event sourcing to the one bounded context that needs it. K
 
 ### CQRS
 
-**CQRS** (command query responsibility segregation) uses a different model to update information than the model that it uses to read information. Fowler credits Greg Young for the term.
+**CQRS** (command query responsibility segregation) uses a different model to update information than the model that it uses to read information. Fowler (2011) writes that he "first heard [it] described by Greg Young".
 
 - The **write model** (command side) enforces the business rules. It is shaped for correctness: normalized tables, or an aggregate with an event stream.
 - The **read model** (query side) answers queries. It is shaped for the screens: denormalized, pre-joined, indexed for the access path. It can live in a different database, for example Elasticsearch for search, Redis for lookups, and a column store for reports.
@@ -181,7 +189,7 @@ flowchart LR
     QH --> RM2
 ```
 
-Fowler's description of the variation: the models can be different object models in different processes, they can share one database (the database acts as the link), or they can use separate databases (the query database becomes "a real-time reporting database"). In the lightest form, the same objects offer different interfaces for command and query, like views in a relational database. CQRS is a spectrum, and the cheap end (separate classes and separate query code over one database) gives much of the clarity at a small cost.
+Fowler's description of the variation: the models can be different object models in different processes, they can share one database (the database acts as the link), or they can use separate databases (the query database then becomes, in Fowler's words, a "real-time ReportingDatabase"). In the lightest form, the same objects offer different interfaces for command and query, like views in a relational database. CQRS is a spectrum, and the cheap end (separate classes and separate query code over one database) gives much of the clarity at a small cost.
 
 **CQRS is not event sourcing.** Fowler: "Strictly CQRS isn't really about events, since you can use CQRS without any events present in your design." The two combine well: events from the write side feed the projections of the read side. But you can have CQRS with a plain SQL write model and a CDC-fed read model, and event sourcing with one read path (replay).
 
@@ -250,13 +258,13 @@ sequenceDiagram
 | Testing | Needs the whole group of services | Test the orchestrator against stubs |
 | Fits | Short flows of three or four steps, or independent reactions (email, analytics) | Long flows with branches, timeouts, and compensation |
 
-Recommendation: use choreography for loose reactions (side effects that the source does not depend on), and orchestration for a flow that has a defined outcome and compensation. Write down the flow in either case, because choreography hides it. The compensation logic, saga failure handling, and the guarantees of the pattern live in `kb/hld/distributed-systems/03-distributed-transactions.md`.
+Recommendation: use choreography for loose reactions (side effects that the source does not depend on), and orchestration for a flow that has a defined outcome and compensation. Write down the flow in either case, because choreography hides it. The compensation logic, saga failure handling, and the guarantees of the pattern live in [distributed transactions](../distributed-systems/03-distributed-transactions.md).
 
 ### Publishing Events Reliably: Outbox and Change Data Capture
 
 A service that updates its database and then publishes an event has a dual-write problem. If it commits and then crashes before the publish, the event is lost. If it publishes and then the commit fails, a consumer sees an event for a change that did not happen.
 
-The **transactional outbox** pattern fixes it: the service writes the event into an `outbox` table in the same database transaction as the state change. A separate process reads the outbox and publishes to the broker. The commit makes the state change and the event atomic. The pattern's details, and its place among sagas, are in `kb/hld/distributed-systems/03-distributed-transactions.md`; the broker side is in [message queues and streams](08-message-queues-and-streams.md).
+The **transactional outbox** pattern fixes it: the service writes the event into an `outbox` table in the same database transaction as the state change. A separate process reads the outbox and publishes to the broker. The commit makes the state change and the event atomic. The pattern's details, and its place among sagas, are in [distributed transactions](../distributed-systems/03-distributed-transactions.md); the broker side is in [message queues and streams](08-message-queues-and-streams.md).
 
 <!-- sql-skip: postgresql -->
 
@@ -283,7 +291,7 @@ The block uses `gen_random_uuid()`, which PostgreSQL provides, so SQLite does no
 - It runs as connectors on Kafka Connect, as Debezium Server, or embedded in an application as the Debezium Engine.
 - The PostgreSQL connector reads the logical decoding stream with the `pgoutput` plug-in (PostgreSQL 10 and later) through a *replication slot*. The MySQL connector reads the binlog.
 - On first start it takes a consistent **snapshot** of the existing rows (`snapshot.mode` defaults to `initial`), and then it streams changes from the log position that matches the snapshot.
-- Each change event has an *envelope* with `before` and `after` row states, a `source` block (database, table, log position, transaction), an operation code `op` (`c` create, `u` update, `d` delete, `r` snapshot read), and a timestamp `ts_ms`. A delete event is followed by a *tombstone* (the same key and a null value) so that Kafka log compaction can remove the key.
+- Each change event has an *envelope* with `before` and `after` row states, a `source` block (database, table, log position, transaction), an operation code `op` (`c` create, `u` update, `d` delete, `r` snapshot read, and `t` truncate for a truncate event), and a timestamp `ts_ms`. A delete event is followed by a *tombstone* (the same key and a null value) so that Kafka log compaction can remove the key.
 - Delivery is **at least once**: "while it is recovering from the fault, it's possible that the connector might emit some duplicate change events". Consumers must be idempotent.
 - For PostgreSQL, the table's `REPLICA IDENTITY` setting decides how much of the old row an update or delete event carries. With the default setting, an update event carries the old primary key columns only, and a table with no primary key gets create events only.
 - A replication slot that nobody reads makes PostgreSQL keep WAL files, and the disk fills. The documentation names this risk (for a low-traffic database on a busy server, it recommends a heartbeat to acknowledge positions and "prevents unbounded WAL growth").
@@ -305,15 +313,23 @@ CDC does more than the outbox. Common uses: feeding a search index (see [search 
 
 An event is a contract between a publisher and every present and future consumer. The log keeps old events for ever (in event sourcing) or for the retention period (in a broker), so old and new versions are alive together.
 
-**Envelope and payload.** Keep a stable envelope: event ID (a unique ID, see [unique ID generation](15-unique-id-generation.md)), type, schema version, aggregate ID, a version or sequence number, a timestamp, and a correlation ID. The CloudEvents specification (CNCF) standardizes such an envelope (`id`, `source`, `type`, `specversion`, `time`, `data`).
+**Envelope and payload.** Keep a stable envelope: event ID (a unique ID, see [unique ID generation](15-unique-id-generation.md)), type, schema version, aggregate ID, a version or sequence number, a timestamp, and a correlation ID. The CloudEvents specification (a CNCF project) standardizes such an envelope. Its required context attributes are `id`, `source`, `specversion`, and `type`. Its optional context attributes are `datacontenttype`, `dataschema`, `subject`, and `time`. The payload, `data`, is not a context attribute. The specification defines it separately as optional event data, so that a router can read the attributes without parsing the payload.
 
 **Compatibility rules.** Names from the Confluent Schema Registry documentation:
 
-| Mode | Meaning | Safe change |
-|---|---|---|
-| Backward | New schema reads data written with the old schema | Delete a field. Add an optional field with a default. Upgrade consumers first |
-| Forward | Old schema reads data written with the new schema | Add a field. Delete an optional field. Upgrade producers first |
-| Full | Both | Add or delete an optional field with a default |
+| Mode | Meaning | Checked against | Safe change | Upgrade order |
+|---|---|---|---|---|
+| `BACKWARD` (the default) | Consumers with the new schema read data written with the old schema | The latest registered version | Delete a field. Add an optional field | Consumers first |
+| `BACKWARD_TRANSITIVE` | As `BACKWARD` | All registered versions | As `BACKWARD` | Consumers first |
+| `FORWARD` | Consumers with the old schema read data written with the new schema | The latest registered version | Add a field. Delete an optional field | Producers first |
+| `FORWARD_TRANSITIVE` | As `FORWARD` | All registered versions | As `FORWARD` | Producers first |
+| `FULL` | Both backward and forward | The latest registered version | Add or delete an optional field | Either order |
+| `FULL_TRANSITIVE` | As `FULL` | All registered versions | As `FULL` | Either order |
+| `NONE` | No check | Nothing | Any change | Plan each upgrade by hand |
+
+Confluent gives the reason for the `BACKWARD` default: consumers can rewind to the beginning of a topic and read the old messages. With `FORWARD`, old messages are not guaranteed to be readable.
+
+The plain modes check a new schema only against the latest version. An event store keeps every version for ever, and a replay reads them all from version 1. Recommendation: for event-sourced streams and for topics that you replay from the start, use `BACKWARD_TRANSITIVE` or `FULL_TRANSITIVE`.
 
 Rules of practice:
 
@@ -381,7 +397,7 @@ public class Main {
         store.append(id, acct.version(), acct.deposit(100));
         acct = Account.load(store, id);
         store.append(id, acct.version(), acct.withdraw(30));
-        // A legacy event written before the schema had a currency field (schema version 1).
+        // An event from an old producer that still writes schema version 1 (no currency field).
         store.appendRaw(id, 3, "Deposited", 1, Map.of("amount", "50"));
         System.out.println("-- stream " + id);
         for (StoredEvent e : store.read(id, 0)) {
@@ -639,6 +655,7 @@ Points to read in the code:
 - `Upcaster` turns the schema 1 `Deposited` event (no currency) into the current record. The account code never sees schema 1.
 - The snapshot is a copy of the state at a version. The state from the snapshot plus the later events equals the state from a full replay.
 - `BalanceView` stores `lastPosition`. A duplicate delivery of an old event changes nothing, which is how an idempotent consumer works with at-least-once delivery. A new `BalanceView` rebuilds the same state from position 0.
+- `BalanceView` can trust `lastPosition` because the in-memory store appends under one lock, so the position order is the commit order. With a database sequence as the position, that is not true (see "Global position and commit order" above).
 - The store is in memory and uses `synchronized`. A real store writes to a database with a unique constraint on `(stream_id, version)`, as the next block shows.
 
 ### An event store in SQL
@@ -724,7 +741,7 @@ A second writer that inserts `('acct-1', 3, ...)` after the third event exists v
 
     I cannot rewrite history, so old versions must stay readable. First choice: make additive changes only. Add an optional field with a default, and keep consumers tolerant of unknown fields. If the change is not additive, I add an upcaster: a function that converts a stored event of version 1 to the current version at read time, so the aggregate code handles only the current version. I do not reuse a name for a new meaning. I publish a new event type instead.
 
-    For compatibility I use a schema registry with backward or full compatibility checks in the build, which rejects a breaking change before it ships. If the old versions become too many, I run a migration that copies the stream into a new one with converted events and switch to it.
+    For compatibility I use a schema registry with compatibility checks in the build, which rejects a breaking change before it ships. I choose a transitive mode (`BACKWARD_TRANSITIVE` or `FULL_TRANSITIVE` in Confluent Schema Registry), because a replay reads every version from the first one, and the plain modes check only against the latest version. If the old versions become too many, I run a migration that copies the stream into a new one with converted events and switch to it.
 
 ??? question "What is CQRS, and when would you use it?"
 
@@ -768,9 +785,11 @@ A second writer that inserts `('acct-1', 3, ...)` after the third event exists v
 
     A broker orders events inside one partition. I use the aggregate or entity ID as the partition key, so all events of one entity go to one partition, in order. There is no global order across partitions. Consumers that need to order events across entities use a version or timestamp from the source, or a single-partition topic (which limits throughput). See the message queues page.
 
+    If the event store is a SQL table, I watch one more trap: a sequence assigns the global position at insert time, not at commit time. A projection that stores the highest position it saw can skip an event whose transaction commits late. I let one writer append to the log, or I read only below a safe high-water mark (no transaction in flight below it) and checkpoint on the pair of transaction ID and position.
+
 ??? question "What is an idempotent consumer, and how do you build one?"
 
-    A consumer that gives the same result when it handles the same event twice. Ways: store the IDs of processed events in the same transaction as the state change and skip a known ID; store the last applied position per stream and skip anything at or below it (as the `BalanceView` does); or make the operation naturally idempotent (a `SET` of a state, not an increment). Exactly-once processing at the broker level only covers part of the path, so I make the consumer idempotent anyway.
+    A consumer that gives the same result when it handles the same event twice. Ways: store the IDs of processed events in the same transaction as the state change and skip a known ID; store the last applied position per stream and skip anything at or below it (as the `BalanceView` does); or make the operation naturally idempotent (a `SET` of a state, not an increment). Exactly-once processing at the broker level only covers part of the path, so I make the consumer idempotent anyway. The inbox pattern and its table design are on the [distributed transactions](../distributed-systems/03-distributed-transactions.md) page.
 
 ??? question "How do you test and operate an event-driven system?"
 
@@ -807,6 +826,7 @@ A second writer that inserts `('acct-1', 3, ...)` after the third event exists v
 | Side effects inside a projection | A rebuild repeats the side effect | Keep projections pure and side effects in their own consumer |
 | No lag monitoring on projections | The read model is stale and nobody knows | Alert on the age of the oldest unprocessed event |
 | Unconsumed PostgreSQL replication slot | WAL grows until the disk is full | Monitor slot lag. Use heartbeats. Drop unused slots |
+| A projection that tracks the highest global position from a database sequence | A transaction that took a lower position commits later, and the projection skips its event for ever | Use a single writer for the log, or read only below a safe high-water mark and checkpoint on `(transaction_id, position)` |
 | Unbounded streams without snapshots | Slow loading of an aggregate | Keep aggregates small. Add snapshots when a stream is long |
 | Storing personal data in immutable events with no plan | A deletion request cannot be met | Keep the data outside the events or use per-subject keys |
 
@@ -834,7 +854,8 @@ A second writer that inserts `('acct-1', 3, ...)` after the third event exists v
 - **Notification:** low coupling, hidden flow, callbacks. **State transfer:** resilience and low latency, many copies. Send full state with a version and key by entity ID.
 - **Event sourcing:** append-only events per aggregate, state is the fold, optimistic concurrency with an expected version, snapshots as a cache, projections as disposable views.
 - **Use event sourcing** for ledgers, audit, history. **Avoid** for CRUD. Keep personal data out of events or use crypto-shredding.
-- **Schema evolution:** add optional fields, tolerant readers, never reuse a name, schema registry, upcasters on read.
+- **Schema evolution:** add optional fields, tolerant readers, never reuse a name, schema registry (Confluent default `BACKWARD`; use a `_TRANSITIVE` mode for replayed logs), upcasters on read.
+- **CloudEvents:** required `id`, `source`, `specversion`, `type`. Optional `datacontenttype`, `dataschema`, `subject`, `time`.
 - **CQRS:** separate read and write models. Fowler: "for most systems CQRS adds risky complexity". Try an index, a replica, a materialized view, or a cache first.
 - **Read-your-writes:** response with new state, read from the write side, version token, optimistic UI.
 - **Choreography** for short, loose reactions. **Orchestration** for long flows with compensation (see sagas).
@@ -848,8 +869,8 @@ A second writer that inserts `('acct-1', 3, ...)` after the third event exists v
 - Martin Fowler, "Event Sourcing", 2005 (`https://martinfowler.com/eaaDev/EventSourcing.html`). Rebuild, temporal query, replay, snapshots, and where to put the handler logic.
 - Martin Fowler, "CQRS", 2011 (`https://martinfowler.com/bliki/CQRS.html`). The pattern, its variations, and the warning about complexity.
 - Debezium documentation (`https://debezium.io/documentation/`). The PostgreSQL connector page (snapshots, `pgoutput`, replica identity, WAL growth, at-least-once delivery) and the outbox event router page.
-- CloudEvents specification (`https://cloudevents.io/`). A standard envelope for event metadata.
-- Confluent documentation, "Schema Evolution and Compatibility" (`https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html`). Backward, forward, and full compatibility.
+- CloudEvents specification (`https://cloudevents.io/`, text at `https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md`). The required and optional context attributes of a standard event envelope.
+- Confluent documentation, "Schema Evolution and Compatibility" (`https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html`). Backward, forward, and full compatibility, their transitive variants, `NONE`, and the default.
 - Kleppmann, *Designing Data-Intensive Applications*, chapters 11 and 12. Event logs, CDC, event sourcing, and derived data.
 - Chris Richardson, *Microservices Patterns*, chapters 4 to 7 and `microservices.io`. Sagas, outbox, event sourcing, and CQRS for microservices.
-- Related pages: [message queues and streams](08-message-queues-and-streams.md), [communication patterns](09-communication-patterns.md), [reliability patterns](12-reliability-patterns.md), [microservices and monoliths](14-microservices-and-monoliths.md), [unique ID generation](15-unique-id-generation.md), [consistency and CAP](07-consistency-and-cap.md), [replication](05-replication.md), [Architectural Patterns (LLD)](../../lld/fundamentals/10-architectural-patterns.md), `kb/hld/distributed-systems/03-distributed-transactions.md`.
+- Related pages: [message queues and streams](08-message-queues-and-streams.md), [communication patterns](09-communication-patterns.md), [reliability patterns](12-reliability-patterns.md), [microservices and monoliths](14-microservices-and-monoliths.md), [unique ID generation](15-unique-id-generation.md), [consistency and CAP](07-consistency-and-cap.md), [replication](05-replication.md), [Architectural Patterns (LLD)](../../lld/fundamentals/10-architectural-patterns.md), [distributed transactions](../distributed-systems/03-distributed-transactions.md).

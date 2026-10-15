@@ -7,7 +7,7 @@ A unique ID generator gives every new record, message, or event an identifier th
 
 ## Why It Matters
 
-"Design a URL shortener", "design a chat system", and "design a news feed" all contain the question "how do you generate the ID?". The interviewer checks whether you know that a single database counter stops scaling, that random UUIDs hurt index locality, and that a time-based ID depends on a clock that can move backwards. On the job, the ID format is one of the decisions that you cannot change later: every database, API, log line, and URL carries it. Twitter grew its tweet ID from a smaller size once and described the effort as painful, because over 100 000 code bases used the ID (Twitter, 2010).
+"Design a URL shortener", "design a chat system", and "design a news feed" all contain the question "how do you generate the ID?". The interviewer checks whether you know that a single database counter stops scaling, that random UUIDs hurt index locality, and that a time-based ID depends on a clock that can move backwards. On the job, the ID format is one of the decisions that you cannot change later: every database, API, log line, and URL carries it. Twitter had already increased the number of bits in its tweet ID once. In the Snowflake announcement it calls that process painful, and it says that the change is hard when "over 100,000 different codebases" are involved (Twitter, 2010).
 
 ## Core Concepts
 
@@ -17,7 +17,7 @@ A unique ID generator gives every new record, message, or event an identifier th
 
 **Coordination**: communication between machines that generate IDs, for example a call to a central counter. A *coordination-free* (or *uncoordinated*) generator needs no communication at ID generation time. Coordination limits availability and throughput.
 
-**Sortable ID**: an ID whose order matches the order of creation. A *time-ordered* ID puts a timestamp in its most significant bits. A *k-sortable* (or *roughly sortable*) ID is sorted within a bound: IDs created within *k* time units of each other are within *k* positions of each other. Twitter targeted a *k* below one second for Snowflake.
+**Sortable ID**: an ID whose order matches the order of creation. A *time-ordered* ID puts a timestamp in its most significant bits. A *k-sorted* sequence is one in which each element is at most *k* positions from its place in the fully sorted order. A *k-sortable* (or *roughly sortable*) ID scheme gives this property, with the bound stated in time: Twitter aimed to keep *k* below one second for Snowflake, so that "tweets posted within a second of one another will be within a second of one another in the id space too" (Twitter, 2010). The README promises 1 second and aims for tens of milliseconds.
 
 **Monotonic ID**: an ID that is larger than every ID that the same generator produced before. Monotonic is stronger than k-sortable. A time-based generator is monotonic only if it handles a clock that moves backwards and handles many IDs in one tick.
 
@@ -27,7 +27,7 @@ A unique ID generator gives every new record, message, or event an identifier th
 
 **Epoch (custom epoch)**: the zero point of a timestamp field. A custom epoch that is close to the launch date of the system saves bits, because the field counts from a recent date and not from 1970.
 
-**Clock skew and clock drift**: *skew* is the difference between two machines' clocks at one moment. *Drift* is the rate at which one clock gains or loses time. A time synchronization protocol such as NTP corrects the clock, and a correction can move the clock backwards. Details live in `kb/hld/distributed-systems/01-failures-and-time.md`.
+**Clock skew and clock drift**: *skew* is the difference between two machines' clocks at one moment. *Drift* is the rate at which one clock gains or loses time. A time synchronization protocol such as NTP corrects the clock, and a correction can move the clock backwards. Details live in [failures and time](../distributed-systems/01-failures-and-time.md).
 
 ### Requirements for IDs
 
@@ -39,7 +39,7 @@ State these requirements in an interview before you choose a scheme. Each requir
 | Coordination | May the generator call another machine for each ID? | A central counter, if the generator must work during a network partition |
 | Size | 32 bits, 64 bits, or 128 bits? | UUIDs (128 bits) in systems with 64-bit ID fields in clients, queues, or storage |
 | Ordering | Must IDs sort by creation time? Strictly or roughly? | UUID version 4, random 64-bit values |
-| Density | May the sequence have gaps? | Nothing: all schemes here have gaps, except a single transactional counter that never rolls back |
+| Density | May the sequence have gaps? | Every scheme on this page, if the answer is no. All of them leave gaps. A gapless sequence needs a counter row that the inserting transaction locks and updates, so that a rollback also undoes the increment. That lock serializes all inserts |
 | Guessability | May a user guess the next ID? | Plain counters in public URLs (an enumeration attack) |
 | Information leak | May the ID reveal creation time, volume, or the host? | Counters (volume), Snowflake (time, worker), UUID version 1 (MAC address) |
 | Throughput | How many IDs per second, in total and per node? | A scheme with one database write per ID, when the rate exceeds what one database can write |
@@ -58,7 +58,7 @@ Properties:
 
 - **Dense and small.** A 32-bit signed integer holds 2 147 483 647 values. A 64-bit signed integer (`BIGINT`) holds about 9.2 x 10^18.
 - **Perfect locality.** Each insert goes to the right-most page of the primary key index.
-- **Gaps exist.** A rolled-back transaction keeps the value that it took. PostgreSQL documents that sequence values are not returned to the sequence on rollback. InnoDB documents gaps for rolled-back inserts and for failed statements as well.
+- **Gaps exist.** A rolled-back transaction keeps the value that it took. PostgreSQL documents that `nextval` does not reclaim a value if the transaction aborts, so a sequence "cannot be used to obtain 'gapless' sequences". An `INSERT ... ON CONFLICT` also consumes a value when it detects a conflict. InnoDB documents that in all three `innodb_autoinc_lock_mode` settings (0 traditional, 1 consecutive, 2 interleaved) a value from a rolled-back transaction or a failed statement is lost and not reused. MySQL 8.4 defaults to mode 2, which can also leave gaps in bulk inserts that run concurrently with other inserts.
 - **One counter per table and per database.** Two shards each count `1, 2, 3, ...`, so the same ID appears in both shards. A row that moves from one shard to another can collide.
 - **The write leader owns the counter.** All inserts go through one machine. Replicas cannot generate IDs. A multi-leader setup (see [replication](05-replication.md)) creates the same ID on two leaders unless each leader uses its own range.
 - **Guessable.** The ID reveals the number of rows and lets a user enumerate records.
@@ -142,7 +142,7 @@ Notes on the table:
 - RFC 9562, section 5.7, says that implementations "SHOULD utilize UUIDv7 instead of UUIDv1 and UUIDv6 if possible".
 - Name-based versions (3 and 5) are not for primary keys. The RFC warns that a "name" that looks permanent, for example a postal code, can change.
 
-**Version 7 layout** (RFC 9562, figure 11):
+**Version 7 layout** (adapted from RFC 9562, figure 11, with the field widths added):
 
 ```text
   0                   1                   2                   3
@@ -164,9 +164,11 @@ Notes on the table:
 2. A *monotonic random* counter: a random start value in `rand_b`, incremented by a random positive number for each new UUID in the same millisecond. An increment of 1 is guessable, so the RFC advises against it where unguessability matters.
 3. More clock precision: use up to 12 bits of sub-millisecond time in `rand_a`.
 
-**Distributed generation.** RFC 9562, section 6.4, names two ways to reduce collisions across many nodes: a pseudorandom node ID in the layout (use version 8 for a custom layout, and do not use a MAC address), or a central registry. The RFC marks the registry as NOT RECOMMENDED, because it becomes a bottleneck. It also states that implementations should use a cryptographically secure random number generator (section 6.9), and that an overrun of the generator inside one tick must either return an error or wait, and must not return duplicates (section 6.1, "Error Handling").
+**Distributed generation.** RFC 9562, section 6.4, names two ways to reduce collisions across many nodes: a pseudorandom node ID in the layout (use version 8 for a custom layout, and do not use a MAC address), or a central registry. The RFC marks the registry as NOT RECOMMENDED, because it becomes a bottleneck. It also states that implementations should use a cryptographically secure random number generator (section 6.9), and that a generator that receives too many requests inside one tick can return an error or stall until the clock catches up, and "MUST NOT knowingly return duplicate values due to a counter rollover" (section 6.1, "Error Handling").
 
-**Java.** The JDK 21 class `java.util.UUID` generates versions 3 (`nameUUIDFromBytes`) and 4 (`randomUUID`) only. A version 7 generator needs a library or about ten lines of code, as the second Java example shows. PostgreSQL 18 has a built-in `uuidv7()` function.
+**Java.** The JDK 21 class `java.util.UUID` generates versions 3 (`nameUUIDFromBytes`) and 4 (`randomUUID`) only. In JDK 21, a version 7 generator needs a library or about ten lines of code, as the second Java example shows. JDK 26 adds `UUID.ofEpochMillis(long timestamp)`, which puts the timestamp in the first 6 bytes and fills the rest from a cryptographically strong random generator. Its javadoc makes the caller responsible for a monotonic timestamp, and it gives no order for two UUIDs from the same millisecond.
+
+**PostgreSQL.** PostgreSQL 18 adds `uuidv7()`. The documentation says that it computes the value from the Unix timestamp in milliseconds, a sub-millisecond timestamp, and random bits. `gen_random_uuid()` and `uuidv4()` generate version 4.
 
 ### Snowflake
 
@@ -197,7 +199,7 @@ Twitter rejected MySQL ticket servers (they did not give the needed ordering wit
 |---|---|---|---|
 | Sign | 1 | 0 | Unused, so that the ID is a positive signed `long` |
 | Timestamp | 41 | 0 to 2^41 - 1 ms | Milliseconds since a custom epoch. 2^41 ms is about 69.7 years |
-| Worker | 10 | 0 to 1 023 | The machine ID. The original code splits it into 5 bits for the data center and 5 bits for the worker |
+| Worker | 10 | 0 to 1 023 | The machine ID. The README calls it a "configured machine id". The code at tag `snowflake-2010` splits it into 5 bits for the data center and 5 bits for the worker |
 | Sequence | 12 | 0 to 4 095 | A counter within one millisecond on one worker |
 
 Calculations:
@@ -212,8 +214,9 @@ Calculations:
 2. If `now < last`, the clock moved backwards. Apply the clock policy (next section).
 3. If `now == last`, increment `sequence` modulo 4 096. If it wrapped to 0, the millisecond is full. Wait until the clock reaches `last + 1`.
 4. If `now > last`, set `sequence = 0`.
-5. Set `last = now`.
-6. Return `((now - epoch) << 22) | (worker << 12) | sequence`.
+5. Check that `now - epoch` fits in 41 bits. If not, refuse.
+6. Set `last = now`.
+7. Return `((now - epoch) << 22) | (worker << 12) | sequence`.
 
 ```mermaid
 flowchart TD
@@ -225,7 +228,7 @@ flowchart TD
     B -- no --> F{now == last?}
     F -- yes --> G[sequence = sequence + 1 mod 4096]
     G --> H{sequence == 0?}
-    H -- yes --> I[Wait until clock reaches last + 1]
+    H -- yes --> I[Wait until clock reaches last + 1<br/>with the same tolerance check]
     I --> K
     H -- no --> K[last = now]
     F -- no --> J[sequence = 0]
@@ -250,9 +253,9 @@ Recommendation: claim the worker ID from a coordination service at startup with 
 
 Snowflake depends on the wall clock, and the wall clock can move backwards: an NTP step correction, a virtual machine that resumes after a pause, a manual change, or a leap second handled with a step. If the clock moves back, the generator can issue a timestamp that it issued before. The same timestamp with the same worker and sequence produces a duplicate ID.
 
-What Twitter did (README, "System Clock Dependency"): "Snowflake protects from non-monotonic clocks... snowflake will refuse to generate ids until a time that is after the last time we generated an id." The code logs an error and rejects requests when the clock is behind. The README also advises to run NTP in a mode that does not move the clock backwards (a *slew*, which changes the clock rate, and not a *step*, which jumps).
+What Twitter did (README, "System Clock Dependency"): "Snowflake protects from non-monotonic clocks... snowflake will refuse to generate ids until a time that is after the last time we generated an id." The code (`IdWorker.nextId`) logs an error and throws an exception for every request while the clock is behind `lastTimestamp`, by any amount. When the sequence wraps, `tilNextMillis` loops on the clock with no time limit, so a clock that steps back during that loop holds the generator until the clock catches up. The README also advises to run NTP in a mode that does not move the clock backwards (a *slew*, which changes the clock rate, and not a *step*, which jumps).
 
-A production policy has three parts:
+Recommendation: a production policy has three parts. Apply the tolerance check at every point where the generator waits, not only when it enters `nextId`.
 
 | Situation | Action | Reason |
 |---|---|---|
@@ -262,11 +265,11 @@ A production policy has three parts:
 
 Other options exist, each with a cost:
 
-- **Use the monotonic clock for elapsed time.** `System.nanoTime()` never goes backwards in one JVM, so you can compute `wall_clock_at_start + elapsed_monotonic`. The ID stays monotonic inside one process. It drifts away from real time, and after a restart the base is a new wall-clock reading, so the persistence rule still applies.
+- **Use the monotonic clock for elapsed time.** The javadoc of `System.nanoTime()` says that it measures elapsed time from an arbitrary origin and is not related to wall-clock time, so an NTP step does not move it. Compute `wall_clock_at_start + elapsed_nanoTime`. The ID then follows elapsed time inside one process. It drifts away from real time, and after a restart the base is a new wall-clock reading, so the persistence rule still applies.
 - **Spend spare bits.** Reserve 1 or 2 bits as a *clock-epoch counter* that you increment on each backward move. IDs after a rewind differ from IDs before it. This reduces capacity.
 - **Use a logical clock.** Never let the timestamp field go below `last`. Keep the old timestamp and keep increasing the sequence, and borrow capacity from the future. If the sequence overflows, move the timestamp forward by 1 ms. IDs then run ahead of real time until the clock catches up.
 
-Clock skew between machines does not break uniqueness (the worker IDs differ), but it affects ordering: IDs from two workers sort by their own clocks, so the order is only as good as the time synchronization (typically some milliseconds with NTP, approximate; see `kb/hld/distributed-systems/01-failures-and-time.md`). Never use Snowflake order as a strict causal order.
+Clock skew between machines does not break uniqueness (the worker IDs differ), but it affects ordering: IDs from two workers sort by their own clocks, so the order is only as good as the time synchronization. RFC 5905 (NTP version 4) gives typical precision of a few hundred microseconds for clients on fast LANs, and a few tens of milliseconds with poll intervals up to 36 hours (approximate, and dependent on the network; see [failures and time](../distributed-systems/01-failures-and-time.md)). Never use Snowflake order as a strict causal order.
 
 ### ULID
 
@@ -276,7 +279,7 @@ A **ULID** (universally unique lexicographically sortable identifier) is a 128-b
 - **Randomness:** 80 bits, from a cryptographically secure source when possible.
 - **Encoding:** Crockford's Base32, 5 bits per character: 10 characters for the timestamp and 16 for the randomness. The alphabet is `0123456789ABCDEFGHJKMNPQRSTVWXYZ`, which leaves out `I`, `L`, `O`, and `U`. The encoding is case-insensitive and URL-safe.
 - **Sorting:** a string comparison of two ULIDs sorts by time. Inside one millisecond, the order is not guaranteed unless the generator uses the monotonic mode.
-- **Monotonic mode:** if the generator sees the same millisecond, it increments the random part by 1 in the least significant bit, with carry. If the random part overflows, generation fails. The spec says that more than 2^80 ULIDs in one millisecond is needed to overflow in the ordinary case.
+- **Monotonic mode:** if the generator sees the same millisecond, it increments the random part by 1 in the least significant bit, with carry. If the random part overflows, generation fails. The spec says that the overflow happens if you generate more than 2^80 ULIDs in one millisecond, or with fewer if the random start value is close to the maximum.
 - **Example:** `01ARZ3NDEKTSV4RRFFQ69G5FAV`.
 
 ULID versus UUID version 7: both put a 48-bit millisecond Unix timestamp first and then random bits. A version 7 UUID has 74 usable random or counter bits and fits the UUID type of the database and its tools. A ULID has 80 random bits and a shorter, sortable text form. The binary sizes are equal (128 bits). Recommendation: use version 7 when a database has a native `uuid` type, because the tools and drivers understand it. Use ULID when people read the ID in URLs or logs and you need a compact, case-insensitive text form.
@@ -286,9 +289,10 @@ ULID versus UUID version 7: both put a 48-bit millisecond Unix timestamp first a
 A B-tree index keeps keys in sorted order in pages. See `kb/databases/03-indexing.md` for the structure.
 
 - **Sequential or time-ordered keys** (counter, Snowflake, UUID version 7, ULID) insert at the right-most leaf. The hot pages stay in memory. Pages fill completely before they split. The index is compact.
-- **Random keys** (UUID version 4) insert into a random leaf. If the index is larger than the buffer pool, many inserts need a disk read to load the leaf. Splits happen all over the index and leave pages about half full. In PostgreSQL, the first change to a page after a checkpoint writes a full-page image to the write-ahead log, so random inserts also increase the log volume.
-- **Clustered tables.** InnoDB stores the table rows inside the primary key index, so a random primary key scatters the rows. Every secondary index entry also contains the primary key value, so a 16-byte key makes all secondary indexes larger than an 8-byte key does. Flickr gave this as a reason to avoid GUIDs.
-- **LSM-based stores** (see `kb/databases/06-storage-engines.md`) have less insert penalty from random keys, because writes go to a memory table first. Flickr noted that a random scheme fits write-cheap stores better than MySQL.
+- **Random keys** (UUID version 4) insert into a random leaf. If the index is larger than the buffer pool, many inserts need a disk read to load the leaf. Splits happen all over the index and leave pages about half full. In PostgreSQL with `full_page_writes` on (the default), the first change to a page after a checkpoint writes the whole page to the write-ahead log. Random inserts touch many more distinct pages between checkpoints, so they also increase the log volume.
+- **Clustered tables.** InnoDB stores the table rows inside the primary key index, so a random primary key scatters the rows. Every secondary index entry also contains the primary key value, so a 16-byte key makes all secondary indexes larger than an 8-byte key does. Flickr's stated reason to avoid GUIDs is shorter: "GUIDs are big, and they index badly in MySQL".
+- **LSM-based stores** (see `kb/databases/06-storage-engines.md`) have less insert penalty from random keys, because writes go to a memory table first. Flickr made a related remark about another option, consistent hashing: it is "better suited for write-cheap environments (e.g. LSMTs)", while MySQL is optimized for fast random reads.
+- RFC 9562, section 6.11, says that the difference between time-ordered and random inserts "can be one order of magnitude or more".
 
 A time-ordered key has a cost: all new writes land in one key range. In a range-partitioned store (HBase, Bigtable, or a range-sharded SQL database) the newest partition receives all the write traffic, which is a hot spot (see [partitioning and sharding](06-partitioning-and-sharding.md)). Fix: hash-prefix the key, use a salt, or hash-partition on the ID. A time-ordered ID is a good primary key, and a poor partition key for range partitioning.
 
@@ -314,7 +318,10 @@ For a version 4 UUID, `N = 2^122` (about 5.3 x 10^36), so `sqrt(N) = 2^61` (abou
 
 Read the table this way: random 122-bit IDs are safe for any realistic volume, as long as the random source is good. Random 64-bit IDs are not: a billion IDs already give a 2.7 percent chance of a collision. The numbers assume a uniform and independent source. A weak or badly seeded generator (a cloned virtual machine that restarts with the same seed, or a `java.util.Random` seeded with the time) breaks the assumption, and that failure is far more likely than the mathematical collision. RFC 9562, section 6.9, says implementations should use a cryptographically secure random number generator and reseed it after a process fork.
 
-For a time-ordered ID, the random part only has to be unique within one millisecond (version 7 with 74 bits) or within the worker's sequence. This makes the collision probability much lower than for version 4 at the same total size.
+Time-ordered IDs need a different calculation:
+
+- **UUID version 7** has 74 random (or counter) bits. Two version 7 UUIDs can collide only if they have the same millisecond, so the birthday formula applies to the IDs of each millisecond, with `N = 2^74`. A counter (RFC 9562, method 1 or 2) removes duplicates inside one generator, but two independent generators can still draw the same bits in the same millisecond. The risk depends on the number of IDs per millisecond, and it is higher than for version 4 with the same total count, because version 4 has 48 more random bits. Computed with the formula above, for independent generators with no counter, over one year: at 10^6 IDs per second (1 000 per millisecond), version 7 gives about 8 x 10^-7 and version 4 about 9 x 10^-11. At 10^9 IDs per second, version 7 gives about 0.57 and version 4 about 9 x 10^-5. Assumption: such a rate is rare. If it applies, use a node ID in the layout (version 8) or a unique constraint with a retry.
+- **Snowflake** has no random part. Its uniqueness comes from the worker ID and the sequence, not from probability. It holds only if the worker IDs are unique and the clock policy prevents a reused timestamp.
 
 ## Trade-offs and When to Use
 
@@ -323,11 +330,11 @@ For a time-ordered ID, the random part only has to be unique within one millisec
 | Database auto-increment | 32 or 64 bits | The one database | Strictly | Limited by the leader | Volume, guessable | One counter per database. Breaks with sharding or multiple leaders | One database, one leader, small system |
 | Ticket server pair | 64 bits | One call per ID (or per block) | Roughly | Limited by one MySQL write per ID. Blocks raise it | Volume | A dependency. Odd/even drift | Sharded MySQL, need 64-bit sequential IDs |
 | UUID version 4 | 128 bits | None | No | Unlimited | Nothing | Poor index locality. Large | Public tokens, rows in small tables, merging data from many sources |
-| UUID version 7 | 128 bits | None | Yes, per millisecond (monotonic with counter) | Unlimited | Creation time | Needs a library before JDK support. Time leak | Default primary key for a distributed system that stores 128-bit values |
+| UUID version 7 | 128 bits | None | Yes, per millisecond (monotonic with counter) | Unlimited | Creation time | No generator in JDK 21 (JDK 26 adds `UUID.ofEpochMillis`). Time leak. Fewer random bits than version 4 per millisecond | Default primary key for a distributed system that stores 128-bit values |
 | Snowflake | 64 bits | Worker ID assignment only | Roughly (within clock skew) | 4 096 000 per second per worker | Time, worker | Clock dependency. Worker ID management | 64-bit sortable IDs at high volume |
 | ULID | 128 bits (26 characters) | None | Yes | Unlimited | Creation time | Not a native database type | Sortable, human-readable text IDs |
 | Hash of content or name (UUID 5) | 128 bits | None | No | Unlimited | Nothing, but guessable if the input is | The same input gives the same ID. Not for mutable keys | Deduplication, idempotent imports |
-| Random 64-bit | 64 bits | None | No | Unlimited | Nothing | Collisions at about 4 x 10^9 IDs (birthday) | Do not use it at scale |
+| Random 64-bit | 64 bits | None | No | Unlimited | Nothing | A 50 percent collision chance at about 5.1 x 10^9 IDs, and 2.7 percent at 10^9 (birthday bound) | Do not use it at scale |
 
 How to choose, as a sequence of questions:
 
@@ -476,6 +483,7 @@ class SnowflakeGenerator {
     static final int SEQUENCE_BITS = 12;
     static final long MAX_WORKER = (1L << WORKER_BITS) - 1;
     static final long SEQUENCE_MASK = (1L << SEQUENCE_BITS) - 1;
+    static final long MAX_OFFSET = (1L << 41) - 1; // the 41-bit timestamp field
     static final long MAX_BACKWARD_WAIT_MS = 5;
 
     private final long workerId;
@@ -494,30 +502,36 @@ class SnowflakeGenerator {
     synchronized long nextId() {
         long now = clock.now();
         if (now < lastTimestamp) {
-            long drift = lastTimestamp - now;
-            if (drift > MAX_BACKWARD_WAIT_MS) {
-                throw new ClockMovedBackwardsException(
-                        "clock is " + drift + " ms behind the last id");
-            }
-            now = waitUntilAtLeast(lastTimestamp);
+            now = waitUntilAtLeast(lastTimestamp); // throws if the clock is too far behind
         }
+        long nextSequence = 0;
         if (now == lastTimestamp) {
-            sequence = (sequence + 1) & SEQUENCE_MASK;
-            if (sequence == 0) {
+            nextSequence = (sequence + 1) & SEQUENCE_MASK;
+            if (nextSequence == 0) { // all 4 096 values of this millisecond are used
                 now = waitUntilAtLeast(lastTimestamp + 1);
             }
-        } else {
-            sequence = 0;
         }
+        long offset = now - EPOCH;
+        if (offset < 0 || offset > MAX_OFFSET) {
+            throw new IllegalStateException("time is outside the 41-bit range of the epoch");
+        }
+        // Change the state only after every check passed, so a throw leaves it unchanged.
+        sequence = nextSequence;
         lastTimestamp = now;
-        return ((now - EPOCH) << (WORKER_BITS + SEQUENCE_BITS))
+        return (offset << (WORKER_BITS + SEQUENCE_BITS))
                 | (workerId << SEQUENCE_BITS)
                 | sequence;
     }
 
+    /** Waits until the clock reaches target. Refuses if the clock is too far behind. */
     private long waitUntilAtLeast(long target) {
         long now = clock.now();
         while (now < target) {
+            long behind = lastTimestamp - now;
+            if (behind > MAX_BACKWARD_WAIT_MS) {
+                throw new ClockMovedBackwardsException(
+                        "clock is " + behind + " ms behind the last id");
+            }
             clock.pause();
             now = clock.now();
         }
@@ -561,8 +575,10 @@ each thread saw increasing ids: true
 Points to read in the code:
 
 - `nextId` is `synchronized`. One generator serves many threads, and the state (`lastTimestamp`, `sequence`) changes together. A lock-free version needs a single atomic that packs the timestamp and the sequence.
-- `waitUntilAtLeast` is the clock policy in one place. The real clock implements `pause()` with `Thread.sleep(1)`, and the test clock advances itself by 1 ms.
+- `waitUntilAtLeast` is the clock policy in one place. Both waits use it: the wait after a backward step and the wait after a sequence wrap. It checks the tolerance on each loop, so a clock that steps back by an hour during a wait makes the call fail at once. A loop with no check would hold the lock for that hour. A real clock implements `pause()` with `Thread.sleep(1)`, and the test clock advances itself by 1 ms.
 - The tolerance `MAX_BACKWARD_WAIT_MS` separates a short wait from a refusal.
+- `nextId` changes `sequence` and `lastTimestamp` only after every check passes. If it changed `sequence` before a wait that then throws, the next call could reuse a sequence value that the generator already issued.
+- The check on `offset` refuses a time before the epoch or after the 41-bit field is full (about 69.7 years after the epoch). Without it, the shift moves the timestamp into the sign bit.
 - The code does not persist `lastTimestamp`. A production generator must (see the clock skew section).
 
 ### UUID version 7 by hand and the birthday bound
@@ -673,7 +689,7 @@ at 1e9 ids per second that takes 86.0 years
 
     Options: static configuration (simple, but a copy error makes duplicates), a lease in ZooKeeper or etcd (the process claims a free number at startup and renews it; Twitter used ZooKeeper this way), a database table with heartbeats, or bits of the IP address (risky when containers reuse addresses).
 
-    My choice is a lease. The process stops generating IDs if it loses the lease, because a paused process (a long garbage-collection pause or a suspended virtual machine) can wake up after another process took its number. A fencing check or a lease-validity check before each batch closes that gap.
+    My choice is a lease. The process stops generating IDs if it loses the lease, because a paused process (a long garbage-collection pause or a suspended virtual machine) can wake up after another process took its number. A lease-validity check before each ID or each batch narrows that gap, but it does not close it: the process can pause just after the check. So I also make a released number wait before reuse: a new owner may take a number only after the old lease has expired plus a safety margin that is longer than the longest pause I expect. As the last defense, the primary key constraint rejects a duplicate insert.
 
 ??? question "Explain Flickr's ticket server. What are its good and bad points?"
 
@@ -695,6 +711,8 @@ at 1e9 ids per second that takes 86.0 years
 
     So the mathematical risk is negligible. The practical risk is a bad random source: a virtual machine that clones with the same seed, or a `Random` seeded with the clock. I use `SecureRandom` (RFC 9562 says to use a cryptographically secure generator), and I add a unique constraint on the key as the last defense. With 64 random bits the result is very different: 10^9 IDs already give about 2.7 percent.
 
+    If the interviewer asks about version 7: it has only 74 random bits, and two IDs can collide only inside one millisecond. So I apply the same formula per millisecond. The risk grows with the number of IDs per millisecond across independent generators, and at the same total count it is higher than for version 4. At 10^6 IDs per second for a year it is about 8 x 10^-7, which is still negligible.
+
 ??? question "How do you generate IDs for a URL shortener that needs 7-character codes?"
 
     A 7-character Base62 code gives 62^7, about 3.5 x 10^12 values. Two designs.
@@ -707,15 +725,15 @@ at 1e9 ids per second that takes 86.0 years
 
 ??? question "Is a Snowflake ID safe to use as the exact order of events across machines?"
 
-    No. Two workers use their own clocks. NTP keeps clocks within some milliseconds (approximate, and it depends on the network), but not equal. An event that happens after another on a second machine can get a smaller ID. Within one worker the IDs are monotonic.
+    No. Two workers use their own clocks. NTP keeps them close, but not equal: RFC 5905 gives typical precision from a few hundred microseconds on a fast LAN to a few tens of milliseconds (approximate, and it depends on the network). NTP can also step a clock backwards. An event that happens after another on a second machine can get a smaller ID. Within one worker the IDs are monotonic.
 
-    Snowflake gives k-sortable IDs: Twitter promised IDs within one second of real order. For a strict causal order, I need a logical clock, a version vector, or a single sequencer (a log partition). See `kb/hld/distributed-systems/01-failures-and-time.md`. I tell the interviewer which ordering the feature needs: "newest first" in a feed tolerates the skew, and "apply these two writes in order" does not.
+    Snowflake gives k-sortable IDs: Twitter promised IDs within one second of real order. For a strict causal order, I need a logical clock, a version vector, or a single sequencer (a log partition). See [failures and time](../distributed-systems/01-failures-and-time.md). I tell the interviewer which ordering the feature needs: "newest first" in a feed tolerates the skew, and "apply these two writes in order" does not.
 
 ### Follow-up Questions
 
 ??? question "Can the same Snowflake ID be generated twice? Name every cause."
 
-    Yes. Causes: two live workers with the same worker ID; a clock that moved back without a policy; a restart with the clock behind the last ID and no persisted timestamp; a sequence that wraps inside one millisecond without waiting; a bit-width change that overlaps old and new IDs; and a bug that shares one generator state without a lock. Each cause has a control: unique worker lease, backward-clock rule, persisted last timestamp, wait on wrap, and a lock or atomic state.
+    Yes. Causes: two live workers with the same worker ID; a clock that moved back without a policy; a restart with the clock behind the last ID and no persisted timestamp; a sequence that wraps inside one millisecond without waiting; a timestamp that outgrows its 41 bits and wraps into the sign bit; a bit-width change that overlaps old and new IDs; and a bug that shares one generator state without a lock. Each cause has a control: unique worker lease, backward-clock rule, persisted last timestamp, wait on wrap, a range check on the timestamp, a migration plan for the layout, and a lock or atomic state.
 
 ??? question "How would you generate IDs when the database has multiple leaders?"
 
@@ -727,7 +745,7 @@ at 1e9 ids per second that takes 86.0 years
 
 ??? question "Why send Snowflake IDs as strings in a JSON API?"
 
-    A JSON number in JavaScript is a 64-bit floating-point value that stores integers exactly only up to 2^53 - 1. A Snowflake ID uses up to 63 bits, so a browser that parses it as a number changes the low digits. Twitter's API returns both `id` (a number) and `id_str` (a string) for this reason. I return the ID as a string.
+    JSON itself puts no limit on the size of a number, but `JSON.parse` in JavaScript turns every number into a 64-bit floating-point value. That value stores integers exactly only up to 2^53 - 1 (`Number.MAX_SAFE_INTEGER`). A Snowflake ID uses up to 63 bits, so a browser that parses it as a number changes the low digits. The X (Twitter) developer documentation gives this reason: API v1.1 returns both `id` (a number) and `id_str` (a string) and tells clients to use `id_str`, and API v2 returns IDs as strings. I return the ID as a string.
 
 ### Red Flags
 
@@ -785,7 +803,7 @@ at 1e9 ids per second that takes 86.0 years
 - **Worker IDs:** lease from ZooKeeper or etcd. No lease, no IDs.
 - **ULID:** 48-bit timestamp, 80 random bits, 26 Base32 characters. Monotonic mode increments the random part.
 - **Index locality:** time-ordered keys insert at the right edge. Random keys split pages all over. A time-ordered key can create a hot spot in a range-partitioned store.
-- **Collisions:** `p = 1 - exp(-n^2 / 2N)`. 122 bits: 50 percent at about 2.7 x 10^18 IDs. 64 bits: 2.7 percent at 10^9 IDs.
+- **Collisions:** `p = 1 - exp(-n^2 / 2N)`. 122 bits: 50 percent at about 2.7 x 10^18 IDs. 64 bits: 2.7 percent at 10^9 IDs. Version 7: apply the formula per millisecond with 74 bits.
 - **API:** send 64-bit IDs as strings in JSON.
 - **Say in the interview:** the size and ordering requirements, the clock policy, the worker ID assignment, and the public-ID decision.
 
@@ -793,7 +811,11 @@ at 1e9 ids per second that takes 86.0 years
 
 - RFC 9562, "Universally Unique IDentifiers (UUIDs)", 2024 (`https://www.rfc-editor.org/rfc/rfc9562`). The layout of versions 1 to 8, monotonicity methods, collision resistance, and database advice.
 - Twitter Engineering, "Announcing Snowflake", 1 June 2010 (`https://blog.x.com/engineering/en_us/a/2010/announcing-snowflake`). The requirements and the options that Twitter rejected.
-- Twitter Snowflake repository (`https://github.com/twitter-archive/snowflake`, tag `snowflake-2010`). The README states the 41, 10, and 12 bit layout and the clock rule. `IdWorker.scala` is the reference code.
+- Twitter Snowflake repository (`https://github.com/twitter-archive/snowflake`, tag `snowflake-2010`). The README states the 41, 10, and 12 bit layout and the clock rule. `IdWorker.scala` is the reference code: the epoch `1288834974657L`, the 5-bit data center and 5-bit worker fields, and the backward-clock exception.
+- X developer documentation, "X IDs" (`https://docs.x.com/fundamentals/x-ids`). Why the API returns IDs as strings (`id_str`).
+- RFC 5905, "Network Time Protocol Version 4", 2010 (`https://www.rfc-editor.org/rfc/rfc5905`). Section 1 gives the typical NTP precision.
+- JDK 26 javadoc, `java.util.UUID.ofEpochMillis` (`https://docs.oracle.com/en/java/javase/26/docs/api/java.base/java/util/UUID.html`). The JDK version 7 factory and its monotonicity note.
+- PostgreSQL documentation, "Sequence Manipulation Functions" (`https://www.postgresql.org/docs/current/functions-sequence.html`) and "Write Ahead Log" settings (`https://www.postgresql.org/docs/current/runtime-config-wal.html`). Sequence gaps and `full_page_writes`.
 - Flickr Code, "Ticket Servers: Distributed Unique Primary Keys on the Cheap", 8 February 2010 (`https://code.flickr.net/2010/02/08/ticket-servers-distributed-unique-primary-keys-on-the-cheap/`). The `REPLACE INTO` design and its reasons.
 - ULID specification (`https://github.com/ulid/spec`). Layout, Crockford Base32, and monotonic mode.
 - PostgreSQL documentation, "UUID Functions" (`https://www.postgresql.org/docs/18/functions-uuid.html`). `uuidv7()` in PostgreSQL 18.
