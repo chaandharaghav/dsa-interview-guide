@@ -71,6 +71,8 @@ Case-study files are not committed until their review finishes. If the session s
 
 The user said: do not start any more agents. Running agents finish on their own: Opus reviews of S4 (07–08), S7 (13, 16), S8 (14–15), S9 (17–18), S10 (19–20); Sonnet drafters S11 (21–22) and S12 (23–25).
 
+S11 drafted, NOT reviewed (WIP commit). Points for its future Opus review: FIX tag numbers and message types from memory (35=D/F/G/8/9, tags 11, 54, 38, 40, 44, 59, 150, 39, 37, 32, 31, 151, 14, session messages); ITCH Order Replace and message P semantics; Photon (SIGMOD 2013) IdRegistry and Paxos details; Mesa (VLDB 2014) versions; the Flink windows docs URL; SEC Rule 15c3-5 text; the Disruptor multi-producer claim; A/B redundant feeds.
+
 When the session resumes: ask the user before starting agents. Still to do for HLD: Opus reviews of S11 and S12 drafts; Batch 6 (cheatsheet, practice page, `kb/hld/README.md` index, `kb/hld/.nav.yml`, glossary terms, study-plan HLD track, home-page status). Reviewed and committed case studies so far: 01–06, 09–12.
 
 ## RESUMED (2026-10-15, after a stop)
