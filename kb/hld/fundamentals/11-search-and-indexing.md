@@ -114,7 +114,9 @@ score(D, Q) = sum over q_i of  IDF(q_i) * f(q_i, D) * (k1 + 1)
 
 Where `f(q_i, D)` is the term frequency in `D`, `|D|` is the length of `D` in terms, and `avgdl` is the average document length in the corpus. Lucene's IDF is `ln(1 + (N - n + 0.5) / (n + 0.5))`, where `n` is the number of documents that contain the term. The parameter `k1` (default 1.2 in Lucene and Elasticsearch) controls *saturation* of term frequency: the score of a term rises with `tf` but approaches a limit. In the formula above, the limit is `IDF x (k1 + 1)`. The parameter `b` (default 0.75) controls length normalization: `b = 0` ignores document length, and `b = 1` applies full normalization.
 
-Lucene's implementation differs in one constant. Since Lucene 8.0 (issue LUCENE-8563), `BM25Similarity` drops the `(k1 + 1)` factor from the numerator, so a term's score approaches `IDF` and not `IDF x (k1 + 1)`. The Lucene change log says that the change does not affect the order, because the factor is the same for every document. Lucene kept the old scale in `LegacyBM25Similarity`. Lucene also stores each document's length in one byte with a lossy encoding, so its `|D|` is approximate. Elasticsearch and OpenSearch use Lucene's `BM25Similarity`, so the absolute scores that they return follow the form without `(k1 + 1)`.
+Lucene's implementation differs in one constant. Since Lucene 8.0 (issue LUCENE-8563, "Remove k1+1 from the numerator of BM25Similarity"), `BM25Similarity` drops the `(k1 + 1)` factor from the numerator, so a term's score approaches `IDF` and not `IDF x (k1 + 1)`. The issue says that the change "doesn't modify ordering", because the factor is the same constant for every term and every document. Lucene 8.0 also added a deprecated `LegacyBM25Similarity` (in the misc module) that keeps the old scale. Lucene stores each document's length in one byte with a lossy encoding, so its `|D|` is approximate.
+
+The two engines differ here (checked in their source code, October 2026). Elasticsearch builds its `BM25` similarity from its own `LegacyBM25Similarity` class, which wraps Lucene's `BM25Similarity` and multiplies the boost by `(1 + k1)`, so Elasticsearch scores keep the classic scale with `(k1 + 1)`. OpenSearch 3.0 changed its default to Lucene's `BM25Similarity`, so OpenSearch 3.x scores are about 2.2 times lower (at `k1` = 1.2) than OpenSearch 2.x scores for the same query, with the same order. An OpenSearch index can set the `LegacyBM25` similarity to keep the old scores. Recommendation: do not compare absolute scores across engines or versions, and do not hard-code a score threshold.
 
 **Beyond text scoring.** Real ranking combines the text score with other signals: popularity, recency, price, personalization, and business rules. Elasticsearch has `function_score` and a rescore phase that applies an expensive model to the top results only. A second stage, *learning to rank*, uses a trained model over many features. Two-stage retrieval is the standard shape: a cheap first stage selects hundreds or thousands of candidates, and a costly second stage reorders the top ones.
 
@@ -267,10 +269,11 @@ Alternatives to Elasticsearch and OpenSearch: Apache Solr (also Lucene-based), a
 
 ## Java Example
 
-The program below builds a small in-memory inverted index. It analyzes text (lowercase, split, remove stop words), stores a posting list with the term frequency per document, and ranks a query with BM25 (`k1` = 1.2, `b` = 0.75, Lucene's IDF form). The numbers show the effects that the page describes. Document 4 repeats "java" and "search" and scores highest. Rarity matters: document 1 matches only "java" (in 2 of 4 documents) and scores 0.919, while documents 2 and 3 match only "search" (in 3 of 4 documents) and score 0.330. A query that holds only a stop word has no hits. The code uses the classic formula with the `(k1 + 1)` factor, so each score is 2.2 times the score that Lucene 8 and later would give, with the same order. This is a teaching model, not Lucene: it keeps no positions, no segments, and no compression.
+The program below builds a small in-memory inverted index. It analyzes text (lowercase, split, remove stop words), stores a posting list with the term frequency per document, and ranks a query with BM25 (`k1` = 1.2, `b` = 0.75, Lucene's IDF form). The numbers show the effects that the page describes. Document 4 repeats "java" and "search" and scores highest. Rarity and length both matter: document 1 matches only "java" (in 2 of 4 documents, idf 0.693) and scores 0.919, while documents 2 and 3 match only "search" (in 3 of 4 documents, idf 0.357) and score 0.330. Document 1 also has 3 terms, against 9 terms in documents 2 and 3 (the average is 7.5). With 9 terms, document 1 would score 0.641, so the rarer term alone gives about twice the score, and the shorter length adds the rest. A query that holds only a stop word has no hits. The code uses the classic formula with the `(k1 + 1)` factor, the scale that Elasticsearch returns. Lucene 8 and later (and OpenSearch 3.x) would give each score divided by 2.2, with the same order. This is a teaching model, not Lucene: it keeps no positions, no segments, and no compression.
 
 ```java
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -364,8 +367,8 @@ class InvertedIndex {
         }
         List<Hit> hits = new ArrayList<>();
         scores.forEach((docId, score) -> hits.add(new Hit(docId, score)));
-        hits.sort((x, y) -> y.score() != x.score()
-            ? Double.compare(y.score(), x.score()) : Integer.compare(x.docId(), y.docId()));
+        hits.sort(Comparator.comparingDouble(Hit::score).reversed()
+            .thenComparingInt(Hit::docId));
         return hits;
     }
 }
@@ -496,7 +499,7 @@ query 'the'
 - **Inverted index:** term to sorted posting list (doc ID, tf, positions). AND is a list intersection. Cost follows list length.
 - **Analysis:** tokenize, lowercase, stop words, stemming, synonyms. Same analysis at index and at query time. `text` for search, `keyword` for exact values.
 - **TF-IDF:** `tf x log(N / df)`. Grows without limit.
-- **BM25:** saturating tf (`k1` = 1.2) and length normalization (`b` = 0.75). Default in Elasticsearch, OpenSearch, and Lucene.
+- **BM25:** saturating tf (`k1` = 1.2) and length normalization (`b` = 0.75). Default in Elasticsearch, OpenSearch, and Lucene. Lucene 8+ and OpenSearch 3.x drop the `(k1 + 1)` factor, Elasticsearch keeps it: same order, different absolute scores.
 - **Shard:** a Lucene index. Document shard is `hash(_routing) % primary shards`. The primary count is fixed at creation. Defaults: 1 primary, 1 replica.
 - **Segment:** immutable. Update is write-new plus mark-old-deleted. Merges clean up.
 - **Write path:** buffer plus translog, replicate, refresh (1 s, makes it searchable), flush (commit and trim the translog), merge.
@@ -512,18 +515,20 @@ query 'the'
 
 - Manning, Raghavan, and Schutze, *Introduction to Information Retrieval* (`https://nlp.stanford.edu/IR-book/`). Free book. Chapters 1 to 2 (inverted index, postings) and 6 (scoring, tf-idf).
 - Robertson and Zaragoza, "The Probabilistic Relevance Framework: BM25 and Beyond", Foundations and Trends in Information Retrieval 3(4), 2009. The primary source for BM25.
-- Elasticsearch reference, "Near real-time search" (`https://www.elastic.co/guide/en/elasticsearch/reference/current/near-real-time.html`). Segments and refresh.
-- Elasticsearch reference, "Size your shards" (`https://www.elastic.co/guide/en/elasticsearch/reference/current/size-your-shards.html`). Shard size and count guidance.
+- Elasticsearch reference, "Near real-time search" (`https://www.elastic.co/docs/manage-data/data-store/near-real-time-search`). Segments and refresh.
+- Elasticsearch reference, "Size your shards" (`https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards`). Shard size and count guidance.
 - Elasticsearch reference, "Index modules" and "Similarity settings". Defaults for shards, replicas, refresh interval, and BM25.
 - Elasticsearch reference, "Paginate search results". `from` and `size` limit, `search_after`, and point in time.
-- Elasticsearch reference, "`_routing` field" (`https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-routing-field.html`). The routing formulas.
-- Elasticsearch reference, "Translog" and "Index modules" (`https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-translog.html`). Translog durability and flush.
-- OpenSearch documentation (`https://opensearch.org/docs/latest/`). The same concepts in the OpenSearch fork.
+- Elasticsearch reference, "`_routing` field" (`https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/mapping-routing-field`). The routing formulas.
+- Elasticsearch reference, "Translog" and "Index modules" (`https://www.elastic.co/docs/reference/elasticsearch/index-settings/translog`). Translog durability and flush.
+- OpenSearch documentation (`https://docs.opensearch.org/latest/`). The same concepts in the OpenSearch fork. The "Keyword search" page (`https://docs.opensearch.org/latest/search-plugins/keyword-search/`) describes the BM25 change in OpenSearch 3.0 and the `LegacyBM25` setting.
 - AWS Open Source Blog, "Introducing OpenSearch", April 2021 (`https://aws.amazon.com/blogs/opensource/introducing-opensearch/`). The fork from Elasticsearch 7.10.2.
-- Elasticsearch reference, "Tune for indexing speed" (`https://www.elastic.co/guide/en/elasticsearch/reference/current/tune-for-indexing-speed.html`). How to size bulk requests.
-- Apache Lucene javadoc, `BM25Similarity` and `Lucene101PostingsFormat` (`https://lucene.apache.org/core/10_1_0/core/org/apache/lucene/codecs/lucene101/Lucene101PostingsFormat.html`). Lucene's BM25 and the postings encoding. LUCENE-8563 records the removal of the `(k1 + 1)` factor in Lucene 8.0.
-- Robertson, Walker, Jones, Hancock-Beaulieu, and Gatford, "Okapi at TREC-3", Proceedings of TREC-3, 1994. The first description of BM25.
+- Elasticsearch reference, "Tune for indexing speed" (`https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/indexing-speed`). How to size bulk requests.
+- Apache Lucene javadoc, `BM25Similarity` and `Lucene101PostingsFormat` (`https://lucene.apache.org/core/10_1_0/core/org/apache/lucene/codecs/lucene101/Lucene101PostingsFormat.html`). Lucene's BM25 and the postings encoding. LUCENE-8563 (`https://issues.apache.org/jira/browse/LUCENE-8563`) records the removal of the `(k1 + 1)` factor in Lucene 8.0.
+- Elasticsearch source, `SimilarityProviders.java` and `LegacyBM25Similarity.java` (`https://github.com/elastic/elasticsearch/tree/main/server/src/main/java/org/elasticsearch/lucene/similarity`). Shows that Elasticsearch keeps the `(k1 + 1)` scale.
+- Robertson, Walker, Jones, Hancock-Beaulieu, and Gatford, "Okapi at TREC-3", Proceedings of TREC-3, 1994. The first description of BM25, and the reference that Lucene's `BM25Similarity` javadoc gives.
+- Robertson and Walker, "Some simple effective approximations to the 2-Poisson model for probabilistic weighted retrieval", SIGIR 1994. The term-frequency saturation and length normalization that BM25 uses.
 - Apache Lucene documentation, "Index file formats" (`https://lucene.apache.org/core/`). The term dictionary, postings, and segments on disk.
 - Debezium documentation (`https://debezium.io/documentation/`). Change data capture from database logs.
 - Dean and Barroso, "The Tail at Scale", Communications of the ACM, 2013. Why fan-out search latency follows the slowest shard.
-- Related pages: [partitioning and sharding](06-partitioning-and-sharding.md), [choosing a database](04-choosing-a-database.md), [replication](05-replication.md), [caching](03-caching.md), [message queues and streams](08-message-queues-and-streams.md), [reliability patterns](12-reliability-patterns.md), `kb/hld/case-studies/07-search-autocomplete.md`, `kb/hld/fundamentals/17-batch-and-stream-processing.md`, `kb/databases/03-indexing.md`.
+- Related pages: [partitioning and sharding](06-partitioning-and-sharding.md), [choosing a database](04-choosing-a-database.md), [replication](05-replication.md), [caching](03-caching.md), [message queues and streams](08-message-queues-and-streams.md), [reliability patterns](12-reliability-patterns.md), `kb/hld/case-studies/07-search-autocomplete.md`, [batch and stream processing](17-batch-and-stream-processing.md), `kb/databases/03-indexing.md`.
