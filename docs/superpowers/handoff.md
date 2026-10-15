@@ -76,7 +76,7 @@ Case-study files are not committed until their review finishes. If the session s
   - Drafted, review queued: H8 (13–14, both P1). Unverified points from the drafter: earlier draft header names `RateLimit-Limit/-Remaining/-Reset`; `Retry-After` wording (RFC 9110 10.2.3); Redis Cluster scripts and single-slot keys; Kubernetes `kube-proxy`, readiness probes; Consul interfaces; Eureka as client-side discovery; the "8 to 10 engineers" rule of thumb (no source).
   - Drafting: H9 (15–16), H10 (17–18), H11 (19–21), D1 (distributed-systems 01–02).
   - Not started: D2, D3, P1 (procedure pages), S1 to S12 (case studies), Batch 6.
-- Usage rule (user request, 2026-10-15): limits run out fast. Keep at most about 5 agents running at the same time. The user decides whether HLD P2 pages get Sonnet reviewers; after HLD the plan is: main session on Sonnet, Opus reviewers for P1 pages only, Sonnet reviewers for P2/P3.
+- Usage rule (user request, 2026-10-15): limits run out fast. Keep at most about 5 agents running at the same time. User decision (Option A): Opus reviewers for every HLD page. **Stop when HLD is complete and tell the user.** After HLD: main session on Sonnet, Opus reviewers for P1 pages only, Sonnet reviewers for P2/P3.
 
 ## Next Steps, in Order
 
