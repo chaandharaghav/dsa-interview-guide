@@ -38,8 +38,8 @@
 | `fundamentals/06-creational-patterns.md` | Yes | Done |
 | `fundamentals/07-structural-patterns.md` | Yes | Done |
 | `fundamentals/08-behavioral-patterns.md` | Yes | Done (finished after the save; links to case studies are now backticked paths) |
-| `fundamentals/09-concurrency-in-lld.md` | Yes (drafter finished after the WIP commit) | Not started |
-| `fundamentals/10-architectural-patterns.md` | Yes (same) | Not started |
+| `fundamentals/09-concurrency-in-lld.md` | Yes | Done |
+| `fundamentals/10-architectural-patterns.md` | Yes | Done |
 | `fundamentals/11-anti-patterns.md` | Yes | Done |
 | `how-to-approach-lld.md` | Yes | Done (finished after the save) |
 | `machine-coding-round.md` | Yes | Done (finished after the save) |
@@ -63,7 +63,7 @@ Any agent that was running at save time may have stopped partway. In the next se
 | C11 | 21-food-delivery, 22-online-auction | Running | Not started |
 | C12 | 23-digital-wallet, 24-notification-service | Running | Not started |
 
-Fundamentals 09 and 10: Opus review running. Mermaid check passed for C1 to C5.
+Fundamentals 09 and 10: reviewed and committed. All Batch 1 and Batch 2 pages are done. Mermaid check passed for C1 to C5.
 Case-study files are not committed until their review finishes. If the session stops, run `git status` to see the drafted folders, then review the ones whose review did not finish.
 
 ## Next Steps, in Order
