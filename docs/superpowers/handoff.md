@@ -56,12 +56,12 @@ Any agent that was running at save time may have stopped partway. In the next se
 | C4 | 07-vending-machine, 08-logging-framework | Yes | Done, committed |
 | C5 | 09-tic-tac-toe, 10-snake-and-ladder | Yes | Done, committed |
 | C6 | 11-chess, 12-atm | Yes | Running |
-| C7 | 13-library-management, 14-in-memory-file-system | Yes | Running |
+| C7 | 13-library-management, 14-in-memory-file-system | Yes | Done, committed |
 | C8 | 15-pub-sub-message-queue, 16-task-scheduler | Yes | Running |
-| C9 | 17-ride-sharing, 18-shopping-cart-and-orders | Yes | Running |
+| C9 | 17-ride-sharing, 18-shopping-cart-and-orders | Yes | Done, committed |
 | C10 | 19-key-value-store-with-ttl, 20-hotel-booking | Yes | Running |
-| C11 | 21-food-delivery, 22-online-auction | Running | Not started |
-| C12 | 23-digital-wallet, 24-notification-service | Running | Not started |
+| C11 | 21-food-delivery, 22-online-auction | Yes | Running |
+| C12 | 23-digital-wallet, 24-notification-service | Yes | Running |
 
 Fundamentals 09 and 10: reviewed and committed. All Batch 1 and Batch 2 pages are done. Mermaid check passed for C1 to C5.
 Case-study files are not committed until their review finishes. If the session stops, run `git status` to see the drafted folders, then review the ones whose review did not finish.
