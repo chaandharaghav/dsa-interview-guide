@@ -60,7 +60,7 @@ Any agent that was running at save time may have stopped partway. In the next se
 | C8 | 15-pub-sub-message-queue, 16-task-scheduler | Yes | Running |
 | C9 | 17-ride-sharing, 18-shopping-cart-and-orders | Yes | Done, committed |
 | C10 | 19-key-value-store-with-ttl, 20-hotel-booking | Yes | Running |
-| C11 | 21-food-delivery, 22-online-auction | Yes | Running |
+| C11 | 21-food-delivery, 22-online-auction | Yes | Done, committed |
 | C12 | 23-digital-wallet, 24-notification-service | Yes | Running |
 
 Fundamentals 09 and 10: reviewed and committed. All Batch 1 and Batch 2 pages are done. Mermaid check passed for C1 to C5.
