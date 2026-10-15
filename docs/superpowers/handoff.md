@@ -50,17 +50,17 @@ Any agent that was running at save time may have stopped partway. In the next se
 
 | Assignment | Folders | Drafted | Opus review |
 |---|---|---|---|
-| C1 | 01-parking-lot, 02-lru-and-lfu-cache | Yes | Running |
+| C1 | 01-parking-lot, 02-lru-and-lfu-cache | Yes | Done, committed |
 | C2 | 03-rate-limiter, 04-elevator-system | Yes | Running |
 | C3 | 05-movie-ticket-booking, 06-splitwise | Yes | Running |
-| C4 | 07-vending-machine, 08-logging-framework | Yes | Running (must remove the demo's temp-file write) |
+| C4 | 07-vending-machine, 08-logging-framework | Yes | Done, committed |
 | C5 | 09-tic-tac-toe, 10-snake-and-ladder | Yes | Done, committed |
 | C6 | 11-chess, 12-atm | Running | Not started |
-| C7 | 13-library-management, 14-in-memory-file-system | Running | Not started |
+| C7 | 13-library-management, 14-in-memory-file-system | Yes | Running |
 | C8 | 15-pub-sub-message-queue, 16-task-scheduler | Running | Not started |
 | C9 | 17-ride-sharing, 18-shopping-cart-and-orders | Running | Not started |
 | C10 | 19-key-value-store-with-ttl, 20-hotel-booking | Running | Not started |
-| C11 | 21-food-delivery, 22-online-auction | Not started | Not started |
+| C11 | 21-food-delivery, 22-online-auction | Running | Not started |
 | C12 | 23-digital-wallet, 24-notification-service | Not started | Not started |
 
 Fundamentals 09 and 10: Opus review running. Mermaid check passed for C1 to C5.
