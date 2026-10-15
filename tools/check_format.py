@@ -54,6 +54,7 @@ SECTIONS = {
 }
 COUNTS_QUESTIONS = {"topic", "hld-case"}
 QUESTION = re.compile(r'^\s*\?\?\?\+?\s+question\b')
+PLACEHOLDER = re.compile(r"@@[^@\n]*@@|\b(TODO|TBD|FIXME)\b")
 QUESTION_BANK = re.compile(r"(^|/)kb/.+question-bank\.md$")
 QUESTION_BANK_MINIMUM = 25
 NO_PRIORITY = re.compile(r"(^|/)kb/(README|glossary|study-plan)\.md$|(^|/)README\.md$")
@@ -105,6 +106,17 @@ def _check_sections(path: Path, text: str, template: str, errors: list) -> None:
         last_index, last_name = index, section
 
 
+def _check_key_code(path: Path, text: str, errors: list) -> None:
+    lines = text.split("\n")
+    start = next((i for i, l in enumerate(lines) if re.match(r"^##\s+(\d+\.\s+)?Key Code", l)), None)
+    if start is None:
+        return
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+    section = "\n".join(lines[start:end])
+    if not any(b.lang == "java" for b in parse_blocks(section, path)):
+        errors.append(f"{path}: '## Key Code' has no java block")
+
+
 def _count_questions(text: str) -> int:
     return sum(1 for line in prose_lines(text) if QUESTION.match(line))
 
@@ -136,7 +148,12 @@ def check_file(path: Path, text: str) -> list:
                 errors.append(
                     f"{path}:{block.line + offset}: code line has {len(line)} characters "
                     f"(max {MAX_CODE_WIDTH})")
+    for line in prose_lines(text):
+        if PLACEHOLDER.search(line):
+            errors.append(f"{path}: unfilled placeholder in text: {line.strip()[:80]}")
     template = template_for(path)
+    if template == "lld-case":
+        _check_key_code(path, text, errors)
     if template:
         _check_sections(path, text, template, errors)
     if template or not NO_PRIORITY.search(_posix(path)):

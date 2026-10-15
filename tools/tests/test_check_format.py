@@ -138,5 +138,33 @@ class ReviewFixesTest(unittest.TestCase):
         self.assertEqual(cf.template_for(absolute), "topic")
 
 
+class PlaceholderTest(unittest.TestCase):
+    path = Path("kb/java/01-language-core.md")
+
+    def test_generator_placeholder_fails(self):
+        text = topic_page(extra="@@JAVA ^class Foo|^}$@@\n")
+        self.assertTrue(any("placeholder" in e for e in cf.check_file(self.path, text)))
+
+    def test_todo_fails(self):
+        text = topic_page(extra="TODO: write this\n")
+        self.assertTrue(any("placeholder" in e for e in cf.check_file(self.path, text)))
+
+    def test_placeholder_inside_code_is_allowed(self):
+        text = topic_page(extra=FENCE + "text\n// TODO in sample code\n" + FENCE + "\n")
+        self.assertEqual(cf.check_file(self.path, text), [])
+
+    def test_lld_case_needs_key_code_block(self):
+        names = ["Problem Statement", "Clarifying Questions", "Requirements",
+                 "Entities and Relationships", "Class Diagram", "Design Patterns Used",
+                 "Key Code", "Concurrency", "Extensions", "Common Mistakes", "45-Minute Plan",
+                 "Expected Output"]
+        text = "---\npriority: P2\n---\n" + "\n".join(f"## {n}\n\ntext\n" for n in names)
+        path = Path("kb/lld/case-studies/01-x/README.md")
+        self.assertTrue(any("Key Code" in e for e in cf.check_file(path, text)))
+        with_code = text.replace("## Key Code\n\ntext\n",
+                                 "## Key Code\n\n" + FENCE + "java\nclass A {}\n" + FENCE + "\n")
+        self.assertEqual(cf.check_file(path, with_code), [])
+
+
 if __name__ == "__main__":
     unittest.main()
