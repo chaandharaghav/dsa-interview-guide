@@ -71,7 +71,12 @@ Case-study files are not committed until their review finishes. If the session s
 
 - LLD Batch 5: done and committed.
 - Phase 2 plan: `docs/superpowers/plans/2026-10-15-phase-2-hld.md` (committed).
-- Phase 2 drafters running: H1 to H5 (HLD fundamentals 01 to 08). Next: H6 to H11, then D1 to D3, P1, S1 to S12.
+- Phase 2 status (update as agents finish):
+  - Drafted, Opus review running: H1 (01–02), H2 (03), H3 (04–05), H4 (06–07), H5 (08), H6 (09–10), H7 (11–12).
+  - Drafted, review queued: H8 (13–14, both P1). Unverified points from the drafter: earlier draft header names `RateLimit-Limit/-Remaining/-Reset`; `Retry-After` wording (RFC 9110 10.2.3); Redis Cluster scripts and single-slot keys; Kubernetes `kube-proxy`, readiness probes; Consul interfaces; Eureka as client-side discovery; the "8 to 10 engineers" rule of thumb (no source).
+  - Drafting: H9 (15–16), H10 (17–18), H11 (19–21), D1 (distributed-systems 01–02).
+  - Not started: D2, D3, P1 (procedure pages), S1 to S12 (case studies), Batch 6.
+- Usage rule (user request, 2026-10-15): limits run out fast. Keep at most about 5 agents running at the same time. The user decides whether HLD P2 pages get Sonnet reviewers; after HLD the plan is: main session on Sonnet, Opus reviewers for P1 pages only, Sonnet reviewers for P2/P3.
 
 ## Next Steps, in Order
 
