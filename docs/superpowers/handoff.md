@@ -93,7 +93,7 @@ The user stopped the session once to save usage, then resumed it. Running after 
   - Drafted, review queued: D1 (distributed-systems 01 P2, 02 P1). Unverified points: NTP accuracy (sub-ms LAN to tens of ms Internet); `System.nanoTime` javadoc; Dynamo vector-clock truncation (checked in H3 review: threshold about 10 pairs); Raft dissertation items (single-server membership change, PreVote); Kafka KRaft; MongoDB elections based on Raft; Patroni with etcd, ZooKeeper, or Consul; etcd `concurrency.Election` and lowest-creation-revision; Consul, CockroachDB, TiKV as Raft users; "commit wait is about 2ε" (derived). Opus checked: Deutsch's 7 fallacies plus Gosling's eighth; Cloudflare 2017 leap-second Go negative duration.
   - Review order for the queue: D1 (H9, H10, H11 reviews started).
   - Not started: D2, D3, P1 (procedure pages), S1 to S12 (case studies), Batch 6.
-- Usage rule (user request, 2026-10-15): limits run out fast. Keep at most about 5 agents running at the same time. User decision (Option A): Opus reviewers for every HLD page. **Stop when HLD is complete and tell the user.** After HLD: main session on Sonnet, Opus reviewers for P1 pages only, Sonnet reviewers for P2/P3.
+- Usage rule (user request, 2026-10-15): about 5 agents at a time by default; the user raised it to about 10 after the limit reset. User decision (Option A): Opus reviewers for every HLD page. **Stop when HLD is complete and tell the user.** After HLD: main session on Sonnet, Opus reviewers for P1 pages only, Sonnet reviewers for P2/P3.
 
 ## Next Steps, in Order
 
