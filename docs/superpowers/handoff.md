@@ -46,6 +46,26 @@
 
 Any agent that was running at save time may have stopped partway. In the next session, compare each such file with the WIP commit (`git diff`). Then run a fresh Opus review of each file whose review did not finish.
 
+## Case-Study Progress (session 2, 2026-10-15)
+
+| Assignment | Folders | Drafted | Opus review |
+|---|---|---|---|
+| C1 | 01-parking-lot, 02-lru-and-lfu-cache | Yes | Running |
+| C2 | 03-rate-limiter, 04-elevator-system | Yes | Running |
+| C3 | 05-movie-ticket-booking, 06-splitwise | Yes | Running |
+| C4 | 07-vending-machine, 08-logging-framework | Yes | Running (must remove the demo's temp-file write) |
+| C5 | 09-tic-tac-toe, 10-snake-and-ladder | Yes | Running |
+| C6 | 11-chess, 12-atm | Running | Not started |
+| C7 | 13-library-management, 14-in-memory-file-system | Running | Not started |
+| C8 | 15-pub-sub-message-queue, 16-task-scheduler | Running | Not started |
+| C9 | 17-ride-sharing, 18-shopping-cart-and-orders | Running | Not started |
+| C10 | 19-key-value-store-with-ttl, 20-hotel-booking | Running | Not started |
+| C11 | 21-food-delivery, 22-online-auction | Not started | Not started |
+| C12 | 23-digital-wallet, 24-notification-service | Not started | Not started |
+
+Fundamentals 09 and 10: Opus review running. Mermaid check passed for C1 to C5.
+Case-study files are not committed until their review finishes. If the session stops, run `git status` to see the drafted folders, then review the ones whose review did not finish.
+
 ## Next Steps, in Order
 
 1. Run the Opus review of `fundamentals/09` and `fundamentals/10` (the only unreviewed pages; see the notes below). Every other Batch 1 and Batch 2 page is reviewed and committed. No agent is running.
