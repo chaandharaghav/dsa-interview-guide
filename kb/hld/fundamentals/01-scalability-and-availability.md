@@ -37,7 +37,7 @@ Almost every HLD interview contains the same three questions: "How do you scale 
 
 ### Availability
 
-**Availability**: the share of time in which the system serves requests correctly. The usual unit is a percentage written as a number of nines: 99.9% is "three nines". A second definition counts requests: the number of successful requests divided by the number of valid requests (the Google SRE book uses this form for services that run in many places at the same time).
+**Availability**: the share of time in which the system serves requests correctly. The usual unit is a percentage written as a number of nines: 99.9% is "three nines". A second definition counts requests: the number of successful requests divided by the number of requests. The Google SRE book calls this *aggregate availability* and uses it for services that run in many places at the same time, where a time-based number makes little sense. The SRE Workbook recommends the same ratio form for every SLI: the number of good events divided by the total number of events.
 
 **MTBF** (mean time between failures) and **MTTR** (mean time to repair): the average time that a component works before it fails, and the average time that it takes to restore it. Availability of one component = MTBF / (MTBF + MTTR). Only the ratio of the two values matters: a halved MTTR gives the same availability as a doubled MTBF. Example: MTBF of 1,000 hours and MTTR of 1 hour give 1,000 / 1,001 = 99.9%.
 
@@ -49,7 +49,7 @@ Almost every HLD interview contains the same three questions: "How do you scale 
 
 The definitions follow the Google SRE book, chapter 4.
 
-**SLI** (service level indicator): a carefully defined quantitative measure of one aspect of the service, for example the share of requests that return a non-error response, or the share of requests faster than 300 ms. **SLO** (service level objective): a target for an SLI, for example "99.9% of requests succeed over 30 days". **SLA** (service level agreement): a contract with users that states the consequences of missing the objectives, for example a refund. If a target has no explicit consequence, it is an SLO and not an SLA. An SLA target is usually looser than the internal SLO, so the team has room to react before it owes a refund.
+**SLI** (service level indicator): a carefully defined quantitative measure of one aspect of the service, for example the share of requests that return a non-error response, or the share of requests faster than 300 ms. **SLO** (service level objective): a target for an SLI, for example "99.9% of requests succeed over 30 days". **SLA** (service level agreement): an explicit or implicit contract with users that includes the consequences of meeting or missing the SLOs that it contains, for example a refund. The book gives a test: if missing the target has no explicit consequence, the target is an SLO and not an SLA. An SLA target is usually looser than the internal SLO, so the team has room to react before it owes a refund.
 
 **Error budget**: the allowed amount of failure, which is 100% minus the SLO. An SLO of 99.9% gives an error budget of 0.1%.
 
@@ -157,7 +157,7 @@ Little's law gives a check: if the thread pool of an instance has 200 threads an
 
 ### Percentiles and why averages hide tail latency
 
-The mean of a latency distribution hides the slow requests. A service with 99 requests of 20 ms and 1 request of 1,000 ms has a mean of 29.8 ms, and a p99 of 20 ms (nearest-rank method) and a p999 of 1,000 ms. The mean looks healthy, yet one user in a hundred waits a second or more. The Google SRE book makes the same point: most metrics are distributions, and a high percentile such as the 99th or 99.9th shows a plausible worst case.
+The mean of a latency distribution hides the slow requests. A service with 98 requests of 20 ms and 2 requests of 1,000 ms has a mean of 39.6 ms, a p50 of 20 ms, and a p99 of 1,000 ms (nearest-rank method: the p99 is the 99th of the 100 sorted values). The mean looks healthy, yet two users in a hundred wait a second. A boundary case shows why one percentile is not enough: with 99 requests of 20 ms and 1 of 1,000 ms, the p99 is 20 ms and only the p999 (1,000 ms) shows the slow request. So track more than one percentile (p50, p99, and p999). The Google SRE book makes the same point: most metrics are distributions, and a high percentile such as the 99th or 99.9th shows a plausible worst case.
 
 Why the tail matters more than it seems: **fan-out**. If one user request calls many backends in parallel and waits for all of them, the user request is as slow as the slowest call. Dean and Barroso (2013) give this example: each server "typically responds in 10ms but with a 99th-percentile latency of one second". If a user request must collect responses from 100 such servers in parallel, then "63% of user requests will take more than one second". The arithmetic is 1 − 0.99^100 = 63.4%. The paper gives a second case: if only 1 request in 10,000 is slower than one second on each server, a service with 2,000 servers "will see almost one in five user requests taking more than one second" (1 − 0.9999^2000 = 18.1%). The Java example below reproduces the first case with a simulation.
 
@@ -169,7 +169,7 @@ The paper also reports a measurement from a real Google service with a large fan
 | 95% of all leaf requests | 12 ms | 32 ms | 70 ms |
 | 100% of all leaf requests | 40 ms | 87 ms | 140 ms |
 
-The p99 of one leaf is 10 ms, but the p99 of the whole request is 140 ms. The wait for the slowest 5% of the leaf requests is half of the total p99 (70 ms of 140 ms). So techniques that target the slow outliers give the largest gain.
+The p99 of one leaf is 10 ms, but the p99 of the whole request is 140 ms. The wait for the slowest 5% of the leaf requests is half of the total p99 (70 ms of 140 ms). The paper concludes that techniques that concentrate on these slow outliers "can yield dramatic reductions" in the latency of the whole service.
 
 ```text
 P(user request is slow) = 1 - (1 - p)^n
@@ -205,10 +205,10 @@ The downtime that each target allows (computed: (1 − availability) × period, 
 
 How to read the table in an interview:
 
-- Each additional nine divides the allowed downtime by 10, and it multiplies the cost and the effort by more than that. Five nines (5.26 minutes per year) is less than the time that a human needs to notice an alert and log in. That target needs full automation of detection and failover.
+- Each additional nine divides the allowed downtime by 10. The cost rises faster than that. The SRE book (chapter 3) says that cost "does not increase linearly as reliability increments" and that "an incremental improvement in reliability may cost 100x more than the previous increment". Five nines (5.26 minutes per year) is less than the time that a human needs to notice an alert and log in. That target needs full automation of detection and failover.
 - The target must match the business. A target of 99.99% for an internal report is waste. A target of 99% for a payment API is too low.
 - Scheduled maintenance counts as downtime unless the SLO excludes it. Say which one you mean.
-- A time-based number hides the shape of the failure. One 8-hour outage and 500 outages of one minute give the same yearly availability and very different user experience. Request-based availability (successful requests divided by valid requests) is better for a service with traffic that varies during the day.
+- A time-based number hides the shape of the failure. One 8-hour outage and 500 outages of one minute give the same yearly availability and very different user experience. Request-based availability (successful requests divided by all requests) is better for a service with traffic that varies during the day.
 
 ### Serial and parallel availability
 
@@ -314,7 +314,7 @@ For the numbers that drive these decisions (requests per second per server, stor
 | Session in a signed token | No lookup | Hard revocation. Larger requests | APIs with short-lived tokens |
 | Active-passive | Simple. Strong consistency is easier | Idle capacity. Failover time | Databases, leader-based systems |
 | Active-active | Uses all capacity. Fast failover | Conflict handling. More capacity for spare | Stateless tiers. Multi-region reads |
-| More nines | Less downtime | Cost grows faster than 10 times per nine. More complexity | Only if the business loss from downtime exceeds the cost |
+| More nines | Less downtime | Cost grows steeply with each nine (the SRE book: one increment "may cost 100x more" than the previous one). More complexity | Only if the business loss from downtime exceeds the cost |
 | Error-budget policy | An agreed rule between product and engineering | Needs honest measurement and a team that follows the rule | Services with an SLO and an on-call team |
 
 Recommendation for an interview: state the target first ("99.9%, p99 below 300 ms, 5,000 requests per second at peak"), then show how the design reaches it, then name the bottleneck that you would meet next. A target stated before the design is the difference between a design and a list of components.
@@ -426,7 +426,7 @@ What to notice: the mean (26.6 ms) is close to the median (20 ms) and hides a p9
 
 ??? question "Why do you use percentiles and not the average latency? What is the p99 and why does it matter more in a microservice architecture?"
 
-    The average hides the slow requests. With 99 requests at 20 ms and 1 at 1,000 ms, the mean is 29.8 ms, which looks healthy, while one user in a hundred waits a second. A percentile states the experience of the slow users directly: p99 is the latency that 99% of requests meet or beat. SLOs should use percentiles.
+    The average hides the slow requests. With 98 requests at 20 ms and 2 at 1,000 ms, the mean is 39.6 ms, which looks healthy, while the p99 is 1,000 ms: two users in a hundred wait a second. A percentile states the experience of the slow users directly: p99 is the latency that 99% of requests meet or beat. SLOs should use percentiles, and I track more than one (p50, p99, p999), because a tail that is just under 1% can hide below the p99 and show only in the p999.
 
     The p99 matters more in a microservice or fan-out architecture, because one user request waits for many calls. If each call has a 1% chance of being slow and the request waits for 100 calls, the chance that at least one is slow is 1 − 0.99^100 = 63%. Dean and Barroso make this point in "The Tail at Scale". The tail of the backend becomes the typical latency of the front end. The mitigations are fewer calls in the critical path, timeouts, hedged requests for idempotent reads, and removal of slow nodes. I also remember that percentiles cannot be averaged across instances. I merge histograms.
 
@@ -438,7 +438,7 @@ What to notice: the mean (26.6 ms) is close to the median (20 ms) and hides a p9
 
 ??? question "How many nines do you need, and what does each nine cost?"
 
-    I start from the business: what does an hour of downtime cost, and what do users tolerate? Then I map the target to the downtime budget: 99.9% is 8.76 hours per year, 99.99% is 52.56 minutes, 99.999% is 5.26 minutes. Each nine cuts the budget by a factor of 10 and raises the cost by more than that. At four nines I need redundancy in every tier, more than one availability zone, automated failover, and safe deployments, because a single manual step takes longer than the whole budget. At five nines I need full automation of detection and recovery, because a human cannot respond inside 5 minutes per year. I also remember that a chain of dependencies multiplies, so the target of the whole request path is lower than the target of each part. For most user-facing services, I propose 99.9% to 99.99%, with an error budget, and I would say that the target is an assumption to confirm with the interviewer.
+    I start from the business: what does an hour of downtime cost, and what do users tolerate? Then I map the target to the downtime budget: 99.9% is 8.76 hours per year, 99.99% is 52.56 minutes, 99.999% is 5.26 minutes. Each nine cuts the budget by a factor of 10, and the cost does not grow linearly: the SRE book says that one increment of reliability may cost 100 times more than the previous one. At four nines I need redundancy in every tier, more than one availability zone, automated failover, and safe deployments, because a single manual step takes longer than the whole budget. At five nines I need full automation of detection and recovery, because a human cannot respond inside 5 minutes per year. I also remember that a chain of dependencies multiplies, so the target of the whole request path is lower than the target of each part. For most user-facing services, I propose 99.9% to 99.99%, with an error budget, and I would say that the target is an assumption to confirm with the interviewer.
 
 ??? question "What are SLI, SLO, and SLA, and what is an error budget?"
 
@@ -566,13 +566,14 @@ Rules:
 
 ## Further Reading
 
-- Dean, Barroso. ["The Tail at Scale"](https://cacm.acm.org/research/the-tail-at-scale/). *Communications of the ACM* 56(2), 2013, pages 74–80, DOI 10.1145/2408776.2408794 (also listed on [Google Research](https://research.google/pubs/the-tail-at-scale/)). The fan-out arithmetic, the fan-out measurement table, hedged and tied requests, and the 1,800 ms to 74 ms benchmark.
+- Dean, Barroso. ["The Tail at Scale"](https://doi.org/10.1145/2408776.2408794). *Communications of the ACM* 56(2), 2013, pages 74–80 (also listed on [Google Research](https://research.google/pubs/the-tail-at-scale/)). The fan-out arithmetic, the fan-out measurement table, hedged and tied requests, and the 1,800 ms to 74 ms benchmark.
 - [Google SRE book, chapter 4: Service Level Objectives](https://sre.google/sre-book/service-level-objectives/). The definitions of SLI, SLO, and SLA, and the argument for percentiles.
 - [Google SRE book, chapter 3: Embracing Risk](https://sre.google/sre-book/embracing-risk/). Request-based availability, the cost of each nine, and error budgets.
 - [Google SRE Workbook: Example Error Budget Policy](https://sre.google/workbook/error-budget-policy/). A concrete policy for an exhausted budget.
+- [Google SRE Workbook: Implementing SLOs](https://sre.google/workbook/implementing-slos/). The SLI as the ratio of good events to total events.
 - [AWS: Edit target group attributes for your Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html). Sticky sessions (cookie types, the 1-second to 7-day duration, the fixed 7-day cookie expiry, manual rebalancing), the routing algorithms, and the deregistration delay.
 - [AWS: Health checks for Application Load Balancer target groups](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html). The fail-open behavior when all targets are unhealthy.
 - Little. "A Proof for the Queuing Formula: L = λW". *Operations Research* 9(3), 1961. The original proof of Little's law.
 - Amdahl. "Validity of the Single Processor Approach to Achieving Large Scale Computing Capabilities". *AFIPS Spring Joint Computer Conference*, 1967. The original statement of Amdahl's law.
-- Gustafson. "Reevaluating Amdahl's Law". *Communications of the ACM* 31(5), 1988. The scaled-problem view.
+- Gustafson. "Reevaluating Amdahl's Law". *Communications of the ACM* 31(5), 1988, pages 532–533. The scaled-problem view.
 - Kleppmann. *Designing Data-Intensive Applications*. O'Reilly, 2017. Chapter 1 covers reliability, scalability, and the description of load and performance with percentiles.
