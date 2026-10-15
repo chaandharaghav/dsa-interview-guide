@@ -3,11 +3,11 @@ priority: P1
 ---
 # Architectural Patterns for LLD
 
-An architectural pattern divides a program into parts and states which part may depend on which. This page covers the patterns that an LLD interview and a machine-coding round ask about: layered architecture (controller, service, repository), MVC, hexagonal architecture, clean architecture, the repository pattern, DTOs and mapping, dependency injection, the service layer, and unit of work. It also gives a package layout for a machine-coding round and one paragraph each on CQRS and event sourcing. This page covers code-level architecture inside one program. System-level architecture (CQRS and event sourcing across services, message brokers, microservices) has its home in `hld/fundamentals/16`.
+An architectural pattern divides a program into parts and states which part may depend on which. This page covers the patterns that an LLD interview and a machine-coding round ask about: layered architecture (controller, service, repository), MVC, hexagonal architecture, clean architecture, the repository pattern, DTOs and mapping, dependency injection, the service layer, and unit of work. It also gives a package layout for a machine-coding round and one paragraph each on CQRS and event sourcing. This page covers code-level architecture inside one program. System-level architecture (CQRS and event sourcing across services, message brokers, microservices) has its home in `kb/hld/fundamentals/16-event-driven-architecture.md`.
 
 ## Why It Matters
 
-LLD interviews ask "How do you structure the code?" in the first minutes of a machine-coding round, and evaluators score the package layout, the separation of the layers, and the use of interfaces. A direct question follows often: "What is the difference between layered and hexagonal architecture?", "Why constructor injection?", "What is a DTO and why not return the entity?". On the job, the same decisions decide whether you can test a service without a database, replace a payment provider without touching business rules, and change the web framework without rewriting the domain. A design that mixes input parsing, business rules, and storage in one class works in a demo and fails at the first change request.
+LLD interviews ask "How do you structure the code?" in the first minutes of a machine-coding round, and evaluators score the package layout, the separation of the layers, and the use of interfaces. Direct questions often follow: "What is the difference between layered and hexagonal architecture?", "Why constructor injection?", "What is a DTO and why not return the entity?". On the job, the same decisions decide whether you can test a service without a database, replace a payment provider without touching business rules, and change the web framework without rewriting the domain. A design that mixes input parsing, business rules, and storage in one class works in a demo and fails at the first change request.
 
 ## Core Concepts
 
@@ -19,11 +19,11 @@ LLD interviews ask "How do you structure the code?" in the first minutes of a ma
 
 **Controller**: a class at the edge of the program that receives an input (an HTTP request, a console command), converts it to a call on the service layer, and converts the result to an output. It holds no business rules.
 
-**Service** (application service, service layer): a class that implements one use case by coordinating domain objects and repositories. Fowler defines the *Service Layer* as a layer that defines the boundary of an application and its set of available operations.
+**Service** (application service, service layer): a class that implements one use case by coordinating domain objects and repositories. Fowler (PoEAA) summarizes the *Service Layer* as a layer that "defines an application's boundary with a layer of services that establishes a set of available operations and coordinates the application's response in each operation".
 
 **Domain model**: the classes that represent the business concepts and their rules (`Order`, `Money`, `Seat`). See [domain modeling](05-domain-modeling.md).
 
-**Repository**: an object that looks like an in-memory collection of aggregate roots and hides the storage. The caller calls `findById` and `save`. Fowler (PoEAA) defines it as a mediator between the domain and the data mapping layers that uses a collection-like interface to reach domain objects.
+**Repository**: an object that looks like an in-memory collection of aggregate roots and hides the storage. The caller calls `findById` and `save`. Fowler (PoEAA) summarizes it as an object that "mediates between the domain and data mapping layers using a collection-like interface for accessing domain objects".
 
 **DTO** (data transfer object): a plain object that carries data across a boundary, for example between the controller and the service, or between two processes. It has fields and no business behavior.
 
@@ -187,7 +187,10 @@ class OrderService {
     }
 
     OrderResponse placeOrder(CreateOrderRequest request) {
-        long unitPrice = PRICE_CENTS.getOrDefault(request.sku(), 0L);
+        Long unitPrice = PRICE_CENTS.get(request.sku());
+        if (unitPrice == null) {                           // a use-case check: the product exists
+            throw new IllegalArgumentException("unknown sku " + request.sku());
+        }
         Order order = Order.create(repository.nextId(), request.customerId(),
                 request.quantity(), unitPrice);          // the domain object checks the rules
         repository.save(order);
@@ -296,7 +299,7 @@ Points in this code:
 
 ### MVC (Model-View-Controller)
 
-**Intent**: separate the state and rules of an application (the model) from its display (the view) and from the handling of user input (the controller). Trygve Reenskaug described the pattern at Xerox PARC in the late 1970s for Smalltalk. Fowler's catalog describes the same idea as the *Model View Controller* pattern.
+**Intent**: separate the state and rules of an application (the model) from its display (the view) and from the handling of user input (the controller). Trygve Reenskaug created the pattern in 1978 and 1979 while he was a visiting scientist at Xerox PARC, working on Smalltalk. His two original reports are dated 12 May 1979 ("Thing-Model-View-Editor") and 10 December 1979 ("Models-Views-Controllers"). Fowler's catalog (PoEAA) describes the same idea as the *Model View Controller* pattern.
 
 **Problem**: a class that holds the state, prints it, and parses the input cannot change its display or its input channel without a change to the rules, and nobody can test the rules without the display.
 
@@ -421,8 +424,8 @@ error: unknown command dance
 |---|---|
 | Classic MVC (Smalltalk) | The view observes the model directly |
 | Web MVC (Spring MVC, a request-response framework) | The controller receives the HTTP request, calls a service, puts data in a model object, and selects a view. The view does not observe the model, because the response is a single render |
-| MVP (Model-View-Presenter) | The view is passive. The presenter reads from the model and sets the view fields. The view does not know the model |
-| MVVM | A view model exposes state and commands. A binding framework keeps the view and view model in step |
+| MVP (Model-View-Presenter) | The presenter handles the input and updates the view. Fowler describes two forms. In *Passive View*, the view has no reference to the model, and the presenter sets every view field. In *Supervising Controller*, the view binds simple fields to the model itself, and the presenter handles the complex logic |
+| MVVM (Model-View-ViewModel) | A view model exposes state and commands for one view. A data-binding framework keeps the view and the view model in step, so no code copies values between them |
 
 **When to use**: any program with a user interface, and any LLD problem that has a display (a game board, an ATM screen, an elevator panel).
 
@@ -476,7 +479,7 @@ Rules:
 3. Each adapter translates: types, units, errors. It holds no business rules. The Adapter pattern in [structural patterns](07-structural-patterns.md) is the structural form of a driven adapter.
 4. One composition root connects the adapters to the ports.
 
-**Layered or hexagonal?** Layered architecture orders the code by technical role and often lets the domain depend on the persistence layer. Hexagonal architecture orders the code by the direction of the dependency, and places the technology on the outside. A layered design with the repository interface in the service layer (as in the demo above) is a hexagonal design with one driven port.
+**Layered or hexagonal?** Layered architecture orders the code by technical role and often lets the domain depend on the persistence layer. Hexagonal architecture orders the code by the direction of the dependency, and places the technology on the outside. A layered design with the repository interface in the service layer (as in the demo above) has one driven port, so it is a step toward hexagonal architecture. It becomes fully hexagonal when every external system (payment, notification) also sits behind a port that the core owns, and the input channels call the core through an inbound port.
 
 **When to use**
 
@@ -553,7 +556,7 @@ The two terms overlap in practice, and many projects use them as synonyms. In an
 
 ### DTO and mapping
 
-**Intent**: carry data across a boundary in an object that has the shape that the boundary needs, so that the internal model stays hidden and free to change. Fowler's catalog describes a DTO as an object that carries data between processes to reduce the number of method calls. In an LLD design, the same object also keeps the internal model apart from the boundary.
+**Intent**: carry data across a boundary in an object that has the shape that the boundary needs, so that the internal model stays hidden and free to change. Fowler's catalog summarizes a DTO as "an object that carries data between processes in order to reduce the number of method calls". In an LLD design, the same object also keeps the internal model apart from the boundary.
 
 **Problem**: the controller from the wrong form returns the entity. The output now contains every internal field, so a new internal field (a password hash, a cost price) leaks into the response. A change to the entity breaks every client. And the caller can reach internal state.
 
@@ -646,8 +649,8 @@ The wrong form `HardWiredReminder` always sends through `ConsoleSender`, so a te
 
 | Form | How | Verdict |
 |---|---|---|
-| Constructor injection | The dependency is a constructor parameter, stored in a `final` field | Default choice. The object is complete after construction. The fields are `final`. The dependencies are visible in the signature. The class cannot exist without them. The Spring reference documentation says that the Spring team generally advocates constructor injection |
-| Setter injection | A setter receives the dependency after construction | For optional dependencies that have a sensible default. The object can be in a partial state |
+| Constructor injection | The dependency is a constructor parameter, stored in a `final` field | Default choice. The object is complete after construction. The fields are `final`. The dependencies are visible in the signature. The class cannot exist without them. The Spring reference documentation states: "The Spring team generally advocates constructor injection, as it lets you implement application components as immutable objects and ensures that required dependencies are not `null`." |
+| Setter injection | A setter receives the dependency after construction | For optional dependencies that have a reasonable default value (the Spring documentation gives the same rule). The object can be in a partial state |
 | Field injection | A framework writes into a private field through reflection (`@Autowired` on a field) | Avoid. Reasons below |
 | Method parameter injection | The dependency is a parameter of one method (for example a `Clock` in `process(Clock clock)`) | Good when the dependency varies per call |
 
@@ -713,7 +716,7 @@ class OrderService {
 
 ### Unit of work
 
-**Intent**: track the changes that one business operation makes, and write them together, so that a failure writes none of them. Fowler's catalog describes it as maintaining a list of the objects that a business transaction affects, and coordinating the writing of the changes.
+**Intent**: track the changes that one business operation makes, and write them together, so that a failure writes none of them. Fowler's catalog summarizes it as an object that "maintains a list of objects affected by a business transaction and coordinates the writing out of changes and the resolution of concurrency problems".
 
 **Problem**: a use case changes an order, the stock, and a loyalty balance. If the code saves each object right after it changes and the second save fails, the first change stays and the data is inconsistent.
 
@@ -794,7 +797,8 @@ com.example.booking
 │   └── BookingController.java
 ├── service/
 │   ├── BookingService.java
-│   └── PaymentGateway.java    port, owned by the service layer
+│   ├── BookingRepository.java port (interface), owned by the service layer
+│   └── PaymentGateway.java    port (interface), owned by the service layer
 ├── domain/
 │   ├── Booking.java
 │   ├── Seat.java
@@ -802,8 +806,7 @@ com.example.booking
 │   └── exception/
 │       └── SeatUnavailableException.java
 ├── repository/
-│   ├── BookingRepository.java         interface
-│   └── InMemoryBookingRepository.java
+│   └── InMemoryBookingRepository.java implements service.BookingRepository
 ├── dto/
 │   ├── BookSeatRequest.java
 │   └── BookingResponse.java
@@ -828,7 +831,7 @@ com.example.booking
 Rules for either layout:
 
 1. `domain` imports nothing from the other packages.
-2. The interface lives with its user. `OrderRepository` lives with the service. The implementation lives in the persistence package.
+2. The interface lives with its user. `BookingRepository` lives in `service`, next to `BookingService`. The implementation lives in the persistence package (`repository`). Many projects put the interface in `repository`, beside its implementation. That form also compiles, and tests can still use a fake, but then `service` imports `repository`, and the persistence package owns the abstraction. State which form you use and why.
 3. `Main` is the only class that calls `new` on implementations (the composition root).
 4. Exceptions for domain errors live in `domain`. The controller maps them to messages.
 5. One top-level class for each file. A class name is a noun for a thing, and a verb phrase for a use case (`PlaceOrder`).
@@ -838,11 +841,11 @@ In a single-file interview submission, keep the same separation with top-level c
 
 ### CQRS and event sourcing in brief
 
-**CQRS** (Command Query Responsibility Segregation): the program uses one model to change state (commands) and a separate model to read state (queries). The command side enforces the rules. The query side is shaped for the screens or the reports and can be a denormalized copy. Fowler writes that for most systems CQRS adds risky complexity. At the code level, you meet a small form of the idea when a service has `placeOrder` (a command that returns nothing or an id) and a separate `OrderQueryService` that returns read-only DTOs.
+**CQRS** (Command Query Responsibility Segregation): the program uses one model to change state (commands) and a separate model to read state (queries). The command side enforces the rules. The query side is shaped for the screens or the reports and can be a denormalized copy. Fowler warns: "For some situations, this separation can be valuable, but beware that for most systems CQRS adds risky complexity." At the code level, you meet a small form of the idea when a service has `placeOrder` (a command that returns nothing or an id) and a separate `OrderQueryService` that returns read-only DTOs.
 
 **Event sourcing**: the program stores the sequence of events that changed an entity (`SeatHeld`, `SeatBooked`, `SeatReleased`) and not the current state. The current state is the result of replaying the events. It gives a complete history and an audit trail, and a replay can rebuild any past state. The cost is a more complex model, event versioning, and slow replay unless the program stores snapshots.
 
-Both patterns need system-level treatment (a message broker, eventual consistency, event stores). That is the home of `hld/fundamentals/16`. In an LLD round, name them only if the problem asks for history or separate read models, and otherwise do not use them.
+Both patterns need system-level treatment (a message broker, eventual consistency, event stores). Their home is `kb/hld/fundamentals/16-event-driven-architecture.md`. In an LLD round, name them only if the problem asks for history or separate read models, and otherwise do not use them.
 
 ## Trade-offs and When to Use
 
@@ -949,6 +952,9 @@ class LegacyBankPaymentAdapter implements PaymentPort {
 
     @Override
     public boolean charge(String customerId, long amountCents) {
+        // The legacy API takes dollars as a double. The adapter converts at this one edge.
+        // The core keeps money as long cents, because a double cannot hold most cent values
+        // exactly.
         return bank.submit(customerId, amountCents / 100.0).startsWith("OK-");
     }
 }
@@ -1000,7 +1006,7 @@ What the example shows:
 
     All three separate the business logic from the technology. Layered architecture orders code by technical role (controller, service, repository) and usually lets each layer call the one below, so the domain often depends on persistence. Hexagonal architecture (Cockburn) puts the application core in the center, and the core owns the ports (interfaces). Adapters for the web, the database, and external services implement or call the ports, so the technology depends on the core. Clean architecture (Martin) is the same idea with named rings, entities then use cases then interface adapters then frameworks, and a single rule: source code dependencies point inwards.
 
-    In practice: a layered design where the repository interface belongs to the service layer is already hexagonal with one port. The deciding question is the direction of the dependency between the business logic and the technology.
+    In practice: a layered design where the repository interface belongs to the service layer already has one driven port, so it is a step toward hexagonal. It is fully hexagonal when every external system sits behind a port that the core owns. The deciding question is the direction of the dependency between the business logic and the technology.
 
 ??? question "What is the dependency rule, and how do you apply it when the use case needs to save data?"
 
@@ -1008,7 +1014,7 @@ What the example shows:
 
 ??? question "Why constructor injection, and not field injection?"
 
-    Constructor injection makes the object complete when it exists. The fields are `final`, the dependencies are visible in the constructor signature, and a test can create the class with `new` and pass fakes with no framework. A constructor with many parameters shows that the class has too many responsibilities. Field injection (`@Autowired` on a private field) hides the dependencies, needs reflection or the container to fill the fields, allows the object to be used before injection, and cannot use `final`. The Spring reference documentation says that the Spring team generally advocates constructor injection. I use setter injection only for an optional dependency that has a default.
+    Constructor injection makes the object complete when it exists. The fields are `final`, the dependencies are visible in the constructor signature, and a test can create the class with `new` and pass fakes with no framework. A constructor with many parameters shows that the class has too many responsibilities. Field injection (`@Autowired` on a private field) hides the dependencies, needs reflection or the container to fill the fields, allows the object to be used before injection, and cannot use `final`. The Spring reference documentation states that the Spring team "generally advocates constructor injection", because it gives immutable components and required dependencies that are not `null`. I use setter injection only for an optional dependency that has a default.
 
 ??? question "What is the difference between dependency injection and dependency inversion?"
 
@@ -1121,16 +1127,16 @@ What the example shows:
 | DI | Constructor injection. `final` fields. Wire by hand in `main` |
 | Service layer | One method for each use case. Coordinates. Marks the transaction |
 | Unit of work | Collect changes. Commit together. Often the database transaction |
-| CQRS and event sourcing | Name them. Do not use them without a requirement. Home: `hld/fundamentals/16` |
+| CQRS and event sourcing | Name them. Do not use them without a requirement. Home: `kb/hld/fundamentals/16-event-driven-architecture.md` |
 
 Package layout for a round:
 
 ```text
 Main.java          composition root (the only place with `new` of implementations)
 controller/        input, output, error mapping
-service/           use cases, ports it needs
+service/           use cases, and the ports (interfaces) they need, repositories included
 domain/            entities, value objects, enums, exceptions. Imports nothing else
-repository/        interfaces and in-memory implementations
+repository/        in-memory implementations of the repository ports
 dto/               request and response records
 strategy/          one interface, several classes, when a rule varies
 ```
@@ -1157,6 +1163,8 @@ Sentences to say in the round:
 - [Cockburn: Hexagonal architecture](https://alistair.cockburn.us/hexagonal-architecture/). The original article that defines ports, adapters, and the intent.
 - [Martin: The Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). The circles and the Dependency Rule.
 - Martin. *Clean Architecture: A Craftsman's Guide to Software Structure and Design*. Prentice Hall, 2017. The full treatment of the dependency rule and the boundaries.
-- Reenskaug. "Models-Views-Controllers". Xerox PARC technical note, 1979. The first description of MVC.
+- [Reenskaug. The original MVC reports (University of Oslo archive, DUO)](https://hdl.handle.net/10852/9621). Scans of "Thing-Model-View-Editor" (12 May 1979) and "Models-Views-Controllers" (10 December 1979), written at Xerox PARC. The first description of MVC.
+- [Fowler: GUI Architectures](https://martinfowler.com/eaaDev/uiArchs.html). Classic MVC in Smalltalk-80, and the MVP forms Supervising Controller and Passive View.
+- [MapStruct](https://mapstruct.org/). An annotation processor that generates Java bean mappers at compile time.
 - [Spring Framework reference: Dependency Injection](https://docs.spring.io/spring-framework/reference/core/beans/dependencies/factory-collaborators.html). The guidance on constructor versus setter injection.
 - [ArchUnit](https://www.archunit.org/). A library that checks package and layer dependencies in unit tests.

@@ -3,7 +3,7 @@ priority: P1
 ---
 # Concurrency in LLD
 
-A low-level design runs in one process, and in a real system many threads call its classes at the same time. This page shows where the data races appear in typical LLD problems, which tool fixes each one, and how to discuss the topic in a 45-minute round without over-engineering. The page covers the use of the Java concurrency tools in a design. The tools themselves (the memory model, `synchronized`, `Lock`, executors) have their home in `java/07` and `java/08`. See also `operating-systems/03` for the operating system view.
+A low-level design runs in one process, and in a real system many threads call its classes at the same time. This page shows where the data races appear in typical LLD problems, which tool fixes each one, and how to discuss the topic in a 45-minute round without over-engineering. The page covers the use of the Java concurrency tools in a design. The tools themselves (the memory model, `synchronized`, `Lock`, executors) have their home in `kb/java/07-concurrency-basics.md` and `kb/java/08-java-util-concurrent.md`. See also `kb/operating-systems/03-synchronization.md` for the operating system view.
 
 ## Why It Matters
 
@@ -21,18 +21,18 @@ Interviewers add the sentence "Now two users book the same seat at the same time
 
 **Read-modify-write**: a sequence that reads a value, computes a new value, and writes it back, such as `balance = balance + amount` or `count++`. Two threads can read the same old value, and one update is lost.
 
-**Atomicity**: an operation is atomic if other threads see it as one step, either complete or not started. **Visibility**: a write by one thread becomes readable by another thread. **Ordering**: the order in which threads observe the writes. The Java Memory Model (JLS chapter 17) defines the *happens-before* relation. If action A happens-before action B, then B sees the effects of A. A lock release, a `volatile` write, a thread start, and a thread join each create such an edge.
+**Atomicity**: an operation is atomic if other threads see it as one step, either complete or not started. **Visibility**: a write by one thread becomes readable by another thread. **Ordering**: the order in which threads observe the writes. The Java Memory Model (JLS chapter 17) defines the *happens-before* relation. If action A happens-before action B, then the effects of A are visible to B. Each edge connects a pair of actions (JLS 17.4.5): the release (unlock) of a monitor happens-before every later acquire of the same monitor; a write to a `volatile` field happens-before every later read of the same field; a call to `Thread.start()` happens-before every action in the started thread; every action in a thread happens-before another thread returns from `join()` on that thread. A `ReentrantLock` and the `java.util.concurrent` classes give the same guarantees, as their javadoc states.
 
 **Critical section**: the code that touches shared mutable state and must run in one thread at a time. Keep it as small as the invariant allows.
 
 **Invariant**: a condition that must hold between operations, for example "the balance is not negative" or "a seat has at most one owner". A lock protects an invariant, not a variable.
 
-**Thread safety levels** (the terms follow Goetz et al.):
+**Thread safety levels** (the first four levels follow Bloch, *Effective Java*, Item 82. *Thread confinement* is from Goetz et al., *Java Concurrency in Practice*, section 3.3):
 
 | Level | Meaning | Example |
 |---|---|---|
 | Immutable | State never changes after construction. No lock needed | `String`, `record` with immutable fields, `List.of` |
-| Thread-safe | The class keeps its own invariants under concurrent calls. Callers need no extra lock | `AtomicInteger`, `ConcurrentHashMap`, `ArrayBlockingQueue` |
+| Unconditionally thread-safe | The class keeps its own invariants under concurrent calls. Callers need no extra lock | `AtomicInteger`, `ConcurrentHashMap`, `ArrayBlockingQueue` |
 | Conditionally thread-safe | Single calls are safe. A sequence of calls needs a caller lock | `Collections.synchronizedList` when you iterate |
 | Not thread-safe | The caller must lock all access | `ArrayList`, `HashMap`, `StringBuilder` |
 | Thread-confined | Only one thread touches the object | A local variable, a `ThreadLocal` value |
@@ -162,7 +162,7 @@ flowchart TD
 | Atomic classes (`AtomicInteger`, `AtomicReference`) | One variable, or one reference to an immutable object, changes with compare-and-set | No blocking. No deadlock | Cover one variable only. A condition over two variables needs a lock |
 | `LongAdder` | A hot counter with many writers and a rare read of the total | Lower contention than `AtomicLong` | No atomic check-then-act. `sum()` is not an exact snapshot while writers run |
 | Concurrent collections | The state is a map, a queue, or a set | Atomic compound methods: `putIfAbsent`, `compute`, `merge`, `poll`, `offer` | Safe for single calls. Two separate calls are not atomic together |
-| Immutable object | The state is a value that you replace, not edit | No lock on read. Safe publication through `final` fields | A change creates a new object |
+| Immutable object | The state is a value that you replace, not edit | No lock on read. Safe publication through `final` fields (JLS 17.5), if `this` does not escape from the constructor | A change creates a new object |
 
 ### Step 4: Pick the lock granularity
 
@@ -181,7 +181,7 @@ If a request holds one lock and takes a second, ask which other request takes th
 
 1. **Take one lock only.** A coarser lock removes the problem.
 2. **Lock in a global order.** Sort by a stable key (an id) and take the locks in that order. This removes the circular-wait condition.
-3. **Use `tryLock` with a timeout.** If a lock is not available in time, release what you hold, wait a random time, and retry. This detects a deadlock and does not remove it. It can also cause a livelock, where all threads retry forever in step.
+3. **Use `tryLock` with a timeout.** If a lock is not available in time, release what you hold, wait a random time, and retry. A thread that gives up its locks breaks the hold-and-wait condition, so a permanent deadlock cannot form. The cost: the threads can collide again and again, and without the random wait they can *livelock* (all threads retry in step and none makes progress). The code is also longer than a fixed lock order.
 
 Also: do not call unknown code (an event listener, a payment gateway, a callback) while you hold a lock. That code can take other locks or block for a long time. Collect the work inside the lock and run it after the lock is released.
 
@@ -189,11 +189,11 @@ Also: do not call unknown code (an event listener, a payment gateway, a callback
 
 State the scope: "The locks protect one JVM. For several servers I need a database constraint, an optimistic version column, or a distributed lock, and that belongs to the HLD." See [the section on discussing concurrency in an interview](#how-to-discuss-concurrency-in-an-interview).
 
-## Worked Cases
+### Worked Cases
 
 Each case is a complete program. All outputs are deterministic: the demos join every thread before they print, and they print only results that do not depend on the schedule.
 
-### Seat booking: check-then-act
+#### Seat booking: check-then-act
 
 The fix for the race above has three forms. The demo starts ten threads that book the same seat, and releases them together with a `CountDownLatch`. Each form lets exactly one thread win.
 
@@ -297,7 +297,7 @@ How to choose between the three forms:
 - `AtomicReference.compareAndSet(null, user)` is right when the whole state is one reference. It needs no lock and cannot deadlock. If the booking also writes a second field, the CAS covers only the first one. Put both fields in one immutable object (a `record Booking(user, time)`), and swap the reference.
 - `ReentrantLock` is right when you need `tryLock(timeout)` (return "seat busy, try again" and not block) or a `Condition`.
 
-### Parking spot assignment
+#### Parking spot assignment
 
 The shared state is the set of free spots. A wrong form scans the spots for the first free one and then marks it: two cars can read the same free spot (check-then-act). The right form removes the spot from a queue of free spots. `ConcurrentLinkedQueue.poll()` removes the head as one atomic step. Two cars never receive the same spot, and no car holds a lock while it parks.
 
@@ -327,7 +327,9 @@ class ParkingDemo {
             });
         }
         pool.shutdown();
-        pool.awaitTermination(10, TimeUnit.SECONDS);
+        if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
+            throw new IllegalStateException("tasks did not finish in 10 seconds");
+        }
         System.out.println("parked: " + parked + ", turned away: " + turnedAway);
         System.out.println("distinct spots used: " + assignedSpots.size());
         System.out.println("free spots left: " + floor.freeCount());
@@ -353,8 +355,11 @@ class ParkingFloor {
     }
 
     void leave(String spot) {
-        plateBySpot.remove(spot);
-        freeSpots.add(spot);
+        // remove returns null if the spot is not occupied. A second leave for the same spot
+        // must not put the spot in the queue twice, or two cars could receive it.
+        if (plateBySpot.remove(spot) != null) {
+            freeSpots.add(spot);
+        }
     }
 
     int freeCount() {
@@ -373,13 +378,11 @@ free spots left: 0
 
 The design choice behind this code: a queue of free spots turns "find a free spot" (a search over all spots, a check-then-act) into "take the next one" (one atomic call). If the allocation Strategy needs more than "next free" (nearest to the entrance, a spot of the right type), keep one free-spot structure for each type and lock around the removal. See `kb/lld/case-studies/01-parking-lot/README.md` for the complete design.
 
-### Inventory decrement
+#### Inventory decrement
 
 The wrong form is the classic read-modify-write: `if (stock > 0) stock = stock - 1`. Two threads can both read `1`, both pass the check, and both write `0`. The store sells two items and has one. A `ConcurrentHashMap<String, Integer>` does not fix this when you write `map.put(sku, map.get(sku) - 1)`, because each call is atomic and the pair is not.
 
 The wrong form compiles. The comments show the broken steps.
-
-<!-- fragment -->
 
 ```java
 class WrongInventory {
@@ -417,7 +420,9 @@ class InventoryDemo {
             pool.submit(() -> (inventory.tryReserve(sku) ? sold : rejected).incrementAndGet());
         }
         pool.shutdown();
-        pool.awaitTermination(10, TimeUnit.SECONDS);
+        if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
+            throw new IllegalStateException("tasks did not finish in 10 seconds");
+        }
         System.out.println("sold: " + sold + ", rejected: " + rejected);
         System.out.println("left sku-1: " + inventory.available("sku-1")
                 + ", left sku-2: " + inventory.available("sku-2"));
@@ -463,7 +468,7 @@ left sku-1: 0, left sku-2: 0
 
 `ConcurrentHashMap.compute` is the alternative. `stock.compute(sku, (k, v) -> ...)` runs the function atomically for that key. The javadoc says that other updates on the map may block while the function runs, so keep the function short and do not touch the map inside it.
 
-### Wallet transfer and deadlock
+#### Wallet transfer and deadlock
 
 A transfer changes two accounts. The invariant is: the total money stays constant, and no balance goes below zero. The operation needs both accounts locked. This is where deadlock appears. Thread 1 transfers from account 1 to account 2 and locks 1, then 2. Thread 2 transfers from 2 to 1 and locks 2, then 1. If each thread takes its first lock before the other takes its second, neither can continue.
 
@@ -543,7 +548,10 @@ class Bank {
     }
 
     long balance(int id) {
-        return accounts.get(id).balance;
+        Account account = accounts.get(id);
+        synchronized (account) {   // readers use the writers' lock: visibility, no torn long
+            return account.balance;
+        }
     }
 
     void transfer(int fromId, int toId, long amount) {
@@ -564,7 +572,7 @@ class Bank {
 
     static final class Account {
         final int id;
-        long balance;
+        long balance;   // guarded by the monitor of this Account
 
         Account(int id, long balance) {
             this.id = id;
@@ -587,8 +595,10 @@ Two more rules for transfers:
 
 - Reject a transfer from an account to itself, or lock it once. `synchronized (first)` twice on the same object works (the monitor is reentrant), but a `Lock` that is not reentrant would deadlock.
 - Check the balance inside the lock. A check before the lock is a check-then-act.
+- Read the balance under the same lock. `balance()` takes the account monitor. Without it, a reader has no happens-before edge with the writer and can see a stale value. A plain `long` field can also be read in two 32-bit halves on some JVMs (JLS 17.7), so the reader could see half of an old value and half of a new one.
+- The ordering key must be unique and stable, so that every thread computes the same order. If the objects have no such key, Goetz et al. (section 10.1.2) order them by `System.identityHashCode` and take an extra tie-breaking lock when two hash codes are equal.
 
-### Seat hold with expiry
+#### Seat hold with expiry
 
 A booking flow has two steps: the user holds seats, pays, and then the system confirms the booking. The hold expires if the payment does not finish in time (here 300 seconds). The shared state is the maps of holds and bookings. The invariant: a seat has at most one valid hold or booking, and a multi-seat hold succeeds for all seats or for none.
 
@@ -719,7 +729,7 @@ held seats: 1, failed attempts: 9
 
 How the design handles expiry: a hold stores `expiresAt`. A seat is free if it has no hold, or if the hold expired. The check runs when someone asks for the seat (lazy expiry), so no background thread is needed. If you need an event when a hold expires (to notify the user), add a `ScheduledExecutorService` that removes expired holds. The scheduler task takes the same show lock. The complete design is in `kb/lld/case-studies/05-movie-ticket-booking/README.md`.
 
-### Rate limiter counter
+#### Rate limiter counter
 
 A counter for each client has a read-modify-write: read the count, compare it with the limit, and increment. The demo uses a fixed-window counter. `computeIfAbsent` creates the `Window` object for a client exactly once. The `synchronized (window)` block then locks that one client. Other clients never wait. The demo passes the time as an argument, so no clock is read.
 
@@ -792,7 +802,7 @@ next window -> allowed: true
 
 For a single global counter that many threads increment and few read (a metric, not a limit), `LongAdder` has lower contention than `AtomicLong`. A limit needs an atomic check and increment, so use a lock or a CAS loop for it. The algorithms (token bucket, sliding window) have their home in `kb/hld/fundamentals/13-rate-limiting-algorithms.md`. See `kb/lld/case-studies/03-rate-limiter/README.md` for the class design.
 
-### Striped locks
+#### Striped locks
 
 A lock for each key does not scale to millions of keys: each lock object costs memory, and you must remove it when the key goes away. A global lock serializes everything. A striped lock is the middle: a fixed array of `n` locks, and the key's hash selects one. The demo uses four stripes for six accounts. Two accounts on the same stripe share a lock, and that is a cost, not a bug. Each stripe also owns its own map, because a plain `HashMap` that several locks share is not safe: a structural change in one stripe is not ordered with a change in another stripe.
 
@@ -879,13 +889,13 @@ acc-5: 6000
 acc-6: 6000
 ```
 
-Guava has `Striped<Lock>` for this. The JDK `ConcurrentHashMap` uses a similar idea inside: it locks the head node of one hash bin for an update (JDK 8 and later). A multi-key operation on striped locks must lock the stripes in index order, for the same reason as in the wallet transfer.
+Guava has `Striped<Lock>` for this (`com.google.common.util.concurrent.Striped`). The JDK `ConcurrentHashMap` in JDK 7 and earlier was a literal striped design: an array of `Segment` locks. Since JDK 8, the OpenJDK implementation locks at a finer level: it inserts the first node of an empty hash bin with a compare-and-set and no lock, and for other updates it locks the first node of that one bin (implementation notes in the `ConcurrentHashMap.java` source). Reads take no lock. A multi-key operation on striped locks must lock the stripes in index order, for the same reason as in the wallet transfer.
 
-### Optimistic locking with a version number
+#### Optimistic locking with a version number
 
 Optimistic locking does not hold a lock while the user thinks, calls a payment service, or waits. The record carries a `version`. The reader remembers the version it read. The writer states that version, and the write succeeds only if the stored version is still the same. The write also increments the version. If the version changed, another writer won, and the operation fails with a conflict. The caller reads again and retries, or reports the conflict.
 
-The demo forces the conflict: a latch makes both threads read version 0 before either writes. One thread wins. The other gets a conflict, reads the new state, and retries. The final balance contains both deposits, and the version shows two writes.
+The demo forces the conflict: a latch makes both threads read version 0 before either writes. One thread wins. The other gets a conflict, reads the new state, and retries in a loop until its write succeeds. With two threads and one deposit each, the loser conflicts exactly once. The final balance contains both deposits, and the version shows two writes.
 
 ```java
 import java.util.*;
@@ -900,18 +910,17 @@ class OptimisticDemo {
         CountDownLatch bothRead = new CountDownLatch(2);
         AtomicInteger conflicts = new AtomicInteger();
         Runnable deposit = () -> {
-            WalletSnapshot seen = wallet.read();
+            WalletSnapshot seen = wallet.read();   // a local variable, so the loop can reassign it
             bothRead.countDown();
             try {
                 bothRead.await();
             } catch (InterruptedException e) {
                 return;
             }
-            if (!wallet.tryUpdate(seen.version(), seen.balance() + 50)) {
+            // Retry loop: on a conflict, read the new state and try again.
+            while (!wallet.tryUpdate(seen.version(), seen.balance() + 50)) {
                 conflicts.incrementAndGet();
-                // Retry: read again, then write with the new version.
-                WalletSnapshot fresh = wallet.read();
-                wallet.tryUpdate(fresh.version(), fresh.balance() + 50);
+                seen = wallet.read();
             }
         };
         Thread a = new Thread(deposit);
@@ -983,7 +992,7 @@ id | balance | version
 1 | 150 | 1
 ```
 
-The second `UPDATE` changed no row, so thread B must read again and retry. JPA gives the same behavior with a `@Version` field. See `databases/04` for isolation levels and optimistic locking in the database.
+The second `UPDATE` changed no row, so thread B must read again and retry. JPA gives the same behavior with a `@Version` field. See `kb/databases/04-transactions-and-isolation.md` for isolation levels and optimistic locking in the database.
 
 Choose between the two kinds of control:
 
@@ -993,11 +1002,11 @@ Choose between the two kinds of control:
 | Conflict is rare | Wastes time on locks | Better: no waiting |
 | Work between read and write is long (user input, remote call) | A lock held that long blocks others | Better: no lock is held |
 | Failure mode | Waiting, deadlock | Retry storm, starvation of one thread |
-| Seat booking at a hot show | Good fit for the final "confirm" step | Good fit for the browsing and hold steps |
+| Example in a booking system | The hold step of a hot show, where many users want the same seats | A user edits a booking profile or a cart over minutes, and two edits rarely collide |
 
-### Immutable objects
+#### Immutable objects
 
-An immutable object cannot change after the constructor ends, so threads can share it without a lock. Three rules make a class immutable in Java: declare the fields `final`, do not let `this` escape from the constructor, and copy every mutable input and output (defensive copies). A class that holds a `List` must wrap it with `List.copyOf` in the constructor and return the unmodifiable list. `final` fields also give a safe publication guarantee: a thread that sees the reference sees the fully constructed fields (JLS 17.5).
+An immutable object cannot change after the constructor ends, so threads can share it without a lock. These rules make a class immutable in Java (Bloch, *Effective Java*, Item 17, and for the escape rule Goetz et al., section 3.4): provide no method that changes the state; make the class `final` (or a `record`) so that no subclass adds mutable state; make all fields `private` and `final`; do not let `this` escape from the constructor; and copy every mutable input and output (defensive copies). A class that holds a `List` must copy it with `List.copyOf` in the constructor and return the unmodifiable copy. `final` fields also give a safe publication guarantee (JLS 17.5): if `this` does not escape during construction, a thread that sees a reference to the object sees the values of its `final` fields as the constructor set them, and the state of the objects reachable through those fields as it was when the constructor ended. The guarantee does not cover fields that are not `final`.
 
 Immutable objects fit LLD value types (`Money`, `SeatId`, `Booking`, `Order` lines) and configuration or price lists that change rarely. For the data that changes, use *copy-on-write with an atomic swap*: readers keep a snapshot, and a writer builds a new object and swaps the reference with `AtomicReference.updateAndGet`. The function that you pass to `updateAndGet` must have no side effects, because it can run more than once when two writers race.
 
@@ -1087,7 +1096,7 @@ order lines cannot change
 
 See [design principles](03-design-principles.md) for immutability as a general principle, and [OOP](01-oop.md) for encapsulation and defensive copies.
 
-### Producer-consumer with `BlockingQueue`
+#### Producer-consumer with `BlockingQueue`
 
 Use a `BlockingQueue` when one part of the design produces work and another part runs it at its own speed: a notification service, a logging appender, a task scheduler, a pub-sub broker. The queue is the only shared state, and it is thread-safe. The producer calls `put`, which blocks while a bounded queue is full. The consumer calls `take`, which blocks while the queue is empty. A bounded queue gives *back pressure*: a fast producer slows down and does not exhaust memory. The `BlockingQueue` javadoc states that the actions of a thread before it puts an element into the queue happen-before the actions of the thread that takes the element, so the consumer sees all fields that the producer wrote.
 
@@ -1167,7 +1176,7 @@ sum of job values: 3825
 
 Design points to state in an interview:
 
-- **Queue type.** `ArrayBlockingQueue` is bounded with one lock. `LinkedBlockingQueue` is optionally bounded, and uses two locks (one for the head and one for the tail). `PriorityBlockingQueue` is unbounded and orders the items. `DelayQueue` releases an item after its delay (a scheduler). `SynchronousQueue` has no capacity: a put waits for a take.
+- **Queue type.** `ArrayBlockingQueue` is bounded. In the OpenJDK source it uses one lock for all access. `LinkedBlockingQueue` is optionally bounded. In the OpenJDK source it uses two locks (a `takeLock` for the head and a `putLock` for the tail), so one producer and one consumer do not wait for each other. These lock counts are implementation details, not part of the javadoc contract. `PriorityBlockingQueue` is unbounded and orders the items. `DelayQueue` releases an item after its delay (a scheduler). `SynchronousQueue` has no capacity: a put waits for a take.
 - **Bounded or unbounded.** An unbounded queue hides an overload as an `OutOfMemoryError`. Choose a bound, and decide what a full queue does: block (`put`), wait with a limit (`offer` with a timeout), or reject (`offer` without a timeout, then tell the caller).
 - **Shutdown.** Options: a poison pill, an `ExecutorService.shutdown()`, or interrupt the consumers. Without one of them the consumer threads never end.
 - **Failure of a consumer.** If an item fails, catch the exception inside the loop, or the thread ends and the queue grows. Decide on a retry or a dead-letter queue.
@@ -1175,15 +1184,13 @@ Design points to state in an interview:
 
 For a production service, use an `ExecutorService` and do not manage the threads yourself. The executor already owns a `BlockingQueue` and a set of workers. The complete designs are in `kb/lld/case-studies/15-pub-sub-message-queue/README.md` and `kb/lld/case-studies/16-task-scheduler/README.md`.
 
-### Thread-safe Singleton
+#### Thread-safe Singleton
 
 A Singleton has one shared instance, so its creation and its state are both concurrency questions. For creation, the simple correct forms are the eager `static final` field, the holder idiom, and the enum, because the JVM runs class initialization under a lock. Double-checked locking is correct only with a `volatile` field. For the instance state, creation safety does not help: if the Singleton holds mutable state, you still need the tools of this page. [Creational patterns](06-creational-patterns.md) covers all forms, the reason that `volatile` is needed, and the testing problems.
 
-### Compound actions on thread-safe collections
+#### Compound actions on thread-safe collections
 
-A thread-safe collection makes each call atomic. Two calls in a row are not atomic together. The wrong form below checks `containsKey` and then calls `put`. Two threads can both see "absent", and each creates and stores its own `Session`: the second `put` replaces the first, and the first caller holds an object that is not in the map.
-
-<!-- fragment -->
+A thread-safe collection makes each call atomic. Two calls in a row are not atomic together. The wrong form below checks `containsKey` and then calls `put`. Two threads can both see "absent", and each creates and stores its own `Session`: the second `put` replaces the first, and the first caller can hold an object that is not in the map. The code compiles and is wrong.
 
 ```java
 class WrongSessionRegistry {
@@ -1216,11 +1223,11 @@ class SessionRegistry {
 
 Other atomic compound methods: `putIfAbsent`, `computeIfPresent`, `compute`, `merge`, `replace(key, old, new)`, and `remove(key, value)`. The iteration over `Collections.synchronizedList` also needs a lock that the caller holds (the javadoc requires manual synchronization on the list while you iterate).
 
-### Virtual threads and `synchronized`
+#### Virtual threads and `synchronized`
 
 Since Java 21, `Executors.newVirtualThreadPerTaskExecutor()` runs each task on a virtual thread (JEP 444). In Java 21, a virtual thread that blocks while it holds a `synchronized` monitor cannot unmount from its carrier (platform) thread, so it blocks the carrier. This is called *pinning*. JEP 491 (Java 24) removes this limit for most cases. If your design blocks inside a critical section (for example a remote call) and runs on Java 21 virtual threads, prefer `ReentrantLock` there. A design that does not block inside the lock has no problem on any version.
 
-## How to Discuss Concurrency in an Interview
+### How to Discuss Concurrency in an Interview
 
 The common failure is to add locks everywhere or to add threads that no requirement needs. Use this sequence. It takes two to four minutes.
 
@@ -1254,7 +1261,7 @@ Recommendation: prefer the technique that removes sharing (immutable, confined, 
 
 ## Java Example
 
-The example combines three tools in one small booking service: a lock for each show (the invariant spans several seats), an immutable `Booking` record that readers share without a lock, and a `BlockingQueue` that hands a confirmation to a notification worker. Ten users try to book the same seat. The demo prints only the results that do not depend on the schedule.
+The example combines three tools in one small booking service: a lock for each show (the invariant spans several seats), an immutable `Booking` record that readers share without a lock, and a bounded `BlockingQueue` that hands a confirmation to a notification worker. The service calls `offer` after it releases the lock, so a full queue never blocks a booking. If the queue is full, the booking stays valid and the service reports the missed notification. Ten users try to book the same seat. The demo prints only the results that do not depend on the schedule.
 
 ```java
 import java.util.*;
@@ -1264,7 +1271,8 @@ import java.util.concurrent.locks.*;
 
 class BookingServiceDemo {
     public static void main(String[] args) throws Exception {
-        BlockingQueue<Booking> confirmations = new LinkedBlockingQueue<>();
+        // Bounded: if the notification worker falls behind, book() reports it (see below).
+        BlockingQueue<Booking> confirmations = new LinkedBlockingQueue<>(100);
         BookingService service = new BookingService(List.of("A1", "A2", "A3"), confirmations);
 
         AtomicInteger booked = new AtomicInteger();
@@ -1334,7 +1342,12 @@ class BookingService {
         } finally {
             lock.unlock();
         }
-        confirmations.add(booking);   // outside the lock: no foreign code runs under the lock
+        // Outside the lock: a slow or full queue does not block other bookings.
+        // Policy for a full queue: keep the booking and log the missed notification. A
+        // production design would retry from the stored bookings.
+        if (!confirmations.offer(booking)) {
+            System.err.println("notification queue full, seat " + seatId);
+        }
         return Optional.of(booking);
     }
 
@@ -1385,13 +1398,15 @@ free seats: [A3]
 
     Both give mutual exclusion and a happens-before edge, and both are reentrant. `synchronized` is a language feature. The JVM releases the monitor when the block exits, also on an exception. `ReentrantLock` is a library class with more control: `tryLock()` and `tryLock(timeout)`, an interruptible `lockInterruptibly()`, an optional fair order, and several `Condition` objects for one lock. The price is that I must call `unlock()` in a `finally` block.
 
+    `ReentrantLock` also allows a lock that is not block-structured: one method takes it and another releases it, or a thread takes locks hand over hand along a list. `synchronized` cannot do that. I can also ask a `ReentrantLock` whether it is held (`isHeldByCurrentThread`), which helps in assertions.
+
     I use `synchronized` by default because it is shorter and cannot leak a lock. I use `ReentrantLock` when I need a timeout (for example to detect a deadlock or to return "busy"), an interruptible wait, several conditions, or when I block inside the critical section on a Java 21 virtual thread, where `synchronized` pins the carrier thread. I do not choose by speed alone, and I would measure first.
 
 ??? question "How do you avoid a deadlock in a money transfer between two accounts?"
 
     A deadlock needs four conditions: mutual exclusion, hold and wait, no preemption, and a circular wait. The transfer holds the lock of the source and waits for the lock of the target. If another transfer holds the target and waits for the source, the wait is circular.
 
-    I remove the circular wait with lock ordering. Each transfer locks the account with the lower id first, whatever the direction. A thread that holds a lower lock waits only for a higher lock, so no cycle can form. A second option is `tryLock` with a timeout and a retry, which detects the deadlock and does not remove it. A third option is one lock for the whole bank, which is correct and simple but serializes all transfers. I also check the balance inside the lock, and I do not call external code while I hold it.
+    I remove the circular wait with lock ordering. Each transfer locks the account with the lower id first, whatever the direction. A thread that holds a lower lock waits only for a higher lock, so no cycle can form. A second option is `tryLock` with a timeout: if the second lock is not free in time, the thread releases the first lock, waits a random time, and retries. Because the thread gives up what it holds, no permanent deadlock forms, but the retries cost time and can livelock without the random wait. A third option is one lock for the whole bank, which is correct and simple but serializes all transfers. I also check the balance inside the lock, and I do not call external code while I hold it.
 
 ??? question "Is `ConcurrentHashMap` enough to make my inventory thread-safe?"
 
@@ -1407,7 +1422,7 @@ free seats: [A3]
 
 ??? question "How do you make a class thread-safe by making it immutable? What are the rules?"
 
-    An immutable object has no state change after construction, so there is no race on it. In Java: make the class `final` (or use a `record`), make all fields `final` and private, do not let `this` escape from the constructor, do not provide setters, and copy each mutable argument and each mutable return value (for example `List.copyOf`). Fields that are `final` also give safe publication: a thread that sees the reference sees the constructed fields (JLS 17.5).
+    An immutable object has no state change after construction, so there is no race on it. In Java: make the class `final` (or use a `record`), make all fields `final` and private, do not let `this` escape from the constructor, do not provide setters, and copy each mutable argument and each mutable return value (for example `List.copyOf`). Fields that are `final` also give safe publication (JLS 17.5): if `this` does not escape from the constructor, a thread that sees the reference sees the values that the constructor wrote to the `final` fields, and the objects reachable through them as they were at the end of the constructor.
 
     To change the data I create a new object. For shared data that changes, I keep the immutable object behind an `AtomicReference` and swap it with `updateAndGet`. Readers need no lock. The cost is the copy on each change, so it fits read-heavy data such as a price list.
 
@@ -1419,7 +1434,7 @@ free seats: [A3]
 
 ??? question "What is lock granularity? How do you choose between a global lock, a lock per object, and striped locks?"
 
-    Lock granularity is the amount of data that one lock protects. A global lock is simplest and always correct, but all requests wait for each other. A lock per object (per seat or per account) lets requests on different objects run in parallel, but an operation on two objects needs two locks, so I need a lock order to avoid a deadlock. Striped locks use a fixed array of locks and select one by the key hash. They bound memory when there are millions of keys, and unrelated keys can share a stripe and wait.
+    Lock granularity is the amount of data that one lock protects. A global lock is the simplest, and it is correct if every access to the shared state uses it, but all requests wait for each other. A lock per object (per seat or per account) lets requests on different objects run in parallel, but an operation on two objects needs two locks, so I need a lock order to avoid a deadlock. Striped locks use a fixed array of locks and select one by the key hash. They bound memory when there are millions of keys, and unrelated keys can share a stripe and wait.
 
     I start with the coarsest lock that is correct, and I say when I would refine it: when measurement shows contention on the lock. A finer lock adds a deadlock risk and more code, so it must pay for itself.
 
@@ -1447,7 +1462,7 @@ free seats: [A3]
 
 ??? question "Can `compareAndSet` fail forever (starvation)?"
 
-    A thread that loses a CAS retries, and under high contention it can retry many times. Another thread always makes progress, because a CAS fails only when another thread succeeded. This is lock-free, not wait-free. For one hot counter, `LongAdder` spreads the updates over cells and lowers the contention. For a check-then-act under heavy contention, a lock can be faster than a retry loop.
+    A thread that loses a CAS retries, and under high contention it can retry many times. Another thread always makes progress, because `compareAndSet` (a strong CAS) fails only when another thread changed the value. The `weakCompareAndSet*` methods can also fail spuriously, as their javadoc states, so a loop must surround them. This is lock-free, not wait-free. For one hot counter, `LongAdder` spreads the updates over cells and lowers the contention. For a check-then-act under heavy contention, a lock can be faster than a retry loop.
 
 ??? question "How do you test a concurrent design?"
 
@@ -1463,7 +1478,7 @@ free seats: [A3]
 - Saying that `ConcurrentHashMap` or `volatile` makes a sequence of operations atomic.
 - Locking in different orders in two methods, or not knowing the term "lock ordering".
 - Calling an external service, a listener, or an overridable method while holding a lock.
-- Starting a thread for each request (`new Thread` in a loop) in a design that needs a pool.
+- Starting a platform thread for each request (`new Thread` in a loop) in a server design, with no bound on the number of threads. Use a bounded pool, or on Java 21 a virtual thread for each task (JEP 444 recommends one virtual thread per task and no pooling of virtual threads). The demos on this page start a few platform threads only to force a race.
 - Using an unbounded queue and not saying what happens when the consumer is slow.
 - `lock()` without `unlock()` in `finally`.
 - Locking on a `String`, a boxed `Integer`, or a public object (for example `this` in a class that others can lock).
@@ -1483,7 +1498,7 @@ free seats: [A3]
 | Calling a callback, a listener, or an I/O method inside the lock | A slow or foreign call blocks all other threads. It can deadlock | Collect the work inside the lock. Run it after unlock |
 | Lock on a changing or shared object (`synchronized (this.list)` where the field is reassigned, a `String`, an `Integer`) | Threads lock different objects, or unrelated code locks the same one | Lock on a `private final Object` or the object that holds the state |
 | Returning an internal mutable collection from a getter | The caller changes it without the lock | Return a copy or an unmodifiable view, or use `List.copyOf` |
-| Using `HashMap` or `ArrayList` from several threads | Lost updates, an infinite loop or a corrupt structure | Use a concurrent collection, or guard with a lock |
+| Using `HashMap` or `ArrayList` from several threads | Lost updates, lost entries, or a corrupt internal structure. In JDK 7 and earlier, two threads that resized one `HashMap` at the same time could create a cycle in a bucket list, and a later `get` looped forever | Use a concurrent collection, or guard with a lock |
 | Unbounded queue between producer and consumer | The queue grows until memory ends when the consumer is slow | Use a bounded queue and define the full-queue policy |
 | Consumer thread dies on one exception | Work stops without a message | Catch exceptions inside the loop and log them |
 | Calling `Thread.sleep` to wait for another thread | The wait is too short or too long and the test is flaky | Use `join`, a latch, a future, or a `BlockingQueue` |
@@ -1553,7 +1568,11 @@ Rules to remember:
 - [Oracle Java Tutorial: Concurrency](https://docs.oracle.com/javase/tutorial/essential/concurrency/). Synchronization, deadlock, liveness, immutable objects, and high-level concurrency objects.
 - [JEP 444: Virtual Threads](https://openjdk.org/jeps/444). The pinning behavior of `synchronized` in Java 21.
 - [JEP 491: Synchronize Virtual Threads without Pinning](https://openjdk.org/jeps/491). The change in Java 24 that removes most pinning.
-- Goetz, Bloch, Bowbeer, Lea, Holmes, Peierls. *Java Concurrency in Practice*. Addison-Wesley, 2006. The reference for thread safety levels, publication, lock granularity, and queues.
-- Bloch. *Effective Java*, 3rd edition. Addison-Wesley, 2018. Item 17 (minimize mutability), and Items 78 to 84 (concurrency).
+- Goetz, Bloch, Bowbeer, Lea, Holmes, Peierls. *Java Concurrency in Practice*. Addison-Wesley, 2006. The reference for thread confinement (3.3), safe publication, lock granularity and lock striping (11.4), lock ordering (10.1), and queues.
+- Bloch. *Effective Java*, 3rd edition. Addison-Wesley, 2018. Item 17 (minimize mutability), Item 82 (the thread safety levels), and Items 78 to 84 (concurrency).
+- [OpenJDK 21 source: `ConcurrentHashMap.java`](https://github.com/openjdk/jdk21u/blob/master/src/java.base/share/classes/java/util/concurrent/ConcurrentHashMap.java). The implementation notes: a CAS for the first node of an empty bin, and a lock on the first node of a bin for other updates.
+- [OpenJDK 21 source: `LinkedBlockingQueue.java`](https://github.com/openjdk/jdk21u/blob/master/src/java.base/share/classes/java/util/concurrent/LinkedBlockingQueue.java) and [`ArrayBlockingQueue.java`](https://github.com/openjdk/jdk21u/blob/master/src/java.base/share/classes/java/util/concurrent/ArrayBlockingQueue.java). The two-lock queue and the single main lock.
+- [Guava `Striped` javadoc](https://guava.dev/releases/snapshot-jre/api/docs/com/google/common/util/concurrent/Striped.html). A library implementation of striped locks.
+- [jcstress](https://openjdk.org/projects/code-tools/jcstress/). The OpenJDK harness that tests concurrency behavior and memory model outcomes.
 - Coffman, Elphick, Shoshani. "System Deadlocks". *ACM Computing Surveys* 3(2), 1971. The four conditions for deadlock.
 - Kung, Robinson. "On Optimistic Methods for Concurrency Control". *ACM Transactions on Database Systems* 6(2), 1981. The original paper on optimistic concurrency control.
