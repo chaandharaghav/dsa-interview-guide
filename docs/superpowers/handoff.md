@@ -72,7 +72,8 @@ Case-study files are not committed until their review finishes. If the session s
 - LLD Batch 5: done and committed.
 - Phase 2 plan: `docs/superpowers/plans/2026-10-15-phase-2-hld.md` (committed).
 - Phase 2 status (update as agents finish):
-  - Drafted, Opus review running: H1 (01–02), H2 (03), H3 (04–05), H4 (06–07), H5 (08), H6 (09–10), H7 (11–12).
+  - Reviewed and committed: H4 (06–07).
+  - Drafted, Opus review running: H1 (01–02), H2 (03), H3 (04–05), H5 (08), H6 (09–10), H7 (11–12).
   - Drafted, review queued: H8 (13–14, both P1). Unverified points from the drafter: earlier draft header names `RateLimit-Limit/-Remaining/-Reset`; `Retry-After` wording (RFC 9110 10.2.3); Redis Cluster scripts and single-slot keys; Kubernetes `kube-proxy`, readiness probes; Consul interfaces; Eureka as client-side discovery; the "8 to 10 engineers" rule of thumb (no source).
   - Drafted, review queued: H10 (17–18, both P2). Unverified points: Kafka Streams RocksDB stores, changelog topics, standby replicas, one task per partition; Spark Structured Streaming micro-batch and its exactly-once conditions; Kafka tiered storage (KIP-405); Flink and Spark batch modes; PostGIS GiST `<->` kNN and `ST_DWithin` index use; MongoDB `2dsphere` and CockroachDB on S2; Elasticsearch geohash aggregations; Finkel and Bentley 1974 not opened; the geohash precision table is derived (111.19 km per degree); ride-hailing scale numbers labeled assumptions.
   - Drafted, review queued: H9 (15–16, both P1). Unverified points: Snowflake 41/10/12 layout (cited to the README and `IdWorker.scala`, not the blog); Confluent Schema Registry compatibility modes (backward, forward, full, and transitive); CloudEvents attribute names; InnoDB auto-increment gaps after rollback; PostgreSQL sequences do not roll back; PostgreSQL full-page writes for random UUID inserts; Twitter `id_str`; PostgreSQL 18 `uuidv7()` (official docs not opened); "NTP keeps clocks within milliseconds" (unsourced).
