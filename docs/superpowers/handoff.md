@@ -83,7 +83,7 @@ The user stopped the session once to save usage, then resumed it. Running after 
 
 - LLD Batch 5: done and committed.
 - Phase 2 plan: `docs/superpowers/plans/2026-10-15-phase-2-hld.md` (committed).
-- Phase 2 status (update as agents finish):
+- Phase 2 status (update as agents finish): ALL 21 FUNDAMENTALS REVIEWED AND COMMITTED.
   - Reviewed and committed: H2 (03), H3 (04–05), H4 (06–07), H5 (08), H6 (09–10).
   - Drafted, Opus review running: H1 (01–02), H7 (11–12).
   - Drafted, review queued: H8 (13–14, both P1). Unverified points from the drafter: earlier draft header names `RateLimit-Limit/-Remaining/-Reset`; `Retry-After` wording (RFC 9110 10.2.3); Redis Cluster scripts and single-slot keys; Kubernetes `kube-proxy`, readiness probes; Consul interfaces; Eureka as client-side discovery; the "8 to 10 engineers" rule of thumb (no source).
