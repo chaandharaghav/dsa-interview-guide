@@ -54,7 +54,7 @@ Any agent that was running at save time may have stopped partway. In the next se
 | C2 | 03-rate-limiter, 04-elevator-system | Yes | Running |
 | C3 | 05-movie-ticket-booking, 06-splitwise | Yes | Running |
 | C4 | 07-vending-machine, 08-logging-framework | Yes | Running (must remove the demo's temp-file write) |
-| C5 | 09-tic-tac-toe, 10-snake-and-ladder | Yes | Running |
+| C5 | 09-tic-tac-toe, 10-snake-and-ladder | Yes | Done, committed |
 | C6 | 11-chess, 12-atm | Running | Not started |
 | C7 | 13-library-management, 14-in-memory-file-system | Running | Not started |
 | C8 | 15-pub-sub-message-queue, 16-task-scheduler | Running | Not started |
