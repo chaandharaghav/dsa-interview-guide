@@ -34,6 +34,7 @@ Also check:
 - Mermaid diagrams have valid syntax for their diagram type (`classDiagram`, `sequenceDiagram`, `stateDiagram-v2`, `flowchart`).
 - Links resolve. Pages that do not exist yet appear as backticked `kb/...` paths, not as links.
 - Further Reading entries are real sources, and each URL is plausible and current. Open the URL if you are not certain.
+- To read a PDF paper, run `.venv/bin/python tools/pdf2text.py <url-or-file> [first_page [last_page]]`. It prints the text of each page, so that you can quote the paper exactly.
 
 ## 3. How to Change the Page
 

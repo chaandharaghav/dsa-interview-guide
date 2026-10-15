@@ -211,6 +211,7 @@ Facts:
 - Do not write "always" or "never" unless a source supports it.
 - Check version-dependent facts on the web today. Examples: the current OWASP Top 10 edition, the preview status of a Java feature, a default value in a recent library version.
 - Do not invent sources. Each URL you cite must be a real page that you opened or that you know exists.
+- To read a PDF paper, run `.venv/bin/python tools/pdf2text.py <url-or-file> [first_page [last_page]]`. It prints the text of each page.
 
 ## 8. Overlap Boundaries
 
