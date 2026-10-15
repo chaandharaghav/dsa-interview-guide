@@ -55,11 +55,11 @@ Any agent that was running at save time may have stopped partway. In the next se
 | C3 | 05-movie-ticket-booking, 06-splitwise | Yes | Done, committed |
 | C4 | 07-vending-machine, 08-logging-framework | Yes | Done, committed |
 | C5 | 09-tic-tac-toe, 10-snake-and-ladder | Yes | Done, committed |
-| C6 | 11-chess, 12-atm | Yes | Running |
+| C6 | 11-chess, 12-atm | Yes | Done, committed |
 | C7 | 13-library-management, 14-in-memory-file-system | Yes | Done, committed |
 | C8 | 15-pub-sub-message-queue, 16-task-scheduler | Yes | Done, committed |
 | C9 | 17-ride-sharing, 18-shopping-cart-and-orders | Yes | Done, committed |
-| C10 | 19-key-value-store-with-ttl, 20-hotel-booking | Yes | Running |
+| C10 | 19-key-value-store-with-ttl, 20-hotel-booking | Yes | Done, committed |
 | C11 | 21-food-delivery, 22-online-auction | Yes | Done, committed |
 | C12 | 23-digital-wallet, 24-notification-service | Yes | Running |
 
