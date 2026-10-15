@@ -7,19 +7,19 @@ A multi-region system runs in more than one geographic region, so that a regiona
 
 ## Why It Matters
 
-Interviewers ask "what happens if the whole region goes down?" in the last third of many HLD rounds, usually after the single-region design is complete. A strong answer names the recovery objectives first (RPO and RTO), picks a strategy that fits them, and states the cost: money, write latency, and conflict handling. On the job, the same questions decide budgets. A warm standby costs a fraction of an active-active deployment, and most products do not need the second. This page gives the vocabulary, the numbers, and the trade-offs, so that you can say "we need an RPO of 1 minute and an RTO of 15 minutes, so we use warm standby with asynchronous replication" and defend it.
+Interviewers ask "what happens if the whole region goes down?" in many HLD rounds, once the single-region design is complete. A strong answer names the recovery objectives first (RPO and RTO), picks a strategy that fits them, and states the cost: money, write latency, and conflict handling. On the job, the same questions decide budgets. A warm standby costs a fraction of an active-active deployment, and a product that accepts an RTO of minutes does not need active-active. This page gives the vocabulary, the numbers, and the trade-offs, so that you can say "we need an RPO of 1 minute and an RTO of 15 minutes, so we use warm standby with asynchronous replication" and defend it.
 
 ## Core Concepts
 
 **Region**: a geographic area that holds several data centers. A cloud provider builds regions to fail independently of each other. **Availability zone** (AZ): one or more data centers inside a region, with separate power and network. AWS, Google Cloud, and Azure use these terms with small differences. A design that survives the loss of one AZ is *multi-AZ*. A design that survives the loss of a whole region is *multi-region*.
 
-**Disaster**: an event that makes a whole site unavailable or destroys its data. Examples: a regional power or network outage, a flood, a faulty deployment that reaches every instance in a region, a corrupted or deleted database, a ransomware attack, and a compromised account. The AWS whitepaper "Disaster Recovery of Workloads on AWS: Recovery in the Cloud" separates disasters of *availability* (a site is down) from disasters of *data* (the data is wrong or gone). Replication protects against the first kind. Replication copies the second kind to the other region, so you also need backups with point-in-time recovery.
+**Disaster**: an event that makes a whole site unavailable or destroys its data. The AWS whitepaper "Disaster Recovery of Workloads on AWS: Recovery in the Cloud" names three categories: natural disasters (earthquakes, floods), technical failures (power, network connectivity), and human actions (misconfiguration, unauthorized access or modification). Each disaster also has a geographic scope: local, regional, country-wide, continental, or global. This page also separates two effects, because they need different defenses. A disaster of *availability* takes a site down. Replication to another site protects against it. A disaster of *data* corrupts or deletes the data (a bad migration, a deleted table, ransomware). Replication copies the damage to the other site, so you also need backups with point-in-time recovery. The whitepaper makes the same point: continuous replication "may not protect you against data corruption or destruction unless your strategy also includes versioning of stored data or options for point-in-time recovery".
 
 **RPO** (recovery point objective): the maximum amount of data loss that the business accepts, measured as a time span before the disaster. An RPO of 5 minutes means that after recovery the system may lack the last 5 minutes of writes. **RTO** (recovery time objective): the maximum time from the start of the outage until the service works again. An RTO of 15 minutes means users are without the service for up to 15 minutes. These are *targets*. Test the actual values that a recovery achieves, because a target that nobody tests is a guess.
 
 **Failover**: the switch of traffic and of the write role from the failed site to the recovery site. **Failback**: the return to the original site after it recovers.
 
-**Active-passive**: one region serves traffic. The other region receives replicated data and serves no traffic until a failover. **Active-active**: two or more regions serve traffic at the same time. The AWS whitepaper calls the full form *multi-site active/active*. It also names *hot standby*: a full-capacity copy in a second region that serves no traffic.
+**Active-passive**: one region serves traffic. The other region receives replicated data and serves no traffic until a failover. **Active-active**: two or more regions serve traffic at the same time. The AWS whitepaper calls the full form *multi-site active/active*. It also names *hot standby*: a full-capacity copy in a second region that serves no traffic. The whitepaper calls hot standby a *statically stable* configuration, because the recovery region does not need to scale up during the disaster.
 
 **Replication lag**: the delay between a write on the primary and its arrival on the replica. With asynchronous replication, the lag at the moment of the disaster is the data loss (see [replication](05-replication.md)).
 
@@ -27,7 +27,7 @@ Interviewers ask "what happens if the whole region goes down?" in the last third
 
 **Static stability**: a design in which the recovery path does not depend on actions that can fail during the disaster. The AWS whitepaper advises that a failover uses only *data plane* operations (the services that carry live traffic) and not *control plane* operations (the services that create and configure resources), because data planes are built for higher availability than control planes.
 
-**Cell**: an independent, complete copy of the stack that serves a subset of the users. A cell-based design limits the blast radius of a failure to one cell, and a region can host many cells.
+**Cell**: an independent, complete copy of the stack that serves a subset of the users. A cell-based design limits the blast radius of a failure to one cell, and a region can host many cells. **Blast radius**: the set of users or components that one failure affects.
 
 ## How It Works
 
@@ -74,21 +74,23 @@ Each region serves reads and writes. The hard question is what happens when two 
 | Strategy | Behavior | Conflicts | Example from the whitepaper |
 |---|---|---|---|
 | Write global (read local) | All writes go to one region. Every region serves reads from a local replica. If the write region fails, another region is promoted | None, because one region writes. Writes from far regions pay the latency | Aurora global database: promote a secondary region in less than one minute (AWS docs) |
-| Write local | Each region accepts writes for any item and replicates them to the others | Yes. The system must resolve concurrent writes | DynamoDB global tables: last writer wins |
-| Write partitioned | Each item has a home region by a partition key (user ID, tenant). The home region takes the writes | Rare. A conflict can happen only if the same item is written outside its home region, for example during a failover | S3 bidirectional replication with separate key spaces |
+| Write local | Each region accepts writes for any item and replicates them to the others | Yes. The system must resolve concurrent writes | DynamoDB global tables: last writer wins (the multi-Region eventual consistency mode) |
+| Write partitioned | Each item has a home region by a partition key (user ID, tenant). The home region takes the writes | Rare. A conflict can happen only if the same item is written outside its home region, for example during a failover | S3 replication configured in both directions between two regions |
 
 Recommendation: prefer write partitioned (a "home region" for each user or tenant) when the data model allows it. Most data has an owner. A user edits their own profile, cart, and orders. The design then gets local latency for the owner and no conflicts in the normal path. Data that all users write (a global counter, a shared document, an inventory item) needs a different tool: a single home region for that item, a conflict-free data type, or consensus.
 
 ### Data Replication and Conflict Handling
 
-Replication between regions is asynchronous in almost every design. A synchronous commit waits for the remote region on every write, so each commit pays at least the round trip between the regions (56 ms or more for New York to London, approximate), and a partition between the regions then blocks the writes. The exceptions are databases that run a consensus protocol across regions (Google Spanner and CockroachDB). They accept the cross-region latency on the write path, and they stay correct when a region fails. The consensus protocols are in `kb/hld/distributed-systems/02-consensus-and-leader-election.md`.
+Most designs replicate between regions asynchronously. A synchronous commit waits for the remote region on every write, so each commit pays at least the round trip between the regions (56 ms or more for New York to London, approximate), and a partition between the regions then blocks the writes. The exceptions are databases that run a consensus protocol across regions (Google Spanner and CockroachDB). They accept the cross-region latency on the write path, and they stay correct when a region fails. The consensus protocols are on [consensus and leader election](../distributed-systems/02-consensus-and-leader-election.md).
+
+DynamoDB global tables show both options in one product. The default mode, multi-Region eventual consistency (MREC), replicates asynchronously and resolves concurrent writes with last writer wins. The multi-Region strong consistency mode (MRSC) is the alternative. The table owner picks the mode at creation and cannot change it later (AWS DynamoDB documentation).
 
 With asynchronous replication and more than one writing region, the same item can change in two regions before the changes meet. Options for handling the conflict:
 
 | Method | How it works | Cost |
 |---|---|---|
 | Avoid it | Give each item one home region (write partitioned) | You need a routing key, and you must handle a failed home region |
-| Last writer wins (LWW) | Each write carries a timestamp. The write with the higher timestamp wins. DynamoDB global tables use it | The losing write disappears with no error. Clock differences between regions decide the winner. Fine for "latest value" data such as a profile photo. Wrong for a balance or a counter |
+| Last writer wins (LWW) | Each write carries a timestamp. The write with the higher timestamp wins. DynamoDB global tables use it in their default (MREC) mode | The losing write disappears with no error. Clock differences between regions decide the winner. Fine for "latest value" data such as a profile photo. Wrong for a balance or a counter |
 | Merge in the application | Keep both versions (siblings). The application or the user merges them. Dynamo-style stores use vector clocks to detect concurrent versions (see [replication](05-replication.md)) | The application code grows |
 | Conflict-free replicated data types (CRDTs) | Data types with a merge function that is commutative, associative, and idempotent, so all regions converge without coordination. Examples: counters, sets | Fits only data that has such a type. Metadata can grow. See `kb/hld/distributed-systems/06-crdts-and-conflict-resolution.md` |
 | Coordinate | Route the write through one region, or use consensus | Latency, and lower availability during a partition |
@@ -129,7 +131,7 @@ flowchart LR
 
 ### The Four DR Strategies (AWS Whitepaper)
 
-The AWS whitepaper describes four strategies. It orders them from low cost and slow recovery to high cost and fast recovery.
+The AWS whitepaper describes four strategies. It orders them from low cost and slow recovery to high cost and fast recovery. Figure 6 of the whitepaper ("Disaster recovery options in the cloud") gives one combined "RPO / RTO" label for each strategy: hours for backup and restore, tens of minutes for pilot light, minutes for warm standby, and real-time for multi-site active/active. These labels are orders of magnitude, not guarantees. The actual values depend on the data size, the automation, and the tests.
 
 ```mermaid
 flowchart LR
@@ -138,21 +140,21 @@ flowchart LR
     C --> D[Multi-site active/active<br/>highest cost<br/>fastest recovery]
 ```
 
-| Strategy | What runs in the recovery region before the disaster | What happens at failover | Cost | RTO and RPO (indicative) |
+| Strategy | What runs in the recovery region before the disaster | What happens at failover | Cost | RPO / RTO (whitepaper Figure 6), and what sets the RPO (this page) |
 |---|---|---|---|---|
-| Backup and restore | Only backups, copied to the recovery region. No servers | Redeploy the infrastructure from code (infrastructure as code), restore the data, and start the application | Lowest | Hours. The RPO is the backup interval |
-| Pilot light | The data stores run and receive continuous replication. The application servers are deployed but switched off, or not deployed | Switch on and scale out the application servers, then move the traffic | Low | Tens of minutes. The RPO is the replication lag |
-| Warm standby | A scaled-down but complete and running copy of the stack. It can handle traffic at reduced capacity | Scale up, then move the traffic | Medium | Minutes. The RPO is the replication lag |
-| Multi-site active/active | A full stack in each region, and all regions serve traffic | No failover. The routing stops sending traffic to the failed region, and the others must carry the load | Highest | Near zero for the disaster of availability. A data disaster still needs a backup, so its RTO is above zero |
+| Backup and restore | Only backups, copied to the recovery region. No servers | Redeploy the infrastructure from code (infrastructure as code), restore the data, and start the application | Lowest (whitepaper: "$") | Hours. The RPO is the backup interval |
+| Pilot light | The data stores run and receive continuous replication. The application servers are deployed but switched off, or not deployed | Switch on and scale out the application servers, then move the traffic | Low ("$$") | Tens of minutes. The RPO is the replication lag |
+| Warm standby | A scaled-down but complete and running copy of the stack. It can handle traffic at reduced capacity | Scale up, then move the traffic | Medium ("$$$") | Minutes. The RPO is the replication lag |
+| Multi-site active/active | A full stack in each region, and all regions serve traffic | No failover. The routing stops sending traffic to the failed region, and the others must carry the load | Highest ("$$$$") | Real-time (the figure says "zero downtime" and "near zero data loss") for a disaster of availability. A data disaster still needs a backup, so its RTO and RPO are above zero |
 
 Details from the whitepaper:
 
 - **Backup and restore** suits a data loss or corruption disaster and a regional disaster when hours are acceptable. Back up the code, the configuration, and the machine images, not only the data. Use infrastructure as code, or the redeployment is slow and error-prone. Test the restore, because an untested backup may not restore. Restoring from a backup is a control plane operation, so the whitepaper suggests a scheduled restore, which gives a running data store that you can use if the control plane fails during the disaster.
 - **Pilot light** keeps the "pilot flame": the core that is hard to rebuild (the data stores) runs and replicates. Everything else exists as a definition that you switch on. Continuous replication does not protect against corruption or deletion, so add point-in-time backups or versioning in the recovery region.
-- **Warm standby** differs from pilot light in one point: it can handle requests at once, at reduced capacity. Its recovery step is only "scale up". It also allows continuous testing, because the recovery region runs real traffic in a small test. The whitepaper warns that scale-up through Auto Scaling is a control plane dependency, and that service quotas in the recovery region must allow the full production size.
+- **Warm standby** differs from pilot light in one point: it can handle requests at once, at reduced capacity. Its recovery step is only "scale up". The whitepaper adds that warm standby makes it easier to test, or to test continuously, because the recovery stack always runs. The whitepaper warns that scale-up through Auto Scaling is a control plane dependency, and that service quotas in the recovery region must allow the full production size. One compromise from the whitepaper: deploy enough capacity for the first traffic (a low RTO), and let Auto Scaling add the rest.
 - **Multi-site active/active** serves traffic from all regions. The whitepaper calls it the most complex and costly approach. It notes that a data corruption event still depends on backups and has a non-zero recovery point. The difference from **hot standby**: hot standby holds full capacity in the second region and sends it no traffic.
 
-Failover can start automatically or manually. The whitepaper advises caution with automatic failover on health checks and alarms: a false alarm costs availability and data, because the recovery time and recovery point are never zero. Many teams start the failover manually and automate every step behind a single action.
+Failover can start automatically or manually. The whitepaper advises caution with automatic failover on health checks and alarms: a false alarm costs availability and data, because the recovery time and recovery point are never zero. The whitepaper adds that "manually initiated failover is therefore often used", with every step automated, so that the manual start "is like the push of a button".
 
 ### Failover
 
@@ -177,18 +179,23 @@ sequenceDiagram
 Points that decide whether the failover works:
 
 1. **Fence the old primary.** If region A is only unreachable and not dead, it may still accept writes. Two writers produce split brain. Stop the old primary (revoke its credentials or network access, or use a fencing token) before the promotion. See [replication](05-replication.md).
-2. **Use data plane actions.** Route 53 health checks with the Application Recovery Controller (ARC) routing controls, and Global Accelerator health checks, are data plane operations (AWS whitepaper). A weighted DNS change goes through the control plane and is less resilient.
+2. **Use data plane actions.** The AWS whitepaper calls automatic DNS failover through Route 53 health checks "a highly reliable operation done on the data plane". For a manual trigger, it recommends Amazon Application Recovery Controller (ARC) routing controls: Route 53 health checks that act as on/off switches, set through a data plane API. It names two control plane operations to avoid on the failover path: a change of the weights in a weighted routing policy, and a change of the traffic dials in Global Accelerator. Global Accelerator health checks move traffic away from an unhealthy endpoint automatically.
 3. **Check capacity before the shift.** The recovery region needs quota, instances, and database capacity for the full load. Request quota increases in advance. Pre-warm the caches (see [caching](03-caching.md)) or limit the traffic during the first minutes.
 4. **Keep dependencies in the recovery region.** A service that calls a dependency in the failed region fails with the region. List every dependency: authentication, configuration, secrets, the message queue, the third-party APIs.
 5. **Keep the failover code path alive.** Run the failover in a game day every quarter. A recovery path that never runs breaks silently.
 
 ### Failback
 
-Failback is a second migration, and it carries the same risks as the failover. After the failover, region B has the newest data. Region A has data from before the disaster. Steps: rebuild region A, replicate from region B to region A (reverse replication), wait until the lag is near zero, pause the writes or accept a short write outage, move the write role back, and move the traffic. Decide on the old data in region A that did not reach region B: keep it for reconciliation, review it, and replay what is safe. Many teams do not fail back. They make region B the new primary and rebuild region A as the new recovery region, which removes the second switch. Avoid *flapping*, a loop of automatic failovers and failbacks caused by a marginal fault, by adding hold-down timers and manual approval for failback.
+Failback is a second migration, and it carries the same risks as the failover. After the failover, region B has the newest data. Region A has data from before the disaster. Steps: rebuild region A, replicate from region B to region A (reverse replication), wait until the lag is near zero, pause the writes or accept a short write outage, move the write role back, and move the traffic. Decide on the old data in region A that did not reach region B: keep it for reconciliation, review it, and replay what is safe. An alternative is not to fail back: make region B the new primary and rebuild region A as the new recovery region, This removes the second switch. Avoid *flapping*, a loop of automatic failovers and failbacks caused by a marginal fault, by adding hold-down timers and manual approval for failback.
 
 ### Data Residency
 
-A residency rule changes the architecture, not only the configuration. Examples of such rules are the EU General Data Protection Regulation (GDPR), which limits the transfer of personal data out of the EU and EEA unless conditions apply, and national rules for finance and health data. A lawyer defines the rule for your product. The design follows these steps:
+A residency rule changes the architecture, not only the configuration. The rule can come from a national law (some countries have localization rules for finance, health, or government data), from a contract with a customer, or from a product decision. A lawyer defines the rule for your product.
+
+!!! note "GDPR is a transfer rule, not a storage-location rule (summary, not legal advice)"
+    Chapter V of the EU General Data Protection Regulation governs transfers of personal data to a *third country* (a country outside the EEA) or to an international organisation. Article 44 states the general principle: such a transfer "shall take place only if" the controller and the processor comply with the conditions of the chapter, including for onward transfers. A transfer can rely on an adequacy decision of the European Commission (Article 45), on appropriate safeguards such as standard contractual clauses (Article 46), on binding corporate rules (Article 47), or on derogations for specific situations, such as explicit consent (Article 49). Article 48 covers orders from courts or authorities of a third country. The GDPR does not, by itself, require that personal data stay in the EU. A company may still keep EU data in the EU, because it removes the transfer question and because customers ask for it in contracts.
+
+The design follows these steps:
 
 1. **Classify the data.** Mark which fields are personal or regulated, and which are not. Non-personal data (product catalog, static content) can live anywhere.
 2. **Assign a home region to each user or tenant.** A regional cell holds all the regulated data of its users. Routing sends a request to the user's home cell.
@@ -197,7 +204,21 @@ A residency rule changes the architecture, not only the configuration. Examples 
 5. **Keep keys in the region.** Use a regional key management service and a separate key per region, so that deleting a key makes the regional data unreadable (see [security in design](21-security-in-design.md)).
 6. **Plan cross-region features.** A user who travels, a global search, and a support tool that reads data from another region need an explicit, audited path with a legal basis.
 
-The effect on active-active: a residency rule rules out "write local, replicate everywhere". It requires write partitioned with regional data that does not replicate out of the region. The effect on disaster recovery: the recovery region options shrink to the regions in the same jurisdiction. If a country has one region only, the recovery for that data may need a second availability-zone-based design or a provider that offers a second region in the country.
+The effect on active-active: a residency rule rules out "write local, replicate everywhere". It requires write partitioned with regional data that does not replicate out of the region. The effect on disaster recovery: the recovery region options shrink to the regions in the same jurisdiction. If a country has only one region of your provider, the AWS whitepaper suggests that you use the availability zones of that region as the separate recovery locations: each of the four strategies also works with zones instead of regions. The alternative is a second provider that has a region in the country.
+
+### Capacity After a Region Fails
+
+The surviving regions must carry the load of the failed region. With N active regions that share the load evenly, each region carries `1/N` of the total. After one region fails, each survivor carries `1/(N - 1)`. So the load on each survivor grows by the factor `N / (N - 1)`.
+
+| Active regions (N) | Load factor on each survivor | Highest safe steady utilization |
+|---|---|---|
+| 2 | 2 / 1 = 2.0 | 50 percent |
+| 3 | 3 / 2 = 1.5 | about 67 percent |
+| 4 | 4 / 3 = about 1.33 | 75 percent |
+
+The highest safe steady utilization is `(N - 1) / N` of the capacity of a region, if the target after the failure is 100 percent. A real target is lower (for example 80 percent after the failure), so the steady value is `0.8 x (N - 1) / N`. Example: with 3 regions and a post-failure target of 80 percent, each region runs at most at 0.8 x 2 / 3, which is about 53 percent. This is why active-active with two regions costs about the same capacity as active-passive with a hot standby: each region keeps half of its capacity free.
+
+The capacity must exist at the moment of the failure. Autoscaling in the survivors is a control plane dependency, and it adds minutes. Other limits also apply: database connections, quotas, and the caches in the survivors, which hold the keys of their own users and not the keys of the moved users. If the survivors cannot carry the full load, shed the low-priority traffic (see [reliability patterns](12-reliability-patterns.md)).
 
 ### Latency-Based and Other Global Routing
 
@@ -205,11 +226,11 @@ A global routing layer sends each user to a region. The options:
 
 | Method | How it works | Notes |
 |---|---|---|
-| Latency-based DNS | The DNS service answers with the region that has the lowest measured latency to the user's resolver network. Amazon Route 53 latency routing uses latency measurements between user networks and AWS regions | The answer follows measured latency, not distance. The DNS service sees the resolver and not the user, unless EDNS client subnet is present. The answer is cached for the TTL |
+| Latency-based DNS | The DNS service answers with the region that has the lowest measured latency to the user. Amazon Route 53 bases its latency data "entirely on traffic between users and AWS data centers", taken over a period of time | The answer follows measured latency, not distance. Latency changes with network routes, so a user who goes to one region this week may go to another next week (Route 53 documentation). The DNS service sees the resolver and not the user, unless the resolver sends the EDNS client subnet (a truncated user IP address). The answer is cached for the TTL |
 | Geolocation or geoproximity DNS | The answer depends on the user's country or location, with an optional bias | Use geolocation for residency rules. Use geoproximity to shift load between regions |
 | Failover routing | Primary and secondary records. Health checks decide | The classic active-passive switch |
 | Weighted routing | A percentage of traffic to each region | Gradual migration, canary, or a load shift |
-| Anycast (for example AWS Global Accelerator) | The same IP address is announced in many places. The network sends the user to the nearest edge, and then over the provider backbone to a healthy endpoint | No DNS cache delay. Traffic dials and health checks control the endpoints |
+| Anycast (for example AWS Global Accelerator) | The same IP address is announced in many places. The network sends the user to the nearest edge, and then over the provider backbone to a healthy endpoint | No DNS cache delay. Health checks move traffic away from an unhealthy endpoint automatically. Traffic dials set the share per region, and a dial change is a control plane operation |
 | Client-side or application routing | The client reads a directory and calls the home region directly | Needed for data residency, and for write partitioned designs |
 
 DNS-based routing depends on caching. A resolver may keep an answer longer than the TTL, so a failover through DNS is never instant. The AWS whitepaper names this as one reason to use Global Accelerator, because it avoids the DNS caching problem (see [load balancing, DNS and CDN](02-load-balancing-dns-cdn.md), and `kb/networking/06-dns.md` for the protocol). Combine the methods: geolocation to pick the legal region, latency inside the allowed set, and health checks to remove the failed region.
@@ -349,19 +370,27 @@ Replication ships the log in batches of 4 in the asynchronous cluster, so writes
 
 ??? question "What changes in your design when a law requires that user data stays in the EU?"
 
+    First I ask where the rule comes from: a national law, a customer contract, or a product decision. The GDPR itself restricts transfers out of the EEA and lists the conditions for them (Chapter V). It does not, by itself, forbid storage outside the EU. I design for the stated requirement, which here is "the data stays in the EU".
+
     I classify the data, then I give each user a home region inside the EU and keep all personal data in that region's cell: the database, the replicas, the backups, the logs and traces that contain identifiers, the search indexes, and the analytics copies. The recovery region must also be in the EU. A thin global directory maps user identifiers to home regions, and it holds no personal data. Routing sends requests to the home region, so I use geolocation or application-level routing and not only latency-based routing.
 
     This rules out "write local and replicate everywhere". Keys also live in the region, so deleting a key makes the regional data unreadable. Cross-region features (global search, a support tool, a traveling user) need an explicit, audited path with a legal basis. I add that I would ask a lawyer for the exact rule, because I design for the stated requirement and I do not guess the law.
 
 ??? question "Is active-active always better than active-passive?"
 
-    No. Active-active gives lower latency for distant users and near-zero RTO for an availability disaster. It costs more, it needs conflict handling or a home region design, and it makes each deployment, schema change, and incident more complex. It also does not remove the need for backups, because a corrupt write replicates to every region. A capacity trap hides in it: if two regions run at 60 percent each and one fails, the other must carry 120 percent. So each region needs headroom, or the failover needs load shedding.
+    No. Active-active gives lower latency for distant users and near-zero RTO for an availability disaster. It costs more, it needs conflict handling or a home region design, and it makes each deployment, schema change, and incident more complex. It also does not remove the need for backups, because a corrupt write replicates to every region. It also needs spare capacity: if two regions run at 60 percent each and one fails, the other must carry 120 percent. So each region needs headroom, or the failover needs load shedding.
 
-    Warm standby serves most products better. It is cheaper, it has one writer, and it reaches an RTO of minutes. I pick active-active when the RTO must be near zero, when users are global and latency decides the experience, or when the business case pays for it.
+    For a product that accepts an RTO of minutes, warm standby is the better fit. It is cheaper, it has one writer, and it reaches an RTO of minutes. I pick active-active when the RTO must be near zero, when users are global and latency decides the experience, or when the business case pays for it.
 
 ??? question "Why does synchronous cross-region replication hurt, and what do systems do instead?"
 
     Every commit waits for an acknowledgment from the remote region, so each write adds at least the round trip. New York to London is at least about 56 ms by physics (approximate), and real paths are higher. A partition or a slow link between the regions then blocks writes, or the system must give up the zero RPO. Most designs therefore replicate asynchronously and accept an RPO of the lag. Some designs use semi-synchronous replication inside a region or across nearby regions. Spanner and CockroachDB use consensus across regions and accept the latency on the commit path.
+
+??? question "You run three active regions. How much capacity does each need, and what else must you check before you call the design resilient to a region loss?"
+
+    With three regions that share the load evenly, each carries one third. If one region fails, the two survivors each carry one half, which is 1.5 times their normal load. So each region may run at most at two thirds of its capacity in steady state, and less if I want a margin after the failure: with a target of 80 percent after the failure, the steady limit is 0.8 x 2 / 3, about 53 percent. The general formula is `(N - 1) / N` times the post-failure target.
+
+    I would then check what the formula misses. The capacity must already run, because autoscaling is a control plane action and takes minutes. The database tier in the survivors must accept the extra writes and connections. Quotas in the survivors must allow the larger size. The caches of the survivors are cold for the moved users, so the database sees a burst of misses. The global routing must move the users within the RTO. If any of these fails, I plan load shedding for low-priority traffic and test the loss of a region in a game day.
 
 ### Follow-up Questions
 
@@ -386,7 +415,8 @@ Replication ships the log in batches of 4 in the asynchronous cluster, so writes
 - No fencing of the old primary, so split brain is possible.
 - A recovery region that has no capacity, no quota, or no cached data for the full load.
 - A failover that nobody tested.
-- Ignoring data residency, or placing the backup of EU data in another continent.
+- Ignoring a stated data residency requirement, for example by placing the backups of residency-bound data in another country.
+- "GDPR forbids storing EU data outside the EU." Chapter V restricts transfers and lists the conditions for them. It does not forbid them.
 - Assuming that DNS failover is instant.
 
 ## Common Mistakes
@@ -422,24 +452,30 @@ Replication ships the log in batches of 4 in the asynchronous cluster, so writes
 ## Quick Reference Card
 
 - **RPO:** data loss in time. **RTO:** downtime. Set them from the cost of downtime and of lost data, then test the actual values.
-- **Strategies (AWS):** backup and restore (hours), pilot light (data runs, app off), warm standby (scaled-down full stack), multi-site active/active (all regions serve). Cost and speed rise in that order.
+- **Strategies (AWS whitepaper, Figure 6, RPO / RTO):** backup and restore (hours), pilot light (tens of minutes: data runs, app off), warm standby (minutes: scaled-down full stack), multi-site active/active (real-time: all regions serve). Cost and speed rise in that order.
+- **GDPR (not legal advice):** Chapter V restricts transfers out of the EEA (adequacy, safeguards such as standard contractual clauses, binding corporate rules, derogations). A strict residency rule comes from a law, a contract, or a product decision.
 - **Replication is not a backup.** Keep point-in-time backups and versioning, in a separate account.
 - **RPO with async replication** equals the lag at the failure. **Sync replication** gives RPO zero and adds at least one cross-region round trip to every write (about 56 ms for New York to London, approximate).
 - **Active-active writes:** write global (one writer region), write local (conflicts, LWW or CRDTs), write partitioned (home region per user or tenant, preferred).
 - **Do not use LWW for money or inventory.**
 - **Failover steps:** detect, decide, fence the old primary, promote, scale, shift traffic, warm up. Use data plane actions.
 - **Automatic failover** risks false alarms. A common choice is a manual trigger with automated steps.
-- **Failback** is a second migration. Many teams make the recovery region the new primary.
+- **Failback** is a second migration. An alternative: make the recovery region the new primary.
 - **Residency:** classify data, assign a home region, keep all copies and keys in the region, keep the recovery region in the jurisdiction.
 - **Routing:** latency-based for speed, geolocation for law, failover for active-passive, anycast to avoid the DNS cache.
-- **Capacity:** after a region fails, the others carry its load. Size them for it.
+- **Capacity:** after one of N regions fails, each survivor carries `N / (N - 1)` times its load. Steady utilization at most `(N - 1) / N` of the post-failure target.
 
 ## Further Reading
 
 - AWS Whitepaper, "Disaster Recovery of Workloads on AWS: Recovery in the Cloud" (`https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-workloads-on-aws.html`). The four strategies, the data plane against control plane advice, write global, write local, and write partitioned, and testing.
+- AWS Whitepaper, "Disaster recovery options in the cloud" (`https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html`). Figure 6 with the RPO / RTO label for each strategy, the hot standby, the data plane failover options, and the three write strategies.
+- AWS Whitepaper, "Disaster recovery is different in the cloud" (`https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-is-different-in-the-cloud.html`). Single region against multiple regions, and the use of availability zones for residency-bound workloads.
+- Seth Eliot, "Disaster Recovery (DR) Architecture on AWS, Part I: Strategies for Recovery in the Cloud", AWS Architecture Blog, 2021 (`https://aws.amazon.com/blogs/architecture/disaster-recovery-dr-architecture-on-aws-part-i-strategies-for-recovery-in-the-cloud/`). The first post of a series that walks through each strategy.
 - AWS documentation, "Amazon Aurora Global Database" (`https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html`). Cross-region replication, lag, and regional promotion.
-- AWS documentation, "Amazon DynamoDB global tables" (`https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html`). Multi-region, multi-writer replication with last writer wins.
+- AWS documentation, "Amazon DynamoDB global tables" (`https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html`). Multi-region, multi-writer replication, with the eventual (last writer wins) and the strong consistency modes.
 - AWS documentation, "Choosing a routing policy" for Amazon Route 53 (`https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html`). Latency, geolocation, geoproximity, weighted, and failover routing.
+- AWS documentation, "Latency-based routing" for Amazon Route 53 (`https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-latency.html`). How Route 53 measures latency, and why the chosen region can change over time.
+- Regulation (EU) 2016/679 (GDPR), Chapter V, Articles 44 to 49 (`https://eur-lex.europa.eu/eli/reg/2016/679/oj`). The conditions for transfers of personal data to third countries.
 - Corbett et al., "Spanner: Google's Globally-Distributed Database", OSDI 2012. Synchronous cross-region replication with consensus.
 - Shapiro, Preguica, Baquero, Zawirski, "Conflict-free Replicated Data Types", 2011. The merge approach for active-active data.
 - Kleppmann, *Designing Data-Intensive Applications*, chapter 5 (multi-leader replication, conflict resolution) and chapter 8 (partial failure).

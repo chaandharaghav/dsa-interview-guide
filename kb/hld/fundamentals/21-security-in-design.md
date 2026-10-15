@@ -7,7 +7,7 @@ Security in a design is the set of decisions that decide who can call what, how 
 
 ## Why It Matters
 
-Interviewers add a security round-trip to many designs: "how do you authenticate the user?", "how do services trust each other?", "where is the data encrypted?" A senior answer puts each control at a named place in the diagram, says what it protects against, and says what remains. On the job, most breaches come from design gaps that a diagram review finds: a service that trusts any caller inside the network, a long-lived secret in a repository, one shared key for all data, or an endpoint without a limit. This page is a checklist of those places.
+Interviewers add security questions to many designs: "how do you authenticate the user?", "how do services trust each other?", "where is the data encrypted?" A senior answer puts each control at a named place in the diagram, says what it protects against, and says what remains. On the job, a diagram review finds design gaps that lead to breaches: a service that trusts any caller inside the network, a long-lived secret in a repository, one shared key for all data, or an endpoint without a limit. This page is a checklist of those places.
 
 ## Core Concepts
 
@@ -70,15 +70,15 @@ The edge is the first trust boundary. The gateway (or the edge service) authenti
 | API key | A static secret that identifies a client application | Rotate or delete the key | A lookup | Server-to-server calls from partners. Not for end users |
 | Mutual TLS client certificate | The client proves its identity with a certificate in the TLS handshake | Revoke or let the certificate expire | Certificate issuance and rotation | Service identity, and some partner APIs |
 
-Pitfalls to name: accept only the signature algorithms that you configure (never trust the `alg` field blindly), check the audience and the issuer, keep the access token lifetime short, do not store tokens in `localStorage` where script can read them (the choice between a cookie and storage is discussed in `kb/security/03-authorization-oauth-oidc-jwt.md`), and use the authorization code flow with PKCE for public clients. Passwords: the server stores a salted hash from a slow algorithm (see `kb/security/02-authentication.md`).
+Design points to name: the gateway accepts only the signature algorithms that it configures, checks the audience and the issuer, and the access token lifetime stays short. Browser and mobile clients use the authorization code flow with PKCE (Proof Key for Code Exchange). RFC 9700 states that public clients "MUST use PKCE" and recommends it for confidential clients. The JWT pitfalls, token storage in the browser, and password storage are in `kb/security/03-authorization-oauth-oidc-jwt.md` and `kb/security/02-authentication.md`.
 
 ### Service-to-Service Authentication
 
 A request that has passed the gateway still crosses more boundaries inside. A design that trusts "anything inside the private network" fails when one service is compromised: the attacker then calls every other service. Each service therefore authenticates its callers.
 
-**Mutual TLS (mTLS).** In normal TLS, the client verifies the server. In mTLS, the server also requests a certificate from the client and verifies it, so both sides know who the other is, and the channel is encrypted. TLS 1.3 (RFC 8446) supports client authentication with a client `Certificate` and `CertificateVerify` message in the handshake. The challenge is the lifecycle of the certificates: issue, distribute, rotate before expiry, and revoke. The common solution is a **service mesh** (Istio, Linkerd) or a sidecar proxy (Envoy) that issues short-lived certificates to each workload and terminates mTLS, so application code does not handle certificates (see [microservices and monoliths](14-microservices-and-monoliths.md)).
+**Mutual TLS (mTLS).** In normal TLS, the client verifies the server. In mTLS, the server also requests a certificate from the client and verifies it, so both sides know who the other is, and the channel is encrypted. In TLS 1.3 (RFC 8446), the server sends a `CertificateRequest` message, and the client answers with its `Certificate` and a `CertificateVerify` message (a signature over the handshake that proves that the client holds the private key). The challenge is the lifecycle of the certificates: issue, distribute, rotate before expiry, and revoke. The common solution is a **service mesh** (Istio, Linkerd) or a sidecar proxy (Envoy) that issues short-lived certificates to each workload and terminates mTLS, so application code does not handle certificates (see [microservices and monoliths](14-microservices-and-monoliths.md)).
 
-**Workload identity.** The identity of a service must not come from a network address or from a secret that an operator copies by hand. It comes from the platform: the system *attests* what a workload is (which node, which container image, which Kubernetes service account) and then issues a short-lived credential. **SPIFFE** (Secure Production Identity Framework for Everyone) standardizes this. A **SPIFFE ID** is a URI of the form `spiffe://trust-domain/path`, for example `spiffe://example.org/payments/api`. A **SVID** (SPIFFE Verifiable Identity Document) proves the identity, as an X.509 certificate (the ID in the URI SAN field) or as a JWT. A workload fetches its SVID from a local **Workload API**, with no secret in the configuration. **SPIRE** is the reference implementation that attests workloads and issues the SVIDs. Cloud providers offer similar mechanisms (for example IAM roles for service accounts), where the platform gives a workload a temporary credential.
+**Workload identity.** The identity of a service must not come from a network address or from a secret that an operator copies by hand. It comes from the platform: the system *attests* what a workload is (which node, which container image, which Kubernetes service account) and then issues a short-lived credential. **SPIFFE** (Secure Production Identity Framework for Everyone) standardizes this. A **SPIFFE ID** is a URI of the form `spiffe://trust-domain/path`, for example `spiffe://example.org/payments/api`. A **SVID** (SPIFFE Verifiable Identity Document) is "the document with which a workload proves its identity to a resource or caller" (spiffe.io). It has two formats: an X.509 certificate (an X.509-SVID) and a JWT (a JWT-SVID). An X.509-SVID carries the SPIFFE ID as a URI in the Subject Alternative Name (SAN) extension, and it "MUST contain exactly one URI SAN" (SPIFFE X.509-SVID standard). A **trust bundle** is the set of CA root certificates that a workload uses to verify the SVIDs of its peers. A workload fetches its SVID and the trust bundle from a local **Workload API**, and the Workload API does not require the workload to hold a secret or to know its own identity. **SPIRE** is "a production-ready implementation of the SPIFFE APIs". A SPIRE server is the signing authority for its trust domain. A SPIRE agent runs on each node, proves the node's identity to the server (*node attestation*), identifies each calling process from local sources such as the kernel or the kubelet (*workload attestation*), and serves the Workload API. Cloud providers offer similar mechanisms (for example IAM roles for service accounts), where the platform gives a workload a temporary credential.
 
 ```mermaid
 sequenceDiagram
@@ -86,11 +86,13 @@ sequenceDiagram
     participant A as SPIRE agent (on node)
     participant S as SPIRE server
     participant B as Service B
+    A->>S: Node attestation at agent start
+    S-->>A: Registration entries for this node
+    A->>S: Request SVIDs for the registered workloads
+    S-->>A: Signed short-lived X.509-SVIDs (agent caches them)
     W->>A: Workload API: fetch SVID
-    A->>A: Attest workload (node, process, labels)
-    A->>S: Request SVID for attested identity
-    S-->>A: Short-lived X.509 SVID
-    A-->>W: SVID and trust bundle
+    A->>A: Workload attestation (kernel, kubelet: process, pod labels)
+    A-->>W: SVID that matches the attested identity, and trust bundle
     W->>B: mTLS handshake with SVID
     B->>B: Verify chain with trust bundle, read SPIFFE ID
     B->>B: Authorize: may spiffe://example.org/A call this API?
@@ -108,18 +110,18 @@ Where the check runs decides what it can see and how it fails.
 | Gateway (coarse) | Is the token valid? Does the scope allow this route? Is the tenant active? | One place, rejects early, cheap | Cannot see the data, so it cannot decide "may this user read this order" |
 | Service (fine-grained) | Does this user own this order? Is the user a manager of that team? | Has the data and the business rules | Every service must implement it correctly |
 | Central policy engine (for example Open Policy Agent, or a relationship-based service in the style of Google Zanzibar) | A policy language evaluates the request, with data from the service | One policy, consistent and auditable | A network call or a sidecar, and policy data must be fresh |
-| Database (row-level security) | The database filters rows by the caller | A last line of defense against a missed check | Needs the user identity at the database, and it constrains the data model |
+| Database (row-level security) | The database filters rows by the caller | The final control that still works if a service misses a check | Needs the user identity at the database, and it constrains the data model |
 
-Recommendation: combine them. The gateway rejects invalid and out-of-scope requests (coarse). Each service decides object-level access (fine-grained), because only the service knows the data. Broken object-level authorization (a user changes an ID in the URL and reads another user's record) is the first item of the OWASP API Security Top 10 (see `kb/security/04-owasp-top-10.md`). Default to deny. Put the check in a shared library or a policy engine, and not in copied code. Models: RBAC (roles), ABAC (attributes), and relationship-based access (see `kb/security/03-authorization-oauth-oidc-jwt.md`).
+Recommendation: combine them. The gateway rejects invalid and out-of-scope requests (coarse). Each service decides object-level access (fine-grained), because only the service knows the data. Broken object level authorization (a user changes an ID in the URL and reads another user's record) is the first item, API1:2023, of the OWASP API Security Top 10 2023 (the OWASP Top 10 lists are covered in `kb/security/04-owasp-top-10.md`). Default to deny. Put the check in a shared library or a policy engine, and not in copied code. Models: RBAC (roles), ABAC (attributes), and relationship-based access (see `kb/security/03-authorization-oauth-oidc-jwt.md`).
 
 ### Encryption in Transit
 
 Encrypt every network hop that carries data: client to edge, edge to services, service to service, and service to database and queue. Use **TLS 1.3** (RFC 8446) where possible. Facts from the RFC:
 
-- TLS provides authentication, confidentiality, and integrity for a connection.
-- A full handshake takes one round trip (1-RTT). A resumed connection can send data in the first flight with *0-RTT early data*, and the RFC warns that 0-RTT data has no protection against replay, so use it only for idempotent requests.
-- TLS 1.3 removed static RSA key exchange and other legacy algorithms. Every key exchange uses an ephemeral Diffie-Hellman variant, which gives *forward secrecy*: a later leak of the server's long-term key does not decrypt recorded traffic.
-- The server authenticates with a certificate. The client may authenticate with a certificate too (mTLS).
+- TLS provides authentication, confidentiality, and integrity. The RFC states: "The server side of the channel is always authenticated; the client side is optionally authenticated." The client side is the mTLS case.
+- In a full handshake, the client sends application data after one round trip. The RFC calls this data *1-RTT data*.
+- A client that resumes with a pre-shared key (PSK) from an earlier connection can send *0-RTT early data* in its first flight. The RFC lists the cost: 0-RTT data "is not forward secret", and "there are no guarantees of non-replay between connections". Appendix E.5 says that replayable data is safe only if the application is "specifically engineered to be safe under replay (minimally, this means idempotent ...)". The RFC also states: "Application protocols MUST NOT use 0-RTT data without a profile that defines its use." Recommendation: leave 0-RTT off unless a profile allows it, and then accept it only for idempotent requests.
+- The RFC states: "Static RSA and Diffie-Hellman cipher suites have been removed; all public-key based key exchange mechanisms now provide forward secrecy." *Forward secrecy* means that a later leak of the server's long-term key does not decrypt recorded traffic. A resumption with a PSK alone, without a new (EC)DHE exchange, gives up forward secrecy for its data (RFC 8446, section 2.2).
 
 Where TLS ends is a design choice. **TLS termination** at the load balancer removes the cost from the services and lets the load balancer read the request for routing (see [load balancing, DNS and CDN](02-load-balancing-dns-cdn.md)). It leaves the traffic behind the load balancer in plain text unless you **re-encrypt** to the backend. For sensitive data, use TLS or mTLS from the load balancer to the service. In a service mesh, the sidecars encrypt the pod-to-pod traffic. Certificates: automate issuance and renewal (for example ACME), because an expired certificate is a common outage (see [observability in design](20-observability-in-design.md)). The protocol details are in `kb/networking/05-tls-and-https.md`.
 
@@ -162,13 +164,13 @@ sequenceDiagram
 
 Why envelope encryption and not "send the data to KMS":
 
-- **Size and speed.** The KMS `Encrypt` operation accepts a small payload (4 KB for AWS KMS with a symmetric key, from the API reference). Large objects use a local data key, with fast symmetric encryption on the application side. Only the small key travels to KMS.
+- **Size and speed.** The AWS KMS `Encrypt` operation "encrypts plaintext of up to 4,096 bytes" with a symmetric key (AWS KMS API Reference). RSA keys accept less, from 190 to 470 bytes, by key size and padding. Large objects use a local data key, with fast symmetric encryption on the application side. Only the small key travels to KMS.
 - **Cost and load.** One KMS call per object or per file is cheap compared with one call per byte. Quotas apply to KMS calls (the AWS KMS developer guide lists a shared quota for cryptographic operations). A cache of data keys (the AWS Encryption SDK offers it) lowers the call rate, at the price of a longer life of the plaintext key.
-- **Rotation.** To rotate the top key, re-encrypt the small data keys, not all the data. The AWS KMS guide names the benefit: you can re-encrypt only the data keys, instead of the raw data.
-- **Separation of duty and audit.** The KMS key policy controls who may decrypt, and the KMS logs every use. Deleting a key makes all data under it unreadable (crypto-shredding), which helps with deletion requests and residency (see [multi-region design and disaster recovery](19-multi-region-and-disaster-recovery.md)).
-- **Encryption context.** An authenticated, non-secret set of key-value pairs (for example the tenant ID) that KMS binds to the ciphertext. Decryption fails with a different context. It shows in the audit log. It stops a ciphertext from being replayed in the wrong place.
+- **Re-encryption under a new key.** To move data under a different KMS key (for example, a new tenant key or a key in another account), re-encrypt the small data keys, not the data. The AWS KMS guide names this benefit: "Instead of re-encrypting raw data multiple times with different keys, you can re-encrypt only the data keys that protect the raw data." Automatic rotation in AWS KMS is a different operation. AWS KMS generates new key material for the same KMS key, keeps all old key material, and decrypts each ciphertext with the material that encrypted it. The guide states: "Key rotation has no effect on the data that the KMS key protects. It does not rotate the data keys that the KMS key generated or re-encrypt any data protected by the KMS key." So rotation of the KMS key does not help if a data key leaks.
+- **Separation of duty and audit.** The KMS key policy controls who may decrypt, and the KMS logs every use. Deleting a key makes all data under it unreadable (crypto-shredding), which helps with deletion requests and residency (see [multi-region design and disaster recovery](19-multi-region-and-disaster-recovery.md)). AWS KMS deletes a key only after a waiting period of 7 to 30 days (default 30), and a data key that an application holds in plaintext in memory keeps working until the application drops it.
+- **Encryption context.** A set of non-secret key-value pairs (for example the tenant ID) that KMS uses as additional authenticated data. Decryption needs "the same (an exact case-sensitive match)" context, or it fails. The context stops a ciphertext from being used in the wrong place. The API reference warns that the context "may be displayed in plaintext in CloudTrail logs", so it must not hold confidential data.
 
-Design choices: one data key per object, per tenant, or per file; one KMS key per tenant, per service, or per environment; separate keys per region for residency. Per-tenant keys give a clean delete and isolation, and they raise the number of keys to manage. Rotation is annual or automatic in managed services. Back up the key material through the provider, and plan what happens if KMS is unavailable (a cache of data keys keeps reads alive for a while). The primitives (AES-GCM, key sizes, nonce rules) are in `kb/security/05-cryptography-basics.md`.
+Design choices: one data key per object, per tenant, or per file; one KMS key per tenant, per service, or per environment; separate keys per region for residency. Per-tenant keys give a clean delete and isolation, and they raise the number of keys to manage. AWS KMS rotates AWS managed keys every year. For customer managed keys, automatic rotation is optional, with a default period of 365 days that the owner can change, and on-demand rotation is also available. AWS KMS keeps the key material that it generates and deletes it only when the owner deletes the key, so the design does not back up that material. Plan what happens if KMS is unavailable: a cache of data keys keeps reads alive for a while. The primitives (AES-GCM, key sizes, nonce rules) are in `kb/security/05-cryptography-basics.md`.
 
 ### Secrets
 
@@ -256,6 +258,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import javax.crypto.AEADBadTagException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -272,7 +275,7 @@ public class Main {
         FakeKms.DataKey dk = kms.generateDataKey(context);
         byte[] stored = Aes.encrypt(dk.plainKey(), plain, context);
         byte[] storedKey = dk.encryptedKey();
-        Arrays.fill(dk.plainKey(), (byte) 0); // erase the plaintext data key
+        Arrays.fill(dk.plainKey(), (byte) 0); // best effort: SecretKeySpec keeps its own copy
 
         // Read path: ask KMS to decrypt the data key, then decrypt the data.
         byte[] key = kms.decryptDataKey(storedKey, context);
@@ -288,15 +291,17 @@ public class Main {
             context)));
         System.out.println("plaintext not in stored bytes: "
             + !new String(stored, StandardCharsets.ISO_8859_1).contains("4111"));
+        Arrays.fill(key, (byte) 0);
     }
 
-    interface Action { void run() throws Exception; }
+    interface Action { void run() throws GeneralSecurityException; }
 
-    static boolean fails(Action a) {
+    // True only if the GCM tag check rejects the input. Other errors still propagate.
+    static boolean fails(Action a) throws GeneralSecurityException {
         try {
             a.run();
             return false;
-        } catch (Exception e) {
+        } catch (AEADBadTagException e) {
             return true;
         }
     }
@@ -305,7 +310,8 @@ public class Main {
 class Aes {
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    // Output layout: 12-byte IV, then the ciphertext with the 16-byte tag.
+    // A fresh random 12-byte IV for every call. NIST SP 800-38D allows at most 2^32 calls
+    // per key with random IVs. Output layout: IV, then the ciphertext with the 16-byte tag.
     static byte[] encrypt(byte[] key, byte[] data, String aad) throws GeneralSecurityException {
         byte[] iv = new byte[12];
         RANDOM.nextBytes(iv);
@@ -364,13 +370,15 @@ plaintext not in stored bytes: true
 
 The stored record holds the ciphertext and the encrypted data key. An attacker who steals the database gets neither the key-encryption key nor the plaintext data key. Decrypting needs a call to the KMS, which checks the caller and logs the use.
 
+The AES-GCM rules that the code follows: each encryption uses a new 12-byte (96-bit) IV from `SecureRandom`, because GCM loses its confidentiality and its integrity if one key encrypts two messages with the same IV. The tag is 128 bits (`GCMParameterSpec(128, ...)`), and `doFinal` appends it to the ciphertext. The IV is not secret, so the code stores it in front of the ciphertext, and decryption reads it back from there. NIST SP 800-38D (section 8.3) limits a key to 2^32 encryptions when the IVs are random. A data key per object stays far below that limit. A key-encryption key that wraps many data keys counts every wrap. AWS KMS avoids this limit: it derives a separate 256-bit key for every encryption call with a key derivation function (AWS KMS cryptography essentials). The `fails` method catches only `AEADBadTagException`, so the output proves that the GCM tag check rejected the wrong context and the tampered byte. Erasing a key array in Java is best effort: `SecretKeySpec` copies the bytes, and the garbage collector may have moved copies. A real KMS client library limits how long the plaintext data key lives.
+
 ## Interview Angle
 
 ### Questions
 
 ??? question "Design the authentication and authorization for a system with a mobile app, a web app, and 30 microservices."
 
-    At the edge, users sign in at an identity provider with OpenID Connect and the authorization code flow with PKCE, with MFA for sensitive actions. The IdP issues a short-lived access token (about 5 to 15 minutes) and a refresh token. The clients send the access token over TLS to the API gateway. The gateway validates the signature, expiry, issuer, and audience locally with the cached public keys, enforces coarse scopes per route and the rate limits, and passes a verified identity to the services.
+    At the edge, users sign in at an identity provider with OpenID Connect and the authorization code flow with PKCE, with MFA for sensitive actions. The IdP issues a short-lived access token (assumption: 5 to 15 minutes, a common choice and not a standard) and a refresh token. The clients send the access token over TLS to the API gateway. The gateway validates the signature, expiry, issuer, and audience locally with the cached public keys, enforces coarse scopes per route and the rate limits, and passes a verified identity to the services.
 
     Inside, each service authenticates its caller with mutual TLS and a workload identity (SPIFFE or the platform's equivalent, issued by a mesh), so no service trusts the network. A service gets the user's identity from a forwarded or exchanged token. Each service checks object-level authorization (does this user own this order), because only the service has the data, with a shared library or a policy engine, and defaults to deny. Revocation: short token lifetimes, a deny list for emergencies, and refresh-token rotation. Everything sensitive writes an audit event. The remaining risks that I name: a stolen refresh token, a compromised service (limited by least privilege and per-service identity), and clock and key-rotation errors.
 
@@ -380,17 +388,17 @@ The stored record holds the ciphertext and the encrypted data key. An attacker w
 
 ??? question "Where do you put authorization checks in a microservice design?"
 
-    In layers. The gateway makes coarse decisions: valid token, required scope, active tenant. It rejects early and protects the services. Each service makes the fine-grained decision about the object and the business rule, because the gateway cannot see the data. A broken object-level check (changing an ID in the URL) is the top risk in the OWASP API Security Top 10, so I make it a rule that every data access passes through a check with the caller identity and the tenant. For rules that change often or span services, I use a central policy engine (OPA, or a relationship-based service like Zanzibar) with local caching of decisions, and I accept the consistency and latency cost. Optionally I add row-level security in the database as a last line. Default to deny, and log the denials.
+    In layers. The gateway makes coarse decisions: valid token, required scope, active tenant. It rejects early and protects the services. Each service makes the fine-grained decision about the object and the business rule, because the gateway cannot see the data. A broken object-level check (changing an ID in the URL) is API1:2023, the first risk in the OWASP API Security Top 10 2023, so I make it a rule that every data access passes through a check with the caller identity and the tenant. For rules that change often or span services, I use a central policy engine (OPA, or a relationship-based service like Zanzibar) with local caching of decisions, and I accept the consistency and latency cost. Optionally I add row-level security in the database, which still filters rows if a service misses a check. Default to deny, and log the denials.
 
 ??? question "Explain envelope encryption and why a system uses it with a KMS."
 
     The application asks the KMS for a data key. The KMS returns the key in plaintext and encrypted under a KMS key that never leaves the KMS hardware. The application encrypts the data locally with the plaintext data key (AES-GCM), erases that key from memory, and stores the ciphertext together with the encrypted data key. To read, the application sends the encrypted data key to the KMS, which decrypts it if the caller's policy allows it, and then the application decrypts the data.
 
-    The reasons: the KMS accepts only small payloads (4 KB for the AWS KMS `Encrypt` call), and bulk encryption is cheaper locally; one KMS call per object, not per byte, keeps cost and load low; rotation re-encrypts the small data keys and not the data; the KMS enforces who may decrypt and logs each use; and deleting the KMS key makes the data unreadable (crypto-shredding). An encryption context binds the ciphertext to its purpose, such as a tenant ID. Trade-offs: the KMS is now a dependency on the read path (so I plan for its failure, with a short-lived data key cache), and the number of keys and the quotas need design.
+    The reasons: the KMS accepts only small payloads (up to 4,096 bytes for the AWS KMS `Encrypt` call with a symmetric key), and bulk encryption is cheaper locally; one KMS call per object, not per byte, keeps cost and load low; a move to a new KMS key re-encrypts the small data keys and not the data; the KMS enforces who may decrypt and logs each use; and deleting the KMS key makes the data unreadable after the waiting period (crypto-shredding). Automatic rotation of the KMS key keeps the old key material, so it re-encrypts nothing and old data keys still decrypt. An encryption context binds the ciphertext to its purpose, such as a tenant ID. Trade-offs: the KMS is now a dependency on the read path (so I plan for its failure, with a short-lived data key cache), and the number of keys and the quotas need design.
 
 ??? question "What do you encrypt in transit and at rest, and what does each protect against?"
 
-    In transit, every hop: client to edge with TLS 1.3, edge to service, service to service (mTLS), and service to data stores. TLS gives confidentiality, integrity, and authentication of the server, and with TLS 1.3 forward secrecy for every connection. Without internal encryption, an attacker on the network or a compromised host reads the traffic. At rest: volumes, backups, snapshots, object storage, and queues, with keys in a KMS. This protects against stolen disks and leaked backups. It does not protect against an attacker who uses the running application with valid credentials, because the disk is decrypted for the running server. For the most sensitive fields (card numbers, national IDs), I add field-level encryption or tokenization, so a database breach yields ciphertext. I state what remains: the application and its credentials, which is why I add least privilege, audit, and secrets management.
+    In transit, every hop: client to edge with TLS 1.3, edge to service, service to service (mTLS), and service to data stores. TLS gives confidentiality, integrity, and authentication of the server. With TLS 1.3, every public-key key exchange gives forward secrecy. The exceptions are 0-RTT early data and a resumption with a pre-shared key alone, so I leave 0-RTT off unless a profile defines its use and the requests are idempotent. Without internal encryption, an attacker on the network or a compromised host reads the traffic. At rest: volumes, backups, snapshots, object storage, and queues, with keys in a KMS. This protects against stolen disks and leaked backups. It does not protect against an attacker who uses the running application with valid credentials, because the disk is decrypted for the running server. For the most sensitive fields (card numbers, national IDs), I add field-level encryption or tokenization, so a database breach yields ciphertext. I state what remains: the application and its credentials, which is why I add least privilege, audit, and secrets management.
 
 ??? question "How do you protect a public API from abuse and DDoS?"
 
@@ -467,9 +475,9 @@ The stored record holds the ciphertext and the encrypted data key. An attacker w
 - **Edge:** TLS 1.3, WAF and DDoS protection, gateway authenticates (validate signature, expiry, issuer, audience), coarse authorization, rate limit, validate input.
 - **Inside:** mTLS with workload identity (SPIFFE ID in an SVID, SPIRE issues it), authorize each call, pass the user identity as a verified token.
 - **Authorization:** coarse at the gateway, object-level in the service, a policy engine for shared rules, default deny.
-- **Transit:** TLS 1.3 gives 1-RTT handshakes and forward secrecy. 0-RTT data can replay. Re-encrypt behind a terminating load balancer for sensitive data.
+- **Transit:** TLS 1.3 gives 1-RTT full handshakes and forward secrecy for every public-key exchange. 0-RTT data is not forward secret and can replay, so use it only under a profile and for idempotent requests. Re-encrypt behind a terminating load balancer for sensitive data.
 - **At rest:** volume encryption by default, field-level for the most sensitive data, keys in a KMS.
-- **Envelope encryption:** a data key encrypts the data, the KMS key encrypts the data key. Store the encrypted key with the data. Rotate by re-encrypting data keys. Use an encryption context.
+- **Envelope encryption:** a data key encrypts the data, the KMS key encrypts the data key. Store the encrypted key with the data. Move to a new KMS key by re-encrypting the data keys. KMS rotation keeps old key material and re-encrypts nothing. Use an encryption context, with no secrets in it.
 - **Secrets:** a secrets manager, workload identity to fetch them, short-lived dynamic credentials, rotation, no secrets in code or logs.
 - **Abuse:** CDN and anycast edge, WAF, per-key and per-user limits, strict limits on login and reset, backoff for clients.
 - **Validation:** server-side, at every boundary, a schema, size bounds, allow lists, parameterized queries, SSRF allow lists.
@@ -481,10 +489,14 @@ The stored record holds the ciphertext and the encrypted data key. An attacker w
 
 - RFC 8446, "The Transport Layer Security (TLS) Protocol Version 1.3" (`https://www.rfc-editor.org/rfc/rfc8446`). The handshake, forward secrecy, 0-RTT replay warning, and client authentication.
 - AWS Key Management Service Developer Guide, "AWS KMS cryptography essentials" (`https://docs.aws.amazon.com/kms/latest/developerguide/kms-cryptography.html`). Envelope encryption and its benefits, and the KMS operations.
-- AWS KMS API Reference, `Encrypt` and `GenerateDataKey` (`https://docs.aws.amazon.com/kms/latest/APIReference/`). The payload size limit and the data key operation.
-- SPIFFE documentation, "SPIFFE Concepts" (`https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/`). SPIFFE ID, SVID, Workload API, trust domain, and SPIRE.
-- RFC 8693, "OAuth 2.0 Token Exchange". Exchanging a user token for a service-specific token.
-- RFC 9700, "Best Current Practice for OAuth 2.0 Security". Current guidance for token and flow security.
-- OWASP API Security Top 10 (`https://owasp.org/API-Security/`). Object-level authorization and the other API risks.
-- NIST SP 800-207, "Zero Trust Architecture". The zero-trust model.
+- AWS KMS API Reference, `Encrypt` (`https://docs.aws.amazon.com/kms/latest/APIReference/API_Encrypt.html`) and `GenerateDataKey`. The payload size limits, the encryption context, and the data key operation.
+- AWS KMS Developer Guide, "Rotate AWS KMS keys" (`https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html`) and "Delete an AWS KMS key" (`https://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html`). What rotation does and does not do, and the deletion waiting period.
+- NIST SP 800-38D, "Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC", 2007 (`https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf`). The IV uniqueness rule and the limit on invocations per key with random IVs (section 8.3).
+- SPIFFE documentation, "SPIFFE Concepts" (`https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/`). SPIFFE ID, SVID, Workload API, and trust bundle.
+- SPIFFE documentation, "SPIRE Concepts" (`https://spiffe.io/docs/latest/spire-about/spire-concepts/`). The SPIRE server and agent, node attestation, and workload attestation.
+- SPIFFE standard, "X509-SVID" (`https://github.com/spiffe/spiffe/blob/main/standards/X509-SVID.md`). The SPIFFE ID in the URI SAN.
+- RFC 8693, "OAuth 2.0 Token Exchange" (`https://www.rfc-editor.org/rfc/rfc8693`). Exchanging a user token for a service-specific token.
+- RFC 9700, "Best Current Practice for OAuth 2.0 Security", 2025 (`https://www.rfc-editor.org/rfc/rfc9700`). Current guidance for token and flow security, including PKCE.
+- OWASP API Security Top 10 2023 (`https://api-security.owasp.org/editions/2023/en/0x11-t10/`). API1:2023 Broken Object Level Authorization and the other API risks.
+- NIST SP 800-207, "Zero Trust Architecture", 2020 (`https://csrc.nist.gov/pubs/sp/800/207/final`). The zero-trust model.
 - Related pages: [scalability and availability](01-scalability-and-availability.md), [load balancing, DNS and CDN](02-load-balancing-dns-cdn.md), [message queues and streams](08-message-queues-and-streams.md), [communication patterns](09-communication-patterns.md), [reliability patterns](12-reliability-patterns.md), [rate limiting algorithms](13-rate-limiting-algorithms.md), [microservices and monoliths](14-microservices-and-monoliths.md), [multi-region design and disaster recovery](19-multi-region-and-disaster-recovery.md), [observability in design](20-observability-in-design.md), `kb/security/01-security-fundamentals.md`, `kb/security/02-authentication.md`, `kb/security/03-authorization-oauth-oidc-jwt.md`, `kb/security/04-owasp-top-10.md`, `kb/security/05-cryptography-basics.md`, `kb/security/06-secure-coding-in-java.md`, `kb/security/07-infrastructure-security.md`.

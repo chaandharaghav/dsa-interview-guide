@@ -23,9 +23,11 @@ A design interview that ends at "and we add monitoring" loses points. Senior int
 
 **SLI** (service level indicator): a measurement of the behavior of a service, such as the share of requests that succeed in under 300 ms. **SLO** (service level objective): the target for an SLI over a window, such as 99.9 percent over 30 days. **Error budget**: `1 - SLO`, the amount of failure that the SLO permits. A 99.9 percent SLO over 30 days leaves a budget of 0.1 percent, which is 43.2 minutes of full outage (30 x 24 x 60 x 0.001). See [scalability and availability](01-scalability-and-availability.md).
 
-**Symptom and cause**: the Google SRE book chapter "Monitoring Distributed Systems" says a monitoring system answers two questions: what is broken (the symptom) and why (the cause). Alert on symptoms that users feel. Use cause-level data to diagnose.
+**Symptom and cause**: the Google SRE book chapter "Monitoring Distributed Systems" states: "Your monitoring system should address two questions: what's broken, and why?" The chapter explains that "what's broken" indicates the symptom and "why" indicates a (possibly intermediate) cause. Recommendation: alert on symptoms that users feel, and use cause-level data to diagnose.
 
-**Black-box and white-box monitoring**: black-box monitoring tests the system from outside, as a user does (a synthetic probe). White-box monitoring uses internal data (metrics, logs, traces). The SRE book advises both.
+**Histogram**: a metric that counts observations in buckets (for example, requests faster than 100 ms, 250 ms, 500 ms). The metrics store adds the bucket counts of all instances and then estimates a percentile from the sum. A percentile that each instance computes on its own cannot be averaged across instances.
+
+**Black-box and white-box monitoring**: black-box monitoring tests the system from outside, as a user does (a synthetic probe). White-box monitoring uses internal data (metrics, logs, traces). The SRE book describes Google's practice as "heavy use of white-box monitoring with modest but critical uses of black-box monitoring".
 
 ## How It Works
 
@@ -40,13 +42,13 @@ The Google SRE book chapter "Monitoring Distributed Systems" names four signals.
 | Errors | The rate of requests that fail, explicitly (HTTP 500), implicitly (HTTP 200 with a wrong body), or by policy (a response slower than a limit counts as an error) | 5xx ratio, timeouts, failed payments | Count the failures that the user sees, not only the status code |
 | Saturation | How full the service is. It emphasizes the resource that constrains the service most | Queue depth, thread-pool use, disk fill, memory, connection-pool use | Many systems degrade before they reach 100 percent. Set the alert below the limit |
 
-The book also says: if you measure all four and page when one is bad (or nearly bad, for saturation), the service is in decent shape.
+The book states: "If you measure all four golden signals and page a human when one signal is problematic (or, in the case of saturation, nearly problematic), your service will be at least decently covered by monitoring."
 
 ### RED and USE in Brief
 
 Two shorter recipes cover most services.
 
-**RED method** (Tom Wilkie, Grafana Labs): for each *service* that handles requests, measure **R**ate (requests per second), **E**rrors (failed requests per second), and **D**uration (the distribution of request time). RED is the golden signals without saturation, aimed at request-driven microservices. It gives each service the same dashboard.
+**RED method** (Tom Wilkie, who devised it in 2015 and presented it at GrafanaCon EU 2018): for each *service* that handles requests, measure **R**ate (requests per second), **E**rrors (failed requests per second), and **D**uration (the distribution of request time). RED is the golden signals without saturation, aimed at request-driven microservices. It gives each service the same dashboard.
 
 **USE method** (Brendan Gregg): for each *resource* (CPU, memory, disk, network interface, thread pool, connection pool), measure **U**tilization (the share of time or capacity in use), **S**aturation (the amount of queued work that the resource cannot serve), and **E**rrors (the count of error events). USE finds resource bottlenecks.
 
@@ -57,7 +59,7 @@ Two shorter recipes cover most services.
 | Question | Are requests healthy? | Is any resource overloaded or failing? | Is the service healthy for users, and how close to the limit? |
 | Use it for | Microservice dashboards and alerts on symptoms | Capacity and bottleneck diagnosis | Alerts, and the first dashboard of a service |
 
-Rule of thumb: RED for the services, USE for the machines and pools under them. The golden signals combine both views. The home page for the method details is `kb/engineering-practice/08-observability.md`.
+Recommendation: use RED for the services, and USE for the machines and pools under them. The golden signals combine both views. The home page for the method details is `kb/engineering-practice/08-observability.md`.
 
 ### Where Telemetry Sits in a Design
 
@@ -109,6 +111,44 @@ flowchart LR
 
 **Estimate the telemetry volume.** An interview answer gains weight with a number. Example (assumptions): 200 service instances, each with 500 time series scraped every 15 s. Samples per second: 200 x 500 / 15 = 6 667. At about 2 bytes per compressed sample (Prometheus documents about 1 to 2 bytes per sample), 6 667 x 2 bytes x 86 400 s is about 1.15 GB per day, which is small. Logs dominate the cost: 10 000 requests per second at 1 KB per request is 10 MB/s, which is 864 GB per day. That is why logs get sampling, short retention for debug detail, and structured fields only for what you query.
 
+### Choosing SLIs
+
+An SLO cannot be better than the SLI that it uses: if the SLI counts the wrong events, the SLO tracks the wrong thing. The SRE Workbook chapter "Implementing SLOs" recommends one form for every SLI: the number of good events divided by the number of valid events. The SLI then runs from 0 percent ("nothing works") to 100 percent ("nothing is broken"), and the same burn-rate alerts work for every SLI.
+
+The Workbook gives an "SLI menu" by type of component:
+
+| Component type | SLI types | Example SLI in a design |
+|---|---|---|
+| Request-driven (an API, a web front end) | Availability, latency, quality | The share of `POST /orders` requests that return a non-5xx status. The share of `GET /feed` requests served in under 300 ms. The share of responses served without degradation (for example, not from a fallback that drops recommendations) |
+| Pipeline (a batch job, a stream processor, a queue consumer) | Freshness, correctness, coverage | The share of records processed within 10 minutes of their arrival. The share of output records that pass a correctness check. The share of input partitions processed in the last run |
+| Storage (a database, an object store) | Durability | The share of written objects that the system can read back. A sampling job that reads old objects checks it |
+
+The place where you measure the SLI decides what it sees. The Workbook compares four places:
+
+| Measured at | Sees | Misses or costs |
+|---|---|---|
+| Application server logs or metrics | The detail of each request in the service | Requests that fail before they reach the backend (a load balancer fault, a crashed process) |
+| Load balancer | Every request that reaches the site, close to the user's experience | Failures before the load balancer (DNS, the client network) |
+| Black-box probe | Failures of the full path, including DNS and TLS | Problems that affect only a subset of users, because the probe sends a few synthetic requests |
+| Client-side instrumentation (browser, mobile app) | The experience of the user, including the client network | Code changes in the client, its own telemetry path, and noise from slow user networks |
+
+Recommendation: in an interview, measure the main SLIs at the load balancer or the gateway, add a black-box probe for the full path, and name client-side data as the next step for a mobile or web product.
+
+**Worked example: what to measure for a checkout service.** Assumptions: a `POST /checkout` endpoint behind a gateway, a payment provider call, an orders database, and a queue that feeds an email worker.
+
+| Component | Signal (type) | SLI or threshold | Alert |
+|---|---|---|---|
+| Gateway, `POST /checkout` | Availability (errors) | Good = status not 5xx and not a timeout. SLO 99.9 percent over 30 days | Burn-rate pages and ticket (next section) |
+| Gateway, `POST /checkout` | Latency | Good = served in under 1 s. SLO 99 percent over 30 days | Burn-rate pages and ticket |
+| Gateway | Traffic | Requests per second, compared with the same hour last week | Page if traffic drops by more than half for 10 minutes (a silent outage that the error SLI cannot see) |
+| Checkout service | Saturation | Thread-pool and connection-pool use, with the wait time to acquire | Dashboard. Cause alert only if the wait time grows for 10 minutes |
+| Payment provider call | Errors and latency of the dependency | Error ratio and p99 per provider | Dashboard. The SLO alert on checkout covers the user impact |
+| Orders database | Saturation, replication lag | Connections, lock waits, replication lag in seconds | Page if the lag exceeds the RPO (see [multi-region design and disaster recovery](19-multi-region-and-disaster-recovery.md)) |
+| Email queue and worker | Freshness (pipeline) | Good = email sent within 5 minutes of the order. SLO 99 percent | Ticket on a slow burn. Page if the oldest message is older than 30 minutes |
+| Outside probe | Black-box availability | A scripted checkout with a test card from three regions, every minute | Page if two regions fail |
+
+All thresholds in the table are assumptions for the example. The table shows the method: one SLI per user-visible behavior, saturation and dependency data on dashboards, and a few cause alerts for failures that need action before users see them.
+
 ### SLO-Based Alerting
 
 Alert on the user-visible symptom that threatens the SLO, not on every cause. The SRE Workbook chapter "Alerting on SLOs" builds this in steps, and the last step is the one to propose in an interview.
@@ -139,7 +179,12 @@ flowchart TD
 
 **Properties.** Fast, severe failures page within minutes. Slow, mild burns page later or create a ticket. Short blips that spend little budget do not page. For a low-traffic service, the Workbook discusses other options, such as combining services or generating synthetic traffic.
 
-**Other alert rules for design.** Alert on symptoms (golden signals, the SLO burn rate). Add a small set of cause alerts only for failures that need action before users see them: a disk that fills in hours, a certificate that expires in days, replication lag above the RPO, a queue with no consumers. The SRE book states the guideline that every page must be actionable and urgent, and each page should need intelligence from the responder, not a robotic response.
+**Other alert rules for design.** Alert on symptoms (golden signals, the SLO burn rate). Add a small set of cause alerts only for failures that need action before users see them: a disk that fills in hours, a certificate that expires in days, replication lag above the RPO, a queue with no consumers. The SRE book chapter "Monitoring Distributed Systems" gives four rules for pages, in its section "Tying These Principles Together":
+
+- "Every time the pager goes off, I should be able to react with a sense of urgency."
+- "Every page should be actionable."
+- "Every page response should require intelligence. If a page merely merits a robotic response, it shouldn't be a page."
+- "Pages should be about a novel problem or an event that hasn't been seen before."
 
 ### Capacity Signals
 
@@ -254,7 +299,7 @@ The scenario "outage ended" shows the reset time: the two page rules stop firing
 
 ??? question "Why are percentiles and not averages the right latency measure, and how do you alert on latency?"
 
-    An average hides the tail. If 1 percent of requests take 5 s and 99 percent take 50 ms, the average is about 100 ms and looks fine, but one in a hundred users waits 5 s, and in a system where a page makes many calls, most pages hit a slow call ("The Tail at Scale"). So I measure p50, p99, and p99.9 from histograms. Percentiles do not average across instances, so the metrics system must aggregate histogram buckets and compute the percentile after that.
+    An average hides the tail. If 1 percent of requests take 5 s and 99 percent take 50 ms, the average is about 100 ms and looks fine, but one in a hundred users waits 5 s, and in a system where one user request fans out to many calls, many user requests hit a slow call. With 100 calls per request and a 1 percent chance of a slow call each, the chance that a request meets at least one slow call is 1 - 0.99^100, which is about 63 percent ("The Tail at Scale" gives this example). So I measure p50, p99, and p99.9 from histograms. Percentiles do not average across instances, so the metrics system must aggregate histogram buckets and compute the percentile after that.
 
     For alerts, I make latency an SLI: the share of requests faster than a threshold (for example 300 ms), with an SLO (99 percent). A slow response then counts against the error budget, and the burn-rate alert applies in the same way as for errors. The SRE book also says to track the latency of failed requests apart, because a fast failure improves the average and hides the problem.
 
@@ -274,6 +319,12 @@ The scenario "outage ended" shows the reset time: the two page rules stop firing
 
     I watch saturation signals, not only utilization: CPU run queue, memory and GC time, thread-pool and connection-pool use and wait time, request queue depth, message queue depth and consumer lag, database connections, lock waits and replication lag, and the hit ratio of the cache. I compare throughput with the limit from a load test. I keep headroom: with 4 instances that must survive the loss of one, each runs at no more than 75 percent. I autoscale on a signal that leads the problem (queue depth or request rate per instance), and I forecast the date on which storage or throughput reaches the limit, as a ticket.
 
+??? question "How do you choose SLIs for a service and for a data pipeline in your design?"
+
+    I write each SLI as good events over valid events, so it runs from 0 to 100 percent and the same alerting works for all of them. For a request-driven service, the SLI types are availability (the share of requests that do not fail), latency (the share served under a threshold, such as 300 ms), and quality (the share served without degradation). For a pipeline, the SLI types are freshness (the share of records processed within a time limit), correctness (the share of output that passes a check), and coverage (the share of input that the run processed). For storage, the SLI type is durability (the share of written data that reads back). This is the SLI menu of the SRE Workbook.
+
+    Then I say where I measure. Server metrics miss requests that never reach the server. The load balancer sees every request that reaches the site, so I use it for the main SLIs. A black-box probe catches DNS and TLS faults but sees only its synthetic requests. Client-side data is closest to the user but needs client code and its own pipeline. I pick SLO targets from what users need and from the history of the service, not 100 percent, because the error budget pays for releases and experiments.
+
 ### Follow-up Questions
 
 ??? question "A dashboard shows all green, but users complain. What went wrong?"
@@ -282,7 +333,7 @@ The scenario "outage ended" shows the reset time: the two page rules stop firing
 
 ??? question "How do you keep the observability system from failing together with the system?"
 
-    Run it apart from the workload (another account, cluster, or region where the budget allows), buffer and drop under load rather than block requests, avoid a dependency on the failed component for alert delivery, and monitor the monitoring: a heartbeat alert ("dead man's switch") that pages when it stops arriving. Test the path in the disaster recovery game day.
+    Run it apart from the workload (another account, cluster, or region where the budget allows), buffer and drop under load rather than block requests, avoid a dependency on the failed component for alert delivery, and monitor the monitoring: a heartbeat alert: an alert rule that always fires on purpose, and an external service that pages when the heartbeat stops arriving. Test the path in the disaster recovery game day.
 
 ??? question "How do you design the audit of who did what, and how is it different from logging?"
 
@@ -347,7 +398,8 @@ The scenario "outage ended" shows the reset time: the two page rules stop firing
 - Beyer et al., *Site Reliability Engineering*, chapter 6, "Monitoring Distributed Systems" (`https://sre.google/sre-book/monitoring-distributed-systems/`). The four golden signals, symptoms against causes, and the paging guidelines.
 - Beyer et al., *The Site Reliability Workbook*, chapter 5, "Alerting on SLOs" (`https://sre.google/workbook/alerting-on-slos/`). Burn rate, and the multiwindow, multi-burn-rate alerts.
 - Brendan Gregg, "The USE Method" (`https://www.brendangregg.com/usemethod.html`). The method and its resource checklists.
-- Tom Wilkie, "The RED Method: How to Instrument Your Services", Grafana Labs blog and talk, 2018. The origin of RED.
+- Tom Wilkie, "The RED Method: How to Instrument Your Services", Grafana Labs blog, 2018 (`https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/`). A recap of the talk that presents RED.
+- Google, *The Site Reliability Workbook*, chapter 2, "Implementing SLOs" (`https://sre.google/workbook/implementing-slos/`). SLIs as good events over valid events, the SLI menu, and where to measure.
 - W3C, "Trace Context" Recommendation (`https://www.w3.org/TR/trace-context/`). The `traceparent` header.
 - OpenTelemetry documentation (`https://opentelemetry.io/docs/`). The vendor-neutral standard for metrics, logs, and traces.
 - Dean and Barroso, "The Tail at Scale", Communications of the ACM, 2013. Why percentiles matter in a fan-out system.
