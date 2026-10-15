@@ -73,7 +73,12 @@ The user said: do not start any more agents. Running agents finish on their own:
 
 S11 drafted, NOT reviewed (WIP commit). Points for its future Opus review: FIX tag numbers and message types from memory (35=D/F/G/8/9, tags 11, 54, 38, 40, 44, 59, 150, 39, 37, 32, 31, 151, 14, session messages); ITCH Order Replace and message P semantics; Photon (SIGMOD 2013) IdRegistry and Paxos details; Mesa (VLDB 2014) versions; the Flink windows docs URL; SEC Rule 15c3-5 text; the Disruptor multi-producer claim; A/B redundant feeds.
 
-When the session resumes: ask the user before starting agents. Still to do for HLD: Opus reviews of S11 and S12 drafts; Batch 6 (cheatsheet, practice page, `kb/hld/README.md` index, `kb/hld/.nav.yml`, glossary terms, study-plan HLD track, home-page status). Reviewed and committed case studies so far: 01–06, 09–12.
+S12 drafted, NOT reviewed (WIP commit; all checks and Mermaid pass). Points for its future Opus review:
+- Page 23 (email): RFC section numbers cited from memory (RFC 5321 6.3; RFCs 3501, 1870, 2033, 5965, 3464, 3207); SMTP reply codes 450, 451, 452; the 5-minute first retry (an assumption that departs from the RFC 30-minute advice).
+- Page 24 (flash sale): Redis, Queue-it and PolarDB-X URLs (from memory or search results); the 100,000 ops/s per Redis shard assumption; the Alibaba hot-row claims (one blog opened).
+- Page 25 (code judge): Judge0 default limits (the changelog and the docs disagree); MOSS from memory; the ICPC rules link is the home page only; the Judge0 architecture claims.
+
+When the session resumes: ask the user before starting agents. Still to do for HLD: Opus reviews of S11 and S12 drafts; Batch 6 (cheatsheet, practice page, `kb/hld/README.md` index, `kb/hld/.nav.yml`, glossary terms, study-plan HLD track, home-page status). Reviewed and committed case studies so far: 01–06, 09–13, 16.
 
 ## RESUMED (2026-10-15, after a stop)
 
