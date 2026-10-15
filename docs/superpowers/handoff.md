@@ -67,6 +67,18 @@ Any agent that was running at save time may have stopped partway. In the next se
 Fundamentals 09 and 10: reviewed and committed. All Batch 1 and Batch 2 pages are done. Mermaid check passed for C1 to C5.
 Case-study files are not committed until their review finishes. If the session stops, run `git status` to see the drafted folders, then review the ones whose review did not finish.
 
+## STOPPED HERE (2026-10-15, user request)
+
+The user stopped the session to save usage. No agent is running.
+
+**Reviewed and committed (HLD fundamentals):** 03, 04, 05, 06, 07, 08, 09, 10.
+
+**Drafted but NOT reviewed** (saved in a WIP commit; their reviewers were stopped partway, so a page may contain a partial reviewer edit): fundamentals 01, 02 (H1), 11, 12 (H7), 13, 14 (H8), 15, 16 (H9), 17, 18 (H10), 19, 20, 21 (H11), and distributed-systems 01, 02 (D1). Each needs a fresh Opus review (the user chose Opus reviews for all HLD pages). The unverified points for H8 to H11 and D1 are listed below. For H1 and H7, the review prompts listed: Tail at Scale figures, HAProxy options, Nginx `least_time`, Java `networkaddress.cache.ttl` (H1); Resilience4j aspect order, Envoy retry budgets, `grpc-timeout`, Idempotency-Key draft, Lucene BM25 `(k1+1)` factor, OpenSearch fork (H7).
+
+**Not started:** D2, D3, P1 (procedure pages), S1 to S12 (25 case studies), Batch 6 (cheatsheet, practice page, index, nav, glossary, study plan).
+
+**Resume rules:** about 5 agents at a time; Opus reviewers for every HLD page; stop after HLD and tell the user; then the main session moves to Sonnet and P2/P3 pages get Sonnet reviewers.
+
 ## Phase 1 Batch 5 and Phase 2 Status (session 2)
 
 - LLD Batch 5: done and committed.
