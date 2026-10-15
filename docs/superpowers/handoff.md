@@ -67,9 +67,9 @@ Any agent that was running at save time may have stopped partway. In the next se
 Fundamentals 09 and 10: reviewed and committed. All Batch 1 and Batch 2 pages are done. Mermaid check passed for C1 to C5.
 Case-study files are not committed until their review finishes. If the session stops, run `git status` to see the drafted folders, then review the ones whose review did not finish.
 
-## STOPPED HERE (2026-10-15, user request)
+## RESUMED (2026-10-15, after a stop)
 
-The user stopped the session to save usage. No agent is running.
+The user stopped the session once to save usage, then resumed it. Running after the resume: Opus reviews of H1, H7, H8, H9; Sonnet drafter D2. Queued: reviews of H10, H11, D1; drafter D3, P1, S1 to S12.
 
 **Reviewed and committed (HLD fundamentals):** 03, 04, 05, 06, 07, 08, 09, 10.
 
