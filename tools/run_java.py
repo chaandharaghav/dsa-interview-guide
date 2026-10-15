@@ -259,9 +259,9 @@ def main(argv: list) -> int:
             program_failures += 1
             print(error + "\n")
     print(f"java: {len(to_compile) - failures}/{len(to_compile)} blocks pass "
-          f"({len(runnable)} programs run), "
-          f"{len(skipped)} fragments skipped, "
-          f"{len(programs) - program_failures}/{len(programs)} programs match")
+          f"({len(runnable)} main() blocks run, output checked where an expected-output "
+          f"block follows), {len(skipped)} fragments skipped, "
+          f"case-study Main.java: {len(programs) - program_failures}/{len(programs)} match")
     return 1 if failures or program_failures else 0
 
 
