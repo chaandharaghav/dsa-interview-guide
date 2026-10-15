@@ -1,0 +1,45 @@
+nav:
+  - Overview: README.md
+  - how-to-approach-lld.md
+  - machine-coding-round.md
+  - cheatsheet.md
+  - Fundamentals:
+      - "01 · OOP": fundamentals/01-oop.md
+      - "02 · SOLID": fundamentals/02-solid.md
+      - "03 · Design Principles": fundamentals/03-design-principles.md
+      - "04 · UML Diagrams": fundamentals/04-uml-class-and-sequence-diagrams.md
+      - "05 · Domain Modeling": fundamentals/05-domain-modeling.md
+      - "06 · Creational Patterns": fundamentals/06-creational-patterns.md
+      - "07 · Structural Patterns": fundamentals/07-structural-patterns.md
+      - "08 · Behavioral Patterns": fundamentals/08-behavioral-patterns.md
+      - "09 · Concurrency in LLD": fundamentals/09-concurrency-in-lld.md
+      - "10 · Architectural Patterns": fundamentals/10-architectural-patterns.md
+      - "11 · Anti-Patterns": fundamentals/11-anti-patterns.md
+  - Case Studies:
+      - "01 · Parking Lot": case-studies/01-parking-lot/README.md
+      - "02 · LRU and LFU Cache": case-studies/02-lru-and-lfu-cache/README.md
+      - "03 · Rate Limiter": case-studies/03-rate-limiter/README.md
+      - "04 · Elevator System": case-studies/04-elevator-system/README.md
+      - "05 · Movie Ticket Booking": case-studies/05-movie-ticket-booking/README.md
+      - "06 · Splitwise": case-studies/06-splitwise/README.md
+      - "07 · Vending Machine": case-studies/07-vending-machine/README.md
+      - "08 · Logging Framework": case-studies/08-logging-framework/README.md
+      - "09 · Tic-Tac-Toe": case-studies/09-tic-tac-toe/README.md
+      - "10 · Snake and Ladder": case-studies/10-snake-and-ladder/README.md
+      - "11 · Chess": case-studies/11-chess/README.md
+      - "12 · ATM": case-studies/12-atm/README.md
+      - "13 · Library Management": case-studies/13-library-management/README.md
+      - "14 · In-Memory File System": case-studies/14-in-memory-file-system/README.md
+      - "15 · Pub-Sub Message Queue": case-studies/15-pub-sub-message-queue/README.md
+      - "16 · Task Scheduler": case-studies/16-task-scheduler/README.md
+      - "17 · Ride Sharing": case-studies/17-ride-sharing/README.md
+      - "18 · Shopping Cart and Orders": case-studies/18-shopping-cart-and-orders/README.md
+      - "19 · Key-Value Store with TTL": case-studies/19-key-value-store-with-ttl/README.md
+      - "20 · Hotel Booking": case-studies/20-hotel-booking/README.md
+      - "21 · Food Delivery": case-studies/21-food-delivery/README.md
+      - "22 · Online Auction": case-studies/22-online-auction/README.md
+      - "23 · Digital Wallet": case-studies/23-digital-wallet/README.md
+      - "24 · Notification Service": case-studies/24-notification-service/README.md
+  - practice-and-mock-interviews.md
+  - glob: "*"
+    ignore_no_matches: true
