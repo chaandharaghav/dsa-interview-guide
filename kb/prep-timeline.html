@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interview Prep Timeline</title>
+<style>
+/* Layout: one reading column; the week grid breaks out wider and scrolls sideways on its own. */
+:root {
+  --bg: #f7f8fa; --panel: #ffffff; --fg: #1d2330; --muted: #5a6273; --rule: #dde1e8;
+  --accent: #2a5bd7;
+  --dsa: #2a78d6; --design: #eb6834; --cs: #1baf7a; --js: #eda100; --beh: #e87ba4; --mock: #008300;
+  --ok: #0a7a3e; --warn: #9a6200; --ext: #6a4bb5;
+  --ok-bg: #e5f4ec; --warn-bg: #fbf1dc; --ext-bg: #efeafa;
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --body: -apple-system, "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151b; --panel: #1a1e26; --fg: #e8eaef; --muted: #a2a9b8; --rule: #2d3340; --accent: #7fa2ff;
+  --dsa: #3987e5; --design: #d95926; --cs: #199e70; --js: #c98500; --beh: #d55181; --mock: #008300;
+  --ok: #5fd08f; --warn: #f0b552; --ext: #b9a2f2;
+  --ok-bg: #173023; --warn-bg: #352a14; --ext-bg: #2a2340; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12151b; --panel: #1a1e26; --fg: #e8eaef; --muted: #a2a9b8; --rule: #2d3340; --accent: #7fa2ff;
+  --dsa: #3987e5; --design: #d95926; --cs: #199e70; --js: #c98500; --beh: #d55181; --mock: #008300;
+  --ok: #5fd08f; --warn: #f0b552; --ext: #b9a2f2;
+  --ok-bg: #173023; --warn-bg: #352a14; --ext-bg: #2a2340; color-scheme: dark; }
+
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 var(--body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2.1rem; font-weight: 650; }
+h2 { font-size: 1.45rem; font-weight: 650; }
+h3 { font-size: 1.1rem; font-weight: 650; }
+p { margin: 0; max-width: 68ch; }
+section { display: grid; gap: 14px; min-width: 0; }
+.eyebrow { font: 600 0.72rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+a { color: var(--accent); }
+.lead { color: var(--muted); font-size: 1.02rem; }
+.assume { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; display: grid; gap: 6px; }
+.assume p { max-width: none; }
+
+.tablebox { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 600 0.72rem var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--mono); white-space: nowrap; }
+
+.chip { display: inline-flex; align-items: center; gap: 4px; font: 600 0.72rem var(--mono); padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+.chip.ok { color: var(--ok); background: var(--ok-bg); }
+.chip.warn { color: var(--warn); background: var(--warn-bg); }
+.chip.ext { color: var(--ext); background: var(--ext-bg); }
+.pri { font: 600 0.72rem var(--mono); color: var(--muted); }
+
+/* Week grid */
+.gantt-box { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+.gantt { display: grid; grid-template-columns: 128px repeat(21, minmax(44px, 1fr)); min-width: 1060px; row-gap: 6px; padding: 12px 12px 14px; position: relative; }
+.gantt .wk { font: 600 0.68rem var(--mono); color: var(--muted); text-align: center; padding-bottom: 4px; border-bottom: 1px solid var(--rule); }
+.gantt .lane { grid-column: 1; font: 600 0.8rem var(--body); align-self: center; padding-right: 8px; }
+.gantt .lane small { display: block; font: 400 0.7rem var(--mono); color: var(--muted); }
+.bar { align-self: stretch; margin: 0 1px; border-radius: 4px; padding: 5px 7px; font-size: 0.74rem; line-height: 1.3; color: var(--fg);
+  background: color-mix(in srgb, var(--c) 18%, var(--panel)); border-left: 3px solid var(--c); min-width: 0; overflow-wrap: anywhere; cursor: default; }
+.bar.stretch { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 12%, var(--panel)) 0 6px, var(--panel) 6px 10px); border-left-style: dashed; }
+.bar:hover, .bar:focus-visible { outline: 2px solid var(--c); outline-offset: 1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.82rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 10px; border-radius: 2px; background: color-mix(in srgb, var(--c) 18%, var(--panel)); border-left: 3px solid var(--c); }
+.sw.stretch { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 30%, var(--panel)) 0 3px, var(--panel) 3px 5px); border-left-style: dashed; }
+#tip { position: fixed; z-index: 20; max-width: 300px; background: var(--fg); color: var(--bg); font-size: 0.8rem; line-height: 1.4; padding: 8px 10px; border-radius: 4px; pointer-events: none; }
+
+.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: grid; gap: 2px; }
+.stat b { font: 650 1.6rem var(--display); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 0.84rem; }
+ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; max-width: 72ch; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.two > div { min-width: 0; display: grid; gap: 10px; align-content: start; }
+pre { margin: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; overflow-x: auto; font: 0.8rem/1.5 var(--mono); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header style="display:grid;gap:10px">
+  <div class="eyebrow">Software Engineering KB · branch knowledge-base · 21 October 2026</div>
+  <h1>Interview Prep Timeline</h1>
+  <p class="lead">The status of the knowledge base (KB), a 21-week calendar for all subjects, and a short JavaScript track. Each row names its source: a KB page that exists, a KB page that is still planned, or an outside source.</p>
+</header>
+
+<section>
+  <div class="eyebrow">Part 1</div>
+  <h2>Repo Status</h2>
+  <div class="status-grid">
+    <div class="stat"><b>3 of 12</b><span>phases done or nearly done (0 setup, 1 LLD, 2 HLD)</span></div>
+    <div class="stat"><b>125</b><span>content pages exist: DSA 32, LLD 39, HLD 54</span></div>
+    <div class="stat"><b>5</b><span>HLD case studies (21 to 25) are drafts with no review</span></div>
+    <div class="stat"><b>112</b><span>pages are planned only (README listings, no content)</span></div>
+  </div>
+  <div class="tablebox"><table>
+    <thead><tr><th>Subject</th><th>Phase</th><th>State</th><th>What exists</th></tr></thead>
+    <tbody>
+      <tr><td>Setup (site, tools, checks)</td><td class="num">0</td><td><span class="chip ok">✓ Done</span></td><td>MkDocs site, <code>tools/check-all.sh</code> gate</td></tr>
+      <tr><td>DSA</td><td class="num">3</td><td><span class="chip warn">◐ Partial</span></td><td>20 patterns and 12 root pages (12-week plan, cheatsheet, mocks). Missing: 8 foundation pages and patterns 21 to 28</td></tr>
+      <tr><td>LLD</td><td class="num">1</td><td><span class="chip ok">✓ Done</span></td><td>11 fundamentals, 4 root pages, 24 case studies with runnable Java. All reviewed</td></tr>
+      <tr><td>HLD</td><td class="num">2</td><td><span class="chip warn">◐ Nearly done</span></td><td>2 procedure pages, 21 fundamentals, 6 distributed-systems pages, 25 case studies. Case studies 01 to 20 are reviewed. Missing: review of 21 to 25, cheatsheet, practice page, index (Batch 6)</td></tr>
+      <tr><td>Java and Spring</td><td class="num">4</td><td><span class="chip ext">○ Planned</span></td><td>24 pages listed</td></tr>
+      <tr><td>Databases</td><td class="num">5</td><td><span class="chip ext">○ Planned</span></td><td>12 pages listed</td></tr>
+      <tr><td>Operating systems, Networking</td><td class="num">6</td><td><span class="chip ext">○ Planned</span></td><td>8 and 10 pages listed</td></tr>
+      <tr><td>API design, Security</td><td class="num">7</td><td><span class="chip ext">○ Planned</span></td><td>6 and 7 pages listed</td></tr>
+      <tr><td>Engineering practice</td><td class="num">8</td><td><span class="chip ext">○ Planned</span></td><td>13 pages listed</td></tr>
+      <tr><td>Behavioral</td><td class="num">9</td><td><span class="chip ext">○ Planned</span></td><td>9 pages listed</td></tr>
+      <tr><td>AI engineering</td><td class="num">10</td><td><span class="chip ext">○ Planned</span></td><td>5 pages listed</td></tr>
+      <tr><td>JavaScript</td><td class="num">—</td><td><span class="chip ext">✕ Not in scope</span></td><td>No subject or page. The KB spec does not include it</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Known gap:</strong> <code>kb/hld/README.md</code> and the home page still say "Planned (phase 2)". The HLD pages exist, but the index work (Batch 6) is not done. <strong>Next step in the handoff:</strong> Opus reviews of HLD case studies 21 to 25, then Batch 6. The handoff says to ask you before starting agents.</p>
+</section>
+
+<section>
+  <div class="eyebrow">Part 2</div>
+  <h2>21-Week Calendar</h2>
+  <div class="assume">
+    <p><strong>Assumption:</strong> 2.5 hours on weekdays and 4 hours on each weekend day, about 20 hours each week. This matches the existing DSA plan (2 to 3 hours each day) and LLD track (5 hours each week). Split: DSA 10 h, design (LLD then HLD) 5 h, CS fundamentals 4 h, review 1 h.</p>
+    <p><strong>Shorter path:</strong> skip the hatched bars (P2 stretch work). This removes about 3 weeks. Give me your interview date and I can fit the plan to it.</p>
+  </div>
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw" style="--c:var(--dsa)"></i>DSA</span>
+    <span><i class="sw" style="--c:var(--design)"></i>LLD and HLD</span>
+    <span><i class="sw" style="--c:var(--cs)"></i>CS fundamentals</span>
+    <span><i class="sw" style="--c:var(--js)"></i>JavaScript</span>
+    <span><i class="sw" style="--c:var(--beh)"></i>Behavioral</span>
+    <span><i class="sw" style="--c:var(--mock)"></i>Mock interviews</span>
+    <span><i class="sw stretch" style="--c:var(--muted)"></i>P2 stretch (optional)</span>
+  </div>
+  <div class="gantt-box"><div class="gantt" id="gantt"></div></div>
+  <p style="color:var(--muted);font-size:0.86rem">Point to a bar to see its detail. Week numbers start at W0, the DSA re-entry week.</p>
+</section>
+
+<section>
+  <div class="eyebrow">Part 3</div>
+  <h2>Preparation Chart by Subject</h2>
+  <p>Each row is one block of study. The source column tells you where to read. <span class="chip ok">In KB</span> means the page exists. <span class="chip warn">Planned</span> means the KB lists the page but has no content yet, so use the outside source until the phase is written. <span class="chip ext">Outside</span> means the KB does not plan the topic.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Weeks</th><th>Subject</th><th>Concepts</th><th>Priority</th><th>Source</th></tr></thead>
+    <tbody id="chart"></tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="eyebrow">Part 4</div>
+  <h2>JavaScript Track (W18 to W19)</h2>
+  <p>This track is short on purpose: about 8 hours in total, in the CS-fundamentals slot. It does not take time from DSA. Use it if a target role includes front-end or full-stack work. The KB has no JavaScript pages, so every source is outside the KB.</p>
+  <div class="two">
+    <div>
+      <h3>Week 18: the language</h3>
+      <ul>
+        <li>Types and coercion; <code>==</code> compared with <code>===</code>; <code>null</code> compared with <code>undefined</code></li>
+        <li><code>var</code>, <code>let</code>, <code>const</code>; scope, hoisting, the temporal dead zone</li>
+        <li>Closures, and the loop-variable closure question</li>
+        <li><code>this</code> rules; <code>call</code>, <code>apply</code>, <code>bind</code>; arrow functions</li>
+        <li>Prototypes, the prototype chain, and <code>class</code> syntax on top of it</li>
+        <li>Modules (ES modules and CommonJS), destructuring, spread and rest</li>
+      </ul>
+      <p style="font-size:0.88rem;color:var(--muted)">Read: <a href="https://javascript.info/" target="_blank" rel="noopener">javascript.info</a> parts 1.2 to 1.9 and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" rel="noopener">MDN JavaScript Guide</a>.</p>
+    </div>
+    <div>
+      <h3>Week 19: async and coding tasks</h3>
+      <ul>
+        <li>The event loop: call stack, microtask queue, macrotask queue. Predict the output order of mixed <code>setTimeout</code> and <code>Promise</code> code</li>
+        <li>Promises, <code>async</code>/<code>await</code>, error handling</li>
+        <li>Node.js event loop phases; compare with Java thread-per-request and virtual threads</li>
+        <li>Write from memory: <code>debounce</code>, <code>throttle</code>, <code>Promise.all</code>, deep clone, <code>Function.prototype.bind</code></li>
+        <li><span class="pri">Optional:</span> TypeScript basics (types, interfaces, generics)</li>
+      </ul>
+      <p style="font-size:0.88rem;color:var(--muted)">Read: <a href="https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick" target="_blank" rel="noopener">Node.js event loop guide</a> and <a href="https://www.typescriptlang.org/docs/handbook/intro.html" target="_blank" rel="noopener">TypeScript Handbook</a>.</p>
+    </div>
+  </div>
+  <p><strong>Links to the KB:</strong> the event loop connects to I/O models in <code>kb/operating-systems/05-file-systems-and-io-models.md</code> (planned). WebSockets connect to <code>kb/networking/08-websockets-and-realtime.md</code> (planned) and <code>kb/hld/fundamentals/09-communication-patterns.md</code> (exists).</p>
+  <pre>// Example W19 task: debounce
+function debounce(fn, ms) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}</pre>
+</section>
+
+</div>
+<div id="tip" hidden></div>
+
+<script>
+// [lane, startWeek, endWeek (inclusive), label, detail, stretch]
+const bars = [
+  ["dsa", 0, 0, "Re-entry", "DSA plan Week 0: Java toolkit and the pattern-choice procedure. Add foundations 01–08 (planned; use an outside source)."],
+  ["dsa", 1, 11, "Patterns 01–20 (12-week DSA plan)", "kb/dsa/study-plan.md Weeks 1–11: sliding window to DP III. 2–3 problems each day."],
+  ["dsa", 12, 12, "DSA mocks", "DSA plan Week 12: mock interviews and review."],
+  ["dsa", 13, 13, "23, 25, 26", "P1 new patterns (planned): math and number theory, matrix and simulation, design data structures."],
+  ["dsa", 14, 15, "21, 22, 24, 27, 28", "P2 new patterns (planned): segment and Fenwick trees, string algorithms, advanced graphs, advanced DP, randomized.", true],
+  ["dsa", 16, 20, "Maintenance: 2 mixed problems a day", "Mixed review from the misrecognition log and kb/dsa/company-prep.md."],
+  ["design", 1, 8, "LLD track (8 weeks)", "kb/study-plan.md LLD track: fundamentals, patterns, 24 case studies, mock sets A–G."],
+  ["design", 9, 10, "HLD procedure + fund. 01–07", "how-to-approach-hld, back-of-envelope estimation, scalability to consistency and CAP."],
+  ["design", 11, 12, "HLD fund. 08–16", "Queues, communication, reliability, rate limiting, microservices, IDs, event-driven. 10 and 11 are P2."],
+  ["design", 13, 13, "Distributed systems 01–06", "Failures and time, consensus, distributed transactions, probabilistic structures, locks, CRDTs. HLD fund. 17–21 (P2) as stretch."],
+  ["design", 14, 17, "HLD P1 case studies (14)", "Case studies 01–13 and 16: about 3–4 each week. Design each in 45 minutes first, then compare."],
+  ["design", 18, 18, "HLD P2 case studies", "14, 15, 17–20 are reviewed. 21–25 have no review yet; read them with care.", true],
+  ["cs", 2, 8, "Java P1 (01–13, 16–20)", "Planned pages. Use Effective Java, Java Concurrency in Practice, and the Spring docs. Read concurrency (07–08) in W4, with LLD concurrency."],
+  ["cs", 9, 11, "Databases P1", "SQL, schema design, indexing, transactions and isolation, query tuning, NoSQL, Redis, SQL problems."],
+  ["cs", 12, 13, "OS P1", "Processes and threads, synchronization, memory management."],
+  ["cs", 14, 15, "Networking P1", "TCP and UDP, HTTP, TLS, DNS, what happens when you load a URL."],
+  ["cs", 16, 17, "API + Security P1", "REST principles and practices, API design in interviews, authentication, OAuth/OIDC/JWT, OWASP Top 10."],
+  ["cs", 20, 20, "Eng. practice / AI", "P2 stretch: testing, observability, containers, LLM fundamentals, RAG.", true],
+  ["js", 18, 18, "JS language core", "Coercion, scope and hoisting, closures, this, prototypes, modules."],
+  ["js", 19, 19, "JS async + tasks", "Event loop, promises, async/await, debounce, throttle, Promise.all."],
+  ["beh", 17, 17, "Resume", "Behavioral 01–02 (planned): interview process, resume and job search."],
+  ["beh", 19, 20, "Story bank + rounds", "Behavioral 03–07: STAR story bank, common questions, project deep dive, leadership principles."],
+  ["mock", 8, 8, "LLD mocks", "Mock sets C–G from kb/lld/practice-and-mock-interviews.md, scored with the rubric."],
+  ["mock", 18, 20, "Full mock loops", "One coding, one design and one behavioral mock each week. Fix the weakest area in the next week."],
+];
+const lanes = { dsa: ["DSA", "10 h / week"], design: ["LLD → HLD", "5 h / week"], cs: ["CS fundamentals", "4 h / week"], js: ["JavaScript", "in CS slot"], beh: ["Behavioral", "from W17"], mock: ["Mocks", "review hour"] };
+const g = document.getElementById("gantt");
+g.insertAdjacentHTML("beforeend", '<div class="wk" style="grid-column:1;text-align:left">Track</div>');
+for (let w = 0; w <= 20; w++) g.insertAdjacentHTML("beforeend", `<div class="wk" style="grid-column:${w + 2}">W${w}</div>`);
+Object.keys(lanes).forEach((k, i) => {
+  const row = i + 2;
+  g.insertAdjacentHTML("beforeend", `<div class="lane" style="grid-row:${row}">${lanes[k][0]}<small>${lanes[k][1]}</small></div>`);
+  bars.filter(b => b[0] === k).forEach(b => {
+    const el = document.createElement("div");
+    el.className = "bar" + (b[5] ? " stretch" : "");
+    el.style.cssText = `grid-row:${row};grid-column:${b[1] + 2} / ${b[2] + 3};--c:var(--${k})`;
+    el.textContent = b[3];
+    el.tabIndex = 0;
+    el.dataset.tip = `W${b[1]}${b[2] > b[1] ? "–W" + b[2] : ""} · ${b[4]}`;
+    el.setAttribute("aria-label", `${b[3]}. ${el.dataset.tip}`);
+    g.appendChild(el);
+  });
+});
+const tip = document.getElementById("tip");
+function show(e) { const t = e.target.closest(".bar"); if (!t) return; tip.textContent = t.dataset.tip; tip.hidden = false; move(e); }
+function move(e) {
+  const r = e.target.getBoundingClientRect();
+  const x = e.clientX ?? r.left, y = e.clientY ?? r.bottom;
+  tip.style.left = Math.min(x + 12, innerWidth - 316) + "px"; tip.style.top = (y + 16) + "px";
+}
+g.addEventListener("mouseover", show); g.addEventListener("mousemove", e => { if (!tip.hidden) move(e); });
+g.addEventListener("mouseout", () => tip.hidden = true);
+g.addEventListener("focusin", show); g.addEventListener("focusout", () => tip.hidden = true);
+
+// [weeks, subject, concepts, priority, source kind, source text]
+const S = { ok: '<span class="chip ok">✓ In KB</span>', warn: '<span class="chip warn">◐ Planned</span>', ext: '<span class="chip ext">↗ Outside</span>' };
+const rows = [
+  ["W0", "DSA foundations", "Complexity analysis, arrays and linked lists, stacks and queues, hash tables, balanced BSTs, heaps, graph representations, sorting", "P1", "warn", "Sedgewick, Algorithms 4th ed."],
+  ["W1–W12", "DSA patterns 01–20", "Sliding window, two pointers, prefix sum, hashing, binary search on answer, monotonic stack, backtracking, trees, graphs, topo sort, union-find, greedy, DP, heaps, trie, shortest paths, bits, intervals", "P1", "ok", "kb/dsa/study-plan.md"],
+  ["W13", "DSA patterns 23, 25, 26", "Math and number theory, matrix and simulation, design data structures", "P1", "warn", "LeetCode topic lists"],
+  ["W14–W15", "DSA patterns 21, 22, 24, 27, 28", "Segment and Fenwick trees, KMP and rolling hash, MST and SCC, bitmask and tree DP, reservoir sampling", "P2", "warn", "cp-algorithms.com"],
+  ["W1–W8", "LLD", "OOP, SOLID, UML, domain modeling, design patterns, concurrency, architecture, machine coding, 24 case studies", "P1", "ok", "kb/study-plan.md LLD track"],
+  ["W9–W12", "HLD fundamentals", "Scalability, load balancing, caching, databases, replication, sharding, CAP, queues, communication, reliability, rate limiting, microservices, unique IDs, event-driven", "P1", "ok", "kb/hld/fundamentals 01–16"],
+  ["W13", "HLD stretch fundamentals", "Batch and stream, geospatial, multi-region, observability, security in design", "P2", "ok", "kb/hld/fundamentals 17–21"],
+  ["W13", "Distributed systems", "Clocks, Raft, 2PC and saga, Bloom filter and HyperLogLog, leases and fencing, CRDTs", "P1/P2", "ok", "kb/hld/distributed-systems"],
+  ["W14–W18", "HLD case studies", "14 P1 studies, then 11 P2 studies (21–25 not reviewed)", "P1/P2", "ok", "kb/hld/case-studies"],
+  ["W2–W8", "Java and Spring", "Language core, generics, exceptions, collections internals, JVM, GC, concurrency, CompletableFuture, virtual threads, streams, modern Java, JPA, Spring core, Boot, Data, Web", "P1", "warn", "Effective Java; Java Concurrency in Practice; docs.spring.io"],
+  ["W9–W11", "Databases", "SQL, normalization, indexes, isolation levels, query plans, NoSQL families, Redis, SQL problems", "P1", "warn", "Designing Data-Intensive Applications; use-the-index-luke.com"],
+  ["W12–W13", "Operating systems", "Processes and threads, synchronization, memory and virtual memory", "P1", "warn", "ostep.org"],
+  ["W14–W15", "Networking", "TCP and UDP, HTTP/1.1 to HTTP/3, TLS, DNS, the URL-load walkthrough", "P1", "warn", "hpbn.co"],
+  ["W16–W17", "API design and security", "REST, API practices, API design in interviews, authentication, OAuth/OIDC/JWT, OWASP Top 10", "P1", "warn", "Google AIP (aip.dev); owasp.org Top 10"],
+  ["W17, W19–W20", "Behavioral", "Resume, STAR story bank, common questions, project deep dive, leadership principles", "P1", "warn", "techinterviewhandbook.org"],
+  ["W18–W19", "JavaScript", "Coercion, closures, this, prototypes, event loop, promises, debounce and throttle", "P2", "ext", "javascript.info; MDN"],
+  ["W20", "Engineering practice, AI engineering", "Testing, Git, CI/CD, containers, observability, debugging, LLM fundamentals, RAG", "P2", "warn", "Official docs per tool"],
+  ["Any time", "P3 pages", "Java I/O and serialization, design docs and ADRs, agile and estimation", "P3", "warn", "Read on the job"],
+];
+document.getElementById("chart").innerHTML = rows.map(r =>
+  `<tr><td class="num">${r[0]}</td><td><strong>${r[1]}</strong></td><td>${r[2]}</td><td class="pri">${r[3]}</td><td>${S[r[4]]}<div style="font-size:0.8rem;color:var(--muted);margin-top:3px">${r[5]}</div></td></tr>`).join("");
+</script>
+</body>
+</html>

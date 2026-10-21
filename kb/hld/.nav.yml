@@ -1,0 +1,63 @@
+nav:
+  - Overview: README.md
+  - how-to-approach-hld.md
+  - back-of-envelope-estimation.md
+  - cheatsheet.md
+  - Fundamentals:
+      - "01 · Scalability and Availability": fundamentals/01-scalability-and-availability.md
+      - "02 · Load Balancing, DNS, and CDN": fundamentals/02-load-balancing-dns-cdn.md
+      - "03 · Caching": fundamentals/03-caching.md
+      - "04 · Choosing a Database": fundamentals/04-choosing-a-database.md
+      - "05 · Replication": fundamentals/05-replication.md
+      - "06 · Partitioning and Sharding": fundamentals/06-partitioning-and-sharding.md
+      - "07 · Consistency and the CAP Theorem": fundamentals/07-consistency-and-cap.md
+      - "08 · Message Queues and Streams": fundamentals/08-message-queues-and-streams.md
+      - "09 · Communication Patterns": fundamentals/09-communication-patterns.md
+      - "10 · Storage Types": fundamentals/10-storage-types.md
+      - "11 · Search and Indexing": fundamentals/11-search-and-indexing.md
+      - "12 · Reliability Patterns": fundamentals/12-reliability-patterns.md
+      - "13 · Rate Limiting Algorithms": fundamentals/13-rate-limiting-algorithms.md
+      - "14 · Microservices and Monoliths": fundamentals/14-microservices-and-monoliths.md
+      - "15 · Unique ID Generation": fundamentals/15-unique-id-generation.md
+      - "16 · Event-Driven Architecture": fundamentals/16-event-driven-architecture.md
+      - "17 · Batch and Stream Processing": fundamentals/17-batch-and-stream-processing.md
+      - "18 · Geospatial Indexing": fundamentals/18-geospatial-indexing.md
+      - "19 · Multi-Region Design and Disaster Recovery": fundamentals/19-multi-region-and-disaster-recovery.md
+      - "20 · Observability in System Design": fundamentals/20-observability-in-design.md
+      - "21 · Security in System Design": fundamentals/21-security-in-design.md
+  - Distributed Systems:
+      - "01 · Failures and Time in Distributed Systems": distributed-systems/01-failures-and-time.md
+      - "02 · Consensus and Leader Election": distributed-systems/02-consensus-and-leader-election.md
+      - "03 · Distributed Transactions": distributed-systems/03-distributed-transactions.md
+      - "04 · Probabilistic Data Structures and Gossip": distributed-systems/04-probabilistic-data-structures.md
+      - "05 · Distributed Locks and Leases": distributed-systems/05-distributed-locks-and-leases.md
+      - "06 · CRDTs and Conflict Resolution": distributed-systems/06-crdts-and-conflict-resolution.md
+  - Case Studies:
+      - "01 · URL Shortener": case-studies/01-url-shortener.md
+      - "02 · Distributed Rate Limiter": case-studies/02-distributed-rate-limiter.md
+      - "03 · Distributed Key-Value Store (Dynamo Style)": case-studies/03-key-value-store.md
+      - "04 · Notification System": case-studies/04-notification-system.md
+      - "05 · News Feed": case-studies/05-news-feed.md
+      - "06 · Chat System": case-studies/06-chat-system.md
+      - "07 · Search Autocomplete System": case-studies/07-search-autocomplete.md
+      - "08 · Web Crawler": case-studies/08-web-crawler.md
+      - "09 · Video Streaming Service": case-studies/09-video-streaming.md
+      - "10 · File Storage and Sync Service": case-studies/10-file-storage-and-sync.md
+      - "11 · Ride-Hailing Service and Proximity Search": case-studies/11-ride-hailing-and-proximity.md
+      - "12 · Ticket Booking System": case-studies/12-ticket-booking.md
+      - "13 · Payment System": case-studies/13-payment-system.md
+      - "14 · Distributed Message Queue (Kafka Style)": case-studies/14-distributed-message-queue.md
+      - "15 · Distributed Cache": case-studies/15-distributed-cache.md
+      - "16 · Leaderboard and Top-K System": case-studies/16-leaderboard-and-top-k.md
+      - "17 · Metrics and Monitoring System": case-studies/17-metrics-and-monitoring.md
+      - "18 · Photo Sharing Service": case-studies/18-photo-sharing.md
+      - "19 · Collaborative Editor": case-studies/19-collaborative-editor.md
+      - "20 · Distributed Job Scheduler": case-studies/20-distributed-job-scheduler.md
+      - "21 · Ad Click Aggregation System": case-studies/21-ad-click-aggregation.md
+      - "22 · Stock Exchange": case-studies/22-stock-exchange.md
+      - "23 · Email Service": case-studies/23-email-service.md
+      - "24 · E-commerce Flash Sale": case-studies/24-ecommerce-flash-sale.md
+      - "25 · Online Code Judge": case-studies/25-online-code-judge.md
+  - practice-and-mock-interviews.md
+  - glob: "*"
+    ignore_no_matches: true

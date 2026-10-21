@@ -20,9 +20,23 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Amortized time complexity**: the average cost of one operation over a worst-case sequence of operations. Example: `ArrayList.add` is O(1) amortized, because the occasional resize cost spreads over the many adds that come before it. See [the Java toolkit](dsa/java-toolkit.md).
 
+**Bloom filter**: a bit array with k hash functions that answers "possibly in the set" or "definitely not in the set". It has false positives and no false negatives. See [Probabilistic Data Structures](hld/distributed-systems/04-probabilistic-data-structures.md).
+
+**CAP theorem**: the result (Gilbert and Lynch, 2002) that during a network partition a replicated system cannot give both linearizable reads and writes and a response from every non-failing node. See [Consistency and CAP](hld/fundamentals/07-consistency-and-cap.md).
+
+**CDN (content delivery network)**: a set of edge servers near users that cache content from an origin server, to cut latency and origin load. See [Load Balancing, DNS, and CDN](hld/fundamentals/02-load-balancing-dns-cdn.md).
+
+**Circuit breaker**: a client-side component that stops calls to a failing dependency for a time (OPEN), then lets a few test calls through (HALF_OPEN) before normal calls resume (CLOSED). See [Reliability Patterns](hld/fundamentals/12-reliability-patterns.md).
+
 **Composition (UML)**: a whole-part association where a part belongs to at most one whole at a time, and deleting the whole deletes its parts. See [UML Diagrams](lld/fundamentals/04-uml-class-and-sequence-diagrams.md).
 
 **Composition over inheritance**: the design rule that a class gets behavior by holding other objects, not by extending a parent class. See [OOP](lld/fundamentals/01-oop.md).
+
+**Consistent hashing**: a partitioning method that places nodes and keys on a hash ring, so that a change in the node count moves only about 1/N of the keys. See [Partitioning and Sharding](hld/fundamentals/06-partitioning-and-sharding.md).
+
+**CQRS (command query responsibility segregation)**: a design with separate models for writes and for reads, where the read model updates from the write side and can lag behind it. See [Event-Driven Architecture](hld/fundamentals/16-event-driven-architecture.md).
+
+**CRDT (conflict-free replicated data type)**: a data type whose replicas accept updates independently and merge to the same state without coordination. See [CRDTs and Conflict Resolution](hld/distributed-systems/06-crdts-and-conflict-resolution.md).
 
 **Critical section**: a block of code that only one thread may run at a time, because it reads and writes shared state. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
 
@@ -38,6 +52,14 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Entity**: a domain object with an identity that stays the same while its attributes change (an order, a member). Compare value object. See [Domain Modeling](lld/fundamentals/05-domain-modeling.md).
 
+**Event sourcing**: a design that stores every change to an entity as an append-only event and computes the current state by replaying the events. See [Event-Driven Architecture](hld/fundamentals/16-event-driven-architecture.md).
+
+**Eventual consistency**: the guarantee that replicas reach the same value when updates stop. It gives no bound on how stale a read can be before that. See [Consistency and CAP](hld/fundamentals/07-consistency-and-cap.md).
+
+**Fan-out on write**: a feed design that writes each new post into the stored feed of every follower when the post is created. Its opposite, fan-out on read, builds the feed when a user reads it. See [Design a News Feed](hld/case-studies/05-news-feed.md).
+
+**Fencing token**: a number that increases with each lock or lease grant. The protected resource rejects a request with a token lower than the highest token it has seen. See [Distributed Locks and Leases](hld/distributed-systems/05-distributed-locks-and-leases.md).
+
 ### G–L
 
 **GoF (Gang of Four)**: Gamma, Helm, Johnson, and Vlissides, the authors of *Design Patterns* (1994), the book that cataloged the 23 classic design patterns. See [Creational Patterns](lld/fundamentals/06-creational-patterns.md).
@@ -50,6 +72,10 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Immutable object**: an object whose state cannot change after construction. An immutable object needs no lock to be shared between threads. See [Design Principles](lld/fundamentals/03-design-principles.md).
 
+**Lease**: a lock with an expiry time. The holder must renew it before it expires, or another node can take it. See [Distributed Locks and Leases](hld/distributed-systems/05-distributed-locks-and-leases.md).
+
+**Linearizability**: the consistency model in which every operation appears to take effect at one instant between its start and its end, so that all clients see one order of operations that matches real time. See [Consistency and CAP](hld/fundamentals/07-consistency-and-cap.md).
+
 **LLD (low-level design)**: the design of the classes, interfaces, and interactions inside one program. See [LLD](lld/README.md).
 
 **Lock ordering**: a rule that every thread takes several locks in one global order (for example by account id), which prevents deadlock. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
@@ -60,16 +86,34 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Optimistic locking**: a concurrency method that takes no lock while a change is prepared, and checks a version number when it writes. If the version changed, the write fails and the caller retries. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
 
+**Partitioning (sharding)**: the split of a data set into parts that different nodes store, so that data size and write load can grow beyond one machine. See [Partitioning and Sharding](hld/fundamentals/06-partitioning-and-sharding.md).
+
 **Pattern (in DSA)**: a reusable method of solving a family of problems, for example the sliding window. See [How to Choose a Pattern](dsa/how-to-choose-a-pattern.md).
+
+**Quorum**: the minimum number of replicas that must answer a read (R) or a write (W). With N replicas, R + W > N makes every read set overlap every write set. See [Replication](hld/fundamentals/05-replication.md).
 
 **Race condition**: a defect in which the result depends on the timing of threads, for example two threads that both book the last seat. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
 
+**Replication lag**: the delay between a write on the leader and its arrival on a follower. Reads from a lagging follower return old data. See [Replication](hld/fundamentals/05-replication.md).
+
 **Repository**: an object that gives the domain a collection-like interface to stored objects and hides how they are stored. See [Architectural Patterns](lld/fundamentals/10-architectural-patterns.md).
 
+**RPO and RTO (recovery point objective, recovery time objective)**: RPO is the maximum data loss, measured in time, that a failure may cause. RTO is the maximum time to restore service. See [Multi-Region Design and Disaster Recovery](hld/fundamentals/19-multi-region-and-disaster-recovery.md).
+
 ### S–Z
+
+**Saga**: a sequence of local transactions across services, where each step has a compensating action that undoes it semantically if a later step fails. See [Distributed Transactions](hld/distributed-systems/03-distributed-transactions.md).
+
+**SLI, SLO, SLA**: an SLI (service level indicator) is a measured value such as the ratio of successful requests. An SLO (service level objective) is the target for an SLI. An SLA (service level agreement) is a contract with customers, with a penalty, and it is looser than the SLO. See [Scalability and Availability](hld/fundamentals/01-scalability-and-availability.md).
 
 **SOLID**: five object-oriented design principles: single responsibility, open-closed, Liskov substitution, interface segregation, and dependency inversion. See [SOLID](lld/fundamentals/02-solid.md).
 
 **Time complexity**: how the running time of an algorithm grows with the size of its input, written in Big-O notation. See [the DSA cheatsheet](dsa/cheatsheet.md).
 
+**Token bucket**: a rate-limiting algorithm that adds tokens at a fixed rate up to a capacity and spends one token per request. It allows bursts up to the capacity. See [Rate Limiting Algorithms](hld/fundamentals/13-rate-limiting-algorithms.md).
+
+**Transactional outbox**: a pattern that writes a business change and its event row in one local transaction. A relay then publishes the event rows, at least once. See [Distributed Transactions](hld/distributed-systems/03-distributed-transactions.md).
+
 **Value object**: a domain object that has no identity and is defined only by its values (money, a date range). Value objects are immutable. See [Domain Modeling](lld/fundamentals/05-domain-modeling.md).
+
+**Watermark**: in stream processing, an estimate that no more events with an event time earlier than a given time will arrive. It decides when a window can close. See [Batch and Stream Processing](hld/fundamentals/17-batch-and-stream-processing.md).
