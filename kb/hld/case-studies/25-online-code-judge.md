@@ -6,7 +6,7 @@ priority: P2
 An online code judge accepts source code from users, compiles and runs it against hidden test cases, and returns a verdict (accepted, wrong answer, time limit exceeded, and so on). LeetCode, Codeforces, and HackerRank work this way. The system runs code that strangers wrote, and some of that code is hostile on purpose. So the problem is mainly one of isolation and of fair resource accounting, and only second one of scale. This page gives the design that a strong candidate presents in 45 minutes: a submission queue, a pool of judge workers that run each submission in a sandbox, a verdict store, and a contest layer with a live leaderboard.
 
 !!! note "About the sources"
-    The sandbox facts come from the documentation of the Linux kernel (control groups version 2), of gVisor, of Firecracker (including its NSDI 2020 paper), and of Judge0 and its sandbox, isolate. The sizes and rates are assumptions for a contest platform with 50,000 participants, and each is labeled. Judge0 documents its defaults for the public version, and each operator can change them. The statements about how LeetCode or Codeforces run their judges are not on this page, because those companies have not published their designs.
+    The sandbox facts come from the documentation of the Linux kernel (control groups version 2), of gVisor, of Firecracker (including its NSDI 2020 paper), and of Judge0 and its sandbox, isolate. The sizes and rates are assumptions for a contest platform with 50,000 participants, and each is labeled. Judge0's configuration file and its hosted API documentation give different default limits, and each operator can change them (see deep dive 1). The statements about how LeetCode or Codeforces run their judges are not on this page, because those companies have not published their designs.
 
 ## Problem Statement
 
@@ -27,7 +27,7 @@ Ask these in the first 5 minutes. Each row gives the answer that this design ass
 | How do we compare outputs? | Exact match after trimming trailing whitespace, a token-by-token compare, or a checker program for problems with several valid answers. The checker runs in a sandbox too |
 | Is the verdict immediate? | The user waits for the result. The target is a verdict within 10 seconds for most submissions at p95, even at the contest peak |
 | Is there a "run with my own input" button? | Yes. It has a lower priority than submissions in a contest |
-| How is a contest scored? | ICPC style: rank by the number of problems solved, then by the penalty time. Each accepted problem adds its solve minute plus 20 minutes for each earlier wrong attempt. A compile error has no penalty |
+| How is a contest scored? | ICPC style: rank by the number of problems solved, then by the penalty time. Each accepted problem adds its solve minute plus 20 minutes for each earlier wrong attempt. A compile error has no penalty (Assumption. Each contest publishes its own rules: the CERC 2025 rules give no penalty for a compilation error, and some other contests count it as a rejected run) |
 | What is the threat model? | The user is hostile. The code can loop, allocate without limit, fork, open sockets, read files, call dangerous system calls, and try to read the test data or the answers |
 | Is cheating (plagiarism) in scope? | Out of scope. The page notes where a similarity check attaches |
 | Regions? | One region for judging. A second region for failover. The judge needs low latency to the user less than it needs stable timing |
@@ -40,7 +40,7 @@ Ask these in the first 5 minutes. Each row gives the answer that this design ass
 2. The system compiles the code, and for each test runs it in a sandbox with the limits, and compares the output.
 3. The system returns a verdict: `AC` (accepted), `WA` (wrong answer), `TLE` (time limit exceeded), `MLE` (memory limit exceeded), `RE` (runtime error), `CE` (compilation error), `OLE` (output limit exceeded), or `IE` (internal error), with the time and memory of the run.
 4. The user sees the status change (`QUEUED`, `COMPILING`, `RUNNING`, final verdict) without reloading.
-5. A contest has a start and an end, a problem set, and a live leaderboard. The leaderboard may freeze in the last hour (Assumption: the ICPC style).
+5. A contest has a start and an end, a problem set, and a live leaderboard. The leaderboard may freeze in the last hour (Assumption: the ICPC style. The CERC 2025 rules, for example, freeze the ranking during the last hour).
 6. Operators can rejudge a submission, a problem, or a whole contest after a fix to a test or a checker.
 7. A user can run the code on custom input, without a verdict.
 
@@ -90,12 +90,14 @@ What the numbers decide:
 The program checks the arithmetic, then it shows the verdict rules from the limits, and then it builds a contest scoreboard with the ICPC rules and a single numeric key, which is what a Redis sorted set stores.
 
 ```java
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
 
 public class JudgeCheck {
     public static void main(String[] args) {
@@ -165,25 +167,28 @@ public class JudgeCheck {
         Map<String, Integer> solved = new HashMap<>();
         Map<String, Integer> penalty = new HashMap<>();
         Map<String, Integer> wrong = new HashMap<>();
-        Map<String, Boolean> done = new HashMap<>();
+        Set<String> done = new HashSet<>();
         for (Sub s : subs) {
-            String k = s.team() + s.problem();
-            if (done.containsKey(k)) continue;
+            solved.putIfAbsent(s.team(), 0);
+            penalty.putIfAbsent(s.team(), 0);
+            String k = s.team() + "/" + s.problem();
+            if (done.contains(k)) continue;
             if (s.accepted()) {
-                done.put(k, true);
+                done.add(k);
                 solved.merge(s.team(), 1, Integer::sum);
                 penalty.merge(s.team(), s.minute() + 20 * wrong.getOrDefault(k, 0), Integer::sum);
             } else {
                 wrong.merge(k, 1, Integer::sum);
             }
         }
-        TreeMap<Long, String> ranked = new TreeMap<>(Comparator.reverseOrder());
-        for (String t : solved.keySet()) ranked.put(key(solved.get(t), penalty.get(t)), t);
+        List<String> teams = new ArrayList<>(solved.keySet());
+        Comparator<String> byKey =
+            Comparator.comparingLong(t -> key(solved.get(t), penalty.get(t)));
+        teams.sort(byKey.reversed().thenComparing(Comparator.naturalOrder()));
         int rank = 1;
-        for (Map.Entry<Long, String> e : ranked.entrySet()) {
-            String t = e.getValue();
+        for (String t : teams) {
             System.out.println(rank++ + " " + t + " solved=" + solved.get(t)
-                + " penalty=" + penalty.get(t) + " key=" + e.getKey());
+                + " penalty=" + penalty.get(t) + " key=" + key(solved.get(t), penalty.get(t)));
         }
     }
 
@@ -222,7 +227,7 @@ RE(exit 1)
 3 alpha solved=2 penalty=105 key=1999895
 ```
 
-The verdict function shows the order of the checks. Memory and time are checked first, because a killed program also has a non-zero exit status, and the verdict must name the resource. The program with exit status 9 (killed by a signal) that also hit the memory limit is `MLE`, not `RE`. In the scoreboard, `beta` solved 3 problems with 215 penalty minutes: A at minute 5, B at minute 90 plus 20 for one earlier wrong attempt (110), and C at minute 100. The key `solved × 1,000,000 − penalty` makes a higher key a better rank, so one `ZADD` per update keeps the board ordered.
+The verdict function shows the order of the checks. Memory and time are checked first, because a killed program also has a non-zero exit status, and the verdict must name the resource. The program that the kernel killed with signal 9 (`SIGKILL`) after it hit the memory limit is `MLE`, not `RE`. In the scoreboard, `beta` solved 3 problems with 215 penalty minutes: A at minute 5, B at minute 90 plus 20 for one earlier wrong attempt (110), and C at minute 100. The key `solved × 1,000,000 − penalty` makes a higher key a better rank, so one `ZADD` per update keeps the board ordered. The demo sorts a list of teams with a comparator, so two teams with the same key both stay on the board. (A map keyed by the score would keep only one of them.)
 
 ## API Design
 
@@ -256,7 +261,7 @@ Starts a new judging attempt (admin only). Bulk forms exist for a problem and fo
 
 #### Judge0's API, for comparison
 
-Judge0, an open-source judge, has `POST /submissions` that returns a token and puts the submission in a queue, `GET /submissions/{token}` for the result, a `callback_url` that Judge0 calls with `PUT` when the submission finishes, and status IDs (1 In Queue, 2 Processing, 3 Accepted, 4 Wrong Answer, 5 Time Limit Exceeded, 6 Compilation Error, 7 to 12 runtime errors by signal, 13 Internal Error, 14 Exec Format Error). Its documentation advises against the `wait=true` option because it does not scale, which matches this design: the call returns at once, and the result comes later by stream, poll, or callback.
+Judge0, an open-source judge, has `POST /submissions` that returns a token and puts the submission in a queue, `GET /submissions/{token}` for the result, a `callback_url` that Judge0 calls with `PUT` when the submission finishes, and status IDs (1 In Queue, 2 Processing, 3 Accepted, 4 Wrong Answer, 5 Time Limit Exceeded, 6 Compilation Error, 7 to 10 runtime errors by signal (SIGSEGV, SIGXFSZ, SIGFPE, SIGABRT), 11 runtime error by a non-zero exit code (NZEC), 12 other runtime error, 13 Internal Error, 14 Exec Format Error). Its documentation says "We do not recommend the use of wait=true feature because it does not scale well", which matches this design: the call returns at once, and the result comes later by stream, poll, or callback.
 
 ## Data Model
 
@@ -342,7 +347,7 @@ flowchart TD
 
 | Attack | Example | Defense |
 |---|---|---|
-| CPU exhaustion | An infinite loop | A CPU limit, plus a wall-clock limit that kills the process |
+| CPU exhaustion | An infinite loop | A CPU-time limit that kills the process (`RLIMIT_CPU`, or a supervisor that reads the cgroup's `cpu.stat`), plus a wall-clock limit |
 | Memory exhaustion | Allocate until the host swaps | A hard memory limit with the kernel's out-of-memory kill inside the sandbox |
 | Process exhaustion | A fork bomb | A limit on the number of processes |
 | Disk exhaustion | Write a huge file | A limit on file size, a small writable temporary file system |
@@ -356,16 +361,16 @@ flowchart TD
 **Layer 1: Linux primitives.** Process isolation on Linux uses these kernel features, and a judge such as Judge0 relies on a sandbox (isolate) that uses them (isolate's documentation says it takes advantage of namespaces and control groups, and it started in the Moe Contest Environment and is used by contest systems such as CMS).
 
 - **Namespaces.** Separate views of process IDs, the mount table, the network, inter-process communication, host names, and user IDs. The program sees only its own processes and its own file system, and an empty network namespace has no route out.
-- **Control groups version 2 (cgroups).** Limits and accounting for a group of processes. The kernel documentation defines `memory.max` (the hard limit: if usage reaches it and cannot be reduced, the out-of-memory killer runs in the group), `memory.high` (a throttle, with no kill, so it is not a limit for a judge), `cpu.max` (the form `$MAX $PERIOD`: the group may use up to `$MAX` in each `$PERIOD`), `pids.max` (a hard limit on the number of processes), `memory.swap.max` (set to 0 so a program cannot hide behind swap), `io.max`, and the `cpuset` controller to pin the group to given cores. The counters give the measured numbers: `memory.peak` for the maximum memory, `memory.events` with `oom_kill` for the verdict, and `cpu.stat` with `usage_usec` for the CPU time.
-- **Resource limits and a changed identity.** `rlimit` values for file size, stack, and the number of processes. The program runs as an unprivileged user with all capabilities dropped and with `no_new_privs` set.
+- **Control groups version 2 (cgroups).** Limits and accounting for a group of processes. The kernel documentation defines `memory.max` (the hard limit: if usage reaches it and cannot be reduced, the out-of-memory killer runs in the group), `memory.high` (a throttle, with no kill, so it is not a limit for a judge), `cpu.max` (the form `$MAX $PERIOD`: the group may use up to `$MAX` in each `$PERIOD`. It throttles the group and never kills it, so it keeps a submission inside its share of a core, and it does not enforce the time limit), `pids.max` (a hard limit on the number of processes), `memory.swap.max` (set to 0 so a program cannot hide behind swap), `io.max`, and the `cpuset` controller to pin the group to given cores. The counters give the measured numbers: `memory.peak` for the maximum memory (Linux 5.19 and later), `memory.events` with `oom_kill` for the verdict, and `cpu.stat` with `usage_usec` for the CPU time.
+- **Resource limits and a changed identity.** `rlimit` values for CPU time, file size, stack, and the number of processes. At the soft `RLIMIT_CPU` limit the kernel sends `SIGXCPU`, and at the hard limit it sends `SIGKILL`, so this limit kills a busy loop. The program runs as an unprivileged user with all capabilities dropped and with `no_new_privs` set.
 - **seccomp-bpf.** A filter loaded in the process that decides for each system call whether to allow it, deny it with an error, or kill the process. A judge uses an allowlist for each language: a C++ program needs few system calls (read, write, mmap, exit and a handful more), while a Java program needs more (threads, futex, and others). The filter cuts the kernel's attack surface for this program. It is a reduction and not a barrier: a bug in an allowed system call is still a bug in the host kernel.
 
 **Layer 2: a stronger boundary.** A container is a process group with namespaces and cgroups, and it shares the host kernel. The attack surface is the kernel's system call interface. For a platform where any user can send code, a second boundary is worth its cost. Two options, both documented:
 
 | Option | How it works | Benefit | Cost |
 |---|---|---|---|
-| gVisor (`runsc`) | The Sentry, "a Go-based, from-scratch reimplementation of the Linux system call interface" (gVisor's documentation), handles the program's system calls in user space and makes fewer calls to the host. A Gofer process serves file access. `runsc` is an OCI-compliant runtime, so Docker and Kubernetes can start it. Two platforms intercept calls: systrap (the default, uses seccomp, needs no virtualization support) and KVM (needs virtualization) | The program does not talk to the host kernel directly. Starts like a container. Works inside a cloud VM without nested virtualization (systrap) | Each system call costs more than in a plain container. If a Linux feature is not reimplemented in gVisor, the program cannot use it, so compatibility must be tested for each language runtime |
-| Firecracker microVM | A virtual machine monitor on top of KVM with a small device model (network, block, vsock, and a minimal legacy device set). Each microVM has its own guest kernel. The Firecracker documentation states that the process is itself confined: a `jailer` sets up cgroups and a chroot and drops privileges, and seccomp filters limit the host system calls that Firecracker can use | The strongest boundary here: hardware virtualization plus a confined VMM. The specification states a boot time of at most 125 ms (with a minimal kernel and root file system) and a memory overhead of at most 5 MiB for a 1-vCPU, 128 MiB microVM. The NSDI 2020 paper reports up to 150 microVMs created each second on one host | Needs KVM (bare metal or a cloud instance with nested virtualization). A guest kernel to maintain. A start cost that matters if it repeats for every test |
+| gVisor (`runsc`) | The Sentry, "a Go-based, from-scratch reimplementation of the Linux system call interface" (gVisor's documentation), handles the program's system calls in user space. The documentation states that gVisor never passes a system call of the program through to the host. The Sentry itself runs with a restricted set of host system calls. A Gofer process serves file access. `runsc` is an OCI-compliant runtime, so Docker and Kubernetes can start it. Two platforms intercept calls: systrap (the default, uses seccomp, needs no virtualization support) and KVM (needs virtualization) | The program does not talk to the host kernel directly. Starts like a container. Works inside a cloud VM without nested virtualization (systrap) | Each system call costs more than in a plain container. If a Linux feature is not reimplemented in gVisor, the program cannot use it, so compatibility must be tested for each language runtime |
+| Firecracker microVM | A virtual machine monitor on top of KVM with a small device model (VirtIO network and block devices, vsock, a serial console, and a partial keyboard controller). Each microVM has its own guest kernel. The Firecracker documentation states that the process is itself confined: a `jailer` sets up cgroups and a chroot and drops privileges, and seccomp filters limit the host system calls that Firecracker can use | The strongest boundary here: hardware virtualization plus a confined VMM. The specification states a boot time of at most 125 ms (with a minimal kernel and root file system) and a memory overhead of at most 5 MiB for a 1-vCPU, 128 MiB microVM. The NSDI 2020 paper reports up to 150 microVMs created each second on one host | Needs KVM (bare metal or a cloud instance with nested virtualization). A guest kernel to maintain. A start cost that matters if it repeats for every test |
 
 Recommendation: layer the two levels. The inner level is a per-submission sandbox with namespaces, cgroups, rlimits, and seccomp (isolate-style, which is what Judge0 uses). The outer level is a gVisor sandbox or a microVM that holds the worker's sandboxes, or one microVM for each submission. The choice between gVisor and a microVM depends on the infrastructure: a fleet on bare metal can use Firecracker, and a fleet on ordinary cloud VMs without nested virtualization uses gVisor with the systrap platform. Say in the interview what each costs. A plain container alone is a trade of cost for risk, and the interviewer wants to hear that the risk is the shared kernel.
 
@@ -373,7 +378,7 @@ Recommendation: layer the two levels. The inner level is a per-submission sandbo
 
 **Test data must not be visible.** The worker copies the input of one test into the sandbox just before the run, and removes it after. The expected output stays outside the sandbox: the worker compares the captured output with it. A checker runs in a second sandbox with the input, the output, and the answer, and it returns a verdict. The user program never sees the answer file.
 
-**Measuring time and memory.** The time limit applies to CPU time (the sum of user and system time from the cgroup's `cpu.stat` or from `rusage`). A separate wall-clock limit catches a program that sleeps or blocks, because CPU time would not grow (The Judge0 documentation describes the wall limit as the elapsed time from start to exit, so it also catches a program that sleeps. Its public configuration lists defaults of 2 seconds of CPU time and 5 seconds of wall time.) Memory is the peak of the cgroup (`memory.peak`), not the size reported by the program, and the memory limit is `memory.max`, so the kernel itself stops a program that crosses it. If `memory.events` shows an `oom_kill`, the verdict is `MLE`.
+**Measuring time and memory.** The time limit applies to CPU time (the sum of user and system time from the cgroup's `cpu.stat` or from `rusage`). The supervisor kills the program when the CPU time crosses the limit (`RLIMIT_CPU`, or a poll of `cpu.stat`). A separate wall-clock limit catches a program that sleeps or blocks, because its CPU time does not grow. Judge0 works the same way. Its API documentation defines the wall limit as the time from the start of the program to its exit, and it recommends the CPU limit as the main limit, with a much higher wall limit "as a precaution against sleeping programs". The defaults differ by source. Judge0's configuration file `judge0.conf` gives 5 seconds of CPU time, 10 seconds of wall time, and 128,000 KB of memory (version 1.8.0 raised the CPU and wall defaults to these values). The configuration example in the hosted API documentation shows 2 and 5 seconds. Judge0's memory limit caps the address space of the program, which is a different measure from the cgroup memory that this design uses. Memory is the peak of the cgroup (`memory.peak`), not the size reported by the program, and the memory limit is `memory.max`, so the kernel itself stops a program that crosses it. If `memory.events` shows an `oom_kill`, the verdict is `MLE`.
 
 **Fair timing.** The same program must get the same verdict on any worker, so the worker controls the noise:
 
@@ -426,7 +431,7 @@ The ranking problem is the one in [Design a Leaderboard and Top-K System](16-lea
 
 **The update path.** The leaderboard updater consumes the `DONE` events of contest submissions in order for each participant (partition the event stream by `user_id`). For an `AC` of a problem that the user has not yet solved: add the solve minute and the wrong attempts' penalty, increment `solved`, and write the new key with `ZADD contest:{id}:board key user`. For a `WA`, `TLE`, `MLE`, or `RE` of an unsolved problem: increment the wrong-attempt count for that problem (the penalty applies only when the problem is solved later). A `CE` and an `IE` do not count. An `AC` for a solved problem is ignored. The state per user and problem lives in the database (`problem_state`), so the updater is idempotent: it computes the key from the database rows, and writes the key. A replayed event gives the same key.
 
-**Reads.** `ZREVRANGE board 0 49` returns the top 50 with the scores, and `ZREVRANK` gives the rank of one user, which is the "your rank" display. 50,000 viewers that refresh every 10 seconds make 5,000 reads each second. The standings API caches the first pages for 5 seconds, so Redis sees a few reads each second for each page. The cache is the main read path. Push the page to the clients with the same SSE channel as the verdicts, or let them poll (see [communication patterns](../fundamentals/09-communication-patterns.md)).
+**Reads.** `ZREVRANGE board 0 49 WITHSCORES` returns the top 50 with the scores (Redis 6.2 and later mark `ZREVRANGE` as deprecated in favor of `ZRANGE ... REV`, which does the same), and `ZREVRANK` gives the rank of one user, which is the "your rank" display. `ZREVRANGE` orders members with equal scores in descending order of member name, so a board that shows equal ranks for equal scores computes the shared rank from the score. 50,000 viewers that refresh every 10 seconds make 5,000 reads each second. The standings API caches the first pages for 5 seconds, so Redis sees a few reads each second for each page. The cache is the main read path. Push the page to the clients with the same SSE channel as the verdicts, or let them poll (see [communication patterns](../fundamentals/09-communication-patterns.md)).
 
 **Durability and rebuild.** Redis holds a derived view. If it is lost, a job rebuilds each contest's sorted set from `problem_state` (a scan of 50,000 users). A rejudge recomputes `problem_state` for the changed submissions and rewrites the keys. The database is the source of truth.
 
@@ -442,7 +447,7 @@ The ranking problem is the one in [Design a Leaderboard and Top-K System](16-lea
 | A noisy neighbor on a host | The same program gets different times | Pin submissions to dedicated cores. Do not oversubscribe. Re-judge near the limit |
 | A slow or stuck job | A worker slot is held | A wall-time limit for each test, a total limit for the submission, and a watchdog that kills the sandbox |
 | Queue and database writes | Write latency on `submission` | Partition by time. Keep writes to a few for each submission (a state change at the start and one at the end). Move the per-test detail into one JSON column |
-| Compile load | Many large compiles | Cache identical sources (the same hash and language gives the same compile result, within the same user's rules). A compile limit |
+| Compile load | Many large compiles | Cache compile results by the source hash, the language, and the compiler flags: the same three give the same result. A compile limit |
 | The leaderboard reads | 5,000 reads each second | A cache with a TTL of 5 seconds. A snapshot for the frozen board. CDN for the public board |
 | A hostile submission | Sandbox escape attempt, a host that goes bad | Layered isolation. A host that reports a sandbox violation is drained and rebuilt from the image. Workers have no credentials beyond the queue, the test cache, and the result write |
 | A region fails | No judging | A second region with its own queue. Submissions are stored in the database that replicates across regions. The workers in the surviving region take the jobs |
@@ -460,7 +465,7 @@ The ranking problem is the one in [Design a Leaderboard and Top-K System](16-lea
 | Queue | A work queue with a visibility timeout | A log with partitions | Jobs vary in length, and any free worker should take the next job. A log's partition blocks the jobs behind a slow one |
 | Dispatch | Workers pull | A scheduler pushes | Pull gives back pressure and needs no load tracking. The queue depth drives autoscaling |
 | Result consistency | A conditional write with an attempt number | Last write wins | A slow duplicate worker could overwrite a newer verdict. The attempt number is a fencing token |
-| Verdict policy | Stop at the first failing test (ICPC style) | Run all tests | Saves about half of the CPU for wrong submissions. Partial scoring needs all tests, so it is a per-problem setting |
+| Verdict policy | Stop at the first failing test (ICPC style) | Run all tests | Saves the CPU time of the remaining tests for each wrong submission. Partial scoring needs all tests, so it is a per-problem setting |
 | Test data | Content-addressed bundles on a local cache | Download for each job | Contest data is 150 MB. A cache with a version hash cannot go stale |
 | Leaderboard | A Redis sorted set with a numeric key, rebuilt from the database | Query the database for each read | Rank queries on a sorted set are fast. The database stays the truth |
 | Result delivery | SSE with a polling fallback | Long polling only | One stream for each pending submission is cheap (4,200 at the peak). Polling is the fallback |
@@ -470,7 +475,7 @@ The ranking problem is the one in [Design a Leaderboard and Top-K System](16-lea
 
 ??? question "A user submits a fork bomb, an infinite loop, and a program that tries to open a socket. What stops each one?"
 
-    Each attack meets a different control, and the answer lists them. The fork bomb hits `pids.max` in the cgroup (a hard limit on the number of processes) and the `RLIMIT_NPROC` value, so `fork` fails after the limit, and the wall-time limit then kills the group. The infinite loop uses CPU time, and the CPU limit (and the wall limit as a safety net) kills the process, so the verdict is `TLE`. The socket call fails because the sandbox has an empty network namespace with no interface and no route, and seccomp can also deny the `socket` system call, so the program gets an error and the verdict is `RE` or `WA`.
+    Each attack meets a different control, and the answer lists them. The fork bomb hits `pids.max` in the cgroup (a hard limit on the number of processes) and the `RLIMIT_NPROC` value, so `fork` fails after the limit, and the wall-time limit then kills the group. The infinite loop uses CPU time, and the CPU-time limit kills it (`RLIMIT_CPU` sends `SIGXCPU` and then `SIGKILL`, or the supervisor reads the cgroup's `cpu.stat` and kills the group). The wall limit is the safety net. The verdict is `TLE`. Note that the cgroup's `cpu.max` only throttles, so it alone never ends the loop. The network attempt fails because the sandbox has an empty network namespace with no interface and no route, so a `connect` call returns an error. Seccomp can also deny the `socket` system call itself. The program gets an error, and the verdict is `RE` or `WA`.
 
     The deeper point: these controls limit the resources and the reach of the program, and a kernel bug could still let it out. That is why the design adds a second boundary, gVisor or a microVM, so that the program's system calls do not go to the host kernel directly. And the sandbox is destroyed after one submission, so nothing persists.
 
@@ -484,7 +489,7 @@ The ranking problem is the one in [Design a Leaderboard and Top-K System](16-lea
 
     Fairness means that the same program gets the same verdict on any worker at any load. The controls: measure CPU time from the cgroup or `rusage`, with a wall limit as a second guard. Pin each submission to its own physical core (a `cpuset`), and never put two untrusted programs on the two hyper-threads of one core. Do not run more judge slots than physical cores. Keep the host's frequency settings fixed. For a verdict near the limit (for example above 90%), run the test again on another worker and use the lower time.
 
-    For managed runtimes, the start cost of the JVM or the interpreter is part of the run, and it is the same for each test. The platform states a policy: either a per-language multiplier on the time limit (for example 2 times for Java, an assumption), or a separate limit for each language set by the problem setter. The policy is part of the problem statement, so users know the rule. For memory, count the cgroup's peak. A JVM reserves a large heap address space, so the sandbox must set the heap with a flag (for example `-Xmx`) from the memory limit, or the JVM kills itself or the sandbox does.
+    For managed runtimes, the start cost of the JVM or the interpreter is part of the run, and it is the same for each test. The platform states a policy: either a per-language multiplier on the time limit (for example 2 times for Java, an assumption), or a separate limit for each language set by the problem setter. The policy is part of the problem statement, so users know the rule. For memory, count the cgroup's peak. The JVM's behavior depends on the kind of memory limit. Under an address-space limit (`RLIMIT_AS`, which isolate's `--mem` option and Judge0's `memory_limit` use), the JVM reserves a large virtual range for its heap and other areas at start, so it can fail to start even for a small program. Under a cgroup `memory.max` limit, only the pages that the JVM touches count. A container-aware JVM can also size its default heap from the cgroup limit (cgroup v1 from JDK 10, cgroup v2 from JDK 15), but only if the sandbox exposes the cgroup file system to it, so the design does not depend on it. In both cases, set the heap with `-Xmx` below the memory limit. Then a program that allocates too much gets an `OutOfMemoryError` from the JVM (a clean `RE` or `MLE` verdict), and not a kill from the kernel.
 
 ??? question "A judge worker dies in the middle of a submission. What happens, and how do you avoid a wrong or duplicate verdict?"
 
@@ -510,7 +515,7 @@ The ranking problem is the one in [Design a Leaderboard and Top-K System](16-lea
 
 ??? question "How would you detect and handle cheating in a contest at the system level?"
 
-    The judge itself is not a cheating detector, so the design adds consumers on the event stream and keeps them off the judging path. A similarity service compares each accepted solution with the others for the same problem (a token-based similarity such as the one in the MOSS tool, a standard approach), and flags pairs above a threshold for a human review. A log of submission time, IP, and account supports a review of shared accounts and of suspicious timing (a solution that arrives a few seconds after another user's). The platform blocks known leaks by changing problems and tests. After a review, an operator can disqualify a user. That removes the user from the scoreboard, and a recomputation from the database updates the ranks. The sandbox keeps the test data hidden, so a user cannot learn the tests by reading them, and the rate limits stop a user from probing the tests with many submissions (the verdict shows only the first failing test index, not the data).
+    The judge itself is not a cheating detector, so the design adds consumers on the event stream and keeps them off the judging path. A similarity service compares each accepted solution with the others for the same problem and flags pairs above a threshold for a human review. The common tool is MOSS (Measure Of Software Similarity) from Stanford, which fingerprints programs with the winnowing algorithm: it hashes every k-gram (a substring of length k) and keeps the minimum hash in each window of hashes, so two programs that share a long enough passage share fingerprints. The MOSS page states that a similarity score is not proof of plagiarism, and a human must look at the matching code and decide. A log of submission time, IP, and account supports a review of shared accounts and of suspicious timing (a solution that arrives a few seconds after another user's). The platform blocks known leaks by changing problems and tests. After a review, an operator can disqualify a user. That removes the user from the scoreboard, and a recomputation from the database updates the ranks. The sandbox keeps the test data hidden, so a user cannot learn the tests by reading them, and the rate limits stop a user from probing the tests with many submissions (the verdict shows only the first failing test index, not the data).
 
 ## 45-Minute Plan
 
@@ -532,9 +537,11 @@ The ranking problem is the one in [Design a Leaderboard and Top-K System](16-lea
 - gVisor documentation, ["What is gVisor?"](https://gvisor.dev/docs/) and ["Architecture Guide: Introduction"](https://gvisor.dev/docs/architecture_guide/intro/). The Sentry, the Gofer, `runsc`, the systrap and KVM platforms, and the stated trade-offs in performance and compatibility.
 - Firecracker, ["Specification"](https://github.com/firecracker-microvm/firecracker/blob/main/SPECIFICATION.md) and ["Design"](https://github.com/firecracker-microvm/firecracker/blob/main/docs/design.md). The boot time of at most 125 ms and the overhead of at most 5 MiB for the stated configuration, and the jailer, seccomp, cgroups, and KVM design.
 - Agache et al., ["Firecracker: Lightweight Virtualization for Serverless Applications"](https://www.usenix.org/system/files/nsdi20-paper-agache.pdf), NSDI 2020. The reasoning behind a minimal virtual machine monitor, the start time, and the creation rate of up to 150 microVMs each second on one host.
-- Judge0, [documentation](https://ce.judge0.com/) and [source](https://github.com/judge0/judge0). A working open-source judge: the submission API, status IDs, callbacks, queue limits, and its configurable CPU, wall-time, and memory limits. The defaults differ between versions and installations.
+- Judge0, [API documentation](https://ce.judge0.com/), [source](https://github.com/judge0/judge0), [`judge0.conf`](https://github.com/judge0/judge0/blob/master/judge0.conf), and [CHANGELOG](https://github.com/judge0/judge0/blob/master/CHANGELOG.md). A working open-source judge: the submission API, status IDs, callbacks, the `max_queue_size` limit (default 100) and its `503` answer, and its configurable CPU, wall-time, and memory limits. The configuration file gives the shipped defaults (5 s CPU, 10 s wall, 128,000 KB), and the CHANGELOG records the change to them in version 1.8.0.
 - [isolate](https://github.com/ioi/isolate), the sandbox that Judge0 and contest systems such as CMS use. A small sandbox built on namespaces and control groups, from the IOI contest tooling.
 - Redis documentation, ["Sorted sets"](https://redis.io/docs/latest/develop/data-types/sorted-sets/). `ZADD`, `ZREVRANGE`, `ZREVRANK`, and the score as a 64-bit floating-point number.
-- ICPC contest rules, published on [icpc.global](https://icpc.global/). The ranking by the number of problems solved and then by penalty time, with 20 minutes for each earlier incorrect submission. (Read the current rules for the exact wording.)
+- CERC 2025 (an ICPC regional contest), ["General rules"](https://cerc25.ii.uni.wroc.pl/grules.html). An example of published ICPC-style rules: the ranking by problems solved and then by total time, 20 penalty minutes for each rejected run of a solved problem, no penalty for a compilation error, and a ranking frozen in the last hour. Each ICPC contest publishes its own rules, so read the rules of the contest in question.
+- Stanford, ["Moss: A System for Detecting Software Similarity"](https://theory.stanford.edu/~aiken/moss/). The plagiarism-detection service, and its warning that a similarity score is not proof.
+- Schleimer, Wilkerson, and Aiken, ["Winnowing: Local Algorithms for Document Fingerprinting"](https://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf), SIGMOD 2003. The fingerprinting algorithm behind MOSS.
 - Little, "A Proof for the Queuing Formula: L = λW", *Operations Research* 9(3), 1961. The law behind the fleet-size calculation.
 - Related pages: [Design a Leaderboard and Top-K System](16-leaderboard-and-top-k.md), [message queues and streams](../fundamentals/08-message-queues-and-streams.md), [reliability patterns](../fundamentals/12-reliability-patterns.md), [rate limiting algorithms](../fundamentals/13-rate-limiting-algorithms.md), [communication patterns](../fundamentals/09-communication-patterns.md), [storage types](../fundamentals/10-storage-types.md), [distributed locks and leases](../distributed-systems/05-distributed-locks-and-leases.md), [security in design](../fundamentals/21-security-in-design.md), and [estimation](../back-of-envelope-estimation.md).

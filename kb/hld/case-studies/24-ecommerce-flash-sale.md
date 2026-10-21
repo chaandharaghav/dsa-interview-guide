@@ -63,7 +63,7 @@ Ask these in the first 5 minutes. Each row gives the answer that this design ass
 
 Rounding rule: one day is 10^5 seconds (see the [estimation page](../back-of-envelope-estimation.md)).
 
-Inputs (all are assumptions): stock 10,000 units. 2 million users online at the start. Each user sends 3 buy requests in the first 10 seconds. A buy call and its response carry about 1 KB. One Redis shard serves about 100,000 simple operations each second (approximate; the real number depends on the hardware, the command, and the network, so measure it). A row update in the database holds its row lock for 1 ms. The admission step lets in 2 times the stock (20,000 users) in the first wave. 60% of the reservations get paid. An order row has 2 KB.
+Inputs (all are assumptions): stock 10,000 units. 2 million users online at the start. Each user sends 3 buy requests in the first 10 seconds. A buy call and its response carry about 1 KB. One Redis shard serves about 100,000 simple operations each second (approximate. The Redis benchmark page shows about 180,000 `SET` calls each second on one instance with 50 clients and no pipelining, and about 72,000 with random keys. A script with four commands costs more than one `SET`, so the real rate of the gate script is lower. The number depends on the hardware, the command, and the network, so measure it). A row update in the database holds its row lock for 1 ms. The admission step lets in 2 times the stock (20,000 users) in the first wave. 60% of the reservations get paid. An order row has 2 KB.
 
 | Step | Calculation | Result |
 |---|---|---|
@@ -82,9 +82,9 @@ Inputs (all are assumptions): stock 10,000 units. 2 million users online at the 
 
 What the numbers decide:
 
-- **The volume of data is tiny. The contention is the problem.** 20 MB of orders fits anywhere. The trouble is 600,000 requests each second for 10,000 units. The design is a funnel that cuts the load by about 100 times before the stock counter and about 60 times more before the database.
+- **The volume of data is tiny. The contention is the problem.** 20 MB of orders fits anywhere. The trouble is 600,000 requests each second for 10,000 units. The design is a funnel that cuts the load by about 100 times before the stock counter (from 600,000 to 6,000 requests each second). The queue then lowers the rate about 12 times more, to about 500 writes each second at the database.
 - **One counter cannot take the raw traffic.** 600,000 requests each second on one key is 6 times what one Redis shard serves, and a single key lives on one shard. The funnel removes most requests, and the stock key is split into buckets for the rest.
-- **The database row is a serial resource.** A row lock held for 1 ms serializes updates at about 1,000 each second, so 10,000 deductions on one row take 10 seconds, and a lock held for 5 ms (a slow transaction with several statements) makes it 50 seconds. The article from Alibaba Cloud (see Further Reading) says the same thing: the time the lock is held decides the throughput on a hot row. So the database does the final, authoritative deduction at a rate that a queue sets, and the in-memory gate takes the burst.
+- **The database row is a serial resource.** A row lock held for 1 ms serializes updates at about 1,000 each second, so 10,000 deductions on one row take 10 seconds, and a lock held for 5 ms (a slow transaction with several statements) makes it 50 seconds. The article from Alibaba Cloud (see Further Reading) says the same thing: if the transaction holds the lock for a shorter time, the throughput of a hot row approaches 1 second divided by the transaction's response time. So the database does the final, authoritative deduction at a rate that a queue sets, and the in-memory gate takes the burst.
 - **The stock runs out in about 2 seconds.** After that, the system's main job is to answer "sold out" cheaply to everyone else, and to keep the 4,000 units that unpaid reservations return available for the next users in line.
 - **99.5% of the users do not get a unit.** The design is judged by how it treats them: a fast, truthful answer.
 
@@ -218,15 +218,16 @@ The reserve call. Request headers: `Authorization`, `X-Access-Token` (from the a
 | Status | Body | Meaning |
 |---|---|---|
 | `202` | `{ "reservationId", "status": "PENDING" }` | The in-memory gate took a unit. The order service is creating the order |
-| `200` | `{ "reservationId", "status": "RESERVED", "expiresAt" }` | The same call after the order exists (idempotent repeat) |
+| `200` | `{ "reservationId", "status": "HELD", "expiresAt" }` | The same call after the order exists (idempotent repeat) |
 | `409` | `{ "reason": "ALREADY_RESERVED" }` | This account already holds or bought a unit |
 | `410` | `{ "reason": "SOLD_OUT" }` | No unit is left. The edge caches this answer for 1 to 2 seconds for all users |
 | `429` | `Retry-After` header | Too many requests from this user, IP, or token |
 | `403` | `{ "reason": "NO_ADMISSION" }` | No valid access token |
+| `403` | `{ "reason": "NOT_OPEN" }` | The request arrived before the opening time by the server clock |
 
 #### `GET /v1/reservations/{reservationId}`
 
-Response `200`: `{ "status": "PENDING|RESERVED|PAID|EXPIRED|FAILED", "expiresAt", "orderId" }`. The client polls (with `retryAfterSeconds`) or listens on a push channel. The system never returns `RESERVED` until the database has recorded the order.
+Response `200`: `{ "status": "PENDING|HELD|PAYING|PAID|EXPIRED|CANCELLED|FAILED", "expiresAt", "orderId" }`. The client polls (with `retryAfterSeconds`) or listens on a push channel. The system never returns `HELD` until the database has recorded the reservation. `PENDING` means that the gate took a unit and the order service has not committed yet.
 
 #### `POST /v1/reservations/{reservationId}/checkout`
 
@@ -259,7 +260,7 @@ The user gives the unit back. Response `204`. A repeat returns `204`.
 
 `sale_stock`: `(sale_id, sku_id, total, available, version)`, primary key `(sale_id, sku_id)`, `CHECK (available >= 0)`.
 
-`reservation`: `(reservation_id PK, sale_id, user_id, sku_id, state, expires_at, created_at)`, a unique key on `(sale_id, user_id)`. The state is `HELD`, `PAID`, `EXPIRED`, `CANCELLED`, or `FAILED`.
+`reservation`: `(reservation_id PK, sale_id, user_id, sku_id, state, expires_at, created_at)`, a unique key on `(sale_id, user_id)`. The state is `HELD`, `PAYING`, `PAID`, `EXPIRED`, `CANCELLED`, or `FAILED`. (`PENDING` exists only before this row exists: the reserve service reports it from the idempotency record in Redis.)
 
 `orders`: `(order_id PK, reservation_id UNIQUE, user_id, amount_cents, psp_payment_id UNIQUE, state)`.
 
@@ -269,7 +270,7 @@ The user gives the unit back. Response `204`. A repeat returns `204`.
 
 ### The stock rule, runnable
 
-The rule from the LLD page (a conditional update for the stock claim) in SQL. The reservation insert enforces one unit for each user. The stock update succeeds only if a unit is left. The application commits only if both statements changed a row. The statements run on SQLite with fixed values. In PostgreSQL the same statements run in one transaction.
+The rule from the LLD page (a conditional update for the stock claim) in SQL. The reservation insert enforces one unit for each user. The stock update succeeds only if a unit is left. The application commits only if both statements changed a row. The statements run on SQLite with fixed values. In PostgreSQL the same logic runs in one transaction, with `INSERT ... ON CONFLICT DO NOTHING` in place of the SQLite `INSERT OR IGNORE`, and with the row count that the driver returns (for example, the return value of JDBC `executeUpdate`) in place of `changes()`.
 
 ```sql
 CREATE TABLE sale_stock (
@@ -370,7 +371,7 @@ phone-x | 1
 
 ### Database choice
 
-The truth about stock and orders needs a conditional update, a unique constraint, and transactions across a reservation row and a stock row. A relational database gives all three, so the authoritative path uses PostgreSQL or MySQL (see [choosing a database](../fundamentals/04-choosing-a-database.md)). The limit of one row is the serial update rate, and the design keeps the database below that limit with the queue and the in-memory gate, instead of replacing the database. A key-value store with conditional writes (DynamoDB `UpdateItem` with a condition expression) has the same hot-key limit for one item, so it does not change the design.
+The truth about stock and orders needs a conditional update, a unique constraint, and transactions across a reservation row and a stock row. A relational database gives all three, so the authoritative path uses PostgreSQL or MySQL (see [choosing a database](../fundamentals/04-choosing-a-database.md)). MySQL enforces `CHECK` constraints only from version 8.0.16. Earlier versions parse the constraint and ignore it, so on those versions the conditional `WHERE available >= 1` is the only guard. The limit of one row is the serial update rate, and the design keeps the database below that limit with the queue and the in-memory gate, instead of replacing the database. A key-value store with conditional writes (DynamoDB `UpdateItem` with a condition expression) has the same hot-key limit for one item: one item lives in one partition, and AWS designs each partition for at most 1,000 write units each second. So it does not change the design.
 
 Recommendation: the in-memory gate is a performance device and not a source of truth. If Redis loses data, the system repairs it from the database, and it never trusts Redis for money or for the final stock.
 
@@ -418,8 +419,8 @@ flowchart TD
 3. An admitted user calls `POST /reservations` with the token. The gateway checks the token and the rate limit.
 4. The reserve service picks the user's home bucket by a hash of the user ID and runs the Lua script. The script returns `1` (a unit taken), `-1` (the user has one), or `0` (the bucket is empty). On `0`, the service tries the next bucket. If all buckets return `0`, the sale is sold out.
 5. On `1`, the service writes a message `(reservationId, userId, skuId)` to the order queue, and answers `202`.
-6. The order service consumes the message. One transaction inserts the reservation (the unique key blocks a duplicate), decreases `available` with the condition, and writes the outbox row. If the stock update changes zero rows, the transaction rolls back, the unit returns to Redis, and the reservation becomes `FAILED`.
-7. The client polls the reservation and sees `RESERVED` with `expiresAt`. The user pays. The payment webhook marks the reservation `PAID` and creates the order.
+6. The order service consumes the message. One transaction inserts the reservation (the unique key blocks a duplicate), decreases `available` with the condition, and writes the outbox row. Three outcomes need care. If the insert fails on the unique key and the existing row has the same `reservation_id`, the message is a duplicate delivery: the order service treats it as success and returns nothing. If the existing row has a different `reservation_id` (the user already holds another unit), the transaction rolls back, the new reservation becomes `FAILED`, and the order service returns the unit to its Redis bucket, because the unit is real. If the stock update changes zero rows, the database has no unit left. The transaction rolls back and the reservation becomes `FAILED`, but the order service returns nothing to Redis, because the Redis count was too high. It reports the difference to the reconciler.
+7. The client polls the reservation and sees `HELD` with `expiresAt`. The user pays. The payment webhook marks the reservation `PAID` and creates the order.
 8. If the user does not pay by `expiresAt`, the expiry job frees the unit, and the next user in the queue receives it.
 
 ## Deep Dives
@@ -463,7 +464,7 @@ The rule: a unit is sold at most once, and a user gets at most one. The design d
 | 3. Database stock row | `UPDATE sale_stock SET available = available - 1 WHERE sale_id = ? AND sku_id = ? AND available >= 1`, plus `CHECK (available >= 0)` | A wrong Redis count (a restore from an old copy, a failover that lost writes) |
 | 4. Database unique key | `UNIQUE (sale_id, user_id)` on the reservation | A user who got two units through two buckets, or through a replayed message |
 
-**The script.** The atomic gate for one bucket. The keys of one script must be on the same Redis shard, so the counter and the buyer set of one bucket share a hash tag, for example `{phone-x:3}`.
+**The script.** The atomic gate for one bucket. In Redis Cluster, a command or script that uses several keys works only if all the keys hash to the same slot (the cluster specification states this rule). So the counter and the buyer set of one bucket share a hash tag, for example `stock:{phone-x:3}` and `buyers:{phone-x:3}`.
 
 ```lua
 -- KEYS[1] = stock counter of the bucket, KEYS[2] = buyer set of the bucket
@@ -481,15 +482,15 @@ redis.call('SADD', KEYS[2], ARGV[1])
 return 1
 ```
 
-The Redis documentation states that a script runs atomically: no other command runs while it runs. So two buyers cannot both see `left = 1` and both decrement. This is why the gate uses a script and not separate `GET` and `DECR` calls, which would race. A shorter script is `DECR` with a check on the result (if the value is below 0, `INCR` it back). The script form also holds the buyer set, so one round trip does both checks.
+The Redis documentation states that a script runs atomically: "While executing the script, all server activities are blocked during its entire runtime." So two buyers cannot both see `left = 1` and both decrement. This is why the gate uses a script and not separate `GET` and `DECR` calls, which would race. A shorter script is `DECR` with a check on the result (if the value is below 0, `INCR` it back). The script form also holds the buyer set, so one round trip does both checks.
 
 **Why buckets.** One key lives on one shard, so one key caps at the throughput of one shard (about 100,000 operations each second in the estimate), however many shards exist. The design splits the stock of 10,000 units into K buckets (for example 8 buckets of 1,250), on different shards. The reserve service sends each user to a home bucket by a hash of the user ID, so one user's calls reach the same bucket and the same buyer set. If the home bucket is empty, the service tries the next bucket, and so on, before it answers "sold out". Without the fall-through, a user whose bucket is empty would see "sold out" while another bucket still has units. The experiment in the Estimation section runs this fall-through with 4 buckets and shows that all units sell.
 
-**The cost of buckets.** Two. First, the check of "sold out" for the whole sale is the sum of the buckets, so a background aggregator reads all counters and sets the sale state, and the reserve service sets it when its own walk through all buckets fails. Second, a user can get a second unit if a unit returns to a bucket that the user's walk reaches earlier than the bucket that holds the user's first unit. The unique key in the database (layer 4) catches this: the second reservation fails, and the order service returns that unit to its bucket. This is a rare path, so the design accepts the extra step.
+**The cost of buckets.** Two. First, the check of "sold out" for the whole sale is the sum of the buckets, so a background aggregator reads all counters and sets the sale state, and the reserve service sets it when its own walk through all buckets fails. Second, a user can get a second unit if a unit returns to a bucket that the user's walk reaches earlier than the bucket that holds the user's first unit. The unique key in the database (layer 4) catches this: the second reservation (with a different `reservation_id`) fails, and the order service returns that unit to its bucket. This is a rare path, so the design accepts the extra step.
 
 **Redis is not the truth.** Redis can lose data. With asynchronous replication, a primary that fails can lose its last writes, and the promoted replica then has counters that are too high (it lost some decrements). That allows more users through the gate than the stock. The database stock row (layer 3) then refuses the excess: the update changes zero rows, the order is `FAILED`, and the user sees a rejection, which is a bad experience but a correct result (see [replication](../fundamentals/05-replication.md)). The reverse error (counters too low, for example a lost return of a unit) causes under-selling, and the reconciler repairs it.
 
-**Reconciliation.** A job compares, for each sale: the database `available`, the count of `HELD` reservations that the database knows, and the Redis counters. The invariant is `available (database) = total − held − paid`. Redis should hold `available` minus the messages in flight on the queue. The reconciler recalculates the Redis counters from the database when no messages are in flight, or after a pause of the sale. It is also the repair path after a Redis restart: pause the sale for a moment, reload the counters from the database, and resume. Recommendation: build the pause switch before the sale.
+**Reconciliation.** A job compares, for each sale: the database `available`, the count of `HELD` and `PAYING` reservations that the database knows, and the Redis counters. The invariant is `available (database) = total − held − paying − paid`. Redis should hold `available` minus the messages in flight on the queue. The reconciler recalculates the Redis counters from the database when no messages are in flight, or after a pause of the sale. It is also the repair path after a Redis restart: pause the sale for a moment, reload the counters from the database, and resume. Recommendation: build the pause switch before the sale.
 
 **What if Redis is down?** The reserve service fails closed: it returns `503` and no one reserves. Overselling is worse than a short outage. The alternative, a fallback to the database for every request, would send the burst to one row, so the design does not use it for the burst. For a small sale (a few hundred each second), the fallback to the database is acceptable.
 
@@ -503,9 +504,9 @@ The Redis documentation states that a script runs atomically: no other command r
 |---|---|---|
 | Shorter lock time | Merge statements and cut network round trips. Update the row near the end of the transaction. Return the result from the update itself (one statement that updates and returns) | Needs care in the code. Cheapest |
 | Limit concurrency | A thread pool limits the sessions that touch the database, so the lock queue stays short | Lower peak parallelism. Stable latency |
-| Queue updates for the same row | The database queues transactions on one row and so reduces the cost of lock wake-ups | A database feature, not available in every engine |
-| Group commit for hot rows | A leader transaction collects concurrent updates to the same row and applies them in one step. The PolarDB-X documentation describes this for hot-row updates, and its limits (version, edition, one shard) | Engine-specific, with restrictions |
-| Optimistic, no-wait updates | A transaction that hits a lock rolls back at once (`no_wait`) instead of waiting | The application retries. Fits a gate that already filtered the traffic |
+| Queue updates for the same row | The database queues the transactions that update the same row, which reduces the overhead of InnoDB lock wake-ups | A database feature (the article describes it in AliSQL), not available in every engine |
+| Group commit for hot rows | A leader thread collects concurrent updates to the same row, applies them as one group update under one lock, and commits the batch. The followers get their results without taking the lock themselves. PolarDB-X documents this feature (an "inventory hint") | Engine-specific. The PolarDB-X documentation lists these limits: Enterprise Edition (MySQL 5.7) only, a single shard, an equality condition on a primary key or unique key, no global indexes, and the XA transaction policy |
+| Optimistic, no-wait updates | A transaction that finds the row locked fails at once instead of waiting. The article names the no-wait function of AliSQL and MySQL 8.0 (in MySQL 8.0, `SELECT ... FOR UPDATE NOWAIT`) | The application retries. Fits a gate that already filtered the traffic |
 
 This design uses the first two, and it does not depend on an engine-specific feature. The in-memory gate and the queue keep the update rate for one row below about 1,000 each second.
 
@@ -515,11 +516,11 @@ This design uses the first two, and it does not depend on an engine-specific fea
 
 **Why the queue is safe.** A message in the queue represents a unit that the gate already took. If the order service fails, the message stays, and another consumer takes it. If a message is delivered twice (at-least-once delivery), the order service must not create two reservations: the unique key on `(sale_id, user_id)` makes the second insert fail, and the transaction treats "already exists with the same reservation ID" as success. This is the idempotent consumer from [message queues and streams](../fundamentals/08-message-queues-and-streams.md).
 
-**Idempotency on the client path.** A double click or a retry sends the same `Idempotency-Key`. The reserve service stores the key in Redis with the reservation ID (`SET key id NX EX 86400`) before it runs the script. A repeat with the same key returns the stored response and does not run the script again. The database also keeps the key table for the order path (see [reliability patterns](../fundamentals/12-reliability-patterns.md)).
+**Idempotency on the client path.** A double click or a retry sends the same `Idempotency-Key`. Before it runs the script, the reserve service stores the key in Redis with a new reservation ID (`SET key id NX EX 86400`). After the script, it replaces the value with the final response (`202` with the ID, `409`, or `410`). A repeat with the same key returns the stored response and does not run the script again. If the repeat finds only the ID and no final response (the first call is still running, or its process crashed), the service returns `202` with that ID, and the client polls the reservation. The reconciler marks a reservation `FAILED` if the database has no row for it after a timeout longer than the maximum queue lag (for example 1 minute). The database also keeps the key table for the order path (see [reliability patterns](../fundamentals/12-reliability-patterns.md)).
 
 **The outbox.** The order transaction writes an outbox row. A publisher sends it to Kafka. This way "order created" events reach the notification and the analytics services even if the process crashes after the commit. The pattern is in [message queues and streams](../fundamentals/08-message-queues-and-streams.md) and [distributed transactions](../distributed-systems/03-distributed-transactions.md).
 
-**Order of the writes.** The gate decrements Redis first, and then the queue, and then the database. If the process crashes between the Redis decrement and the queue write, a unit is lost from the Redis count (the user got `0` from a timeout and does not hold a reservation). The reconciler restores it. The opposite order (queue first, Redis later) can overshoot the stock. The design prefers a temporary under-count to an over-count.
+**Order of the writes.** The gate decrements Redis first, and then the queue, and then the database. If the process crashes between the Redis decrement and the queue write, the Redis count is one unit too low, and the user's ID stays in the bucket's buyer set without a reservation (the user saw a timeout). Until the repair, a retry by that user gets `-1` from the script. The reconciler restores the unit, and it removes from the buyer sets each user who still has no reservation row in the database after that timeout. The opposite order (queue first, Redis later) can overshoot the stock. The design prefers a temporary under-count to an over-count.
 
 ### Deep dive 4: Reservation, payment, expiry, and backfill
 
@@ -530,9 +531,11 @@ stateDiagram-v2
     [*] --> PENDING : gate took a unit
     PENDING --> HELD : order service committed
     PENDING --> FAILED : database refused
-    HELD --> PAID : payment confirmed
+    HELD --> PAYING : checkout started
     HELD --> EXPIRED : time limit
     HELD --> CANCELLED : user gave it back
+    PAYING --> PAID : payment confirmed
+    PAYING --> EXPIRED : payment limit passed
     PAID --> REFUNDED : refund
     FAILED --> [*]
     EXPIRED --> [*]
@@ -540,13 +543,13 @@ stateDiagram-v2
     REFUNDED --> [*]
 ```
 
-**Return of a unit.** Each ending state (`EXPIRED`, `CANCELLED`, `FAILED`) must return the unit exactly once. The rule is a guarded state change: `UPDATE reservation SET state = 'EXPIRED' WHERE reservation_id = ? AND state = 'HELD'`. The job returns the unit (`available + 1`, and a Redis `INCR` plus the removal of the user from the buyer set) only if the update changed one row. A second run of the job, or a concurrent cancel, finds no `HELD` row and returns nothing. The SQL in the Data Model section shows both outcomes. This is the same idea as the hold ID on the seat in the ticket design.
+**Return of a unit.** Each of the ending states `EXPIRED` and `CANCELLED` must return the unit exactly once. (`FAILED` follows a rolled-back transaction, so the database stock never changed. Step 6 of the flow says when the order service gives the unit back to Redis.) The rule is a guarded state change: `UPDATE reservation SET state = 'EXPIRED' WHERE reservation_id = ? AND state = 'HELD'` (or `state = 'PAYING'` after the payment limit). The job returns the unit (`available + 1`, and a Redis `INCR` plus the removal of the user from the buyer set) only if the update changed one row. A second run of the job, or a concurrent cancel, finds no `HELD` row and returns nothing. The SQL in the Data Model section shows both outcomes. This is the same idea as the hold ID on the seat in the ticket design.
 
 **Expiry mechanisms.** Two, as on the ticket page. A delay queue or a sorted set of `(expires_at, reservationId)` triggers the expiry at the time (the system reads due items every second). A sweeper job every minute finds any `HELD` row past `expires_at`, which repairs a lost trigger.
 
-**The race with payment.** A user pays in the last second, and the expiry runs at the same moment. The rules from the ticket booking page apply: the checkout moves the reservation to a `PAYING` state with a later limit, and the expiry job skips `PAYING` reservations. If the PSP confirms the payment after the unit went to another user, the payment service refunds it (see [Design a Ticket Booking System](12-ticket-booking.md), deep dive 3, and [Design a Payment System](13-payment-system.md)).
+**The race with payment.** A user pays in the last second, and the expiry runs at the same moment. The rules from the ticket booking page apply: the checkout moves the reservation to a `PAYING` state with a later limit, and the expiry job skips `PAYING` reservations until that payment limit passes. If the PSP confirms the payment after the unit went to another user, the payment service refunds it (see [Design a Ticket Booking System](12-ticket-booking.md), deep dive 3, and [Design a Payment System](13-payment-system.md)).
 
-**Backfill.** When a unit returns, the system can sell it again. Two options. The simple option: put the unit back into a Redis bucket, and the next lottery winners who are still waiting reserve it. A short scheduled wave admits the next users from the lottery order (for example 1,000 each minute) so a returned unit does not start a second stampede. The strict option: give the unit directly to the next user in the waiting list and notify them, with a new 10-minute hold. The strict option is fairer, and it needs the waiting list to be a durable ordered structure. Recommendation: use scheduled waves for the first version.
+**Backfill.** When a unit returns, the system can sell it again. Two options. The simple option: put the unit back into a Redis bucket, and the next lottery winners who are still waiting reserve it. A short scheduled wave admits the next users from the lottery order (for example 1,000 each minute) so a returned unit does not start a second stampede. The strict option: give the unit directly to the next user in the waiting list and notify them, with a new 10-minute hold. The strict option is fairer, and it needs the waiting list to be a durable ordered structure. Recommendation: use scheduled waves for the first version. In both options, the reserve service clears the `SOLD_OUT` flag at the edge when it admits a new wave, so that reserve calls with a valid access token reach it again. The state becomes final only when no `HELD` or `PAYING` reservation is left, or when the sale ends.
 
 **Multi-item orders.** A cart with several flash-sale items needs several units at once. A reservation of unit A and unit B in two systems is a saga: reserve A, reserve B, and if B fails, release A (see [distributed transactions](../distributed-systems/03-distributed-transactions.md)). To avoid deadlock-like waits, reserve in a fixed order (by SKU ID). Many flash sales limit the sale to one item for one order for this reason.
 
@@ -567,9 +570,9 @@ stateDiagram-v2
 | Notification burst | 2 million "sold out" or "you won" messages | Show the result on the page. Send the notification only to the 10,000 winners, with a rate limit (see [Design a Notification System](04-notification-system.md)) |
 | Too many sales on the same cluster | One sale harms others | Give each hot sale its own Redis group, queue, and database partition. The cell-based design limits the blast radius |
 
-**Observe the sale.** Watch the edge request rate, the share of `429` and `410`, the reserve latency, the Redis bucket counters against the database stock, the order queue lag, the lock wait time in the database, and the number of `HELD` reservations. An alert on the invariant (paid plus held above the total) is the most important one (see [observability in design](../fundamentals/20-observability-in-design.md)).
+**Observe the sale.** Watch the edge request rate, the share of `429` and `410`, the reserve latency, the Redis bucket counters against the database stock, the order queue lag, the lock wait time in the database, and the number of `HELD` and `PAYING` reservations. An alert on the invariant (paid plus paying plus held above the total) is the most important one (see [observability in design](../fundamentals/20-observability-in-design.md)).
 
-**Rehearse.** Run a load test at 2 times the expected traffic, with realistic retries. Kill a Redis primary during the test. Check the invariants after every test: no oversell, no user with two units, every paid order has a payment, every unit is `available`, `HELD`, or `PAID`.
+**Rehearse.** Run a load test at 2 times the expected traffic, with realistic retries. Kill a Redis primary during the test. Check the invariants after every test: no oversell, no user with two units, every paid order has a payment, every unit is `available`, `HELD`, `PAYING`, or `PAID`.
 
 ## Trade-offs
 
@@ -580,7 +583,7 @@ stateDiagram-v2
 | Source of truth | The database | Redis | Redis can lose writes on failover. The database has constraints and durability |
 | Gate primitive | A Lua script on the bucket | A distributed lock on the SKU, or `GET` then `DECR` | The script is atomic with one round trip. A lock adds a round trip and a lease. Separate commands race |
 | Stock layout | K buckets with fall-through | One key | One key caps at one shard. Buckets cost a sum for the total and a rare duplicate repair |
-| Order creation | Asynchronous through a queue | A synchronous database write in the reserve call | The queue shapes the burst. The user waits a few seconds for `RESERVED` |
+| Order creation | Asynchronous through a queue | A synchronous database write in the reserve call | The queue shapes the burst. The user waits a few seconds for `HELD` |
 | Failure mode | Fail closed (refuse) | Fall back to the database for all traffic | Overselling is a defect. A short outage is not. The fallback overloads the one row |
 | Duplicate protection | Buyer set in Redis plus a unique key in the database | Only the Redis set | Redis can lose the set. The unique key is durable |
 | Unit return | A guarded state change, then a stock update | A blind `available + 1` | A repeat of the job or a race would add the unit twice |
@@ -598,9 +601,9 @@ stateDiagram-v2
 
 ??? question "Your Redis primary fails in the middle of the sale. What happens to correctness and to the user experience?"
 
-    Correctness: the system does not oversell. Redis replication is asynchronous, so the promoted replica may lack the last few decrements, and its counters may be too high. The gate then lets slightly more users through than the stock. The database stock row refuses the excess with the conditional update (`available >= 1`, and the `CHECK` constraint), so the order service marks those reservations `FAILED` and returns the units. The unique key on the reservation stops a duplicate for a user. The invariant holds because the database is the truth.
+    Correctness: the system does not oversell. Redis replication is asynchronous, so the promoted replica may lack the last few decrements, and its counters may be too high. The gate then lets slightly more users through than the stock. The database stock row refuses the excess with the conditional update (`available >= 1`, and the `CHECK` constraint), so the order service marks those reservations `FAILED`. It does not return those units to Redis, because the database never had them. The unique key on the reservation stops a duplicate for a user. The invariant holds because the database is the truth.
 
-    User experience: during the failover, which takes seconds, the reserve service fails closed with `503`, and clients retry with backoff and jitter. After the failover, a reconciler pauses the sale for a moment, recomputes the Redis counters from the database (total minus held minus paid, minus the messages in flight on the queue), and resumes. A few users who got `RESERVED` from the gate and then `FAILED` from the database see a message that the unit was not available. This is a rare path that the design accepts, and the alternative (a synchronous replica for every decrement) costs latency on every call. If the business cannot accept the rare rejection, the reserve step goes through the database for a lower throughput.
+    User experience: during the failover, which takes seconds, the reserve service fails closed with `503`, and clients retry with backoff and jitter. After the failover, a reconciler pauses the sale for a moment, recomputes the Redis counters from the database (total minus held, paying, and paid, minus the messages in flight on the queue), and resumes. A few users who got `PENDING` (a `202`) from the gate and then `FAILED` from the database see a message that the unit was not available. This is a rare path that the design accepts. The alternative, a `WAIT` for a replica acknowledgement after every decrement, adds a round trip to every call, and the Redis documentation states that even `WAIT` does not make Redis strongly consistent: an acknowledged write can still be lost in a failover. If the business cannot accept the rare rejection, the reserve step goes through the database for a lower throughput.
 
 ??? question "How do you make the sale fair, and how do you handle bots?"
 
@@ -622,13 +625,13 @@ stateDiagram-v2
 
 ??? question "How would you sell 1 million units of an item in a sale, not 10,000?"
 
-    The volume changes the hot-row arithmetic. At 1,000 updates each second on one row, 1 million deductions take 1,000 seconds, so one row is not enough, and one Redis key is not enough either. The design uses more buckets (for example 64 in Redis and 64 rows in the database, one bucket to a row) so that the rate for each row falls to about 100 to 200 each second. Each reservation goes to a home bucket, and the fall-through covers empty buckets. The order service runs one consumer group for each partition of the queue, partitioned by bucket.
+    The volume changes the hot-row arithmetic. At 1,000 updates each second on one row, 1 million deductions take 1,000 seconds, so one row is not enough, and one Redis key is not enough either. The design uses more buckets (for example 64 in Redis and 64 rows in the database, one bucket to a row) so that the rate for each row falls to about 100 to 200 each second. Each reservation goes to a home bucket, and the fall-through covers empty buckets. The order topic is partitioned by bucket, and the order service runs one consumer group with one consumer for each partition.
 
     The lottery becomes less important when the stock is large, because a larger share of the users get a unit, so admission can use a steady rate instead of a draw. The payment path also carries more load: 1 million orders in an hour is about 280 each second, which the payment service must handle, so its PSP limits become the next bottleneck. The reconciler compares 64 buckets with the database totals. The principle stays the same: the in-memory gate takes the burst, the database holds the truth, and the work is spread over buckets so that no single key or row sees the whole rate.
 
 ??? question "How do you test a flash-sale system before the event?"
 
-    Test the layers and the invariants, not only the speed. Load test the edge and the CDN at 2 times the expected request rate, with clients that retry as real clients do. Load test the reserve path with a high conflict rate: all users hit the same SKU. Test failures during the load: kill a Redis primary, stop an order-service consumer, slow the database, and make the PSP time out. After each test, check the invariants: confirmed plus held never exceeds the stock, no user has two units, every paid order has one payment, and the Redis counters equal the database after reconciliation. Run a small real sale as a rehearsal, with a kill switch that closes the sale. The invariants matter more than the throughput numbers, because a fast system that oversells has failed.
+    Test the layers and the invariants, not only the speed. Load test the edge and the CDN at 2 times the expected request rate, with clients that retry as real clients do. Load test the reserve path with a high conflict rate: all users hit the same SKU. Test failures during the load: kill a Redis primary, stop an order-service consumer, slow the database, and make the PSP time out. After each test, check the invariants: paid plus paying plus held never exceeds the stock, no user has two units, every paid order has one payment, and the Redis counters equal the database after reconciliation. Run a small real sale as a rehearsal, with a kill switch that closes the sale. The invariants matter more than the throughput numbers, because a fast system that oversells has failed.
 
 ??? question "How does this design differ from the ticket booking design?"
 
@@ -649,10 +652,13 @@ stateDiagram-v2
 ## Further Reading
 
 - Hu Wei, Alibaba Cloud, ["How to Process Hot Spot Data in E-commerce Scenarios"](https://www.alibabacloud.com/blog/how-to-process-hot-spot-data-in-e-commerce-scenarios_596491). Hot-row updates in an e-commerce database: shorter lock time, a limit on concurrency, queuing, group commit, and optimistic updates with `no_wait`. The article says the hot-spot update feature is widely used within Alibaba. It is not a full description of the Singles' Day inventory system.
-- Alibaba Cloud, PolarDB-X documentation, ["Hotspot updates"](https://help.aliyun.com/en/polardb/polardb-for-xscale/update-hot-rows). The group-commit mechanism for hot rows and its documented limits.
-- Redis documentation, ["Scripting with Lua"](https://redis.io/docs/latest/develop/programmability/eval-intro/). Atomic execution of a script, the rule that a script declares its keys, and the effect on a cluster (all keys of one script on one slot).
-- Redis documentation, ["Redis cluster specification"](https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/). Hash slots and hash tags, the basis of the bucket layout.
-- Redis documentation, ["Redis replication"](https://redis.io/docs/latest/operate/oss_and_stack/management/replication/). Asynchronous replication and the loss of recent writes on a failover, the reason Redis is not the truth.
+- Alibaba Cloud, PolarDB-X documentation, ["How to optimize hotspot updates?"](https://www.alibabacloud.com/help/en/polardb/polardb-for-xscale/update-hot-rows). The group-commit mechanism for hot rows (a leader thread applies a batch of updates under one lock) and its documented limits.
+- Redis documentation, ["Scripting with Lua"](https://redis.io/docs/latest/develop/programmability/eval-intro/). Atomic execution of a script, and the rule that a script names every key it accesses as an input key argument.
+- Redis documentation, ["Redis cluster specification"](https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/). Hash slots, hash tags, and the rule that a multi-key operation works only when all its keys hash to the same slot: the basis of the bucket layout.
+- Redis documentation, ["Redis replication"](https://redis.io/docs/latest/operate/oss_and_stack/management/replication/). Asynchronous replication, and the statement that even `WAIT` does not prevent the loss of acknowledged writes on a failover: the reason Redis is not the truth.
+- Redis documentation, ["Redis benchmark"](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/benchmarks/). Example throughput of one Redis instance, and the factors (network, CPU, pipelining, connections) that change it. The source of the order of magnitude in the estimate.
+- AWS documentation, ["Best practices for designing and using partition keys effectively in DynamoDB"](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html). The per-partition limit of 1,000 write units each second, the reason one hot item has the same limit as one hot row.
+- MySQL 8.0 Reference Manual, ["CHECK Constraints"](https://dev.mysql.com/doc/refman/8.0/en/create-table-check-constraints.html). MySQL enforces `CHECK` from 8.0.16, and earlier versions ignore it.
 - Queue-it developer documentation, ["How Queue-it works"](https://queue-it.com/developers/how-queue-it-works). The waiting-room model: random placement for a scheduled sale and rate-based admission.
 - Brandur Leach, Stripe Engineering, ["Designing robust and predictable APIs with idempotency"](https://stripe.com/blog/idempotency) (2017). Idempotency keys for a call that must not run twice.
 - PostgreSQL documentation, ["SELECT: The Locking Clause"](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE). `FOR UPDATE`, `NOWAIT`, and `SKIP LOCKED`, the locking behavior of the hot row.
