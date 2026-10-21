@@ -149,7 +149,7 @@ The aggregate record (topic `click-aggregates`):
 | `ad_id`, `window_start_ms` | The key of the row |
 | `clicks` | The count for the window. The record holds the whole count, not a delta, so that an upsert is idempotent |
 | `version` | A number that grows with each update of the same window (late events cause updates) |
-| `record_id` | A deterministic id (a hash of `ad_id`, `window_start_ms`, and `version`). It is the idempotency key for every consumer. The Uber post uses a record UUID in the same role |
+| `record_id` | A deterministic id (a hash of `ad_id`, `window_start_ms`, and `version`). It is the idempotency key for every consumer. The Uber post uses a record UUID in the same role. Uber's UUID is random, which is safe there because its transactional sink discards the uncommitted output of a failed attempt. A deterministic id also stays the same when a non-transactional sink writes a record again after a restart |
 
 ## Data Model
 
@@ -157,8 +157,8 @@ There are four stores. Each has one job.
 
 | Store | Holds | Key and layout | Why this store |
 |---|---|---|---|
-| Log (Kafka) | `raw-clicks` (7 days), `click-aggregates`, `late-clicks` (side output) | Partition `raw-clicks` by `impression_id`, so that equal ids meet in one partition | A durable, replayable buffer between ingest and the job. See [message queues and streams](../fundamentals/08-message-queues-and-streams.md) |
-| Object storage (S3 or similar), Parquet files | All raw events, forever (1 year here), partitioned by ingest date | `dt=YYYY-MM-DD/hour=HH/part-N.parquet` (`dt` is the ingest date) | The source of truth for the batch job. Cheap and replayable. See [storage types](../fundamentals/10-storage-types.md) |
+| Log (Kafka) | `raw-clicks` (7 days), `click-aggregates`, `late-clicks` (side output) | Partition `raw-clicks` by `impression_id`, so that the load is even and the events of one impression stay in order | A durable, replayable buffer between ingest and the job. See [message queues and streams](../fundamentals/08-message-queues-and-streams.md) |
+| Object storage (S3 or similar), Parquet files | All raw events for 1 year, partitioned by ingest date | `dt=YYYY-MM-DD/hour=HH/part-N.parquet` (`dt` is the ingest date) | The source of truth for the batch job. Cheap and replayable. See [storage types](../fundamentals/10-storage-types.md) |
 | Real-time OLAP store (Apache Pinot, Druid, or ClickHouse) | Minute rows for 90 days, hour rows for 2 years, with a `status` column | Primary key (`ad_id`, `window_start`). Sort by `window_start`. Upsert on the primary key | The queries are time-range filters and group-bys on a few columns. A columnar store with an upsert key fits. Uber chose Pinot for ad results |
 | Billing store (PostgreSQL) | One row for each advertiser, campaign, and day: the final count and the amount | Primary key (`advertiser_id`, `campaign_id`, `date`) | Billing needs transactions, constraints, and audit. The volume is small (100,000 advertisers) |
 
@@ -179,7 +179,7 @@ flowchart LR
     S3 --> AGG[(Kafka: click-aggregates)]
     S3 -->|late beyond lateness| LATE[(Kafka: late-clicks)]
     AGG --> OLAP[(Real-time OLAP store<br/>Pinot or Druid)]
-    RAW --> SINK[Connector] --> OBJ[(Object storage<br/>Parquet, by event date)]
+    RAW --> SINK[Connector] --> OBJ[(Object storage<br/>Parquet, by ingest date)]
     LATE --> SINK
     OBJ --> B[Nightly batch job<br/>Spark: dedup, count by event time]
     B --> REC[Reconciler<br/>compare, replace rows]
@@ -191,7 +191,7 @@ flowchart LR
 
 **Click servers.** Stateless servers behind a load balancer (see [load balancing](../fundamentals/02-load-balancing-dns-cdn.md)). Each server validates the signed token, stamps the event time with its own clock, produces the event to `raw-clicks`, and redirects. A click server cannot count, because counting needs state across servers.
 
-**`raw-clicks` topic.** The durable buffer. Replication factor 3, 32 partitions, 7 days of retention. The producer uses the idempotent producer setting, so that its own retries do not add duplicates inside Kafka. The topic key is `impression_id`: all events of one impression land in one partition, which makes the later deduplication a local operation.
+**`raw-clicks` topic.** The durable buffer. Replication factor 3, 32 partitions, 7 days of retention. The producer uses the idempotent producer setting, so that its own retries do not add duplicates inside Kafka. The topic key is `impression_id`: all events of one impression land in one partition, in order, and a hot ad spreads over all partitions. The key does not save the network shuffle in Flink: `keyBy` assigns each key to a Flink key group by its own hash, so the deduplication operator receives its records over the network whatever the Kafka partition is. (Kafka Streams, whose tasks map one to one to topic partitions, would deduplicate locally.)
 
 **Stage 1: deduplication and filtering.** A keyed Flink operator keyed by `impression_id`. It keeps the ids it saw in state, drops a repeat, and applies the bot rules. Deep dive 2 explains the state and its expiry.
 
@@ -230,7 +230,8 @@ flowchart LR
 flowchart LR
     A[Event time 12:00:05<br/>arrives 12:00:07] --> W[Window 12:00 to 12:01]
     B[Event time 12:00:58<br/>arrives 12:01:20] --> W
-    C[Event time 12:00:40<br/>arrives 12:01:45] --> X{Watermark 12:01:15<br/>= 12:01:45 minus 30 s}
+    X{Watermark 12:01:15<br/>= max event time seen 12:01:45<br/>minus 30 s}
+    C[Event time 12:00:40<br/>arrives 12:01:45] --> X
     W -->|fires when watermark >= 12:01:00| R[Result 12:00]
     X -->|window already fired:<br/>late event| L[Allowed lateness or side output]
 ```
@@ -362,7 +363,7 @@ window|ad  stream batch
 30|a1           1     1
 ```
 
-Assumption: the program uses one global watermark and one thread. A real job keeps one watermark per input partition and takes the minimum. The deduplication state expires when the window of the event has fired. This is safe, because a duplicate of an event in a fired window is itself late and the late check drops it.
+Assumption: the program uses one global watermark and one thread. A real job keeps one watermark per input partition and takes the minimum. The deduplication state expires when the window of the event has fired. This is safe, because a duplicate of an event in a fired window is itself late. The late check sends it to the side output and does not count it, and the batch job removes it when it deduplicates the full day.
 
 ### Deep Dive 2: Deduplication and Exactly-Once Counting
 
@@ -371,7 +372,7 @@ Assumption: the program uses one global watermark and one thread. A real job kee
 | Source | Example | Defense |
 |---|---|---|
 | The user | A double click | Business rule: one click per `impression_id` |
-| The click server | A retry after a timeout: the first write succeeded but the acknowledgment was lost | Idempotent Kafka producer (inside Kafka), and deduplication by `impression_id` in the job |
+| The click server | A retry after a timeout: the first write succeeded but the acknowledgment was lost | Idempotent Kafka producer (removes duplicates from the producer client's own internal retries only), and deduplication by `impression_id` in the job (catches a new send after a timeout and a replay from the local buffer) |
 | The stream job | After a crash, the job restores a checkpoint and processes some events again | Checkpointed state, and a transactional or idempotent sink |
 | The sink | A retry writes the same aggregate twice | Upsert by the primary key (`ad_id`, `window_start`) with the whole count, not a delta |
 
@@ -379,7 +380,7 @@ Assumption: the program uses one global watermark and one thread. A real job kee
 
 1. **Inside the job.** Flink checkpoints keyed state and source offsets together. After a failure, the job restores the checkpoint and reads again from the saved offsets. The state is as if each event counted once.
 2. **At the sink.** Two choices. (a) A transactional Kafka sink: Flink writes aggregate records inside a Kafka transaction and commits it with the checkpoint (two-phase commit), and downstream consumers read with `read_committed`. The Uber post uses this, with a checkpoint every 2 minutes. (b) An idempotent upsert: the sink writes the whole count with the key (`ad_id`, `window_start`). A repeated write sets the same value. Choice (b) needs no transaction support in the sink, but it needs the count in the row to be the full count.
-3. **At each consumer.** Every record has a deterministic `record_id`. The budget service, the OLAP upsert, and the warehouse use it as the idempotency key. The Uber post gives each aggregate a UUID for this role. See [reliability patterns](../fundamentals/12-reliability-patterns.md) for idempotency keys.
+3. **At each consumer.** Every record has a deterministic `record_id`. The budget service, the OLAP upsert, and the warehouse use it as the idempotency key. The Uber post gives each aggregate a random record UUID for this role: the ad-budget service uses it as an idempotency key, Hive uses it to deduplicate, and Pinot uses it for upserts. A random UUID is safe only with the transactional sink of choice (a). With the idempotent upsert of choice (b), use a deterministic id, because a replay after a restart must produce the same id. See [reliability patterns](../fundamentals/12-reliability-patterns.md) for idempotency keys.
 
 **The deduplication operator.** Key by `impression_id`. State per key: a flag and the event time (a 16-byte id and an 8-byte time, about 64 bytes with overhead, as the estimation assumes). The Uber post says its aggregation job uses Flink keyed state to drop duplicate raw events.
 
@@ -445,7 +446,7 @@ sequenceDiagram
 
 **Kappa alternative.** The Kappa architecture runs one stream path and replays the log to fix bugs (see the [batch and stream processing page](../fundamentals/17-batch-and-stream-processing.md)). It fits when log retention covers the horizon. Here the horizon is long (24 hours for lateness, and corrections after a bug can reach weeks). The design keeps raw events in object storage and uses a batch engine, which handles the full-scan deduplication without huge state. The batch job shares the counting logic (the window function and the filter rules) as a library with the stream job, to reduce drift between the two (Kreps's objection to Lambda). Flink can also run the same program in batch mode, and that is a way to share code (the `execution.runtime-mode` setting).
 
-**Photon.** Google's Photon paper (Ananthanarayanan et al., SIGMOD 2013) describes the joining of search queries and ad clicks. The system keeps an `IdRegistry` that stores the ids of events that it already joined, and replicates it across data centers with Paxos. It reaches at most one output for each click id. It shows that the problem of "count a click once, across data centers" is an old and central problem in ad tech. This page's design keeps the same idea in a lighter form: a keyed state for deduplication in the stream job and a complete deduplication in the batch job.
+**Photon.** Google's Photon paper (Ananthanarayanan et al., SIGMOD 2013) describes the joining of search queries and ad clicks. The system keeps an `IdRegistry` that stores the ids of the events that it joined in the last N days, and it replicates the registry synchronously across data centers with Paxos. A worker must insert the event id into the `IdRegistry` before it writes the joined event to the output. The paper states three guarantees: at-most-once output at any point in time, near-exact output in real time, and exactly-once output eventually. It shows that the problem of "count a click once, across data centers" is an old and central problem in ad tech. This page's design keeps the same idea in a lighter form: a keyed state for deduplication in the stream job and a complete deduplication in the batch job.
 
 ### Deep Dive 4: Hot Ads and Skew
 
@@ -454,7 +455,7 @@ sequenceDiagram
 **Defenses, in order.**
 
 1. **Do not partition ingest by `ad_id`.** The log is partitioned by `impression_id`. A hot ad spreads over all 32 partitions. The ingest side has no hot spot.
-2. **Local pre-aggregation (Stage 2).** Each task counts (ad, minute) pairs locally and emits one partial count for each pair each second, not one event for each click. The hot ad gives at most 32 partial counts per second (one for each task), instead of 5,000 events per second. This is the combiner idea. It works because addition is associative and commutative.
+2. **Local pre-aggregation (Stage 2).** Each task counts (ad, minute) pairs locally and emits one partial count for each pair each second, not one event for each click. The hot ad gives at most one partial count each second from each Stage 2 task (20 partial counts for the 20 tasks of the estimation), instead of 5,000 events each second. This is the combiner idea. It works because addition is associative and commutative.
 3. **Salting.** For an ad that is still hot, key the shuffle by (`ad_id`, salt) with a salt of 0 to 7. Stage 3 first merges the partial counts of one salt, then a short last stage merges the eight salted counts. The cost is one more stage and a few hundred milliseconds of delay. Detect hot ads from the counts of the previous minute, and apply the salt only to them.
 4. **The OLAP store.** The upserts of the hot ad are one row each minute, so the store sees no hot key. The query for a hot ad reads 1,440 rows, the same as any ad.
 
@@ -492,7 +493,7 @@ sequenceDiagram
 | Duplicate handling | Keyed-state deduplication by `impression_id` with expiry, then complete batch deduplication | Unbounded state, or no deduplication | Unbounded state grows forever. No deduplication overbills |
 | Exactly-once | At-least-once delivery, checkpoints, transactional or idempotent sink, idempotent consumers | Claiming exactly-once delivery | No network gives exactly-once delivery. The effect is what matters |
 | Sink writes | Whole count with a version, upsert by key | Increment (`+n`) | An increment is not idempotent. A retry counts twice |
-| Log partition key | `impression_id` | `ad_id` | `ad_id` creates a hot partition for a hot ad. `impression_id` keeps deduplication local |
+| Log partition key | `impression_id` | `ad_id` | `ad_id` creates a hot partition for a hot ad. `impression_id` spreads the load evenly and keeps the events of one impression in order |
 | Hot ads | Pre-aggregation, then salt for the hot ones | Always salt everything | Salting adds a stage and delay for all ads. Most ads are not hot |
 | Serving store | Real-time OLAP with upsert | Cassandra, or a relational database | Time-range group-bys and top-N fit a columnar store. A relational database does not scale to 4 × 10^8 rows each day on one node |
 | Stream engine | Flink | Spark Structured Streaming, or Kafka Streams | Record-by-record processing, event-time features, and large keyed state. Kafka Streams is a good fit if the team wants a library, and it supports `exactly_once_v2`. Spark micro-batches add a latency floor |
@@ -514,7 +515,7 @@ sequenceDiagram
 
 ??? question "How do you make sure an advertiser is never billed for a duplicate click?"
 
-    Four layers. The business key is the `impression_id`, so a double click counts once. The click server uses an idempotent producer, so its retries do not add duplicates in the log. The stream job deduplicates by the key in keyed state. The batch job deduplicates the full day without an expiry limit, and billing uses only the batch numbers. Each consumer of an aggregate uses the deterministic `record_id` as an idempotency key, so that a repeated record changes nothing.
+    Four layers. The business key is the `impression_id`, so a double click counts once. The click server uses an idempotent producer, so the client's internal retries do not add duplicates in the log. A new send after a timeout, or a replay from the local buffer, can still add a duplicate, and the next layer catches it. The stream job deduplicates by the key in keyed state. The batch job deduplicates the full day without an expiry limit, and billing uses only the batch numbers. Each consumer of an aggregate uses the deterministic `record_id` as an idempotency key, so that a repeated record changes nothing.
 
     The limit: the stream job's deduplication state expires, so a very late duplicate can count twice in the provisional number. The batch job removes it before billing. Final numbers equal the unique impressions that the batch job sees.
 
@@ -542,7 +543,11 @@ sequenceDiagram
 
 ??? question "Why partition the raw topic by `impression_id` and not by `ad_id`?"
 
-    Two reasons. Deduplication needs equal ids in one partition, so the state is local. And a hot ad would put a large share of all events into one partition and one task. With `impression_id`, the load is even. The cost: the job needs a shuffle by `ad_id` before it can count. The local pre-aggregation in Stage 2 keeps that shuffle small: it moves partial counts and not events.
+    The main reason is load. A hot ad would put a large share of all events into one partition, one broker, and one source task. With `impression_id`, the load is even across the 32 partitions. A second effect: the events of one impression stay in order in one partition.
+
+    A common wrong reason is that the topic key makes Flink's deduplication local. It does not. `keyBy(impression_id)` hashes each key into a Flink key group, and that mapping has no relation to the Kafka partition, so the records cross the network to the deduplication operator anyway. (Flink has an experimental `reinterpretAsKeyedStream`, which requires the upstream partitioning to match Flink's key-group assignment exactly. Kafka's default partitioner does not match it.) In Kafka Streams, where a task owns one partition, the topic key does make deduplication local.
+
+    The cost of either key: the job needs a shuffle by `ad_id` before it can count. The local pre-aggregation in Stage 2 keeps that shuffle small: it moves partial counts and not events.
 
 ??? question "What do you monitor?"
 
@@ -567,7 +572,7 @@ sequenceDiagram
 ## Further Reading
 
 - Akidau et al., ["The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing"](https://www.vldb.org/pvldb/vol8/p1792-Akidau.pdf), Proceedings of the VLDB Endowment 8(12), 2015. Event time, windows, watermarks, triggers, and accumulation modes. The basis of the late-event layers in this design.
-- Uber Engineering, ["Real-time Exactly-Once Ad Event Processing with Apache Flink, Kafka, and Pinot"](https://www.uber.com/blog/real-time-exactly-once-ad-event-processing/). A production ad-event pipeline: Flink aggregation with 1-minute tumbling windows, keyed-state deduplication, transactional Kafka sinks with a 2-minute checkpoint, record UUIDs as idempotency keys, two regions, and Pinot for serving.
+- Uber Engineering, ["Real-Time Exactly-Once Ad Event Processing with Apache Flink, Kafka, and Pinot"](https://www.uber.com/blog/real-time-exactly-once-ad-event-processing/), 2021. A production ad-event pipeline: Flink aggregation with 1-minute tumbling windows, keyed-state deduplication, transactional Kafka sinks with a 2-minute checkpoint, random record UUIDs as idempotency keys, two regions joined by a union job, and Pinot for serving.
 - Ananthanarayanan et al., ["Photon: Fault-tolerant and Scalable Joining of Continuously Flowing Data Streams"](https://research.google/pubs/photon-fault-tolerant-and-scalable-joining-of-continuously-flowing-data-streams/), SIGMOD 2013. Google's ad system: joining queries and clicks with an `IdRegistry` that gives at-most-once output across data centers.
 - Gupta et al., ["Mesa: Geo-Replicated, Near Real-Time, Scalable Data Warehousing"](https://research.google/pubs/mesa-geo-replicated-near-real-time-scalable-data-warehousing/), VLDB 2014. Google's warehouse for advertising metrics: batched updates, versions, and consistent queries across data centers.
 - Apache Flink documentation: ["Generating Watermarks"](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/event-time/generating_watermarks/) (bounded out-of-orderness, idleness), ["Windows"](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/operators/windows/) (tumbling windows, allowed lateness, side outputs), and ["Fault Tolerance Guarantees of Data Sources and Sinks"](https://nightlies.apache.org/flink/flink-docs-stable/docs/connectors/datastream/guarantees/) (which sinks give exactly-once).
