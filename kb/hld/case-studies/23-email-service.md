@@ -8,7 +8,7 @@ An email service lets users send and receive messages with any other email servi
 The system that sends one notification email on behalf of an application (templates, preferences, provider failover) is a different problem. It is the outbound half of [Design a Notification System](04-notification-system.md), and its classes are on the LLD page [Design a Notification Service](../../lld/case-studies/24-notification-service/README.md). This page designs the mailbox provider: the system that owns the user's inbox.
 
 !!! note "About the sources"
-    The protocol facts come from the RFCs (5321, 5322, 6409, 3501 and 9051, 7208, 6376, 7489). The RFC text is the primary source. The sizes, rates, and costs on this page are assumptions for a 100-million-mailbox service, and each is labeled. Gmail and Microsoft have not published a full design of their mailbox systems, so this page names no internal design of theirs. The only vendor source is Google's public sender guidelines. The storage design (metadata in a wide-column store, bodies in an object store, search in an index) is this page's own design, not a published design of a named provider.
+    The protocol facts come from the RFCs (5321, 5322, 6409, 9051 and 3501, 7208, 6376, 9989). The RFC text is the primary source. The sizes, rates, and costs on this page are assumptions for a 100-million-mailbox service, and each is labeled. This page describes no internal design of Gmail or Microsoft, because this page found no full published design of their mailbox systems. The only vendor source is Google's public sender guidelines. The storage design (metadata in a wide-column store, bodies in an object store, search in an index) is this page's own design, not a published design of a named provider.
 
 ## Problem Statement
 
@@ -86,7 +86,8 @@ Inputs (all are assumptions): 100 million mailboxes. 40 accepted messages and 5 
 | Message fetches each second | 100,000,000 × 30 / 10^5 | 30,000 |
 | Spam-filter CPU at the peak | 240,000 × 0.005 core-seconds | 1,200 cores |
 | MIME size of a 25 MB file | 25 MB × 78/76 × 4/3 | 34 MB |
-| Retry count over the give-up time | 5 days × 48 attempts each day (30-minute interval) | 240 attempts at most |
+| Retry count over the give-up time, upper bound | 5 days × 48 attempts each day (every 30 minutes, the RFC minimum) | 240 attempts at most |
+| Retry count with the RFC's suggested schedule | 2 attempts in the first hour, then 1 every 2.5 hours for 119 hours | about 50 attempts |
 
 What the numbers decide:
 
@@ -95,7 +96,7 @@ What the numbers decide:
 - **Spam filtering is a large compute job.** 1,200 cores at the peak is small for the cluster, but the filter must run before the `250` reply. Cheap checks (the connection IP, SPF) run first so that expensive content scoring runs on fewer messages.
 - **Metadata is small.** 4 TB each day (about 7 PB in 5 years) is 1.3% of the blob volume. It is the data that the client reads all the time, so it lives in a fast partitioned database, and bodies live in the object store.
 - **MIME costs 37% more than the file.** Base64 turns 3 bytes into 4 characters, and the 76-character lines add 2 bytes (CRLF) for each 76 (RFC 2045). A 25 MB file becomes a 34 MB message. The limit applies to the encoded message. This is why users cannot attach a 25 MB file under a 25 MB limit.
-- **Retries are bounded by the RFC advice.** RFC 5321 section 4.5.4.1 says the retry interval should be at least 30 minutes and the give-up time generally needs to be at least 4 to 5 days. The sender keeps a message for up to 240 attempts at that interval. This is the reason a receiver that is down for hours loses no mail from compliant senders.
+- **The RFC bounds retries by time, not by count.** RFC 5321 section 4.5.4.1 says the retry interval should be at least 30 minutes and the give-up time generally needs to be at least 4 to 5 days. The same section reports that experience favors two connection attempts in the first hour, then one attempt every two or three hours. That schedule gives about 50 attempts over 5 days. A sender that retries every 30 minutes makes at most 240. In both cases a compliant sender holds the message for days. This is the reason a receiver that is down for hours loses no mail from compliant senders.
 
 The program checks the arithmetic.
 
@@ -130,7 +131,8 @@ public class EmailCheck {
         p("spam filter cores, peak (5 ms each)", attempts / day * 3 * 0.005);
         p("base64 expansion with 76-char lines", (78.0 / 76) * 4 / 3);
         p("25 MB file as MIME, MB", 25 * (78.0 / 76) * 4 / 3);
-        p("retry: attempts in 5 days at 30 min", 5 * 24 * 2);
+        p("retry: attempts in 5 days at 30 min (upper bound)", 5 * 24 * 2);
+        p("retry: 2 in hour 1, then every 2.5 h for 119 h", 2 + 119 / 2.5);
     }
 
     static void p(String label, double v) {
@@ -160,7 +162,8 @@ fetches per second (30 per user per day)           30,000.00
 spam filter cores, peak (5 ms each)                1,200.00
 base64 expansion with 76-char lines                1.37
 25 MB file as MIME, MB                             34.21
-retry: attempts in 5 days at 30 min                240.00
+retry: attempts in 5 days at 30 min (upper bound)  240.00
+retry: 2 in hour 1, then every 2.5 h for 119 h     49.60
 ```
 
 ## API Design
@@ -172,18 +175,25 @@ Email has two kinds of interface. The first is the protocols that other servers 
 | Interface | Port and standard | Who uses it | Notes |
 |---|---|---|---|
 | SMTP (server to server) | Port 25. RFC 5321 | Other mail servers send mail for our domains | No login. Anyone can connect, so every check is ours. Opportunistic STARTTLS (RFC 3207) |
-| SMTP submission | Port 587. RFC 6409 | Our users' clients send mail | Login required. TLS expected. The server may fix and sign the message |
-| IMAP | Port 993 (TLS). RFC 3501 (IMAP4rev1), RFC 9051 (IMAP4rev2) | Third-party clients read mail | Stateful session. `IDLE` (RFC 2177) pushes new-mail events |
+| SMTP submission | Port 587 with STARTTLS (RFC 6409), and port 465 with implicit TLS (RFC 8314) | Our users' clients send mail | Login required. This design requires TLS. The server may fix and sign the message. RFC 8314 recommends implicit TLS (TLS from the first byte) for submission and access |
+| IMAP | Port 993 with implicit TLS (RFC 8314). RFC 9051 (IMAP4rev2), which obsoletes RFC 3501 (IMAP4rev1). A server can advertise both versions, and the client chooses (RFC 9051 Appendix A) | Third-party clients read mail | Stateful session. `IDLE` pushes new-mail events. `IDLE` is a base command in IMAP4rev2 and an extension (RFC 2177) in IMAP4rev1 |
 | MX lookup (DNS) | RFC 5321 section 5.1 | Senders find our SMTP servers | MX records name our receivers with preferences. Falls back to an address record if there is no MX record |
 
-An SMTP session in outline (RFC 5321). The client opens a TCP connection. The server sends `220` and its name. The client sends `EHLO`. The client starts TLS with `STARTTLS`. Then the client gives the envelope and the data:
+An SMTP session in outline (RFC 5321). The client opens a TCP connection. The server sends `220` and its name. The client sends `EHLO`. The client starts TLS with `STARTTLS` (RFC 3207). After the TLS handshake, both sides discard what they learned before it, so the client sends `EHLO` again (RFC 3207 section 4.2). Then the client gives the envelope and the data. The `SIZE` value is 25,000,000 bytes, the 25 MB limit of this design:
 
 ```text
 S: 220 mx1.example.net ESMTP ready
 C: EHLO sender.example.org
 S: 250-mx1.example.net
-S: 250-SIZE 35651584
+S: 250-SIZE 25000000
 S: 250-STARTTLS
+S: 250 ENHANCEDSTATUSCODES
+C: STARTTLS
+S: 220 2.0.0 Ready to start TLS
+   (TLS handshake)
+C: EHLO sender.example.org
+S: 250-mx1.example.net
+S: 250-SIZE 25000000
 S: 250 ENHANCEDSTATUSCODES
 C: MAIL FROM:<alice@example.org> SIZE=48211
 S: 250 2.1.0 OK
@@ -208,7 +218,7 @@ The reply code classes carry the retry rule (RFC 5321 section 4.2). A `2xx` code
 | `421` | Service not available, closing the channel | Sent when the server is overloaded or shuts down |
 | `450`, `451`, `452` | Temporary failure (mailbox busy, local error, insufficient storage) | Back pressure and greylisting |
 | `550` | Mailbox unavailable (no such user, or policy refusal) | Unknown recipient, authentication policy rejection |
-| `552` | Message exceeds the size limit | Over 25 MB |
+| `552` | Requested mail action aborted: exceeded storage allocation. RFC 1870 uses it for a message larger than the `SIZE` limit | Over 25 MB |
 | `554` | Transaction failed | Spam rejected at the end of data |
 
 ### HTTP API for the service's own clients
@@ -270,16 +280,17 @@ Response `200`: the list of message IDs that were added, changed, or deleted aft
 | Column | Note |
 |---|---|
 | `user_id` | Partition key. All of one user's data is on the same replicas |
-| `folder_id`, `uid` | `uid` is a per-folder number that only increases. IMAP requires it (RFC 3501 section 2.3.1.1). A message keeps its `uid` for the life of the folder |
+| `folder_id`, `uid` | `uid` is a per-folder number that the server assigns in strictly ascending order. IMAP requires it (RFC 9051 section 2.3.1.1, the same section in RFC 3501). A `uid` must not change during a session and should not change between sessions. If the UIDs change, the folder's `uidvalidity` must change too |
 | `message_id` | The `Message-ID` header (RFC 5322). Used for threading and for deduplication of repeated deliveries |
-| `blob_key` | SHA-256 of the raw message in the object store |
+| `blob_key` | SHA-256 of the message bytes exactly as the sender transmitted them, before the receiver adds its own header lines. It is the key in the object store |
+| `trace_headers` | The `Received:` line and the `Authentication-Results:` line that this receiver adds. RFC 5321 section 4.4 says that the receiving server must insert a `Received:` trace line, and that line has a timestamp and a queue ID, so it differs on every attempt. The service keeps these lines in the row, not in the blob, and puts them back in front of the blob when a client reads the raw message |
 | `from`, `to`, `subject`, `snippet`, `date`, `size` | Copied from the header, so a list needs no body read |
 | `flags`, `labels` | Read, starred, answered, and user labels |
 | `thread_id` | Derived from the `In-Reply-To` and `References` headers and the subject |
 | `change_seq` | The value of the user's counter when this row last changed |
 | `has_attachment`, `auth_results` | A flag for the list view. The SPF, DKIM, DMARC result and the spam score, kept for later analysis |
 
-`folder`: `(user_id, folder_id, name, uidvalidity, next_uid, total, unread)`. If a folder is deleted and re-created, `uidvalidity` changes, and an IMAP client discards its cache (RFC 3501 section 2.3.1.1).
+`folder`: `(user_id, folder_id, name, uidvalidity, next_uid, total, unread)`. If a folder is deleted and re-created, `uidvalidity` changes, and an IMAP client discards its cache (RFC 9051 section 2.3.1.1).
 
 `change_log`: partition `user_id`, clustering `change_seq`, columns `(message_id, kind)`. It keeps 30 days (Assumption). It powers `GET /v1/changes` and IMAP sync.
 
@@ -349,7 +360,7 @@ flowchart TD
 1. The client calls `POST /v1/messages/send`. The submission service validates the message, applies the account limits, and writes the message to the object store and the Sent folder.
 2. It writes the queue entries (one for each recipient domain) and returns `202`.
 3. A sender takes the entry, resolves the MX, connects, signs the message with DKIM, and sends it.
-4. On `250`, the sender marks the recipient as delivered. On `4xx`, it sets `next_attempt_at` by a backoff and keeps the entry. On `5xx`, or after the give-up time, it creates a bounce message in the sender's mailbox.
+4. On `250`, the sender marks the recipient as delivered. On `4xx`, it sets `next_attempt_at` by the retry schedule in deep dive 4 and keeps the entry. On `5xx`, or after the give-up time, it creates a bounce message in the sender's mailbox.
 
 ## Deep Dives
 
@@ -359,25 +370,31 @@ flowchart TD
 
 **What must happen before `250`.** The raw message in the object store, and the metadata rows and the change-log entries for each recipient. Everything else can wait: indexing, push notification, thread grouping, analytics. The line between the two groups is the line between "can lose the message" and "can fix it later". The indexer is the clear example: a lost index entry is rebuilt from the message, a lost message cannot be rebuilt.
 
-**Many recipients.** A message with 50 local recipients is one body and 50 metadata rows. The content-addressed blob is stored once. The delivery service writes the rows in parallel and succeeds only if every recipient row is durable. For a partial failure the receiver can answer each recipient (this needs the LMTP protocol, RFC 2033, where the final reply is per recipient) or answer `4xx` for the whole message. With `4xx` the sender retries the whole message. Recipients that already have it would get a duplicate. The delivery service avoids this with a deduplication key `(user_id, message_id header, blob_key)`: a second write for the same key is a no-op.
+**Many recipients.** A message with 50 local recipients is one body and 50 metadata rows. The content-addressed blob is stored once. The delivery service writes the rows in parallel and succeeds only if every recipient row is durable. The external sender gets one reply for the whole message after the data: RFC 5321 section 4.1.1.4 states that "the SMTP model does not allow for partial failures at this point". So if one recipient row fails, the receiver answers `4xx` for the whole message, and the sender retries the whole message. (LMTP, RFC 2033, returns one reply for each recipient after the data. It is for the internal hop between a mail server and the mailbox store. RFC 2033 says that LMTP must not be used on TCP port 25 and should not be used over wide area networks. A receiver can use LMTP internally to learn which rows failed, but the external sender still gets one SMTP reply.)
 
-**Back pressure.** If the metadata store or the object store is slow, the receivers return `451` or `421`. Compliant senders hold the mail and retry (RFC 5321 section 4.5.4.1: at least 30 minutes between attempts). The queue of mail is then the sender's, not ours. This is the main reason the inbound side is simple to protect: the internet's mail queues absorb our outage, for up to 4 to 5 days. Recommendation: use `4xx`, not `5xx`, for every internal fault. A `5xx` bounces legitimate mail.
+RFC 5321 section 4.2.5 says that after a `4xx` reply to the end of data, the server must not deliver that message later. The sender keeps the responsibility. So the rows that the delivery service wrote before the failure must not stay in the mailboxes. Recommendation: on a partial failure, the delivery service deletes the rows it already wrote, then the receiver answers `4xx`. This costs nothing on the normal path. A stricter alternative writes each row in a hidden state and makes all rows visible only after every row is durable, at the cost of a second write for each row.
 
-**Quota.** A mailbox over quota returns `452`. Use a `4xx` code at first, so that a user who frees space receives the mail that waits at the senders.
+The deduplication key `(user_id, message_id header, blob_key)` is the safety net. If the delete fails, or if the sender retries after a lost `250`, a second write for the same key is a no-op, so no recipient gets the message twice. The key works only if `blob_key` is the same on every attempt. The receiver adds a `Received:` line with a timestamp to each copy that it accepts (RFC 5321 section 4.4), so a hash of the stored bytes would differ on each attempt. The design hashes the bytes as the sender sent them and keeps the receiver's own header lines in the metadata row.
 
-**Duplicates and loops.** The same message can arrive twice (a sender retries after a lost `250`). The deduplication key above handles it. A forwarding loop is stopped by counting `Received` headers (RFC 5321 section 6.3 recommends a limit; a typical limit is a few dozen hops, Assumption).
+**Back pressure.** If the metadata store or the object store is slow, the receivers return `451` or `421`. Compliant senders hold the mail and retry (RFC 5321 section 4.5.4.1 says the interval should be at least 30 minutes). The queue of mail is then the sender's, not ours. This is the main reason the inbound side is simple to protect: the internet's mail queues absorb our outage, for up to 4 to 5 days. Recommendation: use `4xx`, not `5xx`, for every internal fault. A `5xx` bounces legitimate mail.
 
-**The line limit and the size limit.** RFC 5321 requires an implementation to accept text lines of 1,000 bytes (including the CRLF), a message of at least 64 KB, and at least 100 recipients for one message (section 4.5.3.1). RFC 5322 recommends lines of at most 78 characters and requires at most 998. The receiver advertises its own limit in the `SIZE` extension (RFC 1870) so that a sender with an oversized message gets a refusal before the transfer.
+**Quota.** A mailbox over quota returns `452` (RFC 5321 text: "insufficient system storage"). Use a `4xx` code at first, so that a user who frees space receives the mail that waits at the senders. The alternative is `552` ("exceeded storage allocation"), a permanent code: the sender then bounces the message at once. The choice between the two is a product decision.
+
+**Duplicates and loops.** The same message can arrive twice (a sender retries after a lost `250`). The deduplication key above handles it. Each server that accepts a message adds a `Received:` header (a trace line). The receiver stops a forwarding loop by counting these headers. RFC 5321 section 6.3 says that servers that use this method should use a large rejection threshold, "normally at least 100 Received entries".
+
+**The line limit and the size limit.** RFC 5321 requires an implementation to accept text lines of 1,000 octets (including the CRLF), a message of at least 64K octets, and at least 100 recipients for one message (section 4.5.3.1). RFC 5322 recommends lines of at most 78 characters and requires at most 998, both without the CRLF. The receiver advertises its own limit in the `SIZE` extension (RFC 1870) so that a sender with an oversized message gets a refusal before the transfer.
 
 ### Deep dive 2: Authentication and the spam defense
 
 Email was designed without sender verification. Anyone can write any `From:` header. Three standards add verification, and a layered filter uses them with other signals.
 
-**SPF (RFC 7208).** The domain owner publishes in DNS (a TXT record) the IP addresses that may send mail for the domain. The receiver checks the connecting IP against the record of the domain in the envelope `MAIL FROM` (or in `HELO` if `MAIL FROM` is empty). Results: `pass`, `fail`, `softfail`, `neutral`, `none`, `temperror`, `permerror`. SPF limits the evaluation to 10 DNS-querying mechanisms (RFC 7208 section 4.6.4), so a record with too many `include:` entries returns `permerror`. What it checks: the envelope sender, not the `From:` header the user sees. Its weakness: forwarding changes the connecting IP, so SPF fails for forwarded mail.
+**SPF (RFC 7208).** The domain owner publishes in DNS (a TXT record) the IP addresses that may send mail for the domain. The receiver checks the connecting IP against the record of the domain in the envelope `MAIL FROM`. If `MAIL FROM` is empty (a bounce), SPF checks the identity `postmaster@<HELO domain>` instead (RFC 7208 section 2.4). Results: `pass`, `fail`, `softfail`, `neutral`, `none`, `temperror`, `permerror`. SPF limits the evaluation to 10 terms that cause DNS queries: the `include`, `a`, `mx`, `ptr`, and `exists` mechanisms and the `redirect` modifier (RFC 7208 section 4.6.4). A record that needs more returns `permerror`, so a record with too many `include:` entries fails. What it checks: the envelope sender, not the `From:` header the user sees. Its weakness: forwarding changes the connecting IP, so SPF fails for forwarded mail.
 
 **DKIM (RFC 6376).** The sending domain signs selected headers and a hash of the body with a private key. The signature is in a `DKIM-Signature` header with these tags: `d=` (the signing domain), `s=` (the selector), `h=` (the signed header names), `bh=` (the body hash), and `b=` (the signature). The receiver fetches the public key from the DNS TXT record at `<selector>._domainkey.<domain>` and verifies. Selectors allow key rotation. A valid signature proves that the signing domain sent the message and that the signed parts did not change. Its weakness: a mailing list that adds a footer or rewrites the subject invalidates the signature. The `c=` tag (canonicalization, `simple` or `relaxed`) sets how much whitespace change the signature tolerates.
 
-**DMARC (RFC 7489).** DMARC ties the two to the visible `From:` domain. The domain owner publishes a policy at `_dmarc.<domain>`. A message passes DMARC if SPF passes with a domain that aligns with the `From:` domain, or DKIM passes with a signing domain that aligns with it. Alignment is the new rule: SPF alone could pass for an unrelated envelope domain. The policy tells the receiver what to do on a failure: `p=none` (only report), `p=quarantine` (treat as suspicious), or `p=reject` (refuse). The `rua` tag gives an address for aggregate reports, so the domain owner sees who sends mail in its name. RFC 7489 is an Informational RFC from the Independent Submission stream, not an IETF standards-track document.
+**DMARC (RFC 9989).** DMARC ties the two to the visible `From:` domain (the Author Domain). The domain owner publishes a policy record at `_dmarc.<domain>`. A message passes DMARC if SPF passes with a `MAIL FROM` domain that aligns with the `From:` domain, or DKIM passes with a signing domain (`d=`) that aligns with it. DMARC uses only the SPF result for the `MAIL FROM` identity, not for the `HELO` identity. Alignment is the new rule: SPF alone could pass for an unrelated envelope domain, because any domain owner, a spammer too, can publish an SPF record. Alignment is relaxed (the two domains share the same Organizational Domain) or strict (the two domains are identical). The policy tells the receiver what the domain owner wants on a failure: `p=none` (no preference, only report), `p=quarantine` (treat as suspicious), or `p=reject` (refuse). The `rua` tag gives an address for aggregate reports, so the domain owner sees who sends mail in its name.
+
+DMARC changed status in May 2026. The first DMARC specification, RFC 7489 (2015), was an Informational RFC from the Independent Submission stream. RFC 9989 (the protocol), RFC 9990 (aggregate reports), and RFC 9991 (failure reports) obsolete it, and all three are IETF Proposed Standards. RFC 9989 removes the `pct` tag (sampling of the policy) and adds a `t` tag (test mode). It also finds the Organizational Domain with a "DNS Tree Walk" (DNS queries up the name tree) instead of an external list of public suffixes. Material written before May 2026 cites RFC 7489. The `_dmarc` record, the three policies, alignment, and `rua` work the same way in both.
 
 ```mermaid
 flowchart LR
@@ -390,7 +407,7 @@ flowchart LR
     F -->|yes| Pol[Apply From-domain policy: none, quarantine, reject]
 ```
 
-**Our own outbound mail.** The service signs every outbound message with DKIM (one key per hosted domain, with rotation by selector), publishes SPF records for its sending IPs, and publishes a DMARC policy for the domains it hosts. Other providers decide the reputation of the service from this mail. Google's sender guidelines require SPF or DKIM from all senders, and SPF, DKIM, and DMARC from bulk senders that send more than 5,000 messages each day to Gmail, with a one-click unsubscribe for marketing mail. Google states that a spam rate reported in Postmaster Tools below 0.10% is the goal, and that a rate of 0.30% or more harms delivery. These rules apply to us when we send to Gmail, and they show how receivers weigh the same standards.
+**Our own outbound mail.** The service signs every outbound message with DKIM (one key per hosted domain, with rotation by selector), publishes SPF records for its sending IPs, and publishes a DMARC policy for the domains it hosts. Other providers decide the reputation of the service from this mail. Google's sender guidelines require from all senders to Gmail: SPF or DKIM, valid forward and reverse DNS (PTR) records for the sending IPs, TLS, and messages formatted to RFC 5322. Senders of more than 5,000 messages each day to Gmail must also have SPF and DKIM, a DMARC record (the policy may be `p=none`), a `From:` domain aligned with the SPF or DKIM domain, and one-click unsubscribe for marketing and subscribed mail. Google tells senders to keep the spam rate reported in Postmaster Tools below 0.10% and to avoid ever reaching 0.30% or higher. These rules apply to us when we send to Gmail, and they show how receivers weigh the same standards.
 
 **The layered filter.** Each layer is cheaper than the next, and each removes mail before the next layer runs.
 
@@ -398,15 +415,15 @@ flowchart LR
 |---|---|---|---|
 | 1. Connection | IP reputation, blocklist (DNSBL) lookups, connection rate, `HELO` name, TLS | Microseconds (in-memory) | Known spam sources and bot connections |
 | 2. Envelope | SPF result, recipient exists, recipient rate | Under 1 ms plus one DNS lookup (cached) | Spoofed senders, address harvesting |
-| 3. Authentication | DKIM, DMARC policy, ARC chain for forwarded mail (RFC 8617) | Milliseconds (one DNS lookup for the key, one signature check) | Spoofing of a domain that publishes `p=reject` |
+| 3. Authentication | DKIM, DMARC policy, ARC chain for forwarded mail (RFC 8617, an Experimental RFC) | Milliseconds (one DNS lookup for the key, one signature check) | Spoofing of a domain that publishes `p=reject` |
 | 4. Content | Text and HTML features, URLs against a blocklist, attachment type and hash, a trained model | Milliseconds to tens of milliseconds | Spam that is authenticated but unwanted, phishing |
 | 5. Behavior and feedback | The user's "report spam" and "not spam" actions, per-sender complaint rate, past mail between the two addresses | Offline pipeline | Adapts all layers. A sender whose mail users report is scored down for everyone |
 
 A single score combines the layers (a weighted sum or a trained model). Two thresholds follow. Above the high threshold: reject with `554` (the sender knows). Between the two: accept into the spam folder. Below the low threshold: the inbox. Recommendation: reject at the SMTP session instead of accepting and bouncing later. A bounce for forged mail goes to an innocent person whose address was forged. This is the unwanted "backscatter". RFC 5321 section 6.1 requires bounces to use a null envelope sender, so a bounce does not cause another bounce, and it still reaches that innocent person.
 
-**Greylisting.** The receiver answers the first delivery from an unknown (IP, sender, recipient) with `451`. A real mail server retries after the interval. Many spam tools do not. The cost is a delay of several minutes for the first message from a new sender. Use it as a signal for suspicious traffic only, not for all mail.
+**Greylisting.** The receiver answers the first delivery from an unknown (IP, sender, recipient) with `451`. A real mail server retries after its retry interval. RFC 6647 (the greylisting applicability statement) notes that spam software generally does not retry, and also that some legitimate servers wait an hour or more before a retry. The cost is a delay for the first message from a new sender, and the delay equals the sender's retry interval. RFC 5321 section 4.5.4.1 says that interval should be at least 30 minutes. Use it as a signal for suspicious traffic only, not for all mail.
 
-**The attachment path.** Executable and archive types are scanned in a sandbox (the code judge on this KB uses the same isolation ideas: see `kb/hld/case-studies/25-online-code-judge.md`). The scan is part of the content layer for small files. For large files, the delivery service stores the message with a `scan_state` of `pending`, the client shows the attachment as unavailable until the scan finishes, and the scanner updates the state. If the scan finds malware, the service quarantines the message.
+**The attachment path.** Executable and archive types are scanned in a sandbox (the code judge on this KB uses the same isolation ideas: see [Design an Online Code Judge](25-online-code-judge.md)). The scan is part of the content layer for small files. For large files, the delivery service stores the message with a `scan_state` of `pending`, the client shows the attachment as unavailable until the scan finishes, and the scanner updates the state. If the scan finds malware, the service quarantines the message.
 
 **What to measure.** The false positive rate (legitimate mail filed as spam) matters more than the false negative rate, because a user does not see mail in the spam folder. Sample a share of rejected and spam-filed mail for review, and track the user actions "not spam" and "report spam" as the labels.
 
@@ -416,7 +433,7 @@ A single score combines the layers (a weighted sum or a trained model). Two thre
 
 **Hot and large mailboxes.** A mailbox with 5 million messages is a large partition. The mitigation is to split the clustering range into buckets by month: `(user_id, folder_id, month)`. A list reads the newest bucket first and continues to the older one when it needs more rows. The bucket is part of the cursor.
 
-**The change log and sync.** Each mailbox has a counter `change_seq`. Each mutation (a new message, a flag change, a move, a delete) increments it and appends `(change_seq, message_id, kind)` to the change log. A client that stores the last `changeSeq` it saw asks `GET /v1/changes?since=…` and receives only the changes. The cost of a reconnect is proportional to the number of changes, not to the mailbox size. IMAP has the same idea in extensions (the per-message `MODSEQ` of RFC 7162, CONDSTORE). Without extensions, IMAP clients use `UID` and `UIDVALIDITY` and compare flags for all messages, which is more expensive. If the client is older than the log retention (30 days in the assumption), the service answers `410` and the client resyncs from the folder lists.
+**The change log and sync.** Each mailbox has a counter `change_seq`. Each mutation (a new message, a flag change, a move, a delete) increments it and appends `(change_seq, message_id, kind)` to the change log. A client that stores the last `changeSeq` it saw asks `GET /v1/changes?since=…` and receives only the changes. The cost of a reconnect is proportional to the number of changes, not to the mailbox size. IMAP has the same idea in extensions (RFC 7162). CONDSTORE adds a per-message modification sequence (`MODSEQ`), so a client asks for the messages whose flags changed after a value. CONDSTORE alone does not report deleted (expunged) messages. QRESYNC adds the `VANISHED` response, which lists the UIDs that were expunged, so a client resyncs a folder in one round trip. Without extensions, IMAP clients use `UID` and `UIDVALIDITY` and compare flags for all messages, which is more expensive. If the client is older than the log retention (30 days in the assumption), the service answers `410` and the client resyncs from the folder lists.
 
 **The sequence counter.** The counter is the one write in the system with an ordering rule, and two deliveries to the same user at the same time must not take the same number. Options: a lightweight transaction (compare-and-set) on the counter row, or a single writer for each user. Recommendation: route each user's writes to one delivery-service instance (the partition owner, selected by consistent hashing on `user_id`, the same idea as the partitions of the log), so that the counter increments in memory and flushes with the row. If the owner fails, another instance takes over after a lease and reads the counter from the store (see [distributed locks and leases](../distributed-systems/05-distributed-locks-and-leases.md) for the fencing token that makes the takeover safe). The alternative, a compare-and-set on every delivery, costs an extra round trip but has no owner to fail over.
 
@@ -435,19 +452,27 @@ The indexer reads the change log, so the index follows the store in seconds, and
 
 **Queues for each domain.** The outbound log holds one entry for each (message, recipient domain). Workers group entries by destination domain. A queue for each domain lets the service control the rate for each destination: a destination that answers `421` or slows down gets fewer connections, and the delay for one domain does not block mail for others. This is head-of-line blocking avoided by partitioning the queue.
 
-**Retries.** The entry carries `attempts` and `next_attempt_at`. RFC 5321 says the retry interval should be at least 30 minutes. A provider that wants the user to see a delivery within minutes may retry sooner at the start (for example after 5 minutes), which departs from that advice. Assumption: this design uses 5 minutes for the first retry, then 30 minutes and longer, with jitter (see [reliability patterns](../fundamentals/12-reliability-patterns.md)). The give-up time is at least 4 to 5 days. After that, the sender creates a bounce. A warning notice to the user after 4 hours is a product choice and is not in the RFC.
+**Retries.** The entry carries `attempts` and `next_attempt_at`. RFC 5321 section 4.5.4.1 sets three rules for the schedule:
+
+1. The sender must wait before it retries a destination after a failed attempt (a MUST).
+2. The retry interval should be at least 30 minutes (a SHOULD). The same sentence adds that "more sophisticated and variable strategies will be beneficial when the SMTP client can determine the reason for non-delivery".
+3. The give-up time "generally needs to be at least 4-5 days". The retry parameters must be configurable.
+
+The section also reports that experience favors two connection attempts in the first hour, then one attempt every two or three hours. In RFC 2119 terms, a SHOULD allows an implementation to deviate for a valid reason, if the implementer understands the consequences.
+
+This design deviates from the SHOULD for the first retry. Assumption: the first retry comes 5 minutes after the first failure. The reason is that a user expects a sent message to arrive in minutes, and a greylisting `451` clears at the first retry that comes after the receiver's greylisting delay. The second retry comes 30 minutes later, and later retries back off to every 2 to 3 hours, with jitter (see [reliability patterns](../fundamentals/12-reliability-patterns.md)). The 5-minute value is this design's choice, not an RFC value, and it applies to the first retry only. All later retries follow the RFC advice. The give-up time is 5 days. After that, the sender creates a bounce. A warning notice to the user after 4 hours is a product choice and is not in the RFC.
 
 **Classification of the reply.** `2xx`: delivered. `4xx`: retry. `5xx`: permanent failure for that recipient: bounce. Some receivers send a `5xx` for a temporary problem (a rate limit), and some send `4xx` forever. A real system keeps a table of patterns for large providers. It is operational knowledge, not part of the RFC.
 
 **MX lookup and failover.** The sender resolves the MX records of the destination, sorts them by preference (lowest first), and tries them in order. If the first host is unreachable it tries the next one. If a domain has no MX record, the sender uses the domain's address record (RFC 5321 section 5.1).
 
-**TLS.** The sender offers STARTTLS (RFC 3207) and uses it if the peer supports it. Opportunistic TLS can be downgraded by an attacker who removes the STARTTLS offer. MTA-STS (RFC 8461) lets a destination domain publish a policy that requires TLS, and the sender caches it. It closes the downgrade attack for the domains that publish it.
+**TLS.** The sender uses STARTTLS (RFC 3207) if the peer advertises it in the `EHLO` reply. Opportunistic TLS can be downgraded by an attacker who removes the STARTTLS offer. MTA-STS (RFC 8461) lets a destination domain publish a policy that requires TLS, and the sender caches it. It closes the downgrade attack for the domains that publish it.
 
 **Reputation.** Receivers score each sending IP and domain by its history: the complaint rate, the share of unknown-user errors, the volume, and authentication results. A new IP with a high volume looks like a spammer. So the service warms up new IPs with a slowly increasing volume, and it keeps separate IP pools: one for user mail, one for bulk or transactional mail, one for suspected abuse. A compromised account that sends spam can reduce the reputation of the shared pool. The per-account limits and the outbound spam filter (the same filter as the inbound one, run on outbound mail) keep the pool clean. Recommendation: apply the limit by account and by recipient count (for example 500 recipients each day for a new account, growing with age; Assumption), with an alert on a sudden change.
 
-**Feedback loops.** Large receivers send complaint reports about messages that users marked as spam (the ARF format, RFC 5965). The service processes them: it sees which account sent the mail and reduces its limits.
+**Feedback loops.** Some large receivers send complaint reports to registered senders about messages that users marked as spam. The reports use the Abuse Reporting Format (ARF, RFC 5965), a MIME type `message/feedback-report`. The service processes them: it sees which account sent the mail and reduces its limits.
 
-**Bounces.** A bounce (delivery status notification) is a message sent to the envelope sender with an empty `MAIL FROM:<>` (RFC 5321 section 6.1). The RFC 3464 format has a machine-readable part with the status of each recipient. The service puts the bounce into the sender's mailbox through the normal delivery path, so the user sees why a message failed.
+**Bounces.** A bounce (delivery status notification, DSN) is a message sent to the envelope sender with an empty `MAIL FROM:<>` (RFC 5321 section 6.1). The RFC 3464 format has a machine-readable part (`message/delivery-status`) with the status of each recipient. The service puts the bounce into the sender's mailbox through the normal delivery path, so the user sees why a message failed.
 
 ## Bottlenecks and Scaling
 
@@ -491,11 +516,11 @@ The indexer reads the change log, so the index follows the store in seconds, and
 
     For spoofing of domains we host, publish SPF with our sending IPs, sign all outbound mail with DKIM, and publish a DMARC policy. Start with `p=none` and read the aggregate reports (`rua`) to find legitimate senders that are not yet covered. Then move to `p=quarantine` and `p=reject`. A receiver that follows DMARC then rejects a forged message that fails both aligned SPF and aligned DKIM.
 
-    For our reputation, send DKIM-signed, SPF-aligned mail. Keep the complaint rate low (Google's guidance is a spam rate below 0.10%, and it states that 0.30% causes harm). Separate IP pools. Limit and filter outbound mail so that a compromised account does not spoil the pool. Process feedback-loop reports. Warm up new IPs. Provide a one-click unsubscribe on bulk mail. Trade-off: strict DMARC (`p=reject`) breaks mail that passes through mailing lists that change the message, so a domain that its users use on public lists needs care (ARC, RFC 8617, lets an intermediary record the authentication result it saw).
+    For our reputation, send DKIM-signed, SPF-aligned mail. Keep the complaint rate low (Google tells senders to keep the spam rate below 0.10% and to avoid ever reaching 0.30%). Separate IP pools. Limit and filter outbound mail so that a compromised account does not spoil the pool. Process feedback-loop reports. Warm up new IPs. Provide a one-click unsubscribe on bulk mail. Trade-off: strict DMARC (`p=reject`) breaks mail that passes through mailing lists that change the message, so a domain that its users use on public lists needs care (ARC, RFC 8617, an Experimental RFC, lets an intermediary record and sign the authentication result it saw, and the final receiver may choose to trust that record).
 
 ??? question "Why does SMTP retry by the sender, and how long does the sender keep trying?"
 
-    SMTP moves the responsibility for a message from one server to the next. The sender keeps the message until the receiver sends `250`. A `4xx` reply means "try again later", so the sender queues the message and retries. RFC 5321 section 4.5.4.1 says the retry interval should be at least 30 minutes, and the give-up time generally needs to be at least 4 to 5 days. After the give-up time, the sender returns a bounce to the original sender, with an empty envelope sender so that the bounce cannot itself bounce in a loop.
+    SMTP moves the responsibility for a message from one server to the next. The sender keeps the message until the receiver sends `250`. A `4xx` reply means "try again later", so the sender queues the message and retries. RFC 5321 section 4.5.4.1 says the sender must wait after a failed attempt, the retry interval should be at least 30 minutes, and the give-up time generally needs to be at least 4 to 5 days. The same section reports that experience favors two attempts in the first hour and then one every two or three hours, which is about 50 attempts over 5 days. The RFC limits the time, not the number of attempts. A sender may retry sooner than 30 minutes for a reason that it can justify (this page's design retries once after 5 minutes), because the 30-minute rule is a SHOULD, not a MUST. After the give-up time, the sender returns a bounce to the original sender, with an empty envelope sender so that the bounce cannot itself bounce in a loop.
 
     The consequence for our design: if our receivers are down or slow, compliant senders hold the mail. We answer `4xx` for every internal fault, not `5xx`, and the outage costs delay and no loss. The opposite also holds: we must not send `250` and then fail, because the sender has deleted its copy.
 
@@ -515,19 +540,19 @@ The indexer reads the change log, so the index follows the store in seconds, and
 
 ??? question "How does IMAP sync work, and how would you make a mobile client sync cheaply?"
 
-    IMAP identifies a message by a `UID` that increases within a folder, and a `UIDVALIDITY` value. If `UIDVALIDITY` changes, the client must discard its cache (RFC 3501 section 2.3.1.1). A client without extensions fetches the UIDs and the flags of all messages to find changes, and this cost grows with the folder size. IMAP `IDLE` (RFC 2177) lets the server push new-mail events on an open connection. The CONDSTORE extension (RFC 7162) adds a modification sequence to each message, so the client asks only for messages changed since the last value.
+    IMAP identifies a message by a `UID` that increases within a folder, and a `UIDVALIDITY` value. If `UIDVALIDITY` changes, the client must discard its cache (RFC 9051 section 2.3.1.1; RFC 3501 has the same rule). A client without extensions fetches the UIDs and the flags of all messages to find changes, and this cost grows with the folder size. IMAP `IDLE` lets the server push new-mail events on an open connection (a base command in IMAP4rev2, RFC 9051, and the RFC 2177 extension for IMAP4rev1). The CONDSTORE extension (RFC 7162) adds a modification sequence to each message, so the client asks only for messages whose flags changed since the last value. CONDSTORE does not report deleted messages, so the client still lists all UIDs to find them. The QRESYNC extension (also RFC 7162) adds the `VANISHED` response with the expunged UIDs, so a reconnecting client resyncs a folder in one round trip.
 
     For our own mobile client, use the HTTP change log. The client keeps the last `changeSeq` and calls `GET /v1/changes?since=…`. It receives the list of changed message IDs, and then fetches their metadata. The cost is proportional to the changes. A push notification (APNs or FCM) says "something changed" and carries no content, so the client syncs on demand. If the client is older than the 30-day retention, the server answers `410` and the client resyncs by folders.
 
 ??? question "How do you keep the same message from being delivered twice, or two messages from getting the same UID?"
 
-    For duplicates: the sender may retry after a `250` that it did not receive (a network failure after the data arrived). The receiver then sees the same message again. The delivery service computes a deduplication key from the recipient, the `Message-ID` header, and the content hash. A repeat write with the same key does nothing and still returns success. Because the content hash is part of the key, two different messages that share a `Message-ID` header are both kept.
+    For duplicates: the sender may retry after a `250` that it did not receive (a network failure after the data arrived). The receiver then sees the same message again. The delivery service computes a deduplication key from the recipient, the `Message-ID` header, and the content hash. A repeat write with the same key does nothing and still returns success. Because the content hash is part of the key, two different messages that share a `Message-ID` header are both kept. The hash must cover the bytes as the sender sent them, not the stored copy: the receiver adds a `Received:` trace line with a timestamp to each accepted copy (RFC 5321 section 4.4), so a hash of the stored copy differs on each attempt and the deduplication never matches. The receiver's own header lines live in the metadata row.
 
     For UIDs: the `uid` comes from a per-folder counter. Two concurrent deliveries to the same folder must not read the same value. The design routes all writes of a user to one delivery-service instance and increments the counter there, or uses a compare-and-set on the counter row. After a failover, the new owner reads the counter from the store, and a fencing token on the writes stops the old owner (see [distributed locks and leases](../distributed-systems/05-distributed-locks-and-leases.md)). A gap in UIDs is allowed. A repeated UID is not.
 
 ??? question "What changes if the service must also act as a marketing and transactional email sender for customers?"
 
-    The two products share the SMTP sender fleet and differ in almost everything else, so build the second as a separate product on shared parts. The customer brings a domain and sets up SPF and DKIM records in DNS (the service gives the DKIM selector and the key). Traffic runs on separate IP pools, so a bulk sender with a high complaint rate cannot reduce the reputation of the mailbox users. The service adds tracking for each recipient (delivery, bounce, complaint, open, click), an unsubscribe and suppression list (never send to an address that bounced permanently or complained), and per-customer rate limits. The call from the customer is an HTTP API with an idempotency key, and the structure is the notification system of [Design a Notification System](04-notification-system.md): a queue, templates, retries, provider-style status tracking. Google's sender guidelines make the one-click unsubscribe and the DMARC policy mandatory at volume, so the product must enforce them for its customers.
+    The two products share the SMTP sender fleet and differ in almost everything else, so build the second as a separate product on shared parts. The customer brings a domain and sets up SPF and DKIM records in DNS (the service gives the DKIM selector and the key). Traffic runs on separate IP pools, so a bulk sender with a high complaint rate cannot reduce the reputation of the mailbox users. The service adds tracking for each recipient (delivery, bounce, complaint, open, click), an unsubscribe and suppression list (never send to an address that bounced permanently or complained), and per-customer rate limits. The call from the customer is an HTTP API with an idempotency key, and the structure is the notification system of [Design a Notification System](04-notification-system.md): a queue, templates, retries, provider-style status tracking. Google's sender guidelines make one-click unsubscribe, SPF and DKIM, a DMARC record, and `From:` alignment mandatory above 5,000 messages each day to Gmail, so the product must enforce them for its customers.
 
 ## 45-Minute Plan
 
@@ -543,15 +568,18 @@ The indexer reads the change log, so the index follows the store in seconds, and
 
 ## Further Reading
 
-- [RFC 5321](https://www.rfc-editor.org/rfc/rfc5321), Simple Mail Transfer Protocol. The commands, the reply codes, the transfer of responsibility at `250` (sections 2.1 and 4.1.1.4), the minimum limits (4.5.3.1), the retry and give-up advice (4.5.4.1), MX resolution (5.1), and bounces with a null sender (6.1).
+- [RFC 5321](https://www.rfc-editor.org/rfc/rfc5321), Simple Mail Transfer Protocol. The commands, the reply codes (4.2), the transfer of responsibility at `250` (4.1.1.4, 4.2.5, and 6.1), the minimum limits (4.5.3.1), the retry and give-up advice (4.5.4.1), MX resolution (5.1), bounces with a null sender (6.1), and the trace lines that each receiver inserts (4.4), and loop detection (6.3).
+- [RFC 3207](https://www.rfc-editor.org/rfc/rfc3207) (STARTTLS for SMTP), [RFC 1870](https://www.rfc-editor.org/rfc/rfc1870) (the `SIZE` extension), and [RFC 8314](https://www.rfc-editor.org/rfc/rfc8314) (implicit TLS for submission and IMAP). The TLS upgrade and the reset after it, and the size refusal before the transfer.
+- [RFC 2033](https://www.rfc-editor.org/rfc/rfc2033) (LMTP), [RFC 3464](https://www.rfc-editor.org/rfc/rfc3464) (delivery status notifications), and [RFC 5965](https://www.rfc-editor.org/rfc/rfc5965) (Abuse Reporting Format). Per-recipient replies on the internal hop, the bounce format, and the complaint-report format.
+- [RFC 6647](https://www.rfc-editor.org/rfc/rfc6647), Email Greylisting: An Applicability Statement for SMTP. The benefits and costs of greylisting, including the retry behavior of spam software and of legitimate servers.
 - [RFC 5322](https://www.rfc-editor.org/rfc/rfc5322), Internet Message Format. The header fields, the line-length limits, and the `Message-ID`, `In-Reply-To`, and `References` fields that the threading uses.
 - [RFC 6409](https://www.rfc-editor.org/rfc/rfc6409), Message Submission for Mail. Why users send on port 587 with authentication.
-- [RFC 3501](https://www.rfc-editor.org/rfc/rfc3501) (IMAP4rev1) and [RFC 9051](https://www.rfc-editor.org/rfc/rfc9051) (IMAP4rev2). UIDs, UIDVALIDITY, flags, and the session states.
+- [RFC 9051](https://www.rfc-editor.org/rfc/rfc9051) (IMAP4rev2, 2021) and [RFC 3501](https://www.rfc-editor.org/rfc/rfc3501) (IMAP4rev1, obsoleted by RFC 9051). UIDs, UIDVALIDITY, flags, and the session states.
 - [RFC 2177](https://www.rfc-editor.org/rfc/rfc2177), IMAP4 IDLE, and [RFC 7162](https://www.rfc-editor.org/rfc/rfc7162), IMAP CONDSTORE and QRESYNC. Push and cheap resynchronization.
 - [RFC 2045](https://www.rfc-editor.org/rfc/rfc2045) (MIME part one). Base64 and the 76-character line limit behind the 37% growth.
 - [RFC 7208](https://www.rfc-editor.org/rfc/rfc7208), Sender Policy Framework. The record syntax, the result values, and the 10-lookup limit.
 - [RFC 6376](https://www.rfc-editor.org/rfc/rfc6376), DomainKeys Identified Mail Signatures. The signature tags, canonicalization, and the DNS key record.
-- [RFC 7489](https://www.rfc-editor.org/rfc/rfc7489), DMARC. Alignment, policies, and aggregate reports. The RFC is Informational.
-- [RFC 8617](https://www.rfc-editor.org/rfc/rfc8617), Authenticated Received Chain, and [RFC 8461](https://www.rfc-editor.org/rfc/rfc8461), MTA-STS. Authentication for forwarded mail, and enforced TLS between servers.
-- Google, ["Email sender guidelines"](https://support.google.com/a/answer/81126). The public requirements for SPF, DKIM, DMARC, one-click unsubscribe, and the spam-rate thresholds (checked 2026-10-15).
+- [RFC 9989](https://www.rfc-editor.org/rfc/rfc9989), DMARC (Proposed Standard, May 2026), with [RFC 9990](https://www.rfc-editor.org/rfc/rfc9990) (aggregate reports) and [RFC 9991](https://www.rfc-editor.org/rfc/rfc9991) (failure reports). Alignment, policies, the DNS Tree Walk, and reports. They obsolete [RFC 7489](https://www.rfc-editor.org/rfc/rfc7489), the Informational 2015 version that older material cites.
+- [RFC 8617](https://www.rfc-editor.org/rfc/rfc8617), Authenticated Received Chain (Experimental), and [RFC 8461](https://www.rfc-editor.org/rfc/rfc8461), MTA-STS. Authentication for forwarded mail, and enforced TLS between servers.
+- Google, ["Email sender guidelines"](https://support.google.com/a/answer/81126). The public requirements for SPF, DKIM, DMARC, one-click unsubscribe, and the spam-rate thresholds (checked 2026-10-21).
 - Related pages: [storage types](../fundamentals/10-storage-types.md), [search and indexing](../fundamentals/11-search-and-indexing.md), [message queues and streams](../fundamentals/08-message-queues-and-streams.md), [reliability patterns](../fundamentals/12-reliability-patterns.md), [security in design](../fundamentals/21-security-in-design.md), [partitioning and sharding](../fundamentals/06-partitioning-and-sharding.md), [Design a Notification System](04-notification-system.md), and [estimation](../back-of-envelope-estimation.md).
