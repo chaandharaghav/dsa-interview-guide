@@ -3,6 +3,14 @@
 - **Saved:** 2026-10-15, at the user's request. The user continues in a later session.
 - **Branch:** `knowledge-base`. `main` is unchanged since the spec and plan commits. Merging is the user's decision at the end of the project.
 
+## SESSION 3 (2026-10-21): HLD finish and Phase 3 DSA
+
+User instruction: keep everything in the local repo (no claude.ai artifacts). Complete HLD and DSA in parts, with subagents. This overrides the earlier "stop after HLD" rule. Reviewers: Opus for all HLD pages and for DSA P1 pages, Sonnet for DSA P2 pages. About 5 agents at a time.
+
+- HLD Batch 6: done and committed (cheatsheet, practice page, README index, `.nav.yml`, glossary terms, study-plan HLD track, home-page status). `kb/prep-timeline.html` is the local timeline page.
+- HLD case studies 21–25: reviewed and committed. **HLD (phase 2) is complete.** Mermaid 159 diagrams OK, HLD format, Java, and SQL checks pass.
+- Phase 3 plan: `docs/superpowers/plans/2026-10-21-phase-3-dsa.md`. F1 reviewed and committed. F2 in Opus review. F3, F4, N3, N5 drafting. Queued: N1, N2, N4, N6, N7, N8, Batch 3.
+
 ## Read First
 
 1. Spec: `docs/superpowers/specs/2026-10-14-software-engineering-kb-design.md`
@@ -24,7 +32,7 @@
 |---|---|
 | 0: restructure, site, tools | Done. Reviewed by an Opus reviewer. All findings fixed |
 | 1: LLD | Done (2026-10-15): 13 pages, 24 case studies, cheatsheet, practice page, all Opus-reviewed |
-| 2: HLD | In progress (plan: `docs/superpowers/plans/2026-10-15-phase-2-hld.md`) |
+| 2: HLD | Done (2026-10-21): all pages Opus-reviewed, Batch 6 done |
 | 3 to 11 | Not started |
 
 ## Phase 1 Detail
