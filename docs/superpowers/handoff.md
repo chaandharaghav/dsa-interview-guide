@@ -11,7 +11,7 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 - **Phase 3 (DSA): done.** Plan: `docs/superpowers/plans/2026-10-21-phase-3-dsa.md`. Foundations 01–08 (Opus-reviewed), patterns 23, 25, 26 (P1, Opus-reviewed), patterns 21, 22, 24, 27, 28 (P2, Sonnet-reviewed). Batch 3 done: routes in `how-to-choose-a-pattern.md`, cheatsheet and tricks links, DSA plan weeks 13–15, `.nav.yml`, links from older pattern pages, glossary terms, home-page status.
 - `kb/prep-timeline.html` is the local timeline page (status, 21-week chart, per-subject chart, JavaScript track). Update its status section at the end of each phase.
 - Gate on 2026-10-22: 57/57 unit tests, format 157 files 0 errors, SQL 17 pages 0 errors, Java 759/759 blocks and 24/24 case studies, `mkdocs build --strict` passes, Mermaid OK for `kb/hld` (159) and `kb/dsa` (20).
-- **Next:** phase 4 (Java and Spring). It needs a phase plan in the same form. Ask the user before starting it.
+- **Phase 4 (Java and Spring): started 2026-10-22** at the user's request ("use subagents when necessary"; the user may switch models if usage grows fast). Plan: `docs/superpowers/plans/2026-10-22-phase-4-java.md`. Spring and JPA code blocks are `<!-- fragment -->`; drafters compile them against `~/.m2` jars. Drafting: J1 to J5. Queued: J6 to J13, then J14 (question bank) and the index updates.
 
 ## Read First
 
