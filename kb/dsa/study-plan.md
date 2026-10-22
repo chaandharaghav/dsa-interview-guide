@@ -1,6 +1,6 @@
-# 12-Week DSA Interview Prep Plan
+# DSA Interview Prep Plan (12 Core Weeks, Plus 3)
 
-A day-by-day plan to learn the DSA patterns for interviews. Week 0 is a short re-entry week for developers who have not done DSA for a while.
+A day-by-day plan to learn the DSA patterns for interviews. Week 0 is a short re-entry week for developers who have not done DSA for a while. Weeks 1 to 12 cover patterns 01 to 20. Week 13 covers the new P1 patterns, and weeks 14 and 15 are stretch weeks for the P2 patterns.
 
 ---
 
@@ -40,6 +40,11 @@ Before you write code, write two lines: the pattern you predict, and the decidin
 
 - [ ] Learn the constraint → complexity table in Step 1
 - [ ] Read walkthroughs 1–4 in Part 3. Cover the solution and predict the pattern first.
+
+### Day 2–3: Foundations (as needed)
+**Read:** the [foundations](./README.md#foundations) pages for any structure that you do not know well. At minimum, read [Complexity Analysis](./foundations/01-complexity-analysis.md) and [Hash Tables](./foundations/04-hash-tables.md).
+
+- [ ] Answer three `??? question` blocks on each page that you read before you open the model answers
 
 ### Day 3: Warm-up
 - [ ] LC 1: Two Sum (Easy)
@@ -395,10 +400,50 @@ Before you write code, write two lines: the pattern you predict, and the decidin
 
 ---
 
+## Week 13: New P1 Patterns
+
+### Day 1-2: Math and Number Theory
+**Read:** [Pattern 23](./23-math-and-number-theory/README.md)
+- [ ] LC 204: Count Primes (Medium)
+- [ ] LC 50: Pow(x, n) (Medium)
+- [ ] LC 172: Factorial Trailing Zeroes (Medium)
+- [ ] LC 1201: Ugly Number III (Medium)
+
+### Day 3-4: Matrix and Simulation
+**Read:** [Pattern 25](./25-matrix-and-simulation/README.md)
+- [ ] LC 54: Spiral Matrix (Medium)
+- [ ] LC 48: Rotate Image (Medium)
+- [ ] LC 73: Set Matrix Zeroes (Medium)
+- [ ] LC 289: Game of Life (Medium)
+
+### Day 5-7: Design Data Structures
+**Read:** [Pattern 26](./26-design-data-structures/README.md)
+- [ ] LC 155: Min Stack (Medium)
+- [ ] LC 380: Insert Delete GetRandom O(1) (Medium)
+- [ ] LC 981: Time Based Key-Value Store (Medium)
+- [ ] LC 295: Find Median from Data Stream (Hard)
+- [ ] LC 460: LFU Cache (Hard)
+
+---
+
+## Weeks 14-15: P2 Patterns (Stretch)
+
+Do these weeks if your target companies ask hard problems, or if you have time before your interviews. For each pattern, read the page, then solve the first three Medium and the first Hard problem in its section 8 table.
+
+| Days | Pattern |
+|------|---------|
+| Week 14, days 1-3 | [Pattern 21: Segment Tree and Fenwick Tree](./21-segment-tree-and-fenwick-tree/README.md) |
+| Week 14, days 4-7 | [Pattern 24: Advanced Graphs](./24-advanced-graphs/README.md) |
+| Week 15, days 1-3 | [Pattern 27: Advanced DP](./27-advanced-dp/README.md) |
+| Week 15, days 4-5 | [Pattern 22: String Algorithms](./22-string-algorithms/README.md) |
+| Week 15, days 6-7 | [Pattern 28: Randomized Algorithms](./28-randomized-algorithms/README.md) |
+
+---
+
 ## Tracking Progress
 
 ### Weekly Checklist
-Week 0: [ ] Java Toolkit [ ] How to Choose a Pattern [ ] Warm-up
+Week 0: [ ] Java Toolkit [ ] How to Choose a Pattern [ ] Foundations [ ] Warm-up
 Week 1: [ ] Sliding Window [ ] Two Pointers [ ] Fast/Slow + Linked List Reversal
 Week 2: [ ] Prefix Sum [ ] Hashing [ ] Binary Search (Classic & On Answer)
 Week 3: [ ] Monotonic Stack [ ] Backtracking [ ] Divide & Conquer
@@ -411,6 +456,8 @@ Week 9: [ ] 1D DP [ ] Basic DP Problems
 Week 10: [ ] 2D DP [ ] Knapsack [ ] Grid DP
 Week 11: [ ] Interval DP [ ] State Machine DP [ ] Hard DP
 Week 12: [ ] Mock Interviews [ ] Final Review
+Week 13: [ ] Math [ ] Matrix and Simulation [ ] Design Data Structures
+Weeks 14-15 (stretch): [ ] Range Trees [ ] Advanced Graphs [ ] Advanced DP [ ] String Algorithms [ ] Randomized
 
 ### Problem Count Goals
 - Easy: 20-30 problems

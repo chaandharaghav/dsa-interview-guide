@@ -340,6 +340,8 @@ return atMost(k) - atMost(k - 1)
 ---
 
 ### 4.1 GCD and LCM
+
+Full pattern: [23-math-and-number-theory](23-math-and-number-theory/README.md).
 **Trigger:** Divisibility, fraction simplification, "how many steps until sync," cyclic problems.
 
 ```
@@ -355,6 +357,8 @@ lcm(a, b) = a // gcd(a, b) * b   // divide first to avoid overflow
 ---
 
 ### 4.2 Fast Binary Exponentiation
+
+Full pattern: [23-math-and-number-theory](23-math-and-number-theory/README.md).
 **Trigger:** "Compute x^n" for large n in O(log n).
 
 **Trick:** Square and halve. If exponent is odd, multiply in one extra factor.
@@ -413,6 +417,8 @@ next_index = (current_index + 1) % n
 ---
 
 ### 4.6 Modular Arithmetic
+
+Full pattern: [23-math-and-number-theory](23-math-and-number-theory/README.md).
 **Trigger:** "Return answer mod 10^9+7" — result would overflow without modding.
 
 ```
@@ -521,6 +527,8 @@ return stack is empty
 ---
 
 ### 5.5 Reservoir Sampling
+
+Full pattern: [28-randomized-algorithms](28-randomized-algorithms/README.md).
 **Trigger:** "Pick k random elements from a stream of unknown length" uniformly.
 
 **Trick:** For element at position i (1-indexed), replace the current reservoir item with probability k/i.
@@ -539,6 +547,8 @@ return reservoir
 ---
 
 ### 5.6 Coordinate Compression
+
+Full pattern: [21-segment-tree-and-fenwick-tree](21-segment-tree-and-fenwick-tree/README.md).
 **Trigger:** Values are large (up to 10^9) but only a small number of distinct values matter.
 
 **Trick:** Map the O(n) distinct values to indices 0..m-1. Replace all values with their compressed index before processing.
@@ -722,6 +732,8 @@ for i in 1..n:
 ---
 
 ### 7.2 State Compression with Bitmask
+
+Full pattern: [27-advanced-dp](27-advanced-dp/README.md).
 **Trigger:** n ≤ 20 items; problem requires tracking which items have been "used" or "visited."
 
 **Trick:** Use an integer as the state bitmask. `dp[mask]` = answer for the subset encoded by `mask`.

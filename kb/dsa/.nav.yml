@@ -3,6 +3,15 @@ nav:
   - how-to-choose-a-pattern.md
   - java-toolkit.md
   - study-plan.md
+  - Foundations:
+      - "F1 · Complexity Analysis": foundations/01-complexity-analysis.md
+      - "F2 · Arrays, Strings, Linked Lists": foundations/02-arrays-strings-linked-lists.md
+      - "F3 · Stacks, Queues, Deques": foundations/03-stacks-queues-deques.md
+      - "F4 · Hash Tables": foundations/04-hash-tables.md
+      - "F5 · Trees and Balanced BSTs": foundations/05-trees-and-balanced-bsts.md
+      - "F6 · Heaps": foundations/06-heaps.md
+      - "F7 · Graph Representations": foundations/07-graph-representations.md
+      - "F8 · Sorting Algorithms": foundations/08-sorting-algorithms.md
   - Patterns:
       - "01 · Sliding Window": 01-sliding-window
       - "02 · Two Pointers": 02-two-pointers
@@ -24,6 +33,14 @@ nav:
       - "18 · Shortest Paths": 18-shortest-paths
       - "19 · Bit Manipulation": 19-bit-manipulation
       - "20 · Intervals & Sweep Line": 20-intervals
+      - "21 · Segment Tree & Fenwick Tree": 21-segment-tree-and-fenwick-tree
+      - "22 · String Algorithms": 22-string-algorithms
+      - "23 · Math & Number Theory": 23-math-and-number-theory
+      - "24 · Advanced Graphs": 24-advanced-graphs
+      - "25 · Matrix & Simulation": 25-matrix-and-simulation
+      - "26 · Design Data Structures": 26-design-data-structures
+      - "27 · Advanced DP": 27-advanced-dp
+      - "28 · Randomized Algorithms": 28-randomized-algorithms
   - Reference:
       - cheatsheet.md
       - tricks-at-a-glance.md

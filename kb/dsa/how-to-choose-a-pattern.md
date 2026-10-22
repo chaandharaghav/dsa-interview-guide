@@ -86,18 +86,20 @@ Write the shape in one phrase: "unsorted int array", "two strings", "directed gr
 | Sorted array | Binary search, two pointers (opposite ends), merge step |
 | Unsorted array | Hashmap, sort first, prefix sum, sliding window, monotonic stack, heap, DP |
 | Array with values in `[1..n]` | Cyclic sort / index marking, Floyd cycle (LC 287), XOR |
-| One string | Sliding window, hashmap counts, two pointers (palindromes), DP (palindromic substrings, partitions), stack (brackets) |
+| One string | Sliding window, hashmap counts, two pointers (palindromes), DP (palindromic substrings, partitions), stack (brackets), [string algorithms](22-string-algorithms/README.md) (KMP, rolling hash, Manacher) |
 | Two strings or two sequences | 2D DP (LCS, edit distance), two pointers (subsequence check), sliding window + counts (anagram in string) |
 | Linked list | Fast/slow pointers, in-place reversal, dummy node, merge |
 | Binary tree | DFS (path, height, subtree aggregates), BFS (levels, min depth) |
 | Binary search tree | In-order traversal = sorted order, range pruning |
-| Graph given as edges | Build adjacency list → BFS/DFS, topological sort, union find, shortest paths, MST |
-| Grid | Grid BFS/DFS (each cell is a node), grid DP (only right/down moves), Dijkstra (cell costs) |
+| Graph given as edges | Build adjacency list → BFS/DFS, topological sort, union find, shortest paths, [advanced graphs](24-advanced-graphs/README.md) (MST, SCC, bridges, Euler path) |
+| Grid | Grid BFS/DFS (each cell is a node), grid DP (only right/down moves), Dijkstra (cell costs), [matrix and simulation](25-matrix-and-simulation/README.md) (traversal orders, rotation, in-place marking) |
 | Implicit graph (states and moves) | BFS over states: word ladder, lock combinations, puzzles |
 | Intervals `[start, end]` | Sort by start (merge), sort by end (greedy selection), sweep line, heap of end times |
-| Stream of values | Heap, two heaps (median), reservoir sampling, running counters |
+| Stream of values | Heap, two heaps (median), [reservoir sampling](28-randomized-algorithms/README.md), running counters |
 | Set of words / dictionary | Trie (prefix queries), hashset (exact lookup), BFS (word ladder) |
-| Single integer `n` | Math, bit manipulation, DP on `n`, binary search on answer |
+| Single integer `n` | [Math and number theory](23-math-and-number-theory/README.md), bit manipulation, DP on `n`, [digit DP](27-advanced-dp/README.md), binary search on answer |
+| A class with operations to implement ("design ...") | [Design data structures](26-design-data-structures/README.md): hashmap plus list, two heaps, `TreeMap`, linked list plus hashmap |
+| Small set of items (n ≤ 20) to assign or order | [Bitmask DP](27-advanced-dp/README.md), backtracking |
 
 ---
 
@@ -120,9 +122,16 @@ Write what the output is: one boolean, one number, one subarray, a list of all s
 | Are A and B connected? How many groups? | DFS/BFS, union find |
 | Next greater / previous smaller per element | Monotonic stack |
 | Max / min of every window | Monotonic deque |
-| Many range-sum queries | Prefix sum (static), difference array (all updates before queries), Fenwick / segment tree (updates and queries mixed) |
+| Many range-sum queries | Prefix sum (static), difference array (all updates before queries), [Fenwick / segment tree](21-segment-tree-and-fenwick-tree/README.md) (updates and queries mixed) |
 | Running median | Two heaps |
 | Words that start with a prefix | Trie |
+| Find a pattern in a text, longest palindromic substring, repeated substring | [String algorithms](22-string-algorithms/README.md): KMP, Z-function, rolling hash, Manacher |
+| Answer "modulo 10^9 + 7", GCD, primes, nCr | [Math and number theory](23-math-and-number-theory/README.md) |
+| Connect all nodes at minimum cost, critical edges, strongly connected groups | [Advanced graphs](24-advanced-graphs/README.md): MST, bridges, SCC |
+| Rotate, spiral, or step a grid through rules | [Matrix and simulation](25-matrix-and-simulation/README.md) |
+| Implement a class whose operations meet stated costs | [Design data structures](26-design-data-structures/README.md) |
+| Optimal value over subsets, digits, or a tree | [Advanced DP](27-advanced-dp/README.md): bitmask, digit, tree DP |
+| Random sample, shuffle, or pick with weights | [Randomized algorithms](28-randomized-algorithms/README.md) |
 
 **Intersect the two lists.** Take the candidates from Step 2 and keep only those that also appear in Step 3. In most problems, two to four candidates remain. Step 4 decides between them.
 
@@ -243,7 +252,7 @@ When the problem forbids extra space, the usual hashmap answer is not allowed. U
 
 - **No updates** → prefix sum. O(1) per query.
 - **All updates come before all queries** → difference array. Apply each update in O(1), then run one prefix sum.
-- **Updates and queries are mixed** → Fenwick tree (binary indexed tree) or segment tree. O(log n) per operation. These two structures are rare in interviews. Know that they exist and what they cost.
+- **Updates and queries are mixed** → Fenwick tree (binary indexed tree) or segment tree. O(log n) per operation. These two structures are rare in interviews. Know that they exist and what they cost. See [pattern 21](21-segment-tree-and-fenwick-tree/README.md).
 
 ---
 
@@ -764,6 +773,7 @@ Each line describes a problem. Name the pattern and the deciding question before
 
 ## Where to Go Next
 
+- For the data structures that the patterns use (arrays, hash tables, heaps, trees, graphs, sorting), use the [foundations](foundations/01-complexity-analysis.md) pages.
 - For the details of each pattern, use the [Pattern Index](./README.md#pattern-index).
 - For the Java classes and calls that each pattern uses, use the [Java Toolkit](./java-toolkit.md).
 - For problems that combine two or three patterns, use [Pattern Combinations](./pattern-combinations.md).

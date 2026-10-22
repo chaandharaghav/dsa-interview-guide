@@ -463,7 +463,7 @@ function countPaths(graph, target):
 | **Alien Dictionary** | Topological sort from comparisons | 269 |
 | **Shortest Path in a Grid with Obstacles Elimination** | BFS with state (position + obstacles) | 1293 |
 | **Reconstruct Itinerary** | Hierholzer's algorithm (Eulerian path) | 332 |
-| **Critical Connections** | Tarjan's algorithm (bridges) | 1192 |
+| **Critical Connections** | Tarjan's algorithm (bridges; see [Pattern 24](../24-advanced-graphs/README.md)) | 1192 |
 
 ---
 

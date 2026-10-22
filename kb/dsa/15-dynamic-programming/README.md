@@ -650,7 +650,7 @@ return dp[amount] == INFINITY ? -1 : dp[amount]
 | Optimization with an obvious "best next step" | Greedy ([Pattern 14](../14-greedy/README.md)) | Can a locally best choice ever need to be undone? Test a counterexample: coins {1, 3, 4}, amount 6 → greedy gives 4+1+1, optimal is 3+3. A counterexample exists → DP. None, and you can argue an exchange proof → greedy. |
 | "Find combinations that sum to target" | Backtracking ([Pattern 8](../08-recursion-backtracking/README.md)) | Does the output list every solution, or one number (count, min, max, true/false)? List → backtracking (Combination Sum, LC 39). One number → DP (Coin Change II, LC 518). |
 | DP on a graph of states | Memoized DFS, BFS, or Dijkstra | Can the state graph contain a cycle? No cycles (a DAG, directed acyclic graph) → memoized DFS is DP. Cycles, such as grid moves in all 4 directions → BFS or Dijkstra ([Pattern 18](../18-shortest-paths/README.md)). |
-| DP over subsets of items | Bitmask DP ([Pattern 19](../19-bit-manipulation/README.md)) | Must the state record *which* items are used, and is n ≤ 20? Yes → `dp[mask]`. Only *how many* or *how much* matters → an ordinary index/capacity table. |
+| DP over subsets of items | Bitmask DP ([Pattern 19](../19-bit-manipulation/README.md), [Pattern 27](../27-advanced-dp/README.md)) | Must the state record *which* items are used, and is n ≤ 20? Yes → `dp[mask]`. Only *how many* or *how much* matters → an ordinary index/capacity table. |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

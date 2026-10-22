@@ -9,7 +9,7 @@ This page puts all subjects on one calendar. Each phase of the KB adds its subje
 
 | Track | Plan | Status |
 |---|---|---|
-| DSA | [12-week DSA plan](dsa/study-plan.md) | Complete |
+| DSA | [DSA plan](dsa/study-plan.md): 12 core weeks, week 13 for the new P1 patterns, weeks 14 and 15 as stretch | Complete |
 | LLD | [LLD track](#lld-track) below | Complete |
 | HLD | [HLD track](#hld-track) below | Complete |
 | Java in depth | P1 pages in order | Phase 4 |
@@ -54,7 +54,7 @@ The calendar below combines the tracks into 21 weeks (week 0 to week 20). It ass
 
 | Weeks | DSA | Design | Fundamentals and other |
 |---|---|---|---|
-| 0 | DSA plan week 0 and the [foundations](dsa/README.md) pages | — | — |
+| 0 | DSA plan week 0 and the [foundations](dsa/README.md#foundations) pages | — | — |
 | 1–8 | DSA plan weeks 1 to 8 | [LLD track](#lld-track) weeks 1 to 8 | Java P1 pages from week 2 (planned: phase 4) |
 | 9–12 | DSA plan weeks 9 to 12 | [HLD track](#hld-track) weeks 1 to 4 | Databases P1 pages (planned: phase 5) |
 | 13–15 | Patterns 23, 25, 26 (P1), then 21, 22, 24, 27, 28 (P2 stretch) | HLD track weeks 5 to 7 | Operating systems and networking P1 pages (planned: phase 6) |

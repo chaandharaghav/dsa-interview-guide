@@ -47,7 +47,7 @@ Think of it like temperature adjustments. Instead of changing every hour's tempe
 
 ### RED FLAGS - NOT These Patterns:
 - Single range query (just use loop)
-- Need to modify and query simultaneously (may need segment tree)
+- Need to modify and query simultaneously (may need a segment tree or Fenwick tree: see [Pattern 21](../21-segment-tree-and-fenwick-tree/README.md))
 - Need max/min of range (different technique)
 - Non-contiguous elements
 
@@ -301,7 +301,7 @@ function maxProduct(arr):
 
 ### Variation F: 2D Range Sum with Updates
 **Problem Type:** 2D range queries with point updates
-**Note:** Prefix sum needs rebuild; use 2D Fenwick Tree instead
+**Note:** Prefix sum needs rebuild; use a 2D Fenwick tree instead ([Pattern 21](../21-segment-tree-and-fenwick-tree/README.md))
 
 ### Variation G: Range Increment + Point Query
 **Problem Type:** After all range updates, query individual positions
@@ -510,7 +510,7 @@ Difference: [1, 2, 2, -3, 2]  (diff[i] = arr[i] - arr[i-1])
 | Looks like... | But use... | The question that decides |
 |---|---|---|
 | Prefix sum + hashmap for "shortest/longest subarray with sum ≥ k" | Sliding window (Pattern 01) | Are all values non-negative? If yes → sliding window, O(1) space (LC 209); if negatives are allowed → prefix sum + hashmap (LC 560) or prefix sum + monotonic deque (LC 862) |
-| Prefix sum for "range sum queries" | Fenwick tree (binary indexed tree: point update and prefix sum in O(log n)) | Does the array change between queries? If yes, a prefix array needs an O(n) rebuild per update → Fenwick tree (LC 307) |
+| Prefix sum for "range sum queries" | Fenwick tree (binary indexed tree: point update and prefix sum in O(log n); [Pattern 21](../21-segment-tree-and-fenwick-tree/README.md)) | Does the array change between queries? If yes, a prefix array needs an O(n) rebuild per update → Fenwick tree (LC 307) |
 | Prefix sum for "add val to every element in [l, r]" | Difference array | Are the operations range updates, with reads only after all updates? If yes → difference array (LC 1109) |
 | Prefix sum for "range min/max" | Monotonic deque (Pattern 07) | Is the operation min or max? Subtraction cannot undo a min or max → deque for fixed windows (LC 239) |
 | Prefix sum + hashmap for "maximum subarray sum" | Kadane's algorithm | Does the problem give a target sum k? If yes → prefix sum + hashmap (LC 560); if it asks for the largest sum → Kadane (LC 53) |

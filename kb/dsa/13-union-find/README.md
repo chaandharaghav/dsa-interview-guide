@@ -248,6 +248,8 @@ function accountsMerge(accounts):
 ```
 
 ### Application 5: Kruskal's MST
+
+Prim's algorithm, the cut property, and the other advanced graph algorithms are in [Pattern 24](../24-advanced-graphs/README.md).
 ```
 function kruskalMST(n, edges):
     // edges = [[u, v, weight], ...]

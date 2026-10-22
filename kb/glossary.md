@@ -14,11 +14,19 @@ Each phase of the KB adds the terms that its pages introduce.
 
 ### A–F
 
+**Adjacency list**: a graph representation that stores, for each node, the list of its neighbors. It uses O(V + E) memory. See [Graph Representations](dsa/foundations/07-graph-representations.md).
+
 **Aggregate**: a group of objects that the code changes as one unit, with one entry object (the aggregate root) that protects the group's rules. See [Domain Modeling](lld/fundamentals/05-domain-modeling.md).
 
 **Aggregation (UML)**: a whole-part association where the part can exist without the whole and can belong to more than one whole. UML gives it weak semantics, so a plain association is often the safer choice. See [UML Diagrams](lld/fundamentals/04-uml-class-and-sequence-diagrams.md).
 
 **Amortized time complexity**: the average cost of one operation over a worst-case sequence of operations. Example: `ArrayList.add` is O(1) amortized, because the occasional resize cost spreads over the many adds that come before it. See [the Java toolkit](dsa/java-toolkit.md).
+
+**Balanced BST (balanced binary search tree)**: a binary search tree that keeps its height at O(log n) by rebalancing on insert and delete, for example an AVL tree or a red-black tree. `TreeMap` is a red-black tree. See [Trees and Balanced BSTs](dsa/foundations/05-trees-and-balanced-bsts.md).
+
+**Big-O notation**: an upper bound on the growth of a cost function: f(n) is O(g(n)) when f(n) ≤ c·g(n) for some constant c and all large n. See [Complexity Analysis](dsa/foundations/01-complexity-analysis.md).
+
+**Binary heap**: a complete binary tree stored in an array, where each parent is no larger (min-heap) or no smaller (max-heap) than its children. `PriorityQueue` is a binary min-heap. See [Heaps](dsa/foundations/06-heaps.md).
 
 **Bloom filter**: a bit array with k hash functions that answers "possibly in the set" or "definitely not in the set". It has false positives and no false negatives. See [Probabilistic Data Structures](hld/distributed-systems/04-probabilistic-data-structures.md).
 
@@ -60,6 +68,8 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Fencing token**: a number that increases with each lock or lease grant. The protected resource rejects a request with a token lower than the highest token it has seen. See [Distributed Locks and Leases](hld/distributed-systems/05-distributed-locks-and-leases.md).
 
+**Fenwick tree (binary indexed tree)**: an array-based structure that supports a point update and a prefix-sum query in O(log n) each. See [Segment Tree and Fenwick Tree](dsa/21-segment-tree-and-fenwick-tree/README.md).
+
 ### G–L
 
 **GoF (Gang of Four)**: Gamma, Helm, Johnson, and Vlissides, the authors of *Design Patterns* (1994), the book that cataloged the 23 classic design patterns. See [Creational Patterns](lld/fundamentals/06-creational-patterns.md).
@@ -78,11 +88,17 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **LLD (low-level design)**: the design of the classes, interfaces, and interactions inside one program. See [LLD](lld/README.md).
 
+**Load factor**: the number of entries divided by the number of buckets in a hash table. `HashMap` doubles its bucket array when the load factor passes 0.75. See [Hash Tables](dsa/foundations/04-hash-tables.md).
+
 **Lock ordering**: a rule that every thread takes several locks in one global order (for example by account id), which prevents deadlock. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
 
 ### M–R
 
 **Machine-coding round**: an interview round of 90 to 120 minutes in which the candidate writes a complete, working program that the evaluator runs and reads. See [The Machine-Coding Round](lld/machine-coding-round.md).
+
+**Minimum spanning tree (MST)**: a set of edges that connects all nodes of a weighted undirected graph with the minimum total weight. Kruskal's and Prim's algorithms find one. See [Advanced Graphs](dsa/24-advanced-graphs/README.md).
+
+**Modular inverse**: for an integer a and a modulus m with gcd(a, m) = 1, the integer x with a·x ≡ 1 (mod m). It replaces division in modular arithmetic. See [Math and Number Theory](dsa/23-math-and-number-theory/README.md).
 
 **Optimistic locking**: a concurrency method that takes no lock while a change is prepared, and checks a version number when it writes. If the version changed, the write fails and the caller retries. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
 
@@ -98,15 +114,25 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Repository**: an object that gives the domain a collection-like interface to stored objects and hides how they are stored. See [Architectural Patterns](lld/fundamentals/10-architectural-patterns.md).
 
+**Reservoir sampling**: a one-pass method that keeps a uniform random sample of k items from a stream of unknown length. See [Randomized Algorithms](dsa/28-randomized-algorithms/README.md).
+
+**Rolling hash**: a hash of a fixed-length window that the code updates in O(1) when the window moves by one character. Rabin-Karp search uses it. See [String Algorithms](dsa/22-string-algorithms/README.md).
+
 **RPO and RTO (recovery point objective, recovery time objective)**: RPO is the maximum data loss, measured in time, that a failure may cause. RTO is the maximum time to restore service. See [Multi-Region Design and Disaster Recovery](hld/fundamentals/19-multi-region-and-disaster-recovery.md).
 
 ### S–Z
 
 **Saga**: a sequence of local transactions across services, where each step has a compensating action that undoes it semantically if a later step fails. See [Distributed Transactions](hld/distributed-systems/03-distributed-transactions.md).
 
+**Segment tree**: a binary tree over an array in which each node stores an aggregate (sum, minimum, maximum) of a range. It answers a range query and applies an update in O(log n). See [Segment Tree and Fenwick Tree](dsa/21-segment-tree-and-fenwick-tree/README.md).
+
 **SLI, SLO, SLA**: an SLI (service level indicator) is a measured value such as the ratio of successful requests. An SLO (service level objective) is the target for an SLI. An SLA (service level agreement) is a contract with customers, with a penalty, and it is looser than the SLO. See [Scalability and Availability](hld/fundamentals/01-scalability-and-availability.md).
 
 **SOLID**: five object-oriented design principles: single responsibility, open-closed, Liskov substitution, interface segregation, and dependency inversion. See [SOLID](lld/fundamentals/02-solid.md).
+
+**Stable sort**: a sort that keeps the input order of elements with equal keys. `Arrays.sort` on object arrays is stable (TimSort). Stability does not matter for primitive arrays, because two equal primitive values cannot be told apart. See [Sorting Algorithms](dsa/foundations/08-sorting-algorithms.md).
+
+**Strongly connected component (SCC)**: a maximal set of nodes in a directed graph in which every node can reach every other node. Tarjan's and Kosaraju's algorithms find all of them in O(V + E). See [Advanced Graphs](dsa/24-advanced-graphs/README.md).
 
 **Time complexity**: how the running time of an algorithm grows with the size of its input, written in Big-O notation. See [the DSA cheatsheet](dsa/cheatsheet.md).
 

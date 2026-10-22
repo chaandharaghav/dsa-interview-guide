@@ -32,13 +32,23 @@ Print this and keep it handy during practice sessions.
 | Weighted shortest path | **Dijkstra** (non-neg) / **Bellman-Ford** (neg/K-hops) | O((V+E) log V) |
 | All-pairs shortest path, n ≤ 100 | **Floyd-Warshall** | O(n³) |
 | Find single/missing number, O(1) space | **XOR** | O(n) |
-| n ≤ 20, track visited subset | **Bitmask DP** | O(n × 2^n) |
+| n ≤ 20, track visited subset | **[Bitmask DP](27-advanced-dp/README.md)** | O(n × 2^n) |
 | Intervals: merge / overlap | **Sort by start** | O(n log n) |
 | Intervals: keep the most non-overlapping | **Sort by end (greedy)** | O(n log n) |
 | Max rooms / max overlap at one time | **Heap of end times or sweep line** | O(n log n) |
 | Sorted (or rotated sorted) array, find position | **Classic Binary Search** | O(log n) |
 | Values in [1..n], O(1) space | **Cyclic Sort / Index Marking** | O(n) |
 | Reverse part of a linked list | **In-place reversal (prev/curr/next) + dummy node** | O(n) |
+| Range queries mixed with point or range updates | **[Fenwick tree or segment tree](21-segment-tree-and-fenwick-tree/README.md)** | O(log n) per operation |
+| Find a pattern in a text, string period, repeated substring | **[KMP / Z-function / rolling hash](22-string-algorithms/README.md)** | O(n + m) |
+| Longest palindromic substring in linear time | **[Manacher](22-string-algorithms/README.md)** | O(n) |
+| Answer modulo 10^9 + 7, nCr, primes, GCD | **[Math and number theory](23-math-and-number-theory/README.md)** (fast power, sieve, factorial tables) | O(log n) per power |
+| Connect all nodes at minimum total cost | **[MST: Kruskal or Prim](24-advanced-graphs/README.md)** | O(E log E) |
+| Critical connections, strongly connected groups | **[Tarjan low-link / Kosaraju](24-advanced-graphs/README.md)** | O(V+E) |
+| Rotate, spiral, or step a grid by rules | **[Matrix and simulation](25-matrix-and-simulation/README.md)** | O(m × n) |
+| "Design a class" with stated costs per operation | **[Design data structures](26-design-data-structures/README.md)** (hashmap + list, two heaps, `TreeMap`) | Per the stated costs |
+| DP over digits, a tree, or states with a cooldown | **[Advanced DP](27-advanced-dp/README.md)** | O(states × transitions) |
+| Uniform sample from a stream, shuffle, weighted pick | **[Reservoir sampling / Fisher-Yates / prefix sums + binary search](28-randomized-algorithms/README.md)** | O(n) or O(log n) per pick |
 
 ---
 

@@ -416,6 +416,8 @@ function bitmaskDP(items):
 **LC:** 190
 
 ### Variation E: Bitmask DP for Traveling Salesman / Assignment
+
+More DP forms (digit DP, tree DP, rerooting) are in [Pattern 27](../27-advanced-dp/README.md).
 **Problem Type:** Assign n tasks to n workers optimally; find minimum cost Hamiltonian path.  
 **Key Insight:** `dp[mask][i]` = minimum cost to complete exactly the tasks in `mask`, ending on task i.  
 **Transition:** `dp[mask | (1<<j)][j] = min(..., dp[mask][i] + cost[i][j])` for each unvisited j.  

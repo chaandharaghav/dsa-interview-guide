@@ -57,7 +57,7 @@ Think of it like a **travel booking engine**:
 - "Longest path" in a general graph (NP-Hard; only easy in DAGs via topological sort)
 - Unweighted graph asking for minimum hops → plain BFS is sufficient (do NOT over-engineer)
 - "Number of paths" → count DP, not shortest-path
-- "Minimum spanning tree" → Prim/Kruskal, not Dijkstra
+- "Minimum spanning tree" → Prim/Kruskal, not Dijkstra ([Pattern 24](../24-advanced-graphs/README.md))
 
 ---
 

@@ -253,6 +253,8 @@ function topKFrequent(arr, k):
 **Technique:** Combine HashMap with auxiliary structure (LinkedList, array)
 
 ### Variation E: Rolling Hash / Rabin-Karp
+
+The full treatment, with collision handling and KMP as the alternative, is in [Pattern 22](../22-string-algorithms/README.md).
 **Problem Type:** Pattern matching, finding repeated substrings
 **Key Insight:** Hash substrings for O(1) comparison
 **Watch for:** Hash collisions, verify matches
@@ -534,6 +536,8 @@ Delete trick: swap with last element, then pop
 ```
 
 ### LFU Cache = HashMap + Frequency Buckets
+
+The tested O(1) template is in [Pattern 26](../26-design-data-structures/README.md).
 ```
 HashMap: key → (value, frequency)
 HashMap: frequency → LinkedHashSet of keys

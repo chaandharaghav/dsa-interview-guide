@@ -68,7 +68,7 @@ Use the **HashMap** for anything else (uppercase mix, digits, Unicode, case-inse
 - Output: Boolean (contains / starts with), list of matches, or modified strings
 
 ### RED FLAGS — NOT Trie:
-- **Single word search in one string** → KMP or sliding window; no build phase
+- **Single word search in one string** → KMP or sliding window; no build phase ([Pattern 22](../22-string-algorithms/README.md))
 - **Only need exact match** for a small, static set → `HashSet` is simpler and faster in practice
 - **Subsequence** matching (characters not contiguous) → DP, not Trie
 - **Suffix** queries ("does any word end with X?") → Suffix Array / Suffix Tree, not plain Trie (or reverse-insert and prefix-query)
