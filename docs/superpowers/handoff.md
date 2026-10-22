@@ -11,7 +11,10 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 - **Phase 3 (DSA): done.** Plan: `docs/superpowers/plans/2026-10-21-phase-3-dsa.md`. Foundations 01–08 (Opus-reviewed), patterns 23, 25, 26 (P1, Opus-reviewed), patterns 21, 22, 24, 27, 28 (P2, Sonnet-reviewed). Batch 3 done: routes in `how-to-choose-a-pattern.md`, cheatsheet and tricks links, DSA plan weeks 13–15, `.nav.yml`, links from older pattern pages, glossary terms, home-page status.
 - `kb/prep-timeline.html` is the local timeline page (status, 21-week chart, per-subject chart, JavaScript track). Update its status section at the end of each phase.
 - Gate on 2026-10-22: 57/57 unit tests, format 157 files 0 errors, SQL 17 pages 0 errors, Java 759/759 blocks and 24/24 case studies, `mkdocs build --strict` passes, Mermaid OK for `kb/hld` (159) and `kb/dsa` (20).
-- **Phase 4 (Java and Spring): started 2026-10-22** at the user's request ("use subagents when necessary"; the user may switch models if usage grows fast). Plan: `docs/superpowers/plans/2026-10-22-phase-4-java.md`. Spring and JPA code blocks are `<!-- fragment -->`; drafters compile them against `~/.m2` jars. Drafting: J1 to J5. Queued: J6 to J13, then J14 (question bank) and the index updates.
+- **Phase 4 (Java and Spring): done (2026-10-22).** Plan: `docs/superpowers/plans/2026-10-22-phase-4-java.md`. 23 topic pages and `interview-question-bank.md` (95 questions). P1 pages Opus-reviewed, P2/P3 pages Sonnet-reviewed (14 is P2 but was Opus-reviewed with 12). Spring and JPA blocks are `<!-- fragment -->`; drafters and reviewers compiled and ran them against Spring Boot 4.1.1 / Framework 7.0.9 / Hibernate 7.4.5 jars downloaded from Maven Central (the local `~/.m2` has only Boot 3.1.1). Index, nav, glossary terms, study-plan Java track, home status, timeline, and cross-subject links done.
+- Gate on 2026-10-22 after phase 4: 57/57 unit tests, format 181 files 0 errors, SQL 17 pages 0 errors, Java 892/892 blocks and 24/24 case studies, strict build passes, Mermaid OK for `kb/java` (41).
+- Known coverage gaps (minor, from the bank review): page 01 body does not give the reasons `String` is immutable, page 07 does not contrast `sleep` and `wait`, page 12 does not explain stream `flatMap` (each is only in the page's Q&A).
+- **Next:** phase 5 (Databases, 12 pages). Ask the user before starting it.
 
 ## Read First
 
@@ -36,7 +39,8 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 | 1: LLD | Done (2026-10-15): 13 pages, 24 case studies, cheatsheet, practice page, all Opus-reviewed |
 | 2: HLD | Done (2026-10-21): all pages Opus-reviewed, Batch 6 done |
 | 3: DSA | Done (2026-10-22): foundations, patterns 21–28, routing updates, all reviewed |
-| 4 to 11 | Not started |
+| 4: Java | Done (2026-10-22): 23 pages, question bank, all reviewed |
+| 5 to 11 | Not started |
 
 ## Phase 1 Detail
 
