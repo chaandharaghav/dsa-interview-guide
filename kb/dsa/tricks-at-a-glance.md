@@ -824,6 +824,14 @@ for length in range(2, n + 1):
 | 0/1 knapsack in 1D | Reverse loop | 7.3 |
 | Optimal range split/merge | Interval DP, fill by length | 7.4 |
 | Counting valid ≈ total − invalid | Complement count | 7.5 |
+| Range sum with point updates mixed in | Fenwick tree | [Pattern 21](21-segment-tree-and-fenwick-tree/README.md) |
+| Find a pattern in a text in O(n + m) | KMP prefix function or rolling hash | [Pattern 22](22-string-algorithms/README.md) |
+| Connect all nodes at minimum total cost | MST: sort edges, union find (Kruskal) | [Pattern 24](24-advanced-graphs/README.md) |
+| Critical connections (bridges) | Low-link: `low[child] > disc[node]` | [Pattern 24](24-advanced-graphs/README.md) |
+| Rotate a square matrix 90° clockwise in place | Transpose, then reverse each row | [Pattern 25](25-matrix-and-simulation/README.md) |
+| Insert, delete, getRandom in O(1) | Array list plus value-to-index map, swap with last | [Pattern 26](26-design-data-structures/README.md) |
+| Running median | Max-heap for the lower half, min-heap for the upper half | [Pattern 26](26-design-data-structures/README.md) |
+| Uniform pick from a stream of unknown length | Reservoir sampling | 5.5, [Pattern 28](28-randomized-algorithms/README.md) |
 
 ---
 

@@ -88,7 +88,7 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--rule); border
 <div class="wrap">
 
 <header style="display:grid;gap:10px">
-  <div class="eyebrow">Software Engineering KB · branch knowledge-base · 21 October 2026</div>
+  <div class="eyebrow">Software Engineering KB · branch knowledge-base · 22 October 2026</div>
   <h1>Interview Prep Timeline</h1>
   <p class="lead">The status of the knowledge base (KB), a 21-week calendar for all subjects, and a short JavaScript track. Each row names its source: a KB page that exists, a KB page that is still planned, or an outside source.</p>
 </header>
@@ -205,15 +205,13 @@ const bars = [
   ["dsa", 14, 15, "21, 22, 24, 27, 28", "P2 new patterns: segment and Fenwick trees, string algorithms, advanced graphs, advanced DP, randomized.", true],
   ["dsa", 16, 20, "Maintenance: 2 mixed problems a day", "Mixed review from the misrecognition log and kb/dsa/company-prep.md."],
   ["design", 1, 8, "LLD track (8 weeks)", "kb/study-plan.md LLD track: fundamentals, patterns, 24 case studies, mock sets A–G."],
-  ["design", 9, 10, "HLD procedure + fund. 01–07", "how-to-approach-hld, back-of-envelope estimation, scalability to consistency and CAP."],
-  ["design", 11, 12, "HLD fund. 08–16", "Queues, communication, reliability, rate limiting, microservices, IDs, event-driven. 10 and 11 are P2."],
-  ["design", 13, 13, "Distributed systems 01–06", "Failures and time, consensus, distributed transactions, probabilistic structures, locks, CRDTs. HLD fund. 17–21 (P2) as stretch."],
-  ["design", 14, 17, "HLD P1 case studies (14)", "Case studies 01–13 and 16: about 3–4 each week. Design each in 45 minutes first, then compare."],
-  ["design", 18, 18, "HLD P2 case studies", "Case studies 14, 15, and 17–25. Pick the ones that match your target companies.", true],
+  ["design", 9, 12, "HLD track wk 1–4: fund. 01–09, 12", "kb/study-plan.md HLD track weeks 1–4: procedure, estimation, fundamentals 01–09 and 12, with case studies 01, 03, 04, 06."],
+  ["design", 13, 16, "HLD track wk 5–8: fund. 10–18, DS 01–05", "HLD track weeks 5–8: fundamentals 10, 11, 13–16, 18, distributed systems 01–05, with case studies 02, 05, 07–13, 16."],
+  ["design", 17, 17, "HLD P2 stretch", "HLD track week 9: fundamentals 17, 19–21, CRDTs, two P2 case studies, mock sets A and B.", true],
+  ["design", 18, 18, "HLD cheatsheet + mocks", "HLD track week 10: cheatsheet, then mock sets C–G scored with the rubric."],
   ["cs", 2, 8, "Java P1 (01–13, 16–20)", "Planned pages. Use Effective Java, Java Concurrency in Practice, and the Spring docs. Read concurrency (07–08) in W4, with LLD concurrency."],
-  ["cs", 9, 11, "Databases P1", "SQL, schema design, indexing, transactions and isolation, query tuning, NoSQL, Redis, SQL problems."],
-  ["cs", 12, 13, "OS P1", "Processes and threads, synchronization, memory management."],
-  ["cs", 14, 15, "Networking P1", "TCP and UDP, HTTP, TLS, DNS, what happens when you load a URL."],
+  ["cs", 9, 12, "Databases P1", "SQL, schema design, indexing, transactions and isolation, query tuning, NoSQL, Redis, SQL problems."],
+  ["cs", 13, 15, "OS + Networking P1", "Processes and threads, synchronization, memory management. TCP and UDP, HTTP, TLS, DNS, what happens when you load a URL."],
   ["cs", 16, 17, "API + Security P1", "REST principles and practices, API design in interviews, authentication, OAuth/OIDC/JWT, OWASP Top 10."],
   ["cs", 20, 20, "Eng. practice / AI", "P2 stretch: testing, observability, containers, LLM fundamentals, RAG.", true],
   ["js", 18, 18, "JS language core", "Coercion, scope and hoisting, closures, this, prototypes, modules."],
@@ -260,14 +258,13 @@ const rows = [
   ["W13", "DSA patterns 23, 25, 26", "Math and number theory, matrix and simulation, design data structures", "P1", "ok", "kb/dsa patterns 23, 25, 26"],
   ["W14–W15", "DSA patterns 21, 22, 24, 27, 28", "Segment and Fenwick trees, KMP and rolling hash, MST and SCC, bitmask and tree DP, reservoir sampling", "P2", "ok", "kb/dsa patterns 21, 22, 24, 27, 28"],
   ["W1–W8", "LLD", "OOP, SOLID, UML, domain modeling, design patterns, concurrency, architecture, machine coding, 24 case studies", "P1", "ok", "kb/study-plan.md LLD track"],
-  ["W9–W12", "HLD fundamentals", "Scalability, load balancing, caching, databases, replication, sharding, CAP, queues, communication, reliability, rate limiting, microservices, unique IDs, event-driven", "P1", "ok", "kb/hld/fundamentals 01–16"],
-  ["W13", "HLD stretch fundamentals", "Batch and stream, geospatial, multi-region, observability, security in design", "P2", "ok", "kb/hld/fundamentals 17–21"],
-  ["W13", "Distributed systems", "Clocks, Raft, 2PC and saga, Bloom filter and HyperLogLog, leases and fencing, CRDTs", "P1/P2", "ok", "kb/hld/distributed-systems"],
-  ["W14–W18", "HLD case studies", "14 P1 studies, then 11 P2 studies", "P1/P2", "ok", "kb/hld/case-studies"],
+  ["W9–W16", "HLD fundamentals and P1 case studies", "HLD track weeks 1–8: procedure, estimation, fundamentals 01–16 and 18, distributed systems 01–05, and the 14 P1 case studies, interleaved", "P1", "ok", "kb/study-plan.md HLD track"],
+  ["W17", "HLD stretch", "Fundamentals 17, 19–21 (batch and stream, multi-region, observability, security), CRDTs, two P2 case studies", "P2", "ok", "kb/hld/fundamentals 17–21"],
+    ["W18", "HLD review and mocks", "Cheatsheet, mock sets C–G, self-evaluation rubric", "P1", "ok", "kb/hld/cheatsheet.md, kb/hld/practice-and-mock-interviews.md"],
   ["W2–W8", "Java and Spring", "Language core, generics, exceptions, collections internals, JVM, GC, concurrency, CompletableFuture, virtual threads, streams, modern Java, JPA, Spring core, Boot, Data, Web", "P1", "warn", "Effective Java; Java Concurrency in Practice; docs.spring.io"],
-  ["W9–W11", "Databases", "SQL, normalization, indexes, isolation levels, query plans, NoSQL families, Redis, SQL problems", "P1", "warn", "Designing Data-Intensive Applications; use-the-index-luke.com"],
-  ["W12–W13", "Operating systems", "Processes and threads, synchronization, memory and virtual memory", "P1", "warn", "ostep.org"],
-  ["W14–W15", "Networking", "TCP and UDP, HTTP/1.1 to HTTP/3, TLS, DNS, the URL-load walkthrough", "P1", "warn", "hpbn.co"],
+  ["W9–W12", "Databases", "SQL, normalization, indexes, isolation levels, query plans, NoSQL families, Redis, SQL problems", "P1", "warn", "Designing Data-Intensive Applications; use-the-index-luke.com"],
+  ["W13–W15", "Operating systems", "Processes and threads, synchronization, memory and virtual memory", "P1", "warn", "ostep.org"],
+  ["W13–W15", "Networking", "TCP and UDP, HTTP/1.1 to HTTP/3, TLS, DNS, the URL-load walkthrough", "P1", "warn", "hpbn.co"],
   ["W16–W17", "API design and security", "REST, API practices, API design in interviews, authentication, OAuth/OIDC/JWT, OWASP Top 10", "P1", "warn", "Google AIP (aip.dev); owasp.org Top 10"],
   ["W17, W19–W20", "Behavioral", "Resume, STAR story bank, common questions, project deep dive, leadership principles", "P1", "warn", "techinterviewhandbook.org"],
   ["W18–W19", "JavaScript", "Coercion, closures, this, prototypes, event loop, promises, debounce and throttle", "P2", "ext", "javascript.info; MDN"],
