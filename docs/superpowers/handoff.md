@@ -3,13 +3,15 @@
 - **Saved:** 2026-10-15, at the user's request. The user continues in a later session.
 - **Branch:** `knowledge-base`. `main` is unchanged since the spec and plan commits. Merging is the user's decision at the end of the project.
 
-## SESSION 3 (2026-10-21): HLD finish and Phase 3 DSA
+## SESSION 3 (2026-10-21 to 2026-10-22): HLD and DSA complete
 
-User instruction: keep everything in the local repo (no claude.ai artifacts). Complete HLD and DSA in parts, with subagents. This overrides the earlier "stop after HLD" rule. Reviewers: Opus for all HLD pages and for DSA P1 pages, Sonnet for DSA P2 pages. About 5 agents at a time.
+User instruction: keep everything in the local repo (no claude.ai artifacts). Complete HLD and DSA in parts, with subagents. This overrode the earlier "stop after HLD" rule. Reviewers: Opus for all HLD pages and DSA P1 pages, Sonnet for DSA P2 pages. About 5 agents at a time.
 
-- HLD Batch 6: done and committed (cheatsheet, practice page, README index, `.nav.yml`, glossary terms, study-plan HLD track, home-page status). `kb/prep-timeline.html` is the local timeline page.
-- HLD case studies 21–25: reviewed and committed. **HLD (phase 2) is complete.** Mermaid 159 diagrams OK, HLD format, Java, and SQL checks pass.
-- Phase 3 plan: `docs/superpowers/plans/2026-10-21-phase-3-dsa.md`. F1 reviewed and committed. F2 in Opus review. F3, F4, N3, N5 drafting. Queued: N1, N2, N4, N6, N7, N8, Batch 3.
+- **Phase 2 (HLD): done.** Case studies 21–25 Opus-reviewed. Batch 6 done (cheatsheet, practice page, README index, `.nav.yml`, glossary terms, study-plan HLD track, home-page status).
+- **Phase 3 (DSA): done.** Plan: `docs/superpowers/plans/2026-10-21-phase-3-dsa.md`. Foundations 01–08 (Opus-reviewed), patterns 23, 25, 26 (P1, Opus-reviewed), patterns 21, 22, 24, 27, 28 (P2, Sonnet-reviewed). Batch 3 done: routes in `how-to-choose-a-pattern.md`, cheatsheet and tricks links, DSA plan weeks 13–15, `.nav.yml`, links from older pattern pages, glossary terms, home-page status.
+- `kb/prep-timeline.html` is the local timeline page (status, 21-week chart, per-subject chart, JavaScript track). Update its status section at the end of each phase.
+- Gate on 2026-10-22: 57/57 unit tests, format 157 files 0 errors, SQL 17 pages 0 errors, Java 759/759 blocks and 24/24 case studies, `mkdocs build --strict` passes, Mermaid OK for `kb/hld` (159) and `kb/dsa` (20).
+- **Next:** phase 4 (Java and Spring). It needs a phase plan in the same form. Ask the user before starting it.
 
 ## Read First
 
@@ -33,7 +35,8 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 | 0: restructure, site, tools | Done. Reviewed by an Opus reviewer. All findings fixed |
 | 1: LLD | Done (2026-10-15): 13 pages, 24 case studies, cheatsheet, practice page, all Opus-reviewed |
 | 2: HLD | Done (2026-10-21): all pages Opus-reviewed, Batch 6 done |
-| 3 to 11 | Not started |
+| 3: DSA | Done (2026-10-22): foundations, patterns 21–28, routing updates, all reviewed |
+| 4 to 11 | Not started |
 
 ## Phase 1 Detail
 
