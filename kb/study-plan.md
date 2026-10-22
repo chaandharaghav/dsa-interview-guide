@@ -3,7 +3,7 @@
 This page puts all subjects on one calendar. Each phase of the KB adds its subject to this plan.
 
 !!! info "Status"
-    The DSA, LLD, and HLD tracks are complete. The other tracks are planned. The table below names the phase that writes each track.
+    The DSA, LLD, HLD, and Java tracks are complete. The other tracks are planned. The table below names the phase that writes each track.
 
 ## Tracks
 
@@ -12,7 +12,7 @@ This page puts all subjects on one calendar. Each phase of the KB adds its subje
 | DSA | [DSA plan](dsa/study-plan.md): 12 core weeks, week 13 for the new P1 patterns, weeks 14 and 15 as stretch | Complete |
 | LLD | [LLD track](#lld-track) below | Complete |
 | HLD | [HLD track](#hld-track) below | Complete |
-| Java in depth | P1 pages in order | Phase 4 |
+| Java in depth | [Java track](#java-track) below | Complete |
 | Fundamentals (databases, networking, operating systems) | P1 pages in order | Phases 5 and 6 |
 | Behavioral | Story bank, then mock rounds | Phase 9 |
 
@@ -30,6 +30,22 @@ The LLD track takes 8 weeks at about 5 hours each week. Start it after Week 0 of
 | 6 | [Design Principles](lld/fundamentals/03-design-principles.md), [Anti-Patterns](lld/fundamentals/11-anti-patterns.md) | Case studies 04 (elevator), 15 (pub-sub), and 16 (task scheduler) |
 | 7 | The P2 case studies that match your target companies | Case study 24 (notification service), two P2 case studies, mock sets A and B from the [practice page](lld/practice-and-mock-interviews.md) |
 | 8 | [Cheatsheet](lld/cheatsheet.md) | Mock sets C to G, scored with the rubric |
+
+## Java Track
+
+The Java track takes 7 weeks at about 4 hours each week. It runs in the fundamentals slot of the calendar, in weeks 2 to 8. For each page, answer three of its `??? question` blocks before you read the model answers, and run its Java examples.
+
+| Week | Read | Do |
+|---|---|---|
+| 1 | [Java Language Core](java/01-language-core.md), [Generics](java/02-generics.md), [Exceptions](java/03-exceptions.md) | Run the programs on each page and predict their output first |
+| 2 | [Collections Internals](java/04-collections-internals.md) | Explain `HashMap` put, resize, and treeification aloud in 3 minutes |
+| 3 | [Concurrency Basics](java/07-concurrency-basics.md), [java.util.concurrent](java/08-java-util-concurrent.md) | Read together with week 4 of the LLD track (concurrency in LLD) |
+| 4 | [CompletableFuture](java/09-completablefuture.md), [Virtual Threads](java/10-virtual-threads.md) | Problems 1 to 4 on [Concurrency Coding Problems](java/11-concurrency-coding-problems.md), 30 minutes each |
+| 5 | [JVM Architecture](java/05-jvm-architecture.md), [Memory and Garbage Collection](java/06-memory-and-gc.md) | Problems 5 to 9 on the concurrency coding page |
+| 6 | [Functional Programming and Streams](java/12-functional-and-streams.md), [Modern Java](java/13-modern-java.md), [JDBC, JPA, and Hibernate](java/16-jdbc-jpa-and-hibernate.md) | Rewrite one loop-heavy method from your own code with streams, then compare readability |
+| 7 | [Spring Core](java/17-spring-core.md), [Spring Boot](java/18-spring-boot.md), [Spring Data and Transactions](java/19-spring-data-and-transactions.md), [Spring Web and REST](java/20-spring-web-and-rest.md) | The [question bank](java/interview-question-bank.md), one section each day |
+
+P2 and P3 pages (reflection, I/O, Spring Security, microservices with Spring, build tools) are stretch reading. Read them when a role asks for them.
 
 ## HLD Track
 
@@ -55,7 +71,7 @@ The calendar below combines the tracks into 21 weeks (week 0 to week 20). It ass
 | Weeks | DSA | Design | Fundamentals and other |
 |---|---|---|---|
 | 0 | DSA plan week 0 and the [foundations](dsa/README.md#foundations) pages | — | — |
-| 1–8 | DSA plan weeks 1 to 8 | [LLD track](#lld-track) weeks 1 to 8 | Java P1 pages from week 2 (planned: phase 4) |
+| 1–8 | DSA plan weeks 1 to 8 | [LLD track](#lld-track) weeks 1 to 8 | [Java track](#java-track) weeks 1 to 7, from week 2 |
 | 9–12 | DSA plan weeks 9 to 12 | [HLD track](#hld-track) weeks 1 to 4 | Databases P1 pages (planned: phase 5) |
 | 13–15 | Patterns 23, 25, 26 (P1), then 21, 22, 24, 27, 28 (P2 stretch) | HLD track weeks 5 to 7 | Operating systems and networking P1 pages (planned: phase 6) |
 | 16–17 | Two mixed problems each day | HLD track weeks 8 and 9 | API design and security P1 pages (planned: phase 7). Resume in week 17 (planned: phase 9) |

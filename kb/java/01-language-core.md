@@ -66,7 +66,7 @@ The default `Object.equals` returns `this == obj`. A class that needs value equa
 
 1. Compare references first for speed (`this == o`), if the comparison is costly.
 2. Test the type: `o instanceof Point p` (or `getClass() != o.getClass()`).
-3. Compare each significant field. Use `==` for primitives except `float` and `double`. For those, use `Float.compare` and `Double.compare`, so that `NaN` equals `NaN` and `0.0` differs from `-0.0`, as `Float.equals` and `Double.equals` do, `Objects.equals` for references, and `Arrays.equals` for arrays.
+3. Compare each significant field. Use `==` for primitives except `float` and `double`. For `float` and `double`, use `Float.compare` and `Double.compare`: they treat `NaN` as equal to `NaN` and `0.0` as different from `-0.0`, as `Float.equals` and `Double.equals` do. Use `Objects.equals` for references and `Arrays.equals` for arrays.
 
 Four bugs cause most defects:
 

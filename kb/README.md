@@ -22,7 +22,7 @@ Each topic page has two parts:
 | [DSA](dsa/README.md) | Data structures and algorithms: 8 foundation pages, how to choose a pattern, 28 patterns, Java templates, a 15-week plan | Complete |
 | [LLD](lld/README.md) | Low-level design: OOP, SOLID, design patterns, machine coding, 24 case studies with runnable Java | Complete |
 | [HLD](hld/README.md) | High-level design: building blocks, distributed systems, estimation, 25 case studies | Complete |
-| [Java](java/README.md) | Java and the JVM in depth, concurrency, Spring, JPA | Planned (phase 4) |
+| [Java](java/README.md) | Java and the JVM in depth, concurrency, Spring, JPA, 23 pages and a question bank | Complete |
 | [Databases](databases/README.md) | SQL, indexes, transactions, storage engines, NoSQL, Redis | Planned (phase 5) |
 | [Networking](networking/README.md) | TCP, UDP, HTTP, TLS, DNS | Planned (phase 6) |
 | [Operating Systems](operating-systems/README.md) | Processes, threads, memory, I/O, computer architecture, Linux | Planned (phase 6) |

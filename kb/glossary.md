@@ -22,7 +22,11 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Amortized time complexity**: the average cost of one operation over a worst-case sequence of operations. Example: `ArrayList.add` is O(1) amortized, because the occasional resize cost spreads over the many adds that come before it. See [the Java toolkit](dsa/java-toolkit.md).
 
+**Autoboxing**: the automatic conversion between a primitive value and its wrapper object, for example `int` to `Integer`. Unboxing a `null` wrapper throws `NullPointerException`. See [Java Language Core](java/01-language-core.md).
+
 **Balanced BST (balanced binary search tree)**: a binary search tree that keeps its height at O(log n) by rebalancing on insert and delete, for example an AVL tree or a red-black tree. `TreeMap` is a red-black tree. See [Trees and Balanced BSTs](dsa/foundations/05-trees-and-balanced-bsts.md).
+
+**Bean (Spring)**: an object that the Spring container creates, configures, and manages. See [Spring Core](java/17-spring-core.md).
 
 **Big-O notation**: an upper bound on the growth of a cost function: f(n) is O(g(n)) when f(n) ≤ c·g(n) for some constant c and all large n. See [Complexity Analysis](dsa/foundations/01-complexity-analysis.md).
 
@@ -32,9 +36,13 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **CAP theorem**: the result (Gilbert and Lynch, 2002) that during a network partition a replicated system cannot give both linearizable reads and writes and a response from every non-failing node. See [Consistency and CAP](hld/fundamentals/07-consistency-and-cap.md).
 
+**Carrier thread**: a platform thread that runs a virtual thread while the virtual thread is mounted on it. See [Virtual Threads](java/10-virtual-threads.md).
+
 **CDN (content delivery network)**: a set of edge servers near users that cache content from an origin server, to cut latency and origin load. See [Load Balancing, DNS, and CDN](hld/fundamentals/02-load-balancing-dns-cdn.md).
 
 **Circuit breaker**: a client-side component that stops calls to a failing dependency for a time (OPEN), then lets a few test calls through (HALF_OPEN) before normal calls resume (CLOSED). See [Reliability Patterns](hld/fundamentals/12-reliability-patterns.md).
+
+**Class loader**: the JVM component that finds the bytes of a class and defines the class. Java 9 and later use the boot, platform, and application loaders. See [JVM Architecture](java/05-jvm-architecture.md).
 
 **Composition (UML)**: a whole-part association where a part belongs to at most one whole at a time, and deleting the whole deletes its parts. See [UML Diagrams](lld/fundamentals/04-uml-class-and-sequence-diagrams.md).
 
@@ -47,6 +55,8 @@ Each phase of the KB adds the terms that its pages introduce.
 **CRDT (conflict-free replicated data type)**: a data type whose replicas accept updates independently and merge to the same state without coordination. See [CRDTs and Conflict Resolution](hld/distributed-systems/06-crdts-and-conflict-resolution.md).
 
 **Critical section**: a block of code that only one thread may run at a time, because it reads and writes shared state. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
+
+**Dependency injection container**: a framework component that creates objects and supplies their dependencies, for example the Spring `ApplicationContext`. See [Spring Core](java/17-spring-core.md).
 
 **Dependency injection**: a technique in which an object receives the objects it depends on (usually through its constructor) instead of creating them. It is one way to apply dependency inversion. See [SOLID](lld/fundamentals/02-solid.md).
 
@@ -72,6 +82,8 @@ Each phase of the KB adds the terms that its pages introduce.
 
 ### G–L
 
+**Garbage collector (GC)**: the JVM component that frees memory used by objects that no live reference reaches. JDK 21 uses G1 by default on a server-class machine. See [Memory and Garbage Collection](java/06-memory-and-gc.md).
+
 **GoF (Gang of Four)**: Gamma, Helm, Johnson, and Vlissides, the authors of *Design Patterns* (1994), the book that cataloged the 23 classic design patterns. See [Creational Patterns](lld/fundamentals/06-creational-patterns.md).
 
 **Happens-before**: the Java Memory Model relation that guarantees one action's effects are visible to another action. Examples: an unlock happens-before a later lock of the same monitor. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
@@ -81,6 +93,10 @@ Each phase of the KB adds the terms that its pages introduce.
 **Idempotency key**: a unique key that a client sends with a request, so that the server performs the request at most once and returns the stored result for a repeated request. See [Digital Wallet](lld/case-studies/23-digital-wallet/README.md).
 
 **Immutable object**: an object whose state cannot change after construction. An immutable object needs no lock to be shared between threads. See [Design Principles](lld/fundamentals/03-design-principles.md).
+
+**Java Memory Model (JMM)**: the part of the Java Language Specification (chapter 17) that defines which values a read of a shared variable can see, through the happens-before relation. See [Concurrency Basics](java/07-concurrency-basics.md).
+
+**JIT compiler (just-in-time compiler)**: the JVM component that compiles frequently run bytecode to machine code while the program runs. HotSpot has the C1 and C2 compilers. See [JVM Architecture](java/05-jvm-architecture.md).
 
 **Lease**: a lock with an expiry time. The holder must renew it before it expires, or another node can take it. See [Distributed Locks and Leases](hld/distributed-systems/05-distributed-locks-and-leases.md).
 
@@ -100,11 +116,19 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Modular inverse**: for an integer a and a modulus m with gcd(a, m) = 1, the integer x with a·x ≡ 1 (mod m). It replaces division in modular arithmetic. See [Math and Number Theory](dsa/23-math-and-number-theory/README.md).
 
+**N+1 query problem**: a data-access defect in which code runs one query for a list and then one more query for each item in the list. JPA lazy loading causes it. See [JDBC, JPA, and Hibernate](java/16-jdbc-jpa-and-hibernate.md).
+
 **Optimistic locking**: a concurrency method that takes no lock while a change is prepared, and checks a version number when it writes. If the version changed, the write fails and the caller retries. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
 
 **Partitioning (sharding)**: the split of a data set into parts that different nodes store, so that data size and write load can grow beyond one machine. See [Partitioning and Sharding](hld/fundamentals/06-partitioning-and-sharding.md).
 
 **Pattern (in DSA)**: a reusable method of solving a family of problems, for example the sliding window. See [How to Choose a Pattern](dsa/how-to-choose-a-pattern.md).
+
+**Persistence context**: the set of managed entity instances that one JPA `EntityManager` tracks. It works as a first-level cache and detects changes at flush time. See [JDBC, JPA, and Hibernate](java/16-jdbc-jpa-and-hibernate.md).
+
+**Pinning (virtual threads)**: the state in which a virtual thread cannot unmount from its carrier thread while it blocks, so the carrier thread blocks too. See [Virtual Threads](java/10-virtual-threads.md).
+
+**Proxy (Spring AOP)**: an object that Spring creates around a bean to add behavior, such as transactions, before and after method calls. A call from the bean to its own method does not go through the proxy. See [Spring Core](java/17-spring-core.md).
 
 **Quorum**: the minimum number of replicas that must answer a read (R) or a write (W). With N replicas, R + W > N makes every read set overlap every write set. See [Replication](hld/fundamentals/05-replication.md).
 
@@ -138,8 +162,14 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Token bucket**: a rate-limiting algorithm that adds tokens at a fixed rate up to a capacity and spends one token per request. It allows bursts up to the capacity. See [Rate Limiting Algorithms](hld/fundamentals/13-rate-limiting-algorithms.md).
 
+**Transaction propagation**: the rule that decides what a `@Transactional` method does when a transaction already exists, for example join it (`REQUIRED`) or suspend it and start a new one (`REQUIRES_NEW`). See [Spring Data and Transactions](java/19-spring-data-and-transactions.md).
+
 **Transactional outbox**: a pattern that writes a business change and its event row in one local transaction. A relay then publishes the event rows, at least once. See [Distributed Transactions](hld/distributed-systems/03-distributed-transactions.md).
 
+**Type erasure**: the compiler step that removes generic type arguments, so that `List<String>` and `List<Integer>` have the same class at run time. See [Generics](java/02-generics.md).
+
 **Value object**: a domain object that has no identity and is defined only by its values (money, a date range). Value objects are immutable. See [Domain Modeling](lld/fundamentals/05-domain-modeling.md).
+
+**Virtual thread**: a lightweight thread that the JDK schedules onto a small number of carrier threads, final in Java 21 (JEP 444). It suits code that waits on I/O. See [Virtual Threads](java/10-virtual-threads.md).
 
 **Watermark**: in stream processing, an estimate that no more events with an event time earlier than a given time will arrive. It decides when a window can close. See [Batch and Stream Processing](hld/fundamentals/17-batch-and-stream-processing.md).

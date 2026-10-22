@@ -97,10 +97,10 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--rule); border
   <div class="eyebrow">Part 1</div>
   <h2>Repo Status</h2>
   <div class="status-grid">
-    <div class="stat"><b>4 of 12</b><span>phases done: 0 setup, 1 LLD, 2 HLD, 3 DSA</span></div>
-    <div class="stat"><b>143</b><span>content pages exist: DSA 48, LLD 39, HLD 56</span></div>
-    <div class="stat"><b>0</b><span>pages wait for review: every DSA, LLD and HLD page is reviewed</span></div>
-    <div class="stat"><b>94</b><span>pages are planned only (phases 4 to 10)</span></div>
+    <div class="stat"><b>5 of 12</b><span>phases done: 0 setup, 1 LLD, 2 HLD, 3 DSA, 4 Java</span></div>
+    <div class="stat"><b>167</b><span>content pages exist: DSA 48, LLD 39, HLD 56, Java 24</span></div>
+    <div class="stat"><b>0</b><span>pages wait for review: every DSA, LLD, HLD and Java page is reviewed</span></div>
+    <div class="stat"><b>70</b><span>pages are planned only (phases 5 to 10)</span></div>
   </div>
   <div class="tablebox"><table>
     <thead><tr><th>Subject</th><th>Phase</th><th>State</th><th>What exists</th></tr></thead>
@@ -109,7 +109,7 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--rule); border
       <tr><td>DSA</td><td class="num">3</td><td><span class="chip ok">✓ Done</span></td><td>8 foundation pages, 28 patterns, 12 root pages (study plan, cheatsheet, mocks). All new pages reviewed</td></tr>
       <tr><td>LLD</td><td class="num">1</td><td><span class="chip ok">✓ Done</span></td><td>11 fundamentals, 4 root pages, 24 case studies with runnable Java. All reviewed</td></tr>
       <tr><td>HLD</td><td class="num">2</td><td><span class="chip ok">✓ Done</span></td><td>2 procedure pages, 21 fundamentals, 6 distributed-systems pages, 25 case studies, cheatsheet, practice page. All reviewed by Opus</td></tr>
-      <tr><td>Java and Spring</td><td class="num">4</td><td><span class="chip ext">○ Planned</span></td><td>24 pages listed</td></tr>
+      <tr><td>Java and Spring</td><td class="num">4</td><td><span class="chip ok">✓ Done</span></td><td>23 topic pages and a question bank. Java 21 code, Spring Boot 4.1. All reviewed</td></tr>
       <tr><td>Databases</td><td class="num">5</td><td><span class="chip ext">○ Planned</span></td><td>12 pages listed</td></tr>
       <tr><td>Operating systems, Networking</td><td class="num">6</td><td><span class="chip ext">○ Planned</span></td><td>8 and 10 pages listed</td></tr>
       <tr><td>API design, Security</td><td class="num">7</td><td><span class="chip ext">○ Planned</span></td><td>6 and 7 pages listed</td></tr>
@@ -119,7 +119,7 @@ pre { margin: 0; background: var(--panel); border: 1px solid var(--rule); border
       <tr><td>JavaScript</td><td class="num">—</td><td><span class="chip ext">✕ Not in scope</span></td><td>No subject or page. The KB spec does not include it</td></tr>
     </tbody>
   </table></div>
-  <p><strong>Next phase:</strong> phase 4, Java and Spring (24 pages). Until it is written, use the outside sources in Part 3.</p>
+  <p><strong>Next phase:</strong> phase 5, Databases (12 pages). Until it is written, use the outside sources in Part 3.</p>
 </section>
 
 <section>
@@ -209,7 +209,7 @@ const bars = [
   ["design", 13, 16, "HLD track wk 5–8: fund. 10–18, DS 01–05", "HLD track weeks 5–8: fundamentals 10, 11, 13–16, 18, distributed systems 01–05, with case studies 02, 05, 07–13, 16."],
   ["design", 17, 17, "HLD P2 stretch", "HLD track week 9: fundamentals 17, 19–21, CRDTs, two P2 case studies, mock sets A and B.", true],
   ["design", 18, 18, "HLD cheatsheet + mocks", "HLD track week 10: cheatsheet, then mock sets C–G scored with the rubric."],
-  ["cs", 2, 8, "Java P1 (01–13, 16–20)", "Planned pages. Use Effective Java, Java Concurrency in Practice, and the Spring docs. Read concurrency (07–08) in W4, with LLD concurrency."],
+  ["cs", 2, 8, "Java P1 (01–13, 16–20)", "kb/study-plan.md Java track: kb/java pages 01–13 and 16–20, then the question bank. Read concurrency (07–08) in W4, with LLD concurrency."],
   ["cs", 9, 12, "Databases P1", "SQL, schema design, indexing, transactions and isolation, query tuning, NoSQL, Redis, SQL problems."],
   ["cs", 13, 15, "OS + Networking P1", "Processes and threads, synchronization, memory management. TCP and UDP, HTTP, TLS, DNS, what happens when you load a URL."],
   ["cs", 16, 17, "API + Security P1", "REST principles and practices, API design in interviews, authentication, OAuth/OIDC/JWT, OWASP Top 10."],
@@ -261,7 +261,7 @@ const rows = [
   ["W9–W16", "HLD fundamentals and P1 case studies", "HLD track weeks 1–8: procedure, estimation, fundamentals 01–16 and 18, distributed systems 01–05, and the 14 P1 case studies, interleaved", "P1", "ok", "kb/study-plan.md HLD track"],
   ["W17", "HLD stretch", "Fundamentals 17, 19–21 (batch and stream, multi-region, observability, security), CRDTs, two P2 case studies", "P2", "ok", "kb/hld/fundamentals 17–21"],
     ["W18", "HLD review and mocks", "Cheatsheet, mock sets C–G, self-evaluation rubric", "P1", "ok", "kb/hld/cheatsheet.md, kb/hld/practice-and-mock-interviews.md"],
-  ["W2–W8", "Java and Spring", "Language core, generics, exceptions, collections internals, JVM, GC, concurrency, CompletableFuture, virtual threads, streams, modern Java, JPA, Spring core, Boot, Data, Web", "P1", "warn", "Effective Java; Java Concurrency in Practice; docs.spring.io"],
+  ["W2–W8", "Java and Spring", "Language core, generics, exceptions, collections internals, JVM, GC, concurrency, CompletableFuture, virtual threads, streams, modern Java, JPA, Spring core, Boot, Data, Web", "P1", "ok", "kb/java and the Java track in kb/study-plan.md"],
   ["W9–W12", "Databases", "SQL, normalization, indexes, isolation levels, query plans, NoSQL families, Redis, SQL problems", "P1", "warn", "Designing Data-Intensive Applications; use-the-index-luke.com"],
   ["W13–W15", "Operating systems", "Processes and threads, synchronization, memory and virtual memory", "P1", "warn", "ostep.org"],
   ["W13–W15", "Networking", "TCP and UDP, HTTP/1.1 to HTTP/3, TLS, DNS, the URL-load walkthrough", "P1", "warn", "hpbn.co"],

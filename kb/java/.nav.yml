@@ -1,0 +1,28 @@
+nav:
+  - Overview: README.md
+  - Pages:
+      - "01 · Java Language Core": 01-language-core.md
+      - "02 · Generics": 02-generics.md
+      - "03 · Exceptions": 03-exceptions.md
+      - "04 · Collections Internals": 04-collections-internals.md
+      - "05 · JVM Architecture": 05-jvm-architecture.md
+      - "06 · Memory and Garbage Collection": 06-memory-and-gc.md
+      - "07 · Concurrency Basics: Threads, Locks, and the Java Memory Model": 07-concurrency-basics.md
+      - "08 · java.util.concurrent: Executors, Locks, Atomics, and Synchronizers": 08-java-util-concurrent.md
+      - "09 · CompletableFuture: Asynchronous Pipelines": 09-completablefuture.md
+      - "10 · Virtual Threads, Structured Concurrency, and Scoped Values": 10-virtual-threads.md
+      - "11 · Concurrency Coding Problems: Classic Thread-Coordination Exercises": 11-concurrency-coding-problems.md
+      - "12 · Functional Programming and Streams": 12-functional-and-streams.md
+      - "13 · Modern Java (9 to 21)": 13-modern-java.md
+      - "14 · Reflection and Annotations": 14-reflection-and-annotations.md
+      - "15 · I/O, NIO, and Serialization": 15-io-nio-and-serialization.md
+      - "16 · JDBC, JPA, and Hibernate": 16-jdbc-jpa-and-hibernate.md
+      - "17 · Spring Core: IoC, Beans, and AOP": 17-spring-core.md
+      - "18 · Spring Boot": 18-spring-boot.md
+      - "19 · Spring Data and Transactions": 19-spring-data-and-transactions.md
+      - "20 · Spring Web and REST": 20-spring-web-and-rest.md
+      - "21 · Spring Security": 21-spring-security.md
+      - "23 · Build Tools: Maven and Gradle": 23-build-tools.md
+  - interview-question-bank.md
+  - glob: "*"
+    ignore_no_matches: true
