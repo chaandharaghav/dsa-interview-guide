@@ -595,7 +595,7 @@ The application checks the number of rows that the `UPDATE` changed. Zero rows m
 
 ??? question "Why is `synchronized` or `ReentrantLock` not enough in a service with several instances?"
 
-    A `synchronized` block or `ReentrantLock` excludes threads in one JVM only. Two instances of the service each have their own lock object. A distributed lock or a database constraint must coordinate across instances (see `kb/java/07-concurrency-basics.md` and `kb/java/08-java-util-concurrent.md` for the in-process primitives).
+    A `synchronized` block or `ReentrantLock` excludes threads in one JVM only. Two instances of the service each have their own lock object. A distributed lock or a database constraint must coordinate across instances (see [Concurrency Basics: Threads, Locks, and the Java Memory Model](../../java/07-concurrency-basics.md) and [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../java/08-java-util-concurrent.md) for the in-process primitives).
 
 ### Red Flags
 

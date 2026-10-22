@@ -5,7 +5,7 @@ priority: P1
 
 ## Why It Matters
 
-The hash table is the most common data structure in coding rounds. It turns "have I seen this value?" from an O(n) scan into an expected O(1) lookup, and it sits behind two-sum, anagram grouping, frequency counting, and caches. Interviewers also ask how it works: "Why is `HashMap.get` O(1) on average and O(n) in the worst case?", "What happens if you override `equals` and not `hashCode`?", "How does `HashMap` resize?". On the job, a wrong `hashCode`, a mutable key, or a hash-flooding attack causes real bugs and outages. This page covers the data structure itself. The practical problem-solving patterns are in [hashing and frequency maps](../05-hashing-frequency/README.md). The JDK internals beyond what DSA needs are in `kb/java/04-collections-internals.md`.
+The hash table is the most common data structure in coding rounds. It turns "have I seen this value?" from an O(n) scan into an expected O(1) lookup, and it sits behind two-sum, anagram grouping, frequency counting, and caches. Interviewers also ask how it works: "Why is `HashMap.get` O(1) on average and O(n) in the worst case?", "What happens if you override `equals` and not `hashCode`?", "How does `HashMap` resize?". On the job, a wrong `hashCode`, a mutable key, or a hash-flooding attack causes real bugs and outages. This page covers the data structure itself. The practical problem-solving patterns are in [hashing and frequency maps](../05-hashing-frequency/README.md). The JDK internals beyond what DSA needs are in [Collections Internals](../../java/04-collections-internals.md).
 
 ## Core Concepts
 
@@ -518,7 +518,7 @@ The entry stays in the map under its old hash, so `get` with the changed key loo
 
 ??? question "Is `Hashtable` the same as `HashMap`?"
 
-    No. `Hashtable` is a legacy class with synchronized methods and no `null` keys or values. `HashMap` is not synchronized and allows one `null` key. For concurrent access use `ConcurrentHashMap`, whose internals are in `kb/java/04-collections-internals.md`.
+    No. `Hashtable` is a legacy class with synchronized methods and no `null` keys or values. `HashMap` is not synchronized and allows one `null` key. For concurrent access use `ConcurrentHashMap`, whose internals are in [Collections Internals](../../java/04-collections-internals.md).
 
 ### Red Flags
 

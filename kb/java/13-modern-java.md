@@ -294,7 +294,7 @@ rejected: 5 > 2
 Team[name=core, members=[ada]]
 ```
 
-Records suit DTOs, map keys, tuples, and value objects. They do not suit JPA entities (an entity needs a no-argument constructor and mutable state for proxies, see `kb/java/16-jdbc-jpa-and-hibernate.md`) or classes that need a mutable state or an inheritance hierarchy. Compared with Lombok `@Value`: a record is part of the language, so every tool understands it, but you cannot add a field or customize the generated `toString` shape without writing the method yourself.
+Records suit DTOs, map keys, tuples, and value objects. They do not suit JPA entities (an entity needs a no-argument constructor and mutable state for proxies, see [JDBC, JPA, and Hibernate](16-jdbc-jpa-and-hibernate.md)) or classes that need a mutable state or an inheritance hierarchy. Compared with Lombok `@Value`: a record is part of the language, so every tool understands it, but you cannot add a field or customize the generated `toString` shape without writing the method yourself.
 
 ### Sealed classes and interfaces (JEP 409)
 
@@ -583,7 +583,7 @@ Java 21 is the target of this KB. The table lists what later releases made final
 | 25 | Compact object headers | 519 | Changed from experimental to a product feature. Off by default in 25 (`-XX:+UseCompactObjectHeaders` turns it on) |
 | 25 | Generational Shenandoah | 521 | Changed from experimental to a product feature. Shenandoah still defaults to one generation |
 | 26 (2026-03-17) | HTTP/3 for the HTTP Client API | 517 | Final. The application opts in with `HttpClient.Version.HTTP_3`. The default stays HTTP/2 |
-| 26 | Prepare to make `final` mean final | 500 | Delivered. Deep reflection that changes a `final` field now prints a run-time warning, as a step toward blocking it by default. See `kb/java/14-reflection-and-annotations.md` |
+| 26 | Prepare to make `final` mean final | 500 | Delivered. Deep reflection that changes a `final` field now prints a run-time warning, as a step toward blocking it by default. See [Reflection and Annotations](14-reflection-and-annotations.md) |
 | 27 (2026-09-15) | Make G1 the default collector in all environments | 523 | Final. Small machines that used Serial now use G1 |
 | 27 | Compact object headers by default | 534 | Final. The 64-bit header layout (96 bits before) is the default on 64-bit platforms. The old layout is still available |
 
@@ -610,7 +610,7 @@ What this means for Java 21 code: everything that this page lists as final in Ja
 | Sealed type | A closed set of shapes that you control | A public extension point, or a type that a library user must implement | Every `switch` over it breaks when you add a case, by design |
 | Pattern `switch` | You dispatch on the shape of data | You dispatch on behavior that belongs to the type (use a polymorphic method) | A long `switch` can hide behavior that should be a method |
 | Sequenced collections | You need the first or last element, or a reverse view | The code must run on Java 20 or older | `reversed()` is a view. Some implementations throw on `addFirst` |
-| `HttpClient` | A plain HTTP call without a framework | The application already uses `RestClient` or `WebClient` from Spring (see `kb/java/20-spring-web-and-rest.md`) | You write the JSON conversion yourself |
+| `HttpClient` | A plain HTTP call without a framework | The application already uses `RestClient` or `WebClient` from Spring (see [Spring Web and REST](20-spring-web-and-rest.md)) | You write the JSON conversion yourself |
 | Modules | You ship a library or a `jlink` runtime image | A typical Spring application | `opens` and `--add-opens` for reflection, and a split-package problem when libraries share packages |
 
 ## Java Example

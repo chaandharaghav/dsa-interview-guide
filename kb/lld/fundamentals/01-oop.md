@@ -22,7 +22,7 @@ Every LLD interview starts from object-oriented programming (OOP). The interview
 - **Identity**: whether two references point to the same object. Java tests identity with `==`.
 - **Equality**: whether two objects represent the same value or the same entity. Java tests equality with `equals`.
 
-`Object.equals` tests identity. A class that needs value equality overrides `equals` and `hashCode` together. The contract for both methods (reflexive, symmetric, transitive, consistent, `null`-safe, and "equal objects have equal hash codes") has its home in `kb/java/01-language-core.md`. This page uses only the result.
+`Object.equals` tests identity. A class that needs value equality overrides `equals` and `hashCode` together. The contract for both methods (reflexive, symmetric, transitive, consistent, `null`-safe, and "equal objects have equal hash codes") has its home in [Java Language Core](../../java/01-language-core.md). This page uses only the result.
 
 ```java
 final class Customer {
@@ -617,7 +617,7 @@ Effective Java, Item 15: make each class and member as inaccessible as possible.
 | Local class | Inside a method | Yes, if the method is an instance method | A helper type that only one method uses |
 | Anonymous class | `new Interface() { ... }` | Yes, if the code is in an instance method | A one-use implementation. A lambda replaces it for a functional interface |
 
-The language rules for `final`, `static`, and nested classes have their home in `kb/java/01-language-core.md`. This section covers their design use only.
+The language rules for `final`, `static`, and nested classes have their home in [Java Language Core](../../java/01-language-core.md). This section covers their design use only.
 
 Prefer a static nested class. An inner class keeps its outer object reachable, so a long-lived inner object can keep a large outer object in memory.
 
@@ -687,7 +687,7 @@ class Fees {
 }
 ```
 
-This page covers records and sealed types as design tools. The language details (record serialization, nested record patterns, switch rules) have their home in `kb/java/13-modern-java.md`.
+This page covers records and sealed types as design tools. The language details (record serialization, nested record patterns, switch rules) have their home in [Modern Java (9 to 21)](../../java/13-modern-java.md).
 
 Use a sealed hierarchy of records for a closed set of data variants (payment methods, events, AST nodes). Use an interface with open implementations for a role that other code must extend (a `PaymentGateway`).
 

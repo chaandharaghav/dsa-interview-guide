@@ -554,7 +554,7 @@ Only after all checks pass does `move` detach the source and attach it again. So
 
 `FileSystem` has one `ReentrantReadWriteLock`. Each read operation (`ls`, `cat`, `size`, `find`) takes the read lock. Many readers can hold it at the same time. Each write operation (`mkdir`, `write`, `append`, `move`, `remove`) takes the write lock, and it runs alone. The demo starts 4 threads that create 25 files each in `/shared`. After the threads end, the directory has 100 files with 4 characters each. Without the lock, the threads could lose files or throw an exception from the `TreeMap`.
 
-Three facts about `ReentrantReadWriteLock` matter here (see the [Javadoc](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/ReentrantReadWriteLock.html). The home page of the lock classes is `kb/java/08-java-util-concurrent.md`):
+Three facts about `ReentrantReadWriteLock` matter here (see the [Javadoc](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/ReentrantReadWriteLock.html). The home page of the lock classes is [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../../java/08-java-util-concurrent.md)):
 
 1. A thread cannot upgrade a read lock to the write lock. If a method takes the read lock to resolve a path and then asks for the write lock to change the tree, the thread waits for itself forever. So each write operation in this design takes the write lock first and resolves the path inside it.
 2. A thread that holds the write lock can also take the read lock (downgrade). This design does not need it.

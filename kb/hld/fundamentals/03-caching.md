@@ -671,7 +671,7 @@ beta=1.0 first refresh at 47.28 s (expiry at 60 s)
 
 ??? question "How does the answer change if the cache is in-process (Caffeine) and not Redis?"
 
-    Each application instance holds its own copy, so a write on one instance leaves stale copies on the others. Options: a short TTL as the only bound; a pub-sub invalidation message (for example over Redis or Kafka) that tells every instance to drop the key; or a two-level cache where the local layer has a very short TTL and a distributed cache sits behind it. Stampede protection is simpler, because `LoadingCache` coalesces loads for one key within the instance. Memory is multiplied by the number of instances, and the garbage collector sees the cache, so the cache needs a size bound (see `kb/java/06-memory-and-gc.md`).
+    Each application instance holds its own copy, so a write on one instance leaves stale copies on the others. Options: a short TTL as the only bound; a pub-sub invalidation message (for example over Redis or Kafka) that tells every instance to drop the key; or a two-level cache where the local layer has a very short TTL and a distributed cache sits behind it. Stampede protection is simpler, because `LoadingCache` coalesces loads for one key within the instance. Memory is multiplied by the number of instances, and the garbage collector sees the cache, so the cache needs a size bound (see [Memory and Garbage Collection](../../java/06-memory-and-gc.md)).
 
 ??? question "How do you cache the result of a query that joins several tables?"
 

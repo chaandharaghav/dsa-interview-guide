@@ -187,7 +187,7 @@ The two-stack trick does not carry over. Moving elements from one stack to anoth
 | `Stack` | Stack | Yes | Yes (synchronized methods) | A legacy class that extends `Vector`. The `Stack` javadoc says that `Deque` offers a more complete and consistent set of LIFO operations and that the `Deque` interface should be preferred |
 | `LinkedList` | List, queue, deque | Yes | No | Doubly linked nodes. It costs more memory and gives worse cache behavior than `ArrayDeque` |
 | `PriorityQueue` | Priority queue | No | No | Not FIFO. Iteration order is not sorted. See [heaps](06-heaps.md) |
-| `ConcurrentLinkedDeque`, `LinkedBlockingQueue`, `ArrayBlockingQueue` | Concurrent queues | No | Yes | For thread hand-off. See `kb/java/04-collections-internals.md` |
+| `ConcurrentLinkedDeque`, `LinkedBlockingQueue`, `ArrayBlockingQueue` | Concurrent queues | No | Yes | For thread hand-off. See [Collections Internals](../../java/04-collections-internals.md) |
 
 Reasons to prefer `ArrayDeque` over `Stack`:
 
@@ -556,7 +556,7 @@ The Java toolkit page lists the same calls for problem solving: [Java toolkit](.
 
     Use `ArrayBlockingQueue` for a fixed capacity, or `LinkedBlockingQueue` with a capacity argument. `put` blocks when the queue is full and `take` blocks when it is empty, so the queue provides back-pressure (a producer that runs ahead must wait). `offer(e, timeout, unit)` waits for a bounded time and then returns `false`, which lets the producer shed load instead of blocking forever.
 
-    The two differ inside. `ArrayBlockingQueue` is a circular buffer guarded by one `ReentrantLock`, so producers and consumers contend for the same lock. `LinkedBlockingQueue` uses two locks (`putLock` and `takeLock`), so a producer and a consumer can proceed at the same time, at the cost of one node allocation per element. Without a capacity argument, `LinkedBlockingQueue` has capacity `Integer.MAX_VALUE`, which gives no back-pressure. `ArrayDeque` is not thread-safe. The thread-safety mechanisms have their home in `kb/java/07-concurrency-basics.md` and `kb/java/08-java-util-concurrent.md`.
+    The two differ inside. `ArrayBlockingQueue` is a circular buffer guarded by one `ReentrantLock`, so producers and consumers contend for the same lock. `LinkedBlockingQueue` uses two locks (`putLock` and `takeLock`), so a producer and a consumer can proceed at the same time, at the cost of one node allocation per element. Without a capacity argument, `LinkedBlockingQueue` has capacity `Integer.MAX_VALUE`, which gives no back-pressure. `ArrayDeque` is not thread-safe. The thread-safety mechanisms have their home in [Concurrency Basics: Threads, Locks, and the Java Memory Model](../../java/07-concurrency-basics.md) and [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../java/08-java-util-concurrent.md).
 
 ### Follow-up Questions
 
@@ -566,7 +566,7 @@ The Java toolkit page lists the same calls for problem solving: [Java toolkit](.
 
 ??? question "How do you make a queue thread-safe without a library queue?"
 
-    Guard `enqueue` and `dequeue` with one lock, and use a condition for "not empty". A consumer waits on the condition in a `while` loop, not an `if`, because a thread can wake up without a signal (a spurious wakeup) or find that another consumer took the element first. This design is correct but serializes all callers. A second step is two locks, one for the head and one for the tail, as `LinkedBlockingQueue` does. `ConcurrentLinkedQueue` uses no lock: its javadoc says it is based on the non-blocking algorithm of Michael and Scott, which updates node pointers with compare-and-set operations. The details belong to `kb/java/07-concurrency-basics.md` and `kb/java/08-java-util-concurrent.md`.
+    Guard `enqueue` and `dequeue` with one lock, and use a condition for "not empty". A consumer waits on the condition in a `while` loop, not an `if`, because a thread can wake up without a signal (a spurious wakeup) or find that another consumer took the element first. This design is correct but serializes all callers. A second step is two locks, one for the head and one for the tail, as `LinkedBlockingQueue` does. `ConcurrentLinkedQueue` uses no lock: its javadoc says it is based on the non-blocking algorithm of Michael and Scott, which updates node pointers with compare-and-set operations. The details belong to [Concurrency Basics: Threads, Locks, and the Java Memory Model](../../java/07-concurrency-basics.md) and [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../java/08-java-util-concurrent.md).
 
 ??? question "What changes if the queue must hold a bounded number of elements and drop the oldest on overflow?"
 

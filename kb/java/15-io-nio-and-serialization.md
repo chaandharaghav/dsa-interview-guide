@@ -595,7 +595,7 @@ Status on openjdk.org, checked on 2026-10-22: JEP 290 (release 9) and JEP 415 (r
 | Protocol Buffers | `.proto` file | Small (binary) | Yes | Needs a code generation step. Not human-readable |
 | Avro | Schema, with the data or in a registry | Small | Yes | Needs the writer schema to read data |
 
-Recommendation: use JSON for public APIs and configuration, and Protocol Buffers or Avro for high-volume internal messages, where size and schema evolution matter. These formats carry data only. They do not create arbitrary classes from the stream. Jackson's default typing, which writes class names into the JSON, can bring back the same class of attack, so keep it off for untrusted input. How a service uses these formats in REST APIs is in `kb/api-design/` (planned) and in `kb/java/20-spring-web-and-rest.md`.
+Recommendation: use JSON for public APIs and configuration, and Protocol Buffers or Avro for high-volume internal messages, where size and schema evolution matter. These formats carry data only. They do not create arbitrary classes from the stream. Jackson's default typing, which writes class names into the JSON, can bring back the same class of attack, so keep it off for untrusted input. How a service uses these formats in REST APIs is in `kb/api-design/` (planned) and in [Spring Web and REST](20-spring-web-and-rest.md).
 
 ## Trade-offs and When to Use
 

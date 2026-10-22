@@ -5,7 +5,7 @@ priority: P1
 
 ## Why It Matters
 
-Exception handling appears in almost every Java interview, in three forms: the definition question ("checked versus unchecked"), the puzzle question ("what does this `try`-`finally` return?"), and the design question ("how do you handle errors in a layered service?"). On the job, a swallowed exception hides a production bug, a `finally` block that throws replaces the original failure, and an `InterruptedException` that a developer ignores makes a service impossible to shut down. This page covers the language rules (JLS chapter 11 and sections 14.20.2 and 14.20.3), the mechanics of `try-with-resources`, the cost of an exception, and the design rules of *Effective Java* items 69 to 77. Spring's rollback rule for checked and unchecked exceptions is in `kb/java/19-spring-data-and-transactions.md`. Thread interruption in depth is in [concurrency basics](07-concurrency-basics.md).
+Exception handling appears in almost every Java interview, in three forms: the definition question ("checked versus unchecked"), the puzzle question ("what does this `try`-`finally` return?"), and the design question ("how do you handle errors in a layered service?"). On the job, a swallowed exception hides a production bug, a `finally` block that throws replaces the original failure, and an `InterruptedException` that a developer ignores makes a service impossible to shut down. This page covers the language rules (JLS chapter 11 and sections 14.20.2 and 14.20.3), the mechanics of `try-with-resources`, the cost of an exception, and the design rules of *Effective Java* items 69 to 77. Spring's rollback rule for checked and unchecked exceptions is in [Spring Data and Transactions](19-spring-data-and-transactions.md). Thread interruption in depth is in [concurrency basics](07-concurrency-basics.md).
 
 ## Core Concepts
 
@@ -724,7 +724,7 @@ How to read the code. The `try-with-resources` closes the reader even if `parseI
 
 ??? question "How should you handle `InterruptedException`?"
 
-    The exception means that another thread asked this thread to stop. The blocking method that throws it clears the interrupt flag first. So I do not swallow it, unless my code owns the thread and implements its interruption policy (*Java Concurrency in Practice*, chapter 7). I choose one of two options. First, if the method can declare it, propagate it, so the caller decides. Second, if the method cannot declare it (for example `Runnable.run`), finish the cleanup and restore the flag with `Thread.currentThread().interrupt()`, so the code above and the thread pool see the request. Logging and continuing is wrong, because it makes `shutdownNow` and task cancellation fail. See `kb/java/07-concurrency-basics.md` for the full interruption protocol.
+    The exception means that another thread asked this thread to stop. The blocking method that throws it clears the interrupt flag first. So I do not swallow it, unless my code owns the thread and implements its interruption policy (*Java Concurrency in Practice*, chapter 7). I choose one of two options. First, if the method can declare it, propagate it, so the caller decides. Second, if the method cannot declare it (for example `Runnable.run`), finish the cleanup and restore the flag with `Thread.currentThread().interrupt()`, so the code above and the thread pool see the request. Logging and continuing is wrong, because it makes `shutdownNow` and task cancellation fail. See [Concurrency Basics: Threads, Locks, and the Java Memory Model](07-concurrency-basics.md) for the full interruption protocol.
 
 ??? question "Why are exceptions expensive, and how do you reduce the cost?"
 
@@ -776,7 +776,7 @@ How to read the code. The `try-with-resources` closes the reader even if `parseI
 
 ??? question "How does `@Transactional` treat checked and unchecked exceptions?"
 
-    By default, Spring rolls back the transaction for unchecked exceptions (`RuntimeException` and `Error`) and commits for checked exceptions, unless `rollbackFor` says otherwise. See `kb/java/19-spring-data-and-transactions.md`.
+    By default, Spring rolls back the transaction for unchecked exceptions (`RuntimeException` and `Error`) and commits for checked exceptions, unless `rollbackFor` says otherwise. See [Spring Data and Transactions](19-spring-data-and-transactions.md).
 
 ### Red Flags
 

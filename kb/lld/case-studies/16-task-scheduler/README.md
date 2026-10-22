@@ -3,7 +3,7 @@ priority: P1
 ---
 # Design a Task Scheduler
 
-A task scheduler runs work at a later time, or again and again at a fixed interval. This case study builds one for a single process: a priority queue ordered by run time, one dispatcher thread that waits for the earliest task, a pool of worker threads that run the tasks, cancellation, and an injected clock so that the demo is exact. The JDK has `ScheduledThreadPoolExecutor`, which solves the same problem. An interview asks you to build the core of it, so this page shows how the parts fit. The distributed version (many machines, a durable store, leader election) is in `kb/hld/case-studies/20-distributed-job-scheduler.md`. The thread primitives have their home in `kb/java/08-java-util-concurrent.md`. Follow the steps in [how to approach an LLD interview](../../how-to-approach-lld.md).
+A task scheduler runs work at a later time, or again and again at a fixed interval. This case study builds one for a single process: a priority queue ordered by run time, one dispatcher thread that waits for the earliest task, a pool of worker threads that run the tasks, cancellation, and an injected clock so that the demo is exact. The JDK has `ScheduledThreadPoolExecutor`, which solves the same problem. An interview asks you to build the core of it, so this page shows how the parts fit. The distributed version (many machines, a durable store, leader election) is in `kb/hld/case-studies/20-distributed-job-scheduler.md`. The thread primitives have their home in [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../../java/08-java-util-concurrent.md). Follow the steps in [how to approach an LLD interview](../../how-to-approach-lld.md).
 
 ## Problem Statement
 

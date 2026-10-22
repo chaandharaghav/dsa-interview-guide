@@ -649,7 +649,7 @@ Exactly-once: the Kafka documentation (design, "Message Delivery Semantics") say
 **Worker threads.** The pool has a fixed size. A blocking handler uses one worker for as long as it blocks. If all workers block, no group makes progress. Recommendation: say that the pool size bounds the number of partitions that make progress at the same time, and that handlers must not block for long.
 
 !!! note "Where the other thread-safety details live"
-    The [concurrency in LLD page](../../fundamentals/09-concurrency-in-lld.md) compares the lock choices. The primitives (`AtomicBoolean`, `ConcurrentHashMap`, executors) are described on `kb/java/08-java-util-concurrent.md`.
+    The [concurrency in LLD page](../../fundamentals/09-concurrency-in-lld.md) compares the lock choices. The primitives (`AtomicBoolean`, `ConcurrentHashMap`, executors) are described on [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../../java/08-java-util-concurrent.md).
 
 ## Extensions
 

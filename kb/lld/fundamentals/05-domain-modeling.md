@@ -376,7 +376,7 @@ final class Member {
 }
 ```
 
-For the full `equals` and `hashCode` contract, see `kb/java/01-language-core.md` and [OOP](01-oop.md).
+For the full `equals` and `hashCode` contract, see [Java Language Core](../../java/01-language-core.md) and [OOP](01-oop.md).
 
 ### Enums or class hierarchies
 

@@ -656,7 +656,7 @@ The queue of request times is an `ArrayDeque`, which is not thread-safe. The cod
 
 The surge percent reads the demand count and the free-driver count in two separate steps. Between the two reads, another thread can change a value. Two riders who request at the same moment can see slightly different percents. This is acceptable: surge is a price signal and not a guarantee. A strict design computes the surge from one snapshot under one lock, at the cost of a lock on every request.
 
-Why no global lock: a lock on `requestRide` serializes all riders, and the lock would cover the scan of all drivers. The atomic claim lets riders work in parallel. They conflict only when they pick the same driver. See [concurrency in LLD](../../fundamentals/09-concurrency-in-lld.md) for the comparison of locks and atomics, and `kb/java/08-java-util-concurrent.md` for the primitives.
+Why no global lock: a lock on `requestRide` serializes all riders, and the lock would cover the scan of all drivers. The atomic claim lets riders work in parallel. They conflict only when they pick the same driver. See [concurrency in LLD](../../fundamentals/09-concurrency-in-lld.md) for the comparison of locks and atomics, and [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../../java/08-java-util-concurrent.md) for the primitives.
 
 !!! tip "What to say in the interview"
     "The one thing that must be exact is the driver claim, so I use an atomic compare-and-set on the driver status. The strategy only suggests. If the claim fails, I ask the strategy again. The trip state changes under a per-trip lock."

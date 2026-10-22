@@ -910,7 +910,7 @@ enum:   instances=1 constructions=1
 dcl:    instances=1 constructions=1
 ```
 
-Recommendation: use the holder idiom or an enum. Use double-checked locking only if you need lazy creation with a constructor argument or instance state that the holder cannot give, and then use `volatile`. In a Spring application, a singleton bean replaces all of these (see `kb/java/17-spring-core.md`).
+Recommendation: use the holder idiom or an enum. Use double-checked locking only if you need lazy creation with a constructor argument or instance state that the holder cannot give, and then use `volatile`. In a Spring application, a singleton bean replaces all of these (see [Spring Core: IoC, Beans, and AOP](17-spring-core.md)).
 
 ### Problem 7: Dining philosophers
 

@@ -610,7 +610,7 @@ The other order, `TtlCache(ThreadSafeCache(...))`, is wrong. Each inner call hol
 11. Returning `null` for a miss, so the caller cannot tell a miss from a stored `null`. This design bans `null` values and uses `Optional`.
 12. `LinkedHashMap` with `accessOrder = false` (the default). It evicts in insertion order, which is FIFO.
 13. Using `LinkedHashMap` and saying nothing else. The interviewer asked for the design. Explain the structure that it hides.
-14. A mutable key whose `hashCode` changes after insertion. The entry becomes unreachable. See `kb/java/01-language-core.md` for the `equals` and `hashCode` contract.
+14. A mutable key whose `hashCode` changes after insertion. The entry becomes unreachable. See [Java Language Core](../../../java/01-language-core.md) for the `equals` and `hashCode` contract.
 
 ## 45-Minute Plan
 

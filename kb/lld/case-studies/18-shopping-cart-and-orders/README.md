@@ -754,7 +754,7 @@ A slow payment can outlast the hold. The sweeper then releases the units, and an
 
 The checkout holds no lock while it waits for the payment. A lock around the gateway call would block every other buyer for the duration of a network call. The state between the steps is safe because the hold, the coupon claim, and the key claim each protect their own part.
 
-See `kb/java/08-java-util-concurrent.md` for the primitives.
+See [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../../java/08-java-util-concurrent.md) for the primitives.
 
 !!! tip "What to say in the interview"
     "Checkout is a saga of small steps: claim the key, hold the stock, claim the coupon, charge, confirm. Each step has an atomic guard, and each failure path undoes the earlier steps. I never hold a lock across the payment call."

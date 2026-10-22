@@ -3,7 +3,7 @@ priority: P1
 ---
 # Concurrency in LLD
 
-A low-level design runs in one process, and in a real system many threads call its classes at the same time. This page shows where the data races appear in typical LLD problems, which tool fixes each one, and how to discuss the topic in a 45-minute round without over-engineering. The page covers the use of the Java concurrency tools in a design. The tools themselves (the memory model, `synchronized`, `Lock`, executors) have their home in `kb/java/07-concurrency-basics.md` and `kb/java/08-java-util-concurrent.md`. See also `kb/operating-systems/03-synchronization.md` for the operating system view.
+A low-level design runs in one process, and in a real system many threads call its classes at the same time. This page shows where the data races appear in typical LLD problems, which tool fixes each one, and how to discuss the topic in a 45-minute round without over-engineering. The page covers the use of the Java concurrency tools in a design. The tools themselves (the memory model, `synchronized`, `Lock`, executors) have their home in [Concurrency Basics: Threads, Locks, and the Java Memory Model](../../java/07-concurrency-basics.md) and [java.util.concurrent: Executors, Locks, Atomics, and Synchronizers](../../java/08-java-util-concurrent.md). See also `kb/operating-systems/03-synchronization.md` for the operating system view.
 
 ## Why It Matters
 
