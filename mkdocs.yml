@@ -1,5 +1,6 @@
 site_name: Software Engineering Knowledge Base
 site_description: Interview preparation and engineering fundamentals
+site_url: https://chaandharaghav.github.io/dsa-interview-guide/
 docs_dir: kb
 site_dir: site
 theme:
