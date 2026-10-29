@@ -50,6 +50,7 @@ Read these pages in Week 0, or when a pattern uses a structure that you do not k
 
 | # | Page | Priority |
 |---|------|----------|
+| F0 | [Math for Complexity Analysis](./foundations/00-math-for-complexity.md) | P2 |
 | F1 | [Complexity Analysis](./foundations/01-complexity-analysis.md) | P1 |
 | F2 | [Arrays, Strings, and Linked Lists](./foundations/02-arrays-strings-linked-lists.md) | P1 |
 | F3 | [Stacks, Queues, and Deques](./foundations/03-stacks-queues-deques.md) | P1 |

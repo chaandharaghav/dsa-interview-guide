@@ -4,6 +4,7 @@ nav:
   - java-toolkit.md
   - study-plan.md
   - Foundations:
+      - "F0 · Math for Complexity": foundations/00-math-for-complexity.md
       - "F1 · Complexity Analysis": foundations/01-complexity-analysis.md
       - "F2 · Arrays, Strings, Linked Lists": foundations/02-arrays-strings-linked-lists.md
       - "F3 · Stacks, Queues, Deques": foundations/03-stacks-queues-deques.md
