@@ -22,6 +22,7 @@ nav:
       - "19 · Spring Data and Transactions": 19-spring-data-and-transactions.md
       - "20 · Spring Web and REST": 20-spring-web-and-rest.md
       - "21 · Spring Security": 21-spring-security.md
+      - "22 · Microservices with Spring": 22-microservices-with-spring.md
       - "23 · Build Tools: Maven and Gradle": 23-build-tools.md
   - interview-question-bank.md
   - glob: "*"
