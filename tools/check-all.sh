@@ -9,5 +9,6 @@ run python3 -m unittest discover -s tools/tests -q
 run python3 tools/check_format.py kb
 run python3 tools/run_sql.py kb
 run python3 tools/run_java.py kb
-run .venv/bin/mkdocs build --strict --quiet
+# No --quiet: with --quiet, MkDocs 1.6 hides the warnings and --strict exits 0.
+run .venv/bin/mkdocs build --strict
 exit $status
