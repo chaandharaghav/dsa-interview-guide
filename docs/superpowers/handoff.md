@@ -26,6 +26,7 @@ User instruction: "move to next phase, similarly use sonnet 5.5 for this, use su
 - Correction to a main-session edit: JDK 21 thread dumps print `nid` in decimal (`osThread.cpp`), JDK 17 in hexadecimal. OS 01 now says so.
 - Mermaid: a semicolon inside a sequence-diagram message breaks parsing. Use `#59;`. Gate on 2026-11-05 after phase 6: 57/57 unit tests, format 213 files 0 errors, SQL 27 pages 0 errors, Java 950/950 blocks and 24/24 case studies, strict build passes, Mermaid OK for `kb/operating-systems` (15) and `kb/networking` (19).
 - Facts confirmed this phase that later phases may need: JDK 26 shipped March 2026 (JEP 517 HTTP/3 client), JDK 27 shipped September 2026 (JEP 527 post-quantum hybrid TLS key exchange, JEP 537 Vector API incubator). Linux stable 7.3.1, mainline 7.4-rc1 on 2026-11-05. TLS 1.3 is RFC 9846; ECH is RFC 9849.
+- Kept but not fully verified (minor): OS 02 Kubernetes `cpu.weight` conversion formulas (from a search summary of a Kubernetes blog post); OS 06 Skylake 64-byte line from a search summary of the Intel manual (the Linux Kconfig confirms 64 bytes for x86-64); networking 05 post-quantum default support in Chrome and Edge rests on Cloudflare's table only.
 - **Next:** phase 7 (API design and Security, 13 pages). Ask the user before starting it.
 
 ## SESSION 4 (2026-11-05): Phase 5 (Databases) done
