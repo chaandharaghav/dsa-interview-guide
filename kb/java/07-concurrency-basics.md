@@ -3,7 +3,7 @@ priority: P1
 ---
 # Concurrency Basics: Threads, Locks, and the Java Memory Model
 
-A thread runs code, and all threads of a process share the heap. This page explains how Java threads work, what `synchronized`, `wait`, `notify`, and `volatile` guarantee, and how the Java Memory Model (JMM) defines those guarantees. It is the home of the thread-safety primitives of the language itself. The classes of `java.util.concurrent` (executors, locks, atomics, queues) are in [java.util.concurrent](08-java-util-concurrent.md). The design view, which tool to pick for a booking or wallet problem, is in [Concurrency in LLD](../lld/fundamentals/09-concurrency-in-lld.md). That page links here for the memory model and the monitor details. See also `kb/operating-systems/03-synchronization.md` for the operating system view.
+A thread runs code, and all threads of a process share the heap. This page explains how Java threads work, what `synchronized`, `wait`, `notify`, and `volatile` guarantee, and how the Java Memory Model (JMM) defines those guarantees. It is the home of the thread-safety primitives of the language itself. The classes of `java.util.concurrent` (executors, locks, atomics, queues) are in [java.util.concurrent](08-java-util-concurrent.md). The design view, which tool to pick for a booking or wallet problem, is in [Concurrency in LLD](../lld/fundamentals/09-concurrency-in-lld.md). That page links here for the memory model and the monitor details. See also [Synchronization](../operating-systems/03-synchronization.md) for the operating system view.
 
 ## Why It Matters
 

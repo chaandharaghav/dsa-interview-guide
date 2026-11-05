@@ -3,7 +3,7 @@ priority: P1
 ---
 # Processes and Threads
 
-A process is a running program with its own address space. A thread is one flow of execution inside a process. This page explains what the Linux kernel stores for each, how `fork`, `exec`, `wait`, and `exit` create and end processes, how a thread differs from a process in the kernel, what a system call and a context switch cost, and how a Java thread maps to an operating system (OS) thread. CPU scheduling policy is in `kb/operating-systems/02-cpu-scheduling.md`. Locks and deadlock at the OS level are in [Synchronization](03-synchronization.md). Virtual memory is in [Memory Management](04-memory-management.md). The Java side of threads is in [Concurrency Basics](../java/07-concurrency-basics.md).
+A process is a running program with its own address space. A thread is one flow of execution inside a process. This page explains what the Linux kernel stores for each, how `fork`, `exec`, `wait`, and `exit` create and end processes, how a thread differs from a process in the kernel, what a system call and a context switch cost, and how a Java thread maps to an operating system (OS) thread. CPU scheduling policy is in [CPU Scheduling](02-cpu-scheduling.md). Locks and deadlock at the OS level are in [Synchronization](03-synchronization.md). Virtual memory is in [Memory Management](04-memory-management.md). The Java side of threads is in [Concurrency Basics](../java/07-concurrency-basics.md).
 
 ## Why It Matters
 
@@ -101,7 +101,7 @@ stateDiagram-v2
     Zombie --> [*]: the parent calls wait
 ```
 
-The `D` state matters on the job. A task in `D` state usually does not react to signals, because it waits inside the kernel for I/O (for example on a failed network file system). Some kernel code waits in a *killable* sleep, which `ps` also shows as `D` but which a fatal signal such as `SIGKILL` can end. Linux counts tasks in `R` and `D` state in the load average (`uptime(1)`). Section "Diagnostic tools" in `kb/operating-systems/07-linux-for-developers.md` covers how to read it.
+The `D` state matters on the job. A task in `D` state usually does not react to signals, because it waits inside the kernel for I/O (for example on a failed network file system). Some kernel code waits in a *killable* sleep, which `ps` also shows as `D` but which a fatal signal such as `SIGKILL` can end. Linux counts tasks in `R` and `D` state in the load average (`uptime(1)`). Section "Diagnostic tools" in [Linux for Developers](07-linux-for-developers.md) covers how to read it.
 
 !!! note "The Java thread states are not the OS states"
     `Thread.State` has six values: `NEW`, `RUNNABLE`, `BLOCKED`, `WAITING`, `TIMED_WAITING`, and `TERMINATED`. The javadoc says that they are "virtual machine states which do not reflect any operating system thread states". A Java thread that blocks in a `read` on a socket is `RUNNABLE` in Java and `S` in the kernel. See [Concurrency Basics](../java/07-concurrency-basics.md).
@@ -174,7 +174,7 @@ The parent collects the record with `wait(2)` or `waitpid`. The call returns the
 
 If the parent sets the action for `SIGCHLD` to `SIG_IGN`, or sets the `SA_NOCLDWAIT` flag, the children that end do not become zombies. A later `wait` then blocks until all children have ended and fails with `ECHILD`, so the parent loses the exit statuses (`wait(2)`, Linux 2.6 and later).
 
-A container shows the zombie problem. The first process in a container has PID 1. If that process is your application, and it does not call `wait`, the orphans that it adopts become zombies, and nothing reaps them. The usual fixes are a small init program as PID 1, or a runtime option that starts one. The details are in `kb/operating-systems/07-linux-for-developers.md`.
+A container shows the zombie problem. The first process in a container has PID 1. If that process is your application, and it does not call `wait`, the orphans that it adopts become zombies, and nothing reaps them. The usual fixes are a small init program as PID 1, or a runtime option that starts one. The details are in [Linux for Developers](07-linux-for-developers.md).
 
 ### Threads in Linux
 
@@ -305,7 +305,7 @@ Processes do not share memory, so they need a kernel mechanism to exchange data.
 | Socket | A two-way endpoint. A Unix domain socket connects processes on one machine, and it can also pass an open file descriptor or the credentials of the sender to another process (`unix(7)`). A TCP socket connects processes on any machine | The same API for local and remote communication. See [TCP and UDP](../networking/03-tcp-and-udp.md) |
 | Message queue | The kernel keeps a queue of messages with a priority. POSIX queues (`mq_open`) have names such as `/myqueue` | Message boundaries are kept. The default limits on Linux are 10 messages of 8,192 bytes (`mq_overview(7)`) |
 
-**Signals** (one paragraph; the home is `kb/operating-systems/07-linux-for-developers.md`). A signal is a notification that the kernel delivers to a process. The process can ignore it, handle it, or let the default action run. `SIGTERM` asks a process to end, and the process can catch it. `SIGKILL` cannot be caught. `SIGCHLD` tells a parent that a child ended. On Linux, the JDK registers handlers for `SIGHUP`, `SIGINT`, and `SIGTERM`. Each handler starts the JVM shutdown sequence, which runs the shutdown hooks, and the exit code is 128 plus the signal number (`java.lang.Terminator` in the JDK source). The `Runtime` javadoc says only that an external event such as a signal starts the shutdown sequence. `SIGKILL` cannot be caught, so no hook runs.
+**Signals** (one paragraph; the home is [Linux for Developers](07-linux-for-developers.md)). A signal is a notification that the kernel delivers to a process. The process can ignore it, handle it, or let the default action run. `SIGTERM` asks a process to end, and the process can catch it. `SIGKILL` cannot be caught. `SIGCHLD` tells a parent that a child ended. On Linux, the JDK registers handlers for `SIGHUP`, `SIGINT`, and `SIGTERM`. Each handler starts the JVM shutdown sequence, which runs the shutdown hooks, and the exit code is 128 plus the signal number (`java.lang.Terminator` in the JDK source). The `Runtime` javadoc says only that an external event such as a signal starts the shutdown sequence. `SIGKILL` cannot be caught, so no hook runs.
 
 ```mermaid
 flowchart LR
@@ -662,7 +662,7 @@ The main thread sees its own `ThreadLocal` value, 0, because the workers changed
 
 | Mistake | Why it hurts | Fix |
 |---|---|---|
-| A PID 1 application that never reaps children | Orphans become zombies, and the PID table fills | Run a small init as PID 1, or let the container runtime add one. See `kb/operating-systems/07-linux-for-developers.md` |
+| A PID 1 application that never reaps children | Orphans become zombies, and the PID table fills | Run a small init as PID 1, or let the container runtime add one. See [Linux for Developers](07-linux-for-developers.md) |
 | A thread pool with thousands of threads for CPU work | The kernel switches tasks often, and each thread holds a stack | Size a CPU-bound pool near the core count. Use virtual threads for blocking I/O |
 | Reading one byte at a time from an unbuffered stream | Each byte is one system call | Wrap the stream in a buffer, or read blocks of 8 KiB or more |
 | Raising `-Xss` for all threads to fix a `StackOverflowError` | The memory cost of every thread rises | Fix the recursion, or set a larger stack only for the thread that needs it (the `Thread` constructor takes a stack size) |

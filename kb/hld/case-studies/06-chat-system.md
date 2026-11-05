@@ -288,7 +288,7 @@ How to read the conversation output. Ann sends `c1`, and the log assigns sequenc
 
 ## API Design
 
-The client keeps one WebSocket connection to a gateway for everything that is real time. HTTP endpoints serve the operations that do not need a connection: history, group management, media upload URLs, and key upload. Protocol details of WebSocket (frames, handshake, close codes) are in `kb/networking/08-websockets-and-realtime.md`.
+The client keeps one WebSocket connection to a gateway for everything that is real time. HTTP endpoints serve the operations that do not need a connection: history, group management, media upload URLs, and key upload. Protocol details of WebSocket (frames, handshake, close codes) are in [WebSockets and Real-Time Protocols](../../networking/08-websockets-and-realtime.md).
 
 ### WebSocket protocol
 

@@ -443,7 +443,7 @@ The line format from the man page is "src > dst: Flags [tcpflags], seq data-seqn
 
 #### `dig` and `curl -v`
 
-`dig` queries DNS servers: "a flexible tool for interrogating DNS name servers" (BIND 9 documentation; the man7.org site has no `dig` page). Options: `@server` picks the server (without it, `dig` reads `/etc/resolv.conf`), `-t` the record type, `-x` a reverse lookup, `+short` "a terse answer", `+trace` "tracing of the delegation path from the root name servers" (with recursion off), and `+noall +answer` "displays the answer section" only. The DNS protocol, records, and caching are on the DNS page (`kb/networking/06-dns.md`).
+`dig` queries DNS servers: "a flexible tool for interrogating DNS name servers" (BIND 9 documentation; the man7.org site has no `dig` page). Options: `@server` picks the server (without it, `dig` reads `/etc/resolv.conf`), `-t` the record type, `-x` a reverse lookup, `+short` "a terse answer", `+trace` "tracing of the delegation path from the root name servers" (with recursion off), and `+noall +answer` "displays the answer section" only. The DNS protocol, records, and caching are on the DNS page ([DNS](../networking/06-dns.md)).
 
 ```bash
 dig +noall +answer api.example.com            # the answer section only

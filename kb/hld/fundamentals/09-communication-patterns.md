@@ -72,7 +72,7 @@ Every synchronous call needs a timeout, a retry rule, and a circuit breaker. See
 
 #### REST over HTTP
 
-REST uses JSON (usually) over HTTP/1.1 or HTTP/2. Each request is independent, so any server can handle it. That fits stateless services behind a load balancer. REST is the default for public APIs because every client language and every browser can call it, and HTTP caching works with `GET`. The cost is a text format that is larger than a binary format, and no built-in schema or code generation (OpenAPI adds both). Details: `kb/api-design/01-rest-principles.md`, `kb/api-design/02-api-design-practices.md`, and `kb/networking/04-http.md`.
+REST uses JSON (usually) over HTTP/1.1 or HTTP/2. Each request is independent, so any server can handle it. That fits stateless services behind a load balancer. REST is the default for public APIs because every client language and every browser can call it, and HTTP caching works with `GET`. The cost is a text format that is larger than a binary format, and no built-in schema or code generation (OpenAPI adds both). Details: `kb/api-design/01-rest-principles.md`, `kb/api-design/02-api-design-practices.md`, and [HTTP](../../networking/04-http.md).
 
 #### gRPC
 
@@ -133,7 +133,7 @@ A common hybrid: the client calls a synchronous API that validates the request a
 
 ### Real-Time Push: Four Techniques
 
-The problem: the server has new data (a chat message, a price, a ride status) and the client must see it soon. HTTP lets only the client start a request. The four techniques below solve the problem in four ways. Protocol-level details (frames, handshake bytes, close codes) live in `kb/networking/08-websockets-and-realtime.md`.
+The problem: the server has new data (a chat message, a price, a ride status) and the client must see it soon. HTTP lets only the client start a request. The four techniques below solve the problem in four ways. Protocol-level details (frames, handshake bytes, close codes) live in [WebSockets and Real-Time Protocols](../../networking/08-websockets-and-realtime.md).
 
 #### Short Polling
 
@@ -654,4 +654,4 @@ The program shows three rules. First, the consumer checks the signature before i
 - gRFC A9, "Server-side Connection Management" (`https://github.com/grpc/proposal/blob/master/A9-server-side-conn-mgt.md`). `MAX_CONNECTION_AGE` and why it helps behind layer-4 load balancers.
 - Redis documentation, "Redis Pub/sub" (`https://redis.io/docs/latest/develop/pubsub/`). The at-most-once delivery semantics.
 - RFC 9113, "HTTP/2", section 6.5.2 (`https://www.rfc-editor.org/rfc/rfc9113`). `SETTINGS_MAX_CONCURRENT_STREAMS`.
-- Related pages: [scalability and availability](01-scalability-and-availability.md), [load balancing, DNS and CDN](02-load-balancing-dns-cdn.md), [caching](03-caching.md), [choosing a database](04-choosing-a-database.md), [replication](05-replication.md), [partitioning and sharding](06-partitioning-and-sharding.md), [consistency and CAP](07-consistency-and-cap.md), [message queues and streams](08-message-queues-and-streams.md), [storage types](10-storage-types.md), [reliability patterns](12-reliability-patterns.md), [event-driven architecture](16-event-driven-architecture.md), `kb/networking/08-websockets-and-realtime.md`, `kb/networking/04-http.md`, `kb/api-design/01-rest-principles.md`, `kb/api-design/03-grpc-and-protobuf.md`, `kb/api-design/05-webhooks-and-async-apis.md`, `kb/hld/case-studies/06-chat-system.md`.
+- Related pages: [scalability and availability](01-scalability-and-availability.md), [load balancing, DNS and CDN](02-load-balancing-dns-cdn.md), [caching](03-caching.md), [choosing a database](04-choosing-a-database.md), [replication](05-replication.md), [partitioning and sharding](06-partitioning-and-sharding.md), [consistency and CAP](07-consistency-and-cap.md), [message queues and streams](08-message-queues-and-streams.md), [storage types](10-storage-types.md), [reliability patterns](12-reliability-patterns.md), [event-driven architecture](16-event-driven-architecture.md), [WebSockets and Real-Time Protocols](../../networking/08-websockets-and-realtime.md), [HTTP](../../networking/04-http.md), `kb/api-design/01-rest-principles.md`, `kb/api-design/03-grpc-and-protobuf.md`, `kb/api-design/05-webhooks-and-async-apis.md`, `kb/hld/case-studies/06-chat-system.md`.

@@ -176,7 +176,7 @@ sequenceDiagram
 
 "1 RTT" for "Request and response" means this: the client sends the request, and the first byte of the response comes back one round-trip time later. It excludes the server's processing time, the transmission time of large bodies, and DNS. TLS 1.3 session resumption with early data and TCP Fast Open can shorten the TCP rows. The table does not count them.
 
-The full browser path, with DNS, is in `kb/networking/07-what-happens-when-you-load-a-url.md`.
+The full browser path, with DNS, is in [What Happens When You Load a URL](07-what-happens-when-you-load-a-url.md).
 
 ### HTTP semantics (RFC 9110)
 

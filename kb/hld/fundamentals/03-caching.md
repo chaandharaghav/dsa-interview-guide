@@ -41,7 +41,7 @@ A request can pass through several caches before it reaches the database. The ta
 
 | Layer | What it caches | Who controls it | Shared between users | Invalidation | Typical use |
 |---|---|---|---|---|---|
-| Client (browser, mobile app) | HTTP responses, assets, API results | `Cache-Control`, `ETag` headers (see `kb/networking/04-http.md`) | No | TTL, versioned URLs, conditional requests | Static assets, rarely changing API data |
+| Client (browser, mobile app) | HTTP responses, assets, API results | `Cache-Control`, `ETag` headers (see [HTTP](../../networking/04-http.md)) | No | TTL, versioned URLs, conditional requests | Static assets, rarely changing API data |
 | CDN | HTTP responses at edge locations | Response headers, purge API (see [load balancing, DNS and CDN](02-load-balancing-dns-cdn.md)) | Yes, per edge location | TTL, purge by URL or tag | Images, video, JavaScript, public pages |
 | Reverse proxy or API gateway | HTTP responses in front of the servers | Proxy configuration (Nginx `proxy_cache`, Varnish) | Yes | TTL, purge | Public GET endpoints |
 | In-process cache (application memory) | Java objects | Application code (Caffeine, Guava) | No, one copy per server instance | TTL, size bound, pub-sub message | Reference data, hot keys, results of pure functions |
