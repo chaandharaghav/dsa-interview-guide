@@ -16,7 +16,7 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 - Known coverage gaps (minor, from the bank review): page 01 body does not give the reasons `String` is immutable, page 07 does not contrast `sleep` and `wait`, page 12 does not explain stream `flatMap` (each is only in the page's Q&A).
 - **Next:** phase 5 (Databases, 12 pages). Ask the user before starting it.
 
-## SESSION 4 (2026-11-05): Phase 5 (Databases) started
+## SESSION 4 (2026-11-05): Phase 5 (Databases) done
 
 User instruction: "Use sonnet subagents and fill the next section". Sonnet drafts and Sonnet reviews every page, including P1 pages. The main session reads every P1 model answer after the review. Plan: `docs/superpowers/plans/2026-11-05-phase-5-databases.md` (assignments DB1 to DB11). The untracked file `kb/dsa/spike-dp-house-robber.md` belongs to the user: do not stage it.
 
@@ -26,6 +26,8 @@ User instruction: "Use sonnet subagents and fill the next section". Sonnet draft
 - Other fixes: `kb/java/.nav.yml` now lists page 22. `kb/hld/fundamentals/03-caching.md` now separates the Redis 6–7 and Redis 8 I/O thread behavior.
 - Sandbox limits: the sandbox cannot start the local PostgreSQL 12 (shared memory) or Redis 7.2 servers, and they are old. SQL examples run on SQLite 3.51; PostgreSQL and MySQL blocks are `sql-skip` and were checked against the vendor docs only.
 - Open items (minor): `kb/hld/fundamentals/05-replication.md` line 308 does not name the `write_lag`, `flush_lag`, and `replay_lag` columns of `pg_stat_replication` (an omission, not an error). Cassandra `bloom_filter_fp_chance` defaults (0.01 size-tiered, 0.1 leveled) rest on DataStax docs; the current Apache CQL page lists 0.00075.
+- Gate on 2026-11-05 after phase 5: 57/57 unit tests, format 195 files 0 errors, SQL 27 pages 0 errors, Java 910/910 blocks and 24/24 case studies, strict build passes (now without `--quiet`), Mermaid OK for `kb/databases` (17).
+- Version check due: PostgreSQL 19 general availability is planned for 2026-11-19. After that date, the version notes that call PostgreSQL 18 "the current major release" are stale: `kb/databases/04-transactions-and-isolation.md` line 13 and `kb/databases/05-query-execution-and-tuning.md` line 13, plus the "PostgreSQL 18" statement in `kb/databases/README.md`. Refresh them, and check the PostgreSQL 19 release notes for changes that the pages state.
 - **Next:** phase 6 (Operating systems and Networking, 18 pages). Ask the user before starting it.
 
 ## Read First
