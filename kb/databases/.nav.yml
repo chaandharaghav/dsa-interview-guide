@@ -1,0 +1,17 @@
+nav:
+  - Overview: README.md
+  - Pages:
+      - "01 · The Relational Model and SQL": 01-relational-model-and-sql.md
+      - "02 · Schema Design and Normalization": 02-schema-design-and-normalization.md
+      - "03 · Indexing": 03-indexing.md
+      - "04 · Transactions and Isolation": 04-transactions-and-isolation.md
+      - "05 · Query Execution and Tuning": 05-query-execution-and-tuning.md
+      - "06 · Storage Engines": 06-storage-engines.md
+      - "07 · NoSQL Families": 07-nosql-families.md
+      - "08 · Redis": 08-redis.md
+      - "09 · Scaling a Database": 09-scaling-a-database.md
+      - "10 · OLTP, OLAP, and Warehousing": 10-oltp-olap-and-warehousing.md
+  - sql-interview-problems.md
+  - interview-question-bank.md
+  - glob: "*"
+    ignore_no_matches: true

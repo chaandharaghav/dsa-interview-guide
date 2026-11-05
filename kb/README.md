@@ -23,7 +23,7 @@ Each topic page has two parts:
 | [LLD](lld/README.md) | Low-level design: OOP, SOLID, design patterns, machine coding, 24 case studies with runnable Java | Complete |
 | [HLD](hld/README.md) | High-level design: building blocks, distributed systems, estimation, 25 case studies | Complete |
 | [Java](java/README.md) | Java and the JVM in depth, concurrency, Spring, JPA, 23 pages and a question bank | Complete |
-| [Databases](databases/README.md) | SQL, indexes, transactions, storage engines, NoSQL, Redis | Planned (phase 5) |
+| [Databases](databases/README.md) | SQL, schema design, indexes, transactions, query plans, storage engines, NoSQL, Redis, 32 SQL problems, a question bank | Complete |
 | [Networking](networking/README.md) | TCP, UDP, HTTP, TLS, DNS | Planned (phase 6) |
 | [Operating Systems](operating-systems/README.md) | Processes, threads, memory, I/O, computer architecture, Linux | Planned (phase 6) |
 | [API Design](api-design/README.md) | REST, gRPC, GraphQL, webhooks | Planned (phase 7) |

@@ -3,7 +3,7 @@
 This page puts all subjects on one calendar. Each phase of the KB adds its subject to this plan.
 
 !!! info "Status"
-    The DSA, LLD, HLD, and Java tracks are complete. The other tracks are planned. The table below names the phase that writes each track.
+    The DSA, LLD, HLD, Java, and Databases tracks are complete. The other tracks are planned. The table below names the phase that writes each track.
 
 ## Tracks
 
@@ -13,7 +13,8 @@ This page puts all subjects on one calendar. Each phase of the KB adds its subje
 | LLD | [LLD track](#lld-track) below | Complete |
 | HLD | [HLD track](#hld-track) below | Complete |
 | Java in depth | [Java track](#java-track) below | Complete |
-| Fundamentals (databases, networking, operating systems) | P1 pages in order | Phases 5 and 6 |
+| Databases | [Databases track](#databases-track) below | Complete |
+| Fundamentals (networking, operating systems) | P1 pages in order | Phase 6 |
 | Behavioral | Story bank, then mock rounds | Phase 9 |
 
 ## LLD Track
@@ -47,6 +48,19 @@ The Java track takes 7 weeks at about 4 hours each week. It runs in the fundamen
 
 P2 and P3 pages (reflection, I/O, Spring Security, microservices with Spring, build tools) are stretch reading. Read them when a role asks for them.
 
+## Databases Track
+
+The Databases track takes 4 weeks at about 4 hours each week. It runs in the fundamentals slot of the calendar, in weeks 9 to 12, at the same time as HLD track weeks 1 to 4. For each page, answer three of its `??? question` blocks before you read the model answers. For each SQL problem, write your query before you open the solution.
+
+| Week | Read | Do |
+|---|---|---|
+| 1 | [The Relational Model and SQL](databases/01-relational-model-and-sql.md) | [SQL Interview Problems](databases/sql-interview-problems.md): the sections from "Joins and Anti-joins" to "Ranking and Top-N per Group" |
+| 2 | [Schema Design and Normalization](databases/02-schema-design-and-normalization.md), [Indexing](databases/03-indexing.md) | SQL problems: the sections from "Gaps and Islands" to "Conditional Aggregation and Pivots". Design the schema of one HLD case study and choose its indexes |
+| 3 | [Transactions and Isolation](databases/04-transactions-and-isolation.md), [Query Execution and Tuning](databases/05-query-execution-and-tuning.md) | SQL problems: the sections from "Ratios and Rates" to "Medians". Explain write skew and the N+1 problem aloud in 3 minutes each |
+| 4 | [NoSQL Families](databases/07-nosql-families.md), [Redis](databases/08-redis.md) | The [question bank](databases/interview-question-bank.md), one section each day |
+
+P2 pages ([Storage Engines](databases/06-storage-engines.md), [Scaling a Database](databases/09-scaling-a-database.md), [OLTP, OLAP, and Warehousing](databases/10-oltp-olap-and-warehousing.md)) are stretch reading. Read them before HLD track weeks 6 and 7, or when a role asks for them.
+
 ## HLD Track
 
 The HLD track takes 10 weeks at about 5 hours each week. Start it after week 6 of the LLD track, when you have read the LLD fundamentals. Each case study takes one session: design it yourself in 45 minutes, then compare your design with the page and answer its follow-up questions.
@@ -72,7 +86,7 @@ The calendar below combines the tracks into 21 weeks (week 0 to week 20). It ass
 |---|---|---|---|
 | 0 | DSA plan week 0 and the [foundations](dsa/README.md#foundations) pages | — | — |
 | 1–8 | DSA plan weeks 1 to 8 | [LLD track](#lld-track) weeks 1 to 8 | [Java track](#java-track) weeks 1 to 7, from week 2 |
-| 9–12 | DSA plan weeks 9 to 12 | [HLD track](#hld-track) weeks 1 to 4 | Databases P1 pages (planned: phase 5) |
+| 9–12 | DSA plan weeks 9 to 12 | [HLD track](#hld-track) weeks 1 to 4 | [Databases track](#databases-track) weeks 1 to 4 |
 | 13–15 | Patterns 23, 25, 26 (P1), then 21, 22, 24, 27, 28 (P2 stretch) | HLD track weeks 5 to 7 | Operating systems and networking P1 pages (planned: phase 6) |
 | 16–17 | Two mixed problems each day | HLD track weeks 8 and 9 | API design and security P1 pages (planned: phase 7). Resume in week 17 (planned: phase 9) |
 | 18–20 | Two mixed problems each day | HLD track week 10, then full mock loops | JavaScript basics in weeks 18 and 19 (outside the KB), behavioral story bank in weeks 19 and 20 |
