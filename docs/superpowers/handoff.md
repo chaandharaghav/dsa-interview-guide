@@ -16,9 +16,17 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 - Known coverage gaps (minor, from the bank review): page 01 body does not give the reasons `String` is immutable, page 07 does not contrast `sleep` and `wait`, page 12 does not explain stream `flatMap` (each is only in the page's Q&A).
 - **Next:** phase 5 (Databases, 12 pages). Ask the user before starting it.
 
-## SESSION 4, part 2 (2026-11-05): Phase 6 (Operating Systems and Networking) started
+## SESSION 4, part 2 (2026-11-05): Phase 6 (Operating Systems and Networking) done
 
 User instruction: "move to next phase, similarly use sonnet 5.5 for this, use subagents as needed". Sonnet drafts and reviews every page. The main session reads every P1 model answer. Plan: `docs/superpowers/plans/2026-11-05-phase-6-os-and-networking.md` (O1 to O6, N1 to N8). The sandbox blocks local port binding, so networking programs with `main` are simulations. Between commits inside a batch, the strict build at HEAD can fail on links to pages that are not committed yet: check each batch end on a clean `git archive HEAD` copy, and do not push in the middle of a batch.
+
+- **Phase 6: done (2026-11-05).** OS: 7 topic pages and a bank (48 questions). Networking: 9 topic pages and a bank (63 questions). Every page had a Sonnet review, and the main session read every P1 model answer.
+- Index work done: both subject indexes and `.nav.yml` files, 39 glossary terms, the OS and Networking track in `kb/study-plan.md` (weeks 13 to 15), home-page status, timeline status, and 34 backticked phase 6 paths in 18 files turned into links. The generalized script is `link_paths.py <root> <subject>...` (it was in the session scratchpad; it reports bare folder references too).
+- Fixes outside the phase 6 pages: `kb/hld/fundamentals/21-security-in-design.md` now cites RFC 9846 (July 2026), which obsoletes RFC 8446, and Appendix F.5; `kb/hld/fundamentals/02-load-balancing-dns-cdn.md` quotes the AWS NLB and ALB layer wording exactly; `kb/hld/fundamentals/09-communication-patterns.md` says browsers disabled HTTP/2 push by default (Chrome 106, Firefox 132) and states the RFC 6455 ping rule with its close-frame exception.
+- Correction to a main-session edit: JDK 21 thread dumps print `nid` in decimal (`osThread.cpp`), JDK 17 in hexadecimal. OS 01 now says so.
+- Mermaid: a semicolon inside a sequence-diagram message breaks parsing. Use `#59;`. Gate on 2026-11-05 after phase 6: 57/57 unit tests, format 213 files 0 errors, SQL 27 pages 0 errors, Java 950/950 blocks and 24/24 case studies, strict build passes, Mermaid OK for `kb/operating-systems` (15) and `kb/networking` (19).
+- Facts confirmed this phase that later phases may need: JDK 26 shipped March 2026 (JEP 517 HTTP/3 client), JDK 27 shipped September 2026 (JEP 527 post-quantum hybrid TLS key exchange, JEP 537 Vector API incubator). Linux stable 7.3.1, mainline 7.4-rc1 on 2026-11-05. TLS 1.3 is RFC 9846; ECH is RFC 9849.
+- **Next:** phase 7 (API design and Security, 13 pages). Ask the user before starting it.
 
 ## SESSION 4 (2026-11-05): Phase 5 (Databases) done
 
@@ -32,7 +40,7 @@ User instruction: "Use sonnet subagents and fill the next section". Sonnet draft
 - Open items (minor): `kb/hld/fundamentals/05-replication.md` line 308 does not name the `write_lag`, `flush_lag`, and `replay_lag` columns of `pg_stat_replication` (an omission, not an error). Cassandra `bloom_filter_fp_chance` defaults (0.01 size-tiered, 0.1 leveled) rest on DataStax docs; the current Apache CQL page lists 0.00075.
 - Gate on 2026-11-05 after phase 5: 57/57 unit tests, format 195 files 0 errors, SQL 27 pages 0 errors, Java 910/910 blocks and 24/24 case studies, strict build passes (now without `--quiet`), Mermaid OK for `kb/databases` (17).
 - Version check due: PostgreSQL 19 general availability is planned for 2026-11-19. After that date, the version notes that call PostgreSQL 18 "the current major release" are stale: `kb/databases/04-transactions-and-isolation.md` line 13 and `kb/databases/05-query-execution-and-tuning.md` line 13, plus the "PostgreSQL 18" statement in `kb/databases/README.md`. Refresh them, and check the PostgreSQL 19 release notes for changes that the pages state.
-- **Next:** phase 6 (Operating systems and Networking, 18 pages). Ask the user before starting it.
+- Phase 6 followed in the same session (see the section above).
 
 ## Read First
 
@@ -59,7 +67,8 @@ User instruction: "Use sonnet subagents and fill the next section". Sonnet draft
 | 3: DSA | Done (2026-10-22): foundations, patterns 21–28, routing updates, all reviewed |
 | 4: Java | Done (2026-10-22): 23 pages, question bank, all reviewed |
 | 5: Databases | Done (2026-11-05): 10 pages, SQL problems, question bank, all reviewed (Sonnet) |
-| 6 to 11 | Not started |
+| 6: OS and Networking | Done (2026-11-05): 16 pages and 2 question banks, all reviewed (Sonnet) |
+| 7 to 11 | Not started |
 
 ## Phase 1 Detail
 
