@@ -18,7 +18,15 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 
 ## SESSION 4 (2026-11-05): Phase 5 (Databases) started
 
-User instruction: "Use sonnet subagents and fill the next section". Sonnet drafts and Sonnet reviews every page, including P1 pages. The main session reads every P1 model answer after the review. Plan: `docs/superpowers/plans/2026-11-05-phase-5-databases.md` (assignments DB1 to DB11). Batch 1 (DB1 to DB5, pages 01 to 05) drafters started. The untracked file `kb/dsa/spike-dp-house-robber.md` belongs to the user: do not stage it.
+User instruction: "Use sonnet subagents and fill the next section". Sonnet drafts and Sonnet reviews every page, including P1 pages. The main session reads every P1 model answer after the review. Plan: `docs/superpowers/plans/2026-11-05-phase-5-databases.md` (assignments DB1 to DB11). The untracked file `kb/dsa/spike-dp-house-robber.md` belongs to the user: do not stage it.
+
+- **Phase 5 (Databases): done (2026-11-05).** 10 topic pages, `sql-interview-problems.md` (32 problems, 27 from LeetCode, labels checked against `https://leetcode.com/api/problems/database/`), and `interview-question-bank.md` (93 questions). Every page had a Sonnet review. The main session read every P1 model answer and made small corrections on pages 03, 04, 05, 08, and the SQL problems page.
+- Index work done: `kb/databases/README.md` index, `kb/databases/.nav.yml`, 24 glossary terms, the Databases track in `kb/study-plan.md` (weeks 9 to 12), the home-page status, the timeline status, and 76 backticked `kb/databases/...` paths in 33 files turned into links.
+- **Gate fix:** `tools/check-all.sh` ran `mkdocs build --strict --quiet`. With `--quiet`, MkDocs 1.6 hides the warnings and exits 0, so the gate never caught broken links. The gate now runs without `--quiet`. CI (`.github/workflows/deploy.yml`) already ran without it. Before the fix, HEAD had no broken links outside the phase 5 work.
+- Other fixes: `kb/java/.nav.yml` now lists page 22. `kb/hld/fundamentals/03-caching.md` now separates the Redis 6–7 and Redis 8 I/O thread behavior.
+- Sandbox limits: the sandbox cannot start the local PostgreSQL 12 (shared memory) or Redis 7.2 servers, and they are old. SQL examples run on SQLite 3.51; PostgreSQL and MySQL blocks are `sql-skip` and were checked against the vendor docs only.
+- Open items (minor): `kb/hld/fundamentals/05-replication.md` line 308 does not name the `write_lag`, `flush_lag`, and `replay_lag` columns of `pg_stat_replication` (an omission, not an error). Cassandra `bloom_filter_fp_chance` defaults (0.01 size-tiered, 0.1 leveled) rest on DataStax docs; the current Apache CQL page lists 0.00075.
+- **Next:** phase 6 (Operating systems and Networking, 18 pages). Ask the user before starting it.
 
 ## Read First
 
@@ -44,7 +52,8 @@ User instruction: "Use sonnet subagents and fill the next section". Sonnet draft
 | 2: HLD | Done (2026-10-21): all pages Opus-reviewed, Batch 6 done |
 | 3: DSA | Done (2026-10-22): foundations, patterns 21–28, routing updates, all reviewed |
 | 4: Java | Done (2026-10-22): 23 pages, question bank, all reviewed |
-| 5 to 11 | Not started |
+| 5: Databases | Done (2026-11-05): 10 pages, SQL problems, question bank, all reviewed (Sonnet) |
+| 6 to 11 | Not started |
 
 ## Phase 1 Detail
 
