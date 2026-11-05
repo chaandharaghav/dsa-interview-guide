@@ -64,7 +64,7 @@ flowchart LR
 | Request-target form | Absolute-form (see below) | Origin-form, as for a direct request |
 | Headers added | `Via`. Some add `X-Forwarded-For`, and an anonymizing proxy does not | `Via`, `X-Forwarded-For`, `X-Forwarded-Proto`, or `Forwarded`, toward the backend |
 
-Both proxies terminate the incoming TCP connection and open a separate connection onward (the exception is a transparent layer 4 device). Each leg has its own TCP state, timers, and TLS session. The connection from a proxy to a backend can reuse one connection for many clients, and it can use a different HTTP version than the client leg (for example HTTP/2 from the client and HTTP/1.1 to the backend). See [HTTP](04-http.md) for request smuggling, which exists because two hops can disagree about where a message ends.
+Both proxies terminate the incoming TCP connection and open a separate connection onward (the exception is a transparent layer 4 device). Each leg has its own TCP state and timers. A proxy that terminates TLS (a reverse proxy, or a forward proxy that inspects traffic) also has a separate TLS session on each leg. A forward proxy that runs a `CONNECT` tunnel does not: it relays the bytes, and the TLS session runs end to end between the client and the server (see the `CONNECT` section below). The connection from a proxy to a backend can reuse one connection for many clients, and it can use a different HTTP version than the client leg (for example HTTP/2 from the client and HTTP/1.1 to the backend). See [HTTP](04-http.md) for request smuggling, which exists because two hops can disagree about where a message ends.
 
 ### The request-target forms
 
