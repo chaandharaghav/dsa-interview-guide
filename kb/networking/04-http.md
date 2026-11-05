@@ -159,7 +159,7 @@ sequenceDiagram
         S-->>B: QUIC handshake, then HTTP/3 works
     else no record: first visit
         B->>S: TCP, TLS (ALPN h2), GET
-        S-->>B: 200 + Alt-Svc: h3=":443"; ma=86400
+        S-->>B: 200 + Alt-Svc: h3=":443"#59; ma=86400
         Note over B: later visits try QUIC first
     end
 ```
@@ -277,7 +277,7 @@ sequenceDiagram
     participant O as Origin
     C->>O: GET /items/7
     O-->>C: 200, ETag "v1", Cache-Control: max-age=60, body
-    Note over C: stored; fresh for 60 s
+    Note over C: stored, fresh for 60 s
     Note over C: 60 s later: stale
     C->>O: GET /items/7, If-None-Match: "v1"
     alt ETag unchanged
