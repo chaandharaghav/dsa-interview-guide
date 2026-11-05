@@ -584,7 +584,7 @@ No operation uses two group locks, so there is no lock-order problem. If a later
 
 ### Many servers
 
-With several servers, a database transaction replaces the group lock. One transaction inserts the expense and its shares, and updates the pair balance rows with `UPDATE pair_balance SET amount = amount + ? WHERE low = ? AND high = ?`. Each `UPDATE` locks its row until the commit. Recommendation: update the pair rows in the order of the pair key. Two transactions then take the row locks in the same order, so they cannot deadlock. A different design stores only the expense and share rows, and computes the balances with `SUM` when a user reads them. See `kb/databases/04-transactions-and-isolation.md` for transactions and locking.
+With several servers, a database transaction replaces the group lock. One transaction inserts the expense and its shares, and updates the pair balance rows with `UPDATE pair_balance SET amount = amount + ? WHERE low = ? AND high = ?`. Each `UPDATE` locks its row until the commit. Recommendation: update the pair rows in the order of the pair key. Two transactions then take the row locks in the same order, so they cannot deadlock. A different design stores only the expense and share rows, and computes the balances with `SUM` when a user reads them. See [Transactions and Isolation](../../../databases/04-transactions-and-isolation.md) for transactions and locking.
 
 ## Extensions
 

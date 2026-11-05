@@ -705,7 +705,7 @@ CREATE TABLE booking (
 );
 ```
 
-The constraint rejects a second row for the same room whose `stay` overlaps (`&&`) an existing one. A cancelled booking must leave the table. If the table keeps cancelled rows with a `status` column, the constraint needs a `WHERE (status <> 'CANCELLED')` clause, so it checks only the active bookings. The booking code catches the constraint error and tries the next room. See `kb/databases/04-transactions-and-isolation.md` for isolation and locks, and `kb/hld/case-studies/12-ticket-booking.md` for the distributed design of a booking system.
+The constraint rejects a second row for the same room whose `stay` overlaps (`&&`) an existing one. A cancelled booking must leave the table. If the table keeps cancelled rows with a `status` column, the constraint needs a `WHERE (status <> 'CANCELLED')` clause, so it checks only the active bookings. The booking code catches the constraint error and tries the next room. See [Transactions and Isolation](../../../databases/04-transactions-and-isolation.md) for isolation and locks, and `kb/hld/case-studies/12-ticket-booking.md` for the distributed design of a booking system.
 
 ## Extensions
 

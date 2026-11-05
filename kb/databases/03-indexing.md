@@ -96,7 +96,7 @@ Two rules control how full pages are:
 
 **Fill factor** is the share of a page that the database fills when it builds the index or when it splits. A lower fill factor leaves room for future inserts and gives fewer splits, and it makes the index larger. A fill factor of 100 gives the smallest index and the most splits after the first inserts. PostgreSQL accepts values from 10 to 100 for a B-tree (default 90). InnoDB has the setting `innodb_fill_factor` for sorted index builds.
 
-**Deletes.** PostgreSQL merges or removes a B-tree page only when it is completely empty (nbtree README in the PostgreSQL source). A page that is nearly empty stays in the tree. InnoDB tries to merge a page when its fill drops below `MERGE_THRESHOLD`, which is 50 percent by default. A table with many deletes can therefore leave sparse index pages. `REINDEX` in PostgreSQL and `ALTER TABLE ... ENGINE=InnoDB` or `OPTIMIZE TABLE` in MySQL rebuild an index. See `kb/databases/06-storage-engines.md` for bloat and vacuum.
+**Deletes.** PostgreSQL merges or removes a B-tree page only when it is completely empty (nbtree README in the PostgreSQL source). A page that is nearly empty stays in the tree. InnoDB tries to merge a page when its fill drops below `MERGE_THRESHOLD`, which is 50 percent by default. A table with many deletes can therefore leave sparse index pages. `REINDEX` in PostgreSQL and `ALTER TABLE ... ENGINE=InnoDB` or `OPTIMIZE TABLE` in MySQL rebuild an index. See [Storage Engines](06-storage-engines.md) for bloat and vacuum.
 
 ### Clustered index against heap table
 
@@ -478,7 +478,7 @@ The key of the primary key index decides where each insert goes.
 - **Random keys** (UUIDv4): every insert goes to a random leaf. If the index is larger than memory, most inserts need a disk read to load the leaf. Splits happen all over the tree, and pages end at about 70 percent full (the Java example measures this). In PostgreSQL with `full_page_writes` on, the first change to a page after a checkpoint writes the whole page into the write-ahead log, and random inserts touch many more pages between checkpoints.
 - **InnoDB** also stores the rows in the primary key index. A random primary key scatters the rows, and every secondary index repeats the key, so a 16-byte UUID makes every secondary index entry 8 bytes longer than a `bigint` key would.
 
-Page [UUIDs and other ID schemes](../hld/fundamentals/15-unique-id-generation.md) gives the ID formats, the UUIDv7 layout, and the collision math. PostgreSQL 18 adds `uuidv7()` (PostgreSQL 18 release notes). Recommendation: use a time-ordered ID as a primary key in a B+ tree engine, unless the ID must be unguessable, and then use the random ID as a separate unique column. An LSM engine has less penalty for random keys (see `kb/databases/06-storage-engines.md`).
+Page [UUIDs and other ID schemes](../hld/fundamentals/15-unique-id-generation.md) gives the ID formats, the UUIDv7 layout, and the collision math. PostgreSQL 18 adds `uuidv7()` (PostgreSQL 18 release notes). Recommendation: use a time-ordered ID as a primary key in a B+ tree engine, unless the ID must be unguessable, and then use the random ID as a separate unique column. An LSM engine has less penalty for random keys (see [Storage Engines](06-storage-engines.md)).
 
 ### Other index types
 

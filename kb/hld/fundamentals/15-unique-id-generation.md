@@ -286,12 +286,12 @@ ULID versus UUID version 7: both put a 48-bit millisecond Unix timestamp first a
 
 ### Index Locality and k-Sortable IDs
 
-A B-tree index keeps keys in sorted order in pages. See `kb/databases/03-indexing.md` for the structure.
+A B-tree index keeps keys in sorted order in pages. See [Indexing](../../databases/03-indexing.md) for the structure.
 
 - **Sequential or time-ordered keys** (counter, Snowflake, UUID version 7, ULID) insert at the right-most leaf. The hot pages stay in memory. Pages fill completely before they split. The index is compact.
 - **Random keys** (UUID version 4) insert into a random leaf. If the index is larger than the buffer pool, many inserts need a disk read to load the leaf. Splits happen all over the index and leave pages about half full. In PostgreSQL with `full_page_writes` on (the default), the first change to a page after a checkpoint writes the whole page to the write-ahead log. Random inserts touch many more distinct pages between checkpoints, so they also increase the log volume.
 - **Clustered tables.** InnoDB stores the table rows inside the primary key index, so a random primary key scatters the rows. Every secondary index entry also contains the primary key value, so a 16-byte key makes all secondary indexes larger than an 8-byte key does. Flickr's stated reason to avoid GUIDs is shorter: "GUIDs are big, and they index badly in MySQL".
-- **LSM-based stores** (see `kb/databases/06-storage-engines.md`) have less insert penalty from random keys, because writes go to a memory table first. Flickr made a related remark about another option, consistent hashing: it is "better suited for write-cheap environments (e.g. LSMTs)", while MySQL is optimized for fast random reads.
+- **LSM-based stores** (see [Storage Engines](../../databases/06-storage-engines.md)) have less insert penalty from random keys, because writes go to a memory table first. Flickr made a related remark about another option, consistent hashing: it is "better suited for write-cheap environments (e.g. LSMTs)", while MySQL is optimized for fast random reads.
 - RFC 9562, section 6.11, says that the difference between time-ordered and random inserts "can be one order of magnitude or more".
 
 A time-ordered key has a cost: all new writes land in one key range. In a range-partitioned store (HBase, Bigtable, or a range-sharded SQL database) the newest partition receives all the write traffic, which is a hot spot (see [partitioning and sharding](06-partitioning-and-sharding.md)). Fix: hash-prefix the key, use a salt, or hash-partition on the ID. A time-ordered ID is a good primary key, and a poor partition key for range partitioning.

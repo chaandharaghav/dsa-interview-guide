@@ -294,7 +294,7 @@ The limit is 1 / (1 − p) = 20, so no number of machines gives more than 20 tim
 | Symptom | Likely bottleneck | First fix |
 |---|---|---|
 | CPU high on the application instances, latency rises with load | Application tier | More stateless instances, or find the hot code path |
-| Database CPU or I/O high, reads dominate | Database reads | Cache, then read replicas, then indexes (`kb/databases/03-indexing.md`) |
+| Database CPU or I/O high, reads dominate | Database reads | Cache, then read replicas, then indexes ([Indexing](../../databases/03-indexing.md)) |
 | Database write latency high | Single primary | Batch writes, queue the writes, then partition |
 | Latency fine at the median, bad at p99 | Tail effects: garbage collection pauses, noisy neighbor, a slow node, fan-out | Hedged requests, timeouts, remove the slow node, reduce the fan-out |
 | One key or one partition hot | Skew | Local cache, key replication, split the key ([partitioning](06-partitioning-and-sharding.md)) |
@@ -480,7 +480,7 @@ What to notice: the mean (26.6 ms) is close to the median (20 ms) and hides a p9
 
 ??? question "How do you scale a system that is write-heavy?"
 
-    First reduce the writes: batch them, aggregate before the write, or write only changes. Second, move the write off the request path with a queue, so a spike fills the queue and not the database ([message queues](08-message-queues-and-streams.md)). Third, partition the data so that several primaries share the writes ([partitioning](06-partitioning-and-sharding.md)). Fourth, choose a storage engine that fits writes, for example an LSM-tree store (`kb/databases/06-storage-engines.md`). Read replicas do not help, because every replica applies every write.
+    First reduce the writes: batch them, aggregate before the write, or write only changes. Second, move the write off the request path with a queue, so a spike fills the queue and not the database ([message queues](08-message-queues-and-streams.md)). Third, partition the data so that several primaries share the writes ([partitioning](06-partitioning-and-sharding.md)). Fourth, choose a storage engine that fits writes, for example an LSM-tree store ([Storage Engines](../../databases/06-storage-engines.md)). Read replicas do not help, because every replica applies every write.
 
 ### Red Flags
 

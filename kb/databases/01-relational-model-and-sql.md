@@ -5,7 +5,7 @@ priority: P1
 
 ## Why It Matters
 
-SQL questions appear in almost every backend interview. The questions come in two forms. The first form is a coding question: "Find the second highest salary", "Return the top three products per category", "Delete duplicate rows". The second form is a concept question: "What is the difference between `WHERE` and `HAVING`?", "Why does `NOT IN` return nothing?", "What does `RANK` do with ties?". On the job, the same knowledge decides whether a report is correct. A join condition in the wrong clause, a `NULL` that nobody expected, or a `COUNT(*)` that counts the wrong rows gives a wrong number without any error message. This page explains the relational model that SQL is built on, the places where SQL departs from that model, the logical order in which a database evaluates a query, and each major SQL feature with a result that the KB runner checks on SQLite 3.51. The physical side (indexes, plans, join algorithms) is on other pages: [indexing](03-indexing.md) and [query execution and tuning](05-query-execution-and-tuning.md). The classic interview problems are in `kb/databases/sql-interview-problems.md`. This page gives at most three short examples of them.
+SQL questions appear in almost every backend interview. The questions come in two forms. The first form is a coding question: "Find the second highest salary", "Return the top three products per category", "Delete duplicate rows". The second form is a concept question: "What is the difference between `WHERE` and `HAVING`?", "Why does `NOT IN` return nothing?", "What does `RANK` do with ties?". On the job, the same knowledge decides whether a report is correct. A join condition in the wrong clause, a `NULL` that nobody expected, or a `COUNT(*)` that counts the wrong rows gives a wrong number without any error message. This page explains the relational model that SQL is built on, the places where SQL departs from that model, the logical order in which a database evaluates a query, and each major SQL feature with a result that the KB runner checks on SQLite 3.51. The physical side (indexes, plans, join algorithms) is on other pages: [indexing](03-indexing.md) and [query execution and tuning](05-query-execution-and-tuning.md). The classic interview problems are in [SQL Interview Problems](sql-interview-problems.md). This page gives at most three short examples of them.
 
 !!! info "Versions"
     The examples run on SQLite 3.51. The text names PostgreSQL 18 and MySQL 8.4 (InnoDB) where their behavior differs. A statement that SQLite cannot run carries a `sql-skip` marker, and the text before it names the dialect. Window functions need SQLite 3.25 or later. `RIGHT JOIN` and `FULL OUTER JOIN` need SQLite 3.39 or later.
@@ -664,7 +664,7 @@ Points to state in an interview:
 - The recursion stops when a round adds no rows. A cycle in the data (an employee who is their own ancestor) makes the loop run forever with `UNION ALL`. Protect against it with a depth limit (`WHERE o.depth < 20`), with a path check, or with `UNION` (which removes duplicate rows, but stops the loop only if whole rows repeat; a `depth` column makes each row unique, so it does not stop). PostgreSQL 14 added the `CYCLE` and `SEARCH` clauses for this.
 - MySQL 8.4 stops a recursive CTE after `cte_max_recursion_depth` iterations. The default is 1000. MySQL also requires the `RECURSIVE` keyword, and it forbids aggregates, window functions, `GROUP BY`, and `ORDER BY` in the recursive term.
 - The output order of a recursive CTE is not defined. Sort the final query.
-- The same pattern gives bills of materials, category trees, and graph reachability. For large graphs, a graph database may fit better (see `kb/databases/07-nosql-families.md`).
+- The same pattern gives bills of materials, category trees, and graph reachability. For large graphs, a graph database may fit better (see [NoSQL Families](07-nosql-families.md)).
 
 ### Window functions
 
@@ -736,7 +736,7 @@ Farid | 120 | 6 | 5
 Gita | 100 | 7 | 6
 ```
 
-Chitra and Dev now share rank 4. `RANK` then skips 5 and gives Farid rank 6. `DENSE_RANK` gives Farid 5. For "the Nth highest value", `DENSE_RANK` gives the Nth distinct value. `ROW_NUMBER` gives the Nth row. Choose by what the problem says about ties (see `kb/databases/sql-interview-problems.md`).
+Chitra and Dev now share rank 4. `RANK` then skips 5 and gives Farid rank 6. `DENSE_RANK` gives Farid 5. For "the Nth highest value", `DENSE_RANK` gives the Nth distinct value. `ROW_NUMBER` gives the Nth row. Choose by what the problem says about ties (see [SQL Interview Problems](sql-interview-problems.md)).
 
 The `WINDOW w AS (...)` clause names a window, so that several functions share one definition. PostgreSQL, MySQL 8.0 and later, and SQLite support it.
 
@@ -1308,7 +1308,7 @@ The `HAVING` clause is a filter on the groups after the aggregation. The `RANK` 
 
 ??? question "How would you delete duplicate rows, keeping one?"
 
-    Number the rows in each duplicate group with `ROW_NUMBER() OVER (PARTITION BY the_duplicate_columns ORDER BY id)` in a CTE, then delete the rows where the number is greater than 1. A second form deletes the rows whose `id` is not the `MIN(id)` of the group. After the cleanup, add a unique constraint so the duplicates cannot return. The full solutions are in `kb/databases/sql-interview-problems.md`.
+    Number the rows in each duplicate group with `ROW_NUMBER() OVER (PARTITION BY the_duplicate_columns ORDER BY id)` in a CTE, then delete the rows where the number is greater than 1. A second form deletes the rows whose `id` is not the `MIN(id)` of the group. After the cleanup, add a unique constraint so the duplicates cannot return. The full solutions are in [SQL Interview Problems](sql-interview-problems.md).
 
 ??? question "How do you pivot rows into columns?"
 

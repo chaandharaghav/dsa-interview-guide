@@ -577,7 +577,7 @@ Assumption: the code keeps one global watermark and ignores the `key` field. A r
 | At-least-once vs exactly-once | At-least-once can repeat records. Exactly-once makes the effect equal to a single run | Does the sink tolerate duplicates? |
 | Message queue vs stream processor | The queue or log stores and delivers events. The processor computes over them | Does the component keep state and windows, or only move records? See [message queues and streams](08-message-queues-and-streams.md) |
 | Lambda vs Kappa | Lambda has two paths and merges. Kappa has one path and replays | Can one stream engine express all the logic and replay the log? |
-| Batch OLAP query vs stream aggregation | A query reads stored data when asked. A stream job computes as data arrives | Does the answer need to exist before someone asks? See `kb/databases/10-oltp-olap-and-warehousing.md` |
+| Batch OLAP query vs stream aggregation | A query reads stored data when asked. A stream job computes as data arrives | Does the answer need to exist before someone asks? See [OLTP, OLAP, and Warehousing](../../databases/10-oltp-olap-and-warehousing.md) |
 | MapReduce vs Spark | Spark keeps the model and adds an operator graph, memory, and an optimizer | Is a multi-stage pipeline written by hand against the disk? |
 
 ## Quick Reference Card

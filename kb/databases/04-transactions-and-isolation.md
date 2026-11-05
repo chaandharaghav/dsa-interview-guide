@@ -50,12 +50,12 @@ Interviewers ask "What are the isolation levels?", "What is write skew?", "How d
 
 | Property | Meaning | Mechanism | Where |
 |---|---|---|---|
-| Atomicity | All the changes of a transaction happen, or none does | PostgreSQL: a rolled-back transaction leaves row versions that no snapshot can see. InnoDB: the undo log restores the old version of a row | Two sentences below. Details in `kb/databases/06-storage-engines.md` |
+| Atomicity | All the changes of a transaction happen, or none does | PostgreSQL: a rolled-back transaction leaves row versions that no snapshot can see. InnoDB: the undo log restores the old version of a row | Two sentences below. Details in [Storage Engines](06-storage-engines.md) |
 | Consistency | A transaction moves the database from one valid state to another | The database enforces declared constraints (`NOT NULL`, `CHECK`, `UNIQUE`, foreign keys). The application enforces the invariants that no constraint can state | [Schema design](02-schema-design-and-normalization.md) |
 | Isolation | Concurrent transactions do not see each other's partial work, to the degree that the level promises | MVCC snapshots, locks, and SSI checks | This page |
-| Durability | A committed transaction survives a crash | The write-ahead log (WAL, also called the redo log) reaches stable storage before the commit returns | `kb/databases/06-storage-engines.md` |
+| Durability | A committed transaction survives a crash | The write-ahead log (WAL, also called the redo log) reaches stable storage before the commit returns | [Storage Engines](06-storage-engines.md) |
 
-Atomicity in PostgreSQL: an update does not overwrite the old row. It writes a new row version and marks the old version as deleted by the updating transaction (`xmax`). If the transaction rolls back, other transactions never treat its row versions as committed, so no undo step runs. Atomicity in InnoDB: the engine updates the row in place and keeps the old version in the undo log, so a rollback copies the old values back. The MySQL manual ("Locking Reads") says that InnoDB builds old versions "by applying undo logs on an in-memory copy of the record". The physical side (VACUUM and purge) is in `kb/databases/06-storage-engines.md`.
+Atomicity in PostgreSQL: an update does not overwrite the old row. It writes a new row version and marks the old version as deleted by the updating transaction (`xmax`). If the transaction rolls back, other transactions never treat its row versions as committed, so no undo step runs. Atomicity in InnoDB: the engine updates the row in place and keeps the old version in the undo log, so a rollback copies the old values back. The MySQL manual ("Locking Reads") says that InnoDB builds old versions "by applying undo logs on an in-memory copy of the record". The physical side (VACUUM and purge) is in [Storage Engines](06-storage-engines.md).
 
 The "C" of ACID is not the "C" of CAP. ACID consistency means that a transaction keeps the invariants. CAP consistency means linearizability of a single object across replicas. See [consistency and CAP](../hld/fundamentals/07-consistency-and-cap.md).
 
@@ -283,7 +283,7 @@ flowchart LR
 - **PostgreSQL** stores the versions in the table (the heap). Two system columns describe each version. `xmin` is "the identity (transaction ID) of the inserting transaction for this row version". `xmax` is "the identity (transaction ID) of the deleting transaction, or zero for an undeleted row version". An update inserts a new version and sets `xmax` on the old one. Versions that no snapshot can see anymore are removed later by VACUUM.
 - **InnoDB** stores the newest version in the clustered index and keeps old versions in the undo log. A reader that needs an older version builds it from the undo log. A background purge removes undo records that no read view needs.
 
-A long transaction keeps its snapshot, so the engine cannot remove the old versions that the snapshot may need. The PostgreSQL manual notes that "an open transaction prevents vacuuming away recently-dead tuples that may be visible only to this transaction", which "can contribute to table bloat". The physical details (VACUUM, autovacuum, purge, transaction ID wraparound) are in `kb/databases/06-storage-engines.md`.
+A long transaction keeps its snapshot, so the engine cannot remove the old versions that the snapshot may need. The PostgreSQL manual notes that "an open transaction prevents vacuuming away recently-dead tuples that may be visible only to this transaction", which "can contribute to table bloat". The physical details (VACUUM, autovacuum, purge, transaction ID wraparound) are in [Storage Engines](06-storage-engines.md).
 
 ### Locks
 
@@ -937,7 +937,7 @@ T1 locks row2
 
     **Why readers do not block writers:** a reader reads an old version, and a writer creates a new one. They touch different data. Two writers of the same row still conflict, and a row lock serializes them.
 
-    **Cost:** the engine keeps old versions as long as a snapshot may need them. PostgreSQL removes dead versions with VACUUM. InnoDB removes undo records with purge. A long transaction delays both. Details are in `kb/databases/06-storage-engines.md`.
+    **Cost:** the engine keeps old versions as long as a snapshot may need them. PostgreSQL removes dead versions with VACUUM. InnoDB removes undo records with purge. A long transaction delays both. Details are in [Storage Engines](06-storage-engines.md).
 
 ??? question "Two users try to book the last seat at the same time. How do you make the database prevent a double booking?"
 

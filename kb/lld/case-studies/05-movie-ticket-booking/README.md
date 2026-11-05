@@ -577,7 +577,7 @@ Recommendation: keep one `show_seat` row for each seat of each show, with the co
 - A plain unique key on (show id, seat id) in a table of holds also blocks a double `INSERT`. But an expired hold row then blocks the seat until a job deletes it, so the hold transaction must first delete the expired rows of those seats.
 - A Redis key for each seat with `SET key value NX PX 300000` gives a hold with a time-to-live of 5 minutes. One `SET NX` covers one key, so a multi-seat hold needs a Lua script that checks and sets all keys in one step. Redis then answers the hold without a database round trip, and the database check at confirm time stays the source of truth.
 
-See `kb/databases/04-transactions-and-isolation.md` for transactions and row locks. See `kb/hld/case-studies/12-ticket-booking.md` for the distributed design and `kb/hld/distributed-systems/05-distributed-locks-and-leases.md` for the limits of lease locks. The class design on this page stays: `ShowReservations` becomes a repository-backed class.
+See [Transactions and Isolation](../../../databases/04-transactions-and-isolation.md) for transactions and row locks. See `kb/hld/case-studies/12-ticket-booking.md` for the distributed design and `kb/hld/distributed-systems/05-distributed-locks-and-leases.md` for the limits of lease locks. The class design on this page stays: `ShowReservations` becomes a repository-backed class.
 
 ## Extensions
 

@@ -125,7 +125,7 @@ Lewis and Fowler describe decentralized data management: each service manages it
 | No cross-service ACID transaction | A business action that spans services cannot commit or roll back as one | A **saga**: a sequence of local transactions, each with a compensating action. Lewis and Fowler say to avoid distributed transactions and to accept eventual consistency with compensation. See `kb/hld/distributed-systems/03-distributed-transactions.md` |
 | Data duplication | A service keeps a copy of data that another service owns (the customer name on an order) | Name one owner. Copies are read-only caches that the owner's events update. Accept staleness |
 | Referential integrity is not enforced by the database | An order can point to a customer that was deleted | Treat ids as references that can dangle. Handle "not found". Use soft deletes or events |
-| Reporting across services | One analytics query needs data from all services | Send events or change data capture streams to a warehouse (see `kb/databases/10-oltp-olap-and-warehousing.md`) |
+| Reporting across services | One analytics query needs data from all services | Send events or change data capture streams to a warehouse (see [OLTP, OLAP, and Warehousing](../../databases/10-oltp-olap-and-warehousing.md)) |
 | Atomic "write and publish" | A service updates its database and publishes an event, and one of the two can fail | **Transactional outbox**: write the event to a table in the same local transaction, and a relay publishes it (see [message queues and streams](08-message-queues-and-streams.md)) |
 | More databases to run | Each store needs backup, upgrade, and monitoring | Use a few well-understood store types. Do not choose a new database for each service without a reason |
 

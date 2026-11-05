@@ -48,7 +48,7 @@ A request can pass through several caches before it reaches the database. The ta
 | Distributed cache | Serialized values by key | Application code | Yes, all servers read the same entries | Application deletes keys, TTL | Session data, user profiles, query results, counters |
 | Database cache | Pages, query plans, sometimes query results | The database | Yes | Database manages it | Hot table and index pages |
 
-The **database buffer pool** keeps recently used disk pages in memory. PostgreSQL calls it `shared_buffers`, and InnoDB calls it the buffer pool. You do not control individual entries. You size it, and it speeds up every query without application code. A query that the buffer pool serves is still slower than a Redis lookup, because the database parses, plans, and executes the query. Query execution lives in `kb/databases/05-query-execution-and-tuning.md`, and storage engines live in `kb/databases/06-storage-engines.md`.
+The **database buffer pool** keeps recently used disk pages in memory. PostgreSQL calls it `shared_buffers`, and InnoDB calls it the buffer pool. You do not control individual entries. You size it, and it speeds up every query without application code. A query that the buffer pool serves is still slower than a Redis lookup, because the database parses, plans, and executes the query. Query execution lives in [Query Execution and Tuning](../../databases/05-query-execution-and-tuning.md), and storage engines live in [Storage Engines](../../databases/06-storage-engines.md).
 
 Two rules guide placement. First, put the cache as close to the reader as the freshness requirement allows: a browser cache costs nothing per request but you cannot invalidate it on demand, and a distributed cache costs one network round trip but you can delete a key at any moment. Second, each extra layer adds a place where stale data can hide, so list every layer when you debug a stale read.
 
@@ -362,7 +362,7 @@ Facts below come from the Redis and Memcached documentation. Check the version t
 | Maximum value size | 512 MB for a string | 1 MB by default (`-I` raises it, up to 1 GB) |
 | Typical use | Cache plus data structures: sessions, rate limiters, leaderboards, queues, locks | Simple, large, key-value cache |
 
-Recommendation: choose Redis when you need data structures, persistence, replication, or atomic scripts. Choose Memcached when you need only a simple, multi-threaded key-value cache that uses all cores of one machine and that you can lose without consequence. If the system already runs Redis for data structures, using it for the plain cache too means one fewer system to operate. Redis data types and operations: `kb/databases/08-redis.md`.
+Recommendation: choose Redis when you need data structures, persistence, replication, or atomic scripts. Choose Memcached when you need only a simple, multi-threaded key-value cache that uses all cores of one machine and that you can lose without consequence. If the system already runs Redis for data structures, using it for the plain cache too means one fewer system to operate. Redis data types and operations: [Redis](../../databases/08-redis.md).
 
 ### Sizing a Cache
 

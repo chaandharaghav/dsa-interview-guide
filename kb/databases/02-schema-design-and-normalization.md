@@ -752,7 +752,7 @@ A soft delete also affects foreign keys (child rows still reference the deleted 
 An **audit column** records who changed a row and when. The usual set: `created_at`, `updated_at`, `created_by`, `updated_by`. Rules:
 
 - Set `created_at` with a column default (`DEFAULT CURRENT_TIMESTAMP`), so no client can forget it. Set `updated_at` in the same statement that changes the row, or with a trigger. An application that sets it can skip it in a bulk `UPDATE`.
-- Audit columns say who wrote the last version. They do not keep history. For history, write each change to a **history table** (a copy of the row, with the time of the change and the actor) in the same transaction, with a trigger or with change data capture from the log. See `kb/databases/10-oltp-olap-and-warehousing.md` for change data capture.
+- Audit columns say who wrote the last version. They do not keep history. For history, write each change to a **history table** (a copy of the row, with the time of the change and the actor) in the same transaction, with a trigger or with change data capture from the log. See [OLTP, OLAP, and Warehousing](10-oltp-olap-and-warehousing.md) for change data capture.
 - Use `created_at` for ordering only with care. In PostgreSQL, `CURRENT_TIMESTAMP` returns the start time of the transaction, so all rows of one transaction get the same value.
 
 #### Enums against lookup tables
@@ -1365,7 +1365,7 @@ Reading the output:
 
     I use real columns for what I filter, join, sort, or constrain, and one `jsonb` column for the optional attributes that differ by category. Entity-attribute-value gives up type checking, `NOT NULL`, `CHECK`, and foreign keys. Every query needs a pivot or one self-join per attribute, and the planner has poor statistics for it. PostgreSQL's `jsonb` stores a decomposed binary form with GIN index support for containment (`@>`), and an expression index serves one hot path. The PostgreSQL documentation advises documents of a somewhat fixed structure and small size, because any update locks the whole row and rewrites it.
 
-    If the attributes are fully open and defined by users at run time, a document store is a legitimate choice (see `kb/databases/07-nosql-families.md`). For a bounded set of categories, I use class-table inheritance: a base `product` table plus one table for each category with its own `NOT NULL` columns.
+    If the attributes are fully open and defined by users at run time, a document store is a legitimate choice (see [NoSQL Families](07-nosql-families.md)). For a bounded set of categories, I use class-table inheritance: a base `product` table plus one table for each category with its own `NOT NULL` columns.
 
 ??? question "How do you store money and time stamps?"
 

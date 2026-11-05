@@ -678,7 +678,7 @@ SET plan_cache_mode = force_custom_plan;   -- keep a custom plan for every execu
 
 **The pitfall.** A statement runs fast with the value 'failed' and slow with 'done', or the reverse. The cause is often a generic plan that suits one value and not the other. Look for the slow run with `EXPLAIN (ANALYZE)` on the real parameter value, and compare it with the plan that the application uses (PostgreSQL's `auto_explain` module logs the plan of slow statements: load it with `session_preload_libraries = 'auto_explain'` and set `auto_explain.log_min_duration` to a threshold, for example `'3s'`. The default `-1` logs nothing. Add `auto_explain.log_analyze = on` to log actual rows and times, which costs extra time for every statement, and `auto_explain.sample_rate` to log only a share of the statements. PostgreSQL docs, `auto_explain`).
 
-**Other databases and drivers.** MySQL has server-side prepared statements, and many drivers emulate them on the client by default. In JDBC, a `PreparedStatement` protects against SQL injection in both cases. Whether the server reuses a plan depends on the driver setting. Check the driver documentation. A pooler in transaction mode can restrict server-side prepared statements (see `kb/databases/09-scaling-a-database.md`).
+**Other databases and drivers.** MySQL has server-side prepared statements, and many drivers emulate them on the client by default. In JDBC, a `PreparedStatement` protects against SQL injection in both cases. Whether the server reuses a plan depends on the driver setting. Check the driver documentation. A pooler in transaction mode can restrict server-side prepared statements (see [Scaling a Database](09-scaling-a-database.md)).
 
 ### A Tuning Workflow
 

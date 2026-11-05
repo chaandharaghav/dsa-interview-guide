@@ -248,7 +248,7 @@ An insert goes to a leaf. In one common method, if the leaf is full (`2t − 1` 
 
 **Example (assumption: approximate numbers).** A page holds 8 KB, and one entry in an internal node needs a key of 8 bytes and a pointer of 8 bytes. A node then holds about 500 entries, ignoring headers. A tree with 3 levels indexes about 500³ = 1.25 × 10⁸ keys, and a tree with 4 levels about 6 × 10¹⁰ keys. A lookup needs 3 or 4 page reads. The top levels stay in memory, so a lookup often needs only one disk read.
 
-The full treatment of indexes, page layout, and the difference between clustered and secondary indexes is in `kb/databases/03-indexing.md`. The JDK has no B-tree class.
+The full treatment of indexes, page layout, and the difference between clustered and secondary indexes is in [Indexing](../../databases/03-indexing.md). The JDK has no B-tree class.
 
 ## Trade-offs and When to Use
 
@@ -712,7 +712,7 @@ Sorted input gives a tree of height 9 for 1023 keys, the perfect tree (`2^10 −
 - AVL: balance factor in {−1, 0, 1}. Four cases (LL, RR, LR, RL). Height at most about 1.44 · log₂ n. One single or double rotation fixes an insert.
 - Red-black: five properties. Height at most 2 · log₂(n + 1). At most 2 rotations on insert and 3 on delete. `TreeMap` and `TreeSet` use it.
 - `TreeMap`: O(log n) `get`, `put`, `remove`, `floorKey`, `ceilingKey`. The comparator decides key equality. No rank queries.
-- B+ tree: many keys per node, records in linked leaves, all leaves at one depth. Databases use it because a page read is the cost. See `kb/databases/03-indexing.md`.
+- B+ tree: many keys per node, records in linked leaves, all leaves at one depth. Databases use it because a page read is the cost. See [Indexing](../../databases/03-indexing.md).
 - Traversals are O(n) time and O(h) space. Recursion on a skewed tree can overflow the stack.
 - Patterns: [tree patterns](../10-tree-patterns/README.md), [divide and conquer](../09-divide-and-conquer/README.md). Next: [heaps](06-heaps.md).
 

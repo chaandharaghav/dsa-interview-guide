@@ -3,7 +3,7 @@ priority: P1
 ---
 # Choosing a Database
 
-Every system design has a step where the candidate says "I store this in X". This page gives a procedure that leads from the access patterns of the system to a database family, and then to a real product. It covers the choice only. The internals of each database (B+ trees, LSM trees, MVCC, isolation levels) have their home in the `kb/databases/` pages, and this page links to them.
+Every system design has a step where the candidate says "I store this in X". This page gives a procedure that leads from the access patterns of the system to a database family, and then to a real product. It covers the choice only. The internals of each database (B+ trees, LSM trees, MVCC, isolation levels) have their home in the [Databases](../../databases/README.md) pages, and this page links to them.
 
 ## Why It Matters
 
@@ -15,19 +15,19 @@ Almost every HLD interview asks "Which database do you use, and why?" A weak ans
 
 **Data model**: the way a database represents data and relations. The main models are the relational model (tables, rows, foreign keys), key-value (an opaque value behind a key), document (a self-contained JSON-like value with a queryable structure), wide-column (rows grouped under a partition key, with a flexible set of columns), graph (nodes and edges), time series (points ordered by time), and search (an inverted index over text).
 
-**Transaction**: a group of reads and writes that the database treats as one unit. **ACID** names the guarantees of a transaction: atomicity (all or nothing), consistency (the transaction keeps the declared constraints), isolation (concurrent transactions do not see each other's partial work, to the degree that the isolation level promises), and durability (a committed transaction survives a crash). Isolation levels and anomalies have their home in `kb/databases/04-transactions-and-isolation.md`.
+**Transaction**: a group of reads and writes that the database treats as one unit. **ACID** names the guarantees of a transaction: atomicity (all or nothing), consistency (the transaction keeps the declared constraints), isolation (concurrent transactions do not see each other's partial work, to the degree that the isolation level promises), and durability (a committed transaction survives a crash). Isolation levels and anomalies have their home in [Transactions and Isolation](../../databases/04-transactions-and-isolation.md).
 
 **Join**: an operation that combines rows of two or more tables by a condition. Relational databases run joins in the query engine. Most NoSQL databases do not support joins, so the application must read the related data itself or store the data together (denormalization).
 
 **Constraint**: a rule that the database enforces on every write, such as a primary key, a unique key, a foreign key, or a check. Constraints keep invalid data out of the store, even when the application has a bug.
 
-**Secondary index**: an index on a field other than the primary key. A database with a rich set of secondary indexes can answer more query shapes. Indexing has its home in `kb/databases/03-indexing.md`.
+**Secondary index**: an index on a field other than the primary key. A database with a rich set of secondary indexes can answer more query shapes. Indexing has its home in [Indexing](../../databases/03-indexing.md).
 
 **Scale-up and scale-out**: scale-up means a bigger machine. Scale-out means more machines. A single-node relational database scales reads out with replicas (see [replication](05-replication.md)) and scales writes up. Scaling writes out needs partitioning (see [partitioning and sharding](06-partitioning-and-sharding.md)). Some databases are built for scale-out from the start, and some have it added later.
 
 **Consistency model of a database**: the guarantee about what a read returns after a write. The guarantees range from linearizable to eventual. See [consistency and CAP](07-consistency-and-cap.md).
 
-**OLTP and OLAP**: online transaction processing (many small reads and writes that serve users) and online analytical processing (few large scans and aggregations that serve analysts). This page covers OLTP stores. Analytical stores are in `kb/databases/10-oltp-olap-and-warehousing.md`.
+**OLTP and OLAP**: online transaction processing (many small reads and writes that serve users) and online analytical processing (few large scans and aggregations that serve analysts). This page covers OLTP stores. Analytical stores are in [OLTP, OLAP, and Warehousing](../../databases/10-oltp-olap-and-warehousing.md).
 
 **Source of truth and derived store**: the source of truth is the store that holds the authoritative copy of the data. A derived store (a cache, a search index, a data warehouse) holds a copy that the system rebuilds from the source of truth. A derived store may lose data without loss of information, because the system can rebuild it.
 
@@ -66,7 +66,7 @@ flowchart TD
 
 Write each entity (user, order, message, post). For each entity, write the queries that the requirements imply, in this form: the key, the result shape, the read or write rate, and the latency target. Use the numbers from the estimation step (see `kb/hld/back-of-envelope-estimation.md`). Mark each read as a point read (one key), a range read (a key prefix or a time range), a join, a text search, or an aggregation. Mark each write as an insert of new data, an update of existing data, or an append.
 
-A read and write ratio matters. A system with 100 reads for each write needs a cache and read replicas. A system with more writes than reads (metrics, logs) needs a store that is built for sequential appends, such as an LSM-tree store or a time-series store (see `kb/databases/06-storage-engines.md`).
+A read and write ratio matters. A system with 100 reads for each write needs a cache and read replicas. A system with more writes than reads (metrics, logs) needs a store that is built for sequential appends, such as an LSM-tree store or a time-series store (see [Storage Engines](../../databases/06-storage-engines.md)).
 
 ### Step 2: Decide whether you need transactions and constraints
 
@@ -92,7 +92,7 @@ Within a family, choose by operations and by team skill. A managed service (Amaz
 
 ### Profiles of the families
 
-The sections below use one format: what the family is, when to use it, when not to use it, and what to watch. The internals of each family are in `kb/databases/07-nosql-families.md`.
+The sections below use one format: what the family is, when to use it, when not to use it, and what to watch. The internals of each family are in [NoSQL Families](../../databases/07-nosql-families.md).
 
 #### Relational (SQL)
 
@@ -102,7 +102,7 @@ The relational model stores data in tables with a fixed schema. Rows relate thro
 - **Do not use when:** the write rate or the data size exceeds what one primary can handle, and the application cannot shard; the access pattern is a single key at very high throughput with no relations, where a key-value store has less overhead; the schema changes with every record.
 - **Watch:** vertical limits on writes; a long migration for large tables; the cost of cross-shard joins and cross-shard transactions after sharding.
 - **Examples:** PostgreSQL, MySQL, MariaDB, Oracle Database, SQL Server.
-- **Internals:** `kb/databases/01-relational-model-and-sql.md`, `kb/databases/02-schema-design-and-normalization.md`, `kb/databases/03-indexing.md`, `kb/databases/04-transactions-and-isolation.md`.
+- **Internals:** [The Relational Model and SQL](../../databases/01-relational-model-and-sql.md), [Schema Design and Normalization](../../databases/02-schema-design-and-normalization.md), [Indexing](../../databases/03-indexing.md), [Transactions and Isolation](../../databases/04-transactions-and-isolation.md).
 
 #### Key-value
 
@@ -110,7 +110,7 @@ A key-value store maps a key to a value that the database treats as opaque (or a
 
 - **Use when:** every read and write uses the key; the system needs sub-millisecond latency (in-memory stores) or a throughput that needs automatic partitioning (DynamoDB, a Dynamo-style store); the data is a session, a cache entry, a feature flag, a shopping cart, or a counter.
 - **Do not use when:** queries filter on the value; the system needs joins or ad hoc queries; the system needs multi-key transactions with arbitrary scope.
-- **Watch:** an in-memory store (Redis, Memcached) is limited by RAM, and its persistence has a durability cost (see `kb/databases/08-redis.md`); a hot key overloads one partition.
+- **Watch:** an in-memory store (Redis, Memcached) is limited by RAM, and its persistence has a durability cost (see [Redis](../../databases/08-redis.md)); a hot key overloads one partition.
 - **Examples:** Redis, Memcached (cache only), DynamoDB, etcd (small, strongly consistent configuration data), Riak.
 
 DynamoDB is a key-value and document database that you access through a primary key (a partition key, and optionally a sort key) and through secondary indexes. The DynamoDB documentation says that reads are eventually consistent by default, that a read can ask for strong consistency on a table or a local secondary index, and that all reads from a global secondary index are eventually consistent.
@@ -151,7 +151,7 @@ A time-series database stores points of (time, series identifier, value) and opt
 - **Do not use when:** the data has updates in place; the system needs joins across entities; the volume is small enough for a relational table with an index on time.
 - **Watch:** the number of distinct series (cardinality) often limits the system before the number of points does.
 - **Examples:** TimescaleDB (a PostgreSQL extension), InfluxDB, Prometheus (a monitoring system with its own local time-series database), VictoriaMetrics.
-- **Analytical stores:** ClickHouse is a column-oriented OLAP database, and Apache Druid is a real-time analytics database. Teams use both for large aggregations over time-stamped events. They are OLAP stores, not OLTP stores, so they are in `kb/databases/10-oltp-olap-and-warehousing.md`.
+- **Analytical stores:** ClickHouse is a column-oriented OLAP database, and Apache Druid is a real-time analytics database. Teams use both for large aggregations over time-stamped events. They are OLAP stores, not OLTP stores, so they are in [OLTP, OLAP, and Warehousing](../../databases/10-oltp-olap-and-warehousing.md).
 
 #### Search
 
@@ -438,7 +438,7 @@ ab12 | https://example.com/a
 
 ??? question "A table has 10 billion rows and the queries are slow. Do you change the database?"
 
-    Not first. I check the indexes and the query plans (see `kb/databases/05-query-execution-and-tuning.md`), then I consider partitioning the table by a key such as time, and archiving old rows. A change of database family is the last step, and I justify it with an access pattern that the current store cannot serve.
+    Not first. I check the indexes and the query plans (see [Query Execution and Tuning](../../databases/05-query-execution-and-tuning.md)), then I consider partitioning the table by a key such as time, and archiving old rows. A change of database family is the last step, and I justify it with an access pattern that the current store cannot serve.
 
 ### Red Flags
 
@@ -475,7 +475,7 @@ ab12 | https://example.com/a
 | Cache vs database | A cache is derived and may lose data. A database holds the source of truth and gives durability | Can the system rebuild this data from another store? |
 | Search engine vs database full-text search | A search engine offers ranking, analyzers, facets, and scale-out. Database full-text search covers small and simple cases in the same store | Does the product need relevance tuning and a separate scale? |
 | Distributed SQL vs sharded relational | Distributed SQL moves data and runs distributed transactions inside the database. Sharded relational leaves routing, resharding, and cross-shard queries to the application | Does the team want the database to own partitioning? |
-| Data lake or warehouse vs OLTP database | A warehouse serves large analytical scans. An OLTP database serves small transactions | Does the query scan most of a table, or touch a few rows? See `kb/databases/10-oltp-olap-and-warehousing.md` |
+| Data lake or warehouse vs OLTP database | A warehouse serves large analytical scans. An OLTP database serves small transactions | Does the query scan most of a table, or touch a few rows? See [OLTP, OLAP, and Warehousing](../../databases/10-oltp-olap-and-warehousing.md) |
 | Polyglot persistence vs dual writes | Polyglot persistence is a design that uses several stores. Dual writes are one unsafe way to keep them in sync | Is there one source of truth with a log that feeds the others? |
 
 ## Quick Reference Card
@@ -522,4 +522,4 @@ Rules to remember:
 - [PostgreSQL documentation](https://www.postgresql.org/docs/current/). The reference for the relational features that this page mentions (constraints, `jsonb`, full-text search).
 - [MongoDB manual: transactions](https://www.mongodb.com/docs/manual/core/transactions/). The documented scope and limits of multi-document transactions.
 - [Elasticsearch get API](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-get). A get by id is real-time by default, while search results wait for a refresh.
-- `kb/databases/07-nosql-families.md`, `kb/databases/03-indexing.md`, `kb/databases/04-transactions-and-isolation.md`, `kb/databases/06-storage-engines.md`, and `kb/databases/09-scaling-a-database.md` in this knowledge base. The internals that this page leaves out.
+- [NoSQL Families](../../databases/07-nosql-families.md), [Indexing](../../databases/03-indexing.md), [Transactions and Isolation](../../databases/04-transactions-and-isolation.md), [Storage Engines](../../databases/06-storage-engines.md), and [Scaling a Database](../../databases/09-scaling-a-database.md) in this knowledge base. The internals that this page leaves out.

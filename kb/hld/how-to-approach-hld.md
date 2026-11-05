@@ -120,7 +120,7 @@ List the entities, their attributes, their keys, and the access patterns. Then c
 
 1. Write the access patterns with their rate: "read one paste by key: 100 reads per second", "find expired pastes: one scan each minute".
 2. Give each entity a primary key that serves its main access pattern.
-3. Choose the database family from the patterns, the size, and the consistency need. The [choosing a database page](fundamentals/04-choosing-a-database.md) has the decision procedure. Internals live in `kb/databases/07-nosql-families.md` and `kb/databases/01-relational-model-and-sql.md`.
+3. Choose the database family from the patterns, the size, and the consistency need. The [choosing a database page](fundamentals/04-choosing-a-database.md) has the decision procedure. Internals live in [NoSQL Families](../databases/07-nosql-families.md) and [The Relational Model and SQL](../databases/01-relational-model-and-sql.md).
 4. Decide where large objects live. A blob does not belong in a row. Store the blob in an object store and keep a reference in the database (see [storage types](fundamentals/10-storage-types.md)).
 5. Add the indexes for the other access patterns. If one pattern needs full-text queries, use a search index (see [search and indexing](fundamentals/11-search-and-indexing.md)).
 6. State how the data will grow past one machine: the partition key and the replication plan (see [partitioning and sharding](fundamentals/06-partitioning-and-sharding.md) and [replication](fundamentals/05-replication.md)). If the estimate shows that one machine is enough, say so.

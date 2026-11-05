@@ -992,7 +992,7 @@ id | balance | version
 1 | 150 | 1
 ```
 
-The second `UPDATE` changed no row, so thread B must read again and retry. JPA gives the same behavior with a `@Version` field. See `kb/databases/04-transactions-and-isolation.md` for isolation levels and optimistic locking in the database.
+The second `UPDATE` changed no row, so thread B must read again and retry. JPA gives the same behavior with a `@Version` field. See [Transactions and Isolation](../../databases/04-transactions-and-isolation.md) for isolation levels and optimistic locking in the database.
 
 Choose between the two kinds of control:
 

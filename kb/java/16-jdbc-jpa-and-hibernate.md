@@ -5,7 +5,7 @@ priority: P1
 
 ## Why It Matters
 
-Persistence questions appear in nearly every Java backend interview: "What is the N+1 problem?", "What is the difference between `LAZY` and `EAGER`?", "Why do you get a `LazyInitializationException`?", "What does the first-level cache do?", "How does optimistic locking work?". On the job, most slow endpoints in a Spring service trace back to the same few causes: a query per row, a connection that a thread holds too long, or a lazy load that runs where nobody expects it. This page explains the stack from the bottom: JDBC (the API that every database library uses), the connection pool, and then JPA and Hibernate (the object-relational mapping layer). Every behavior that the page states was run on Hibernate ORM 7.4.5.Final and H2 2.4.240 unless the text says otherwise. Spring Data repositories and `@Transactional` are in [Spring Data and transactions](19-spring-data-and-transactions.md). The theory of the N+1 problem, indexes, and query plans has its home in `kb/databases/05-query-execution-and-tuning.md`. This page explains how JPA causes the N+1 problem and how to remove it.
+Persistence questions appear in nearly every Java backend interview: "What is the N+1 problem?", "What is the difference between `LAZY` and `EAGER`?", "Why do you get a `LazyInitializationException`?", "What does the first-level cache do?", "How does optimistic locking work?". On the job, most slow endpoints in a Spring service trace back to the same few causes: a query per row, a connection that a thread holds too long, or a lazy load that runs where nobody expects it. This page explains the stack from the bottom: JDBC (the API that every database library uses), the connection pool, and then JPA and Hibernate (the object-relational mapping layer). Every behavior that the page states was run on Hibernate ORM 7.4.5.Final and H2 2.4.240 unless the text says otherwise. Spring Data repositories and `@Transactional` are in [Spring Data and transactions](19-spring-data-and-transactions.md). The theory of the N+1 problem, indexes, and query plans has its home in [Query Execution and Tuning](../databases/05-query-execution-and-tuning.md). This page explains how JPA causes the N+1 problem and how to remove it.
 
 !!! info "Versions"
     Spring Boot 4.1.1 is the current release on spring.io (checked 2026-10-22). It manages Spring Framework 7.0.9, Hibernate ORM 7.4.5.Final, Jakarta Persistence 3.2.0, and HikariCP 7.0.2. Spring Boot 3.5.16 is the newest 3.x release. It manages Spring Framework 6.2.19, Hibernate ORM 6.6.53.Final, Jakarta Persistence 3.1.0, and HikariCP 6.3.3. Where the two lines differ for an interview topic, the text says so. Code that needs Hibernate, Spring, or a JDBC driver carries the `<!-- fragment -->` marker, because the KB runner has no such jars.
@@ -177,7 +177,7 @@ Output of the run: `batch counts: [1, 1, 1, 1, 1]`.
 
 #### Transactions
 
-By default, a JDBC connection is in **auto-commit** mode (JDBC specification): each statement commits when it completes. To group statements, call `setAutoCommit(false)`, run the statements, and then call `commit()` or `rollback()`. The connection holds the transaction, so every statement of one transaction must use the same connection. This is why frameworks bind a connection to the current thread for the duration of a transaction (see the Spring page). `setTransactionIsolation` sets the isolation level for the connection. The levels and their anomalies are in `kb/databases/04-transactions-and-isolation.md`.
+By default, a JDBC connection is in **auto-commit** mode (JDBC specification): each statement commits when it completes. To group statements, call `setAutoCommit(false)`, run the statements, and then call `commit()` or `rollback()`. The connection holds the transaction, so every statement of one transaction must use the same connection. This is why frameworks bind a connection to the current thread for the duration of a transaction (see the Spring page). `setTransactionIsolation` sets the isolation level for the connection. The levels and their anomalies are in [Transactions and Isolation](../databases/04-transactions-and-isolation.md).
 
 <!-- fragment -->
 ```java
@@ -471,7 +471,7 @@ Do not solve the exception by changing `LAZY` to `EAGER` on the mapping. This ma
 
 #### The N+1 problem and its fixes
 
-**N+1**: one query loads N parent rows, and then the code touches a lazy association of each parent, so Hibernate runs N more queries. The total is 1 + N queries where one query with a join could do the work. The database has the general theory and the detection of the problem in `kb/databases/05-query-execution-and-tuning.md`. Here is how JPA produces it.
+**N+1**: one query loads N parent rows, and then the code touches a lazy association of each parent, so Hibernate runs N more queries. The total is 1 + N queries where one query with a join could do the work. The database has the general theory and the detection of the problem in [Query Execution and Tuning](../databases/05-query-execution-and-tuning.md). Here is how JPA produces it.
 
 The next program loads the three authors and counts their books. `stats.getPrepareStatementCount()` gives the statements that Hibernate ran for each variant.
 

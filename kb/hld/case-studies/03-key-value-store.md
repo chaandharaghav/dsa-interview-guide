@@ -736,7 +736,7 @@ flowchart LR
 | Compaction competes with foreground I/O | Shared disk | Throttle compaction. Run each node at 60 percent utilization (Estimation) |
 
 For the storage-engine internals (B-tree versus LSM, write-ahead log), see
-`kb/databases/06-storage-engines.md`.
+[Storage Engines](../../databases/06-storage-engines.md).
 
 ## Bottlenecks and Scaling
 

@@ -203,7 +203,7 @@ Ask these questions in order.
 | Vitess | Key ranges of a keyspace ID | The primary vindex of a table sets the sharding scheme. Vitess converts sharding keys to a left-justified binary string. A shard name is a hex key range, for example `80-c0`. Shards need not have equal size |
 
 !!! note "Where this topic ends"
-    The storage view (how one node stores a partition) is in `kb/databases/06-storage-engines.md`. The database view of scaling, with connection pools and read replicas, is in `kb/databases/09-scaling-a-database.md`. A full key-value store with a ring, replication, and quorums is in `kb/hld/case-studies/03-key-value-store.md`.
+    The storage view (how one node stores a partition) is in [Storage Engines](../../databases/06-storage-engines.md). The database view of scaling, with connection pools and read replicas, is in [Scaling a Database](../../databases/09-scaling-a-database.md). A full key-value store with a ring, replication, and quorums is in `kb/hld/case-studies/03-key-value-store.md`.
 
 ## Trade-offs and When to Use
 
