@@ -619,7 +619,7 @@ The program shows three rules. First, the consumer checks the signature before i
 | Webhook and WebSocket | A webhook is a separate HTTP request for each event to a public URL. A WebSocket is one long-lived connection | Does the receiver keep a connection open to the sender? |
 | Asynchronous API and non-blocking I/O | An asynchronous API returns before the work finishes and reports the result later. Non-blocking I/O is how a server waits for a network call without holding a thread | Does the client get the result in the same response? |
 | Message queue and WebSocket | A queue connects services and stores messages. A WebSocket connects a client and a server and does not store messages | Does the message need to survive if the receiver is offline? |
-| HTTP/2 server push and SSE | HTTP/2 server push (removed from most browsers) pre-sent resources for a page. SSE streams application events | Is the data an application event or a page resource? |
+| HTTP/2 server push and SSE | HTTP/2 server push (disabled by default in Chrome since version 106 and in Firefox since version 132) pre-sent resources for a page. SSE streams application events | Is the data an application event or a page resource? |
 | gRPC streaming and WebSocket | gRPC streaming is typed, between services, over HTTP/2. WebSocket is a browser-friendly message channel | Is the client a browser? |
 | Push notification (APNs, FCM) and WebSocket | A push notification goes through the platform vendor and reaches a sleeping device. A WebSocket needs a running app and an open connection | Is the app in the foreground? |
 
