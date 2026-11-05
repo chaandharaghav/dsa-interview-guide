@@ -3,7 +3,7 @@
 This page puts all subjects on one calendar. Each phase of the KB adds its subject to this plan.
 
 !!! info "Status"
-    The DSA, LLD, HLD, Java, and Databases tracks are complete. The other tracks are planned. The table below names the phase that writes each track.
+    The DSA, LLD, HLD, Java, Databases, and Operating Systems and Networking tracks are complete. The other tracks are planned. The table below names the phase that writes each track.
 
 ## Tracks
 
@@ -14,7 +14,7 @@ This page puts all subjects on one calendar. Each phase of the KB adds its subje
 | HLD | [HLD track](#hld-track) below | Complete |
 | Java in depth | [Java track](#java-track) below | Complete |
 | Databases | [Databases track](#databases-track) below | Complete |
-| Fundamentals (networking, operating systems) | P1 pages in order | Phase 6 |
+| Operating systems and networking | [OS and Networking track](#os-and-networking-track) below | Complete |
 | Behavioral | Story bank, then mock rounds | Phase 9 |
 
 ## LLD Track
@@ -61,6 +61,18 @@ The Databases track takes 4 weeks at about 4 hours each week. It runs in the fun
 
 P2 pages ([Storage Engines](databases/06-storage-engines.md), [Scaling a Database](databases/09-scaling-a-database.md), [OLTP, OLAP, and Warehousing](databases/10-oltp-olap-and-warehousing.md)) are stretch reading. Read them before HLD track weeks 6 and 7, or when a role asks for them.
 
+## OS and Networking Track
+
+The OS and Networking track takes 3 weeks at about 4 hours each week. It runs in the fundamentals slot of the calendar, in weeks 13 to 15, at the same time as HLD track weeks 5 to 7. For each page, answer three of its `??? question` blocks before you read the model answers, and run its Java simulations.
+
+| Week | Read | Do |
+|---|---|---|
+| 1 | [Processes and Threads](operating-systems/01-processes-and-threads.md), [Synchronization](operating-systems/03-synchronization.md) | Explain `fork` and `exec`, a context switch, and how a futex-based mutex works, aloud in 3 minutes each. Run the banker's algorithm by hand once |
+| 2 | [Memory Management](operating-systems/04-memory-management.md), [TCP and UDP](networking/03-tcp-and-udp.md) | Explain a page fault and an `OOMKilled` container. Draw the TCP handshake, the teardown, and TIME_WAIT from memory |
+| 3 | [HTTP](networking/04-http.md), [TLS and HTTPS](networking/05-tls-and-https.md), [DNS](networking/06-dns.md), [What Happens When You Load a URL](networking/07-what-happens-when-you-load-a-url.md) | Give the URL walkthrough aloud in 5 minutes, then in 15 minutes with the follow-up questions. Revise with the [OS question bank](operating-systems/interview-question-bank.md) and the [networking question bank](networking/interview-question-bank.md) |
+
+P2 pages are stretch reading: [CPU Scheduling](operating-systems/02-cpu-scheduling.md), [File Systems and I/O Models](operating-systems/05-file-systems-and-io-models.md), [Computer Architecture for Developers](operating-systems/06-computer-architecture-for-developers.md), [Linux for Developers](operating-systems/07-linux-for-developers.md), [OSI and TCP/IP Models](networking/01-osi-and-tcp-ip-models.md), [IP Addressing and Routing](networking/02-ip-addressing-and-routing.md), [WebSockets and Real-Time Protocols](networking/08-websockets-and-realtime.md), and [Proxies and NAT](networking/09-proxies-and-nat.md). Read File Systems and I/O Models with the Java NIO page, and keep Linux for Developers open when you debug a service.
+
 ## HLD Track
 
 The HLD track takes 10 weeks at about 5 hours each week. Start it after week 6 of the LLD track, when you have read the LLD fundamentals. Each case study takes one session: design it yourself in 45 minutes, then compare your design with the page and answer its follow-up questions.
@@ -87,7 +99,7 @@ The calendar below combines the tracks into 21 weeks (week 0 to week 20). It ass
 | 0 | DSA plan week 0 and the [foundations](dsa/README.md#foundations) pages | — | — |
 | 1–8 | DSA plan weeks 1 to 8 | [LLD track](#lld-track) weeks 1 to 8 | [Java track](#java-track) weeks 1 to 7, from week 2 |
 | 9–12 | DSA plan weeks 9 to 12 | [HLD track](#hld-track) weeks 1 to 4 | [Databases track](#databases-track) weeks 1 to 4 |
-| 13–15 | Patterns 23, 25, 26 (P1), then 21, 22, 24, 27, 28 (P2 stretch) | HLD track weeks 5 to 7 | Operating systems and networking P1 pages (planned: phase 6) |
+| 13–15 | Patterns 23, 25, 26 (P1), then 21, 22, 24, 27, 28 (P2 stretch) | HLD track weeks 5 to 7 | [OS and Networking track](#os-and-networking-track) weeks 1 to 3 |
 | 16–17 | Two mixed problems each day | HLD track weeks 8 and 9 | API design and security P1 pages (planned: phase 7). Resume in week 17 (planned: phase 9) |
 | 18–20 | Two mixed problems each day | HLD track week 10, then full mock loops | JavaScript basics in weeks 18 and 19 (outside the KB), behavioral story bank in weeks 19 and 20 |
 

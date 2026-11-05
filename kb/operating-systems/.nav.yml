@@ -1,0 +1,13 @@
+nav:
+  - Overview: README.md
+  - Pages:
+      - "01 · Processes and Threads": 01-processes-and-threads.md
+      - "02 · CPU Scheduling": 02-cpu-scheduling.md
+      - "03 · Synchronization": 03-synchronization.md
+      - "04 · Memory Management": 04-memory-management.md
+      - "05 · File Systems and I/O Models": 05-file-systems-and-io-models.md
+      - "06 · Computer Architecture for Developers": 06-computer-architecture-for-developers.md
+      - "07 · Linux for Developers": 07-linux-for-developers.md
+  - interview-question-bank.md
+  - glob: "*"
+    ignore_no_matches: true

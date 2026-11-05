@@ -1,0 +1,15 @@
+nav:
+  - Overview: README.md
+  - Pages:
+      - "01 · OSI and TCP/IP Models": 01-osi-and-tcp-ip-models.md
+      - "02 · IP Addressing and Routing": 02-ip-addressing-and-routing.md
+      - "03 · TCP and UDP": 03-tcp-and-udp.md
+      - "04 · HTTP": 04-http.md
+      - "05 · TLS and HTTPS": 05-tls-and-https.md
+      - "06 · DNS": 06-dns.md
+      - "07 · What Happens When You Load a URL": 07-what-happens-when-you-load-a-url.md
+      - "08 · WebSockets and Real-Time Protocols": 08-websockets-and-realtime.md
+      - "09 · Proxies and NAT": 09-proxies-and-nat.md
+  - interview-question-bank.md
+  - glob: "*"
+    ignore_no_matches: true

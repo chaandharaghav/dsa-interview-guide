@@ -24,8 +24,8 @@ Each topic page has two parts:
 | [HLD](hld/README.md) | High-level design: building blocks, distributed systems, estimation, 25 case studies | Complete |
 | [Java](java/README.md) | Java and the JVM in depth, concurrency, Spring, JPA, 23 pages and a question bank | Complete |
 | [Databases](databases/README.md) | SQL, schema design, indexes, transactions, query plans, storage engines, NoSQL, Redis, 32 SQL problems, a question bank | Complete |
-| [Networking](networking/README.md) | TCP, UDP, HTTP, TLS, DNS | Planned (phase 6) |
-| [Operating Systems](operating-systems/README.md) | Processes, threads, memory, I/O, computer architecture, Linux | Planned (phase 6) |
+| [Networking](networking/README.md) | Layer models, IP and routing, TCP, UDP, HTTP/1.1 to HTTP/3, TLS 1.3, DNS, the URL walkthrough, WebSocket, proxies and NAT, a question bank | Complete |
+| [Operating Systems](operating-systems/README.md) | Processes and threads, scheduling, synchronization, memory, file systems and I/O, computer architecture, Linux tools, a question bank | Complete |
 | [API Design](api-design/README.md) | REST, gRPC, GraphQL, webhooks | Planned (phase 7) |
 | [Security](security/README.md) | Authentication, authorization, OWASP Top 10, cryptography | Planned (phase 7) |
 | [Engineering Practice](engineering-practice/README.md) | Clean code, testing, Git, CI/CD, containers, observability, debugging | Planned (phase 8) |
