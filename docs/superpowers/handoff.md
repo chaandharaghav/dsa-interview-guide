@@ -16,6 +16,10 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 - Known coverage gaps (minor, from the bank review): page 01 body does not give the reasons `String` is immutable, page 07 does not contrast `sleep` and `wait`, page 12 does not explain stream `flatMap` (each is only in the page's Q&A).
 - **Next:** phase 5 (Databases, 12 pages). Ask the user before starting it.
 
+## SESSION 4, part 2 (2026-11-05): Phase 6 (Operating Systems and Networking) started
+
+User instruction: "move to next phase, similarly use sonnet 5.5 for this, use subagents as needed". Sonnet drafts and reviews every page. The main session reads every P1 model answer. Plan: `docs/superpowers/plans/2026-11-05-phase-6-os-and-networking.md` (O1 to O6, N1 to N8). The sandbox blocks local port binding, so networking programs with `main` are simulations. Between commits inside a batch, the strict build at HEAD can fail on links to pages that are not committed yet: check each batch end on a clean `git archive HEAD` copy, and do not push in the middle of a batch.
+
 ## SESSION 4 (2026-11-05): Phase 5 (Databases) done
 
 User instruction: "Use sonnet subagents and fill the next section". Sonnet drafts and Sonnet reviews every page, including P1 pages. The main session reads every P1 model answer after the review. Plan: `docs/superpowers/plans/2026-11-05-phase-5-databases.md` (assignments DB1 to DB11). The untracked file `kb/dsa/spike-dp-house-robber.md` belongs to the user: do not stage it.
