@@ -16,6 +16,10 @@ User instruction: keep everything in the local repo (no claude.ai artifacts). Co
 - Known coverage gaps (minor, from the bank review): page 01 body does not give the reasons `String` is immutable, page 07 does not contrast `sleep` and `wait`, page 12 does not explain stream `flatMap` (each is only in the page's Q&A).
 - **Next:** phase 5 (Databases, 12 pages). Ask the user before starting it.
 
+## SESSION 4 (2026-11-05): Phase 5 (Databases) started
+
+User instruction: "Use sonnet subagents and fill the next section". Sonnet drafts and Sonnet reviews every page, including P1 pages. The main session reads every P1 model answer after the review. Plan: `docs/superpowers/plans/2026-11-05-phase-5-databases.md` (assignments DB1 to DB11). Batch 1 (DB1 to DB5, pages 01 to 05) drafters started. The untracked file `kb/dsa/spike-dp-house-robber.md` belongs to the user: do not stage it.
+
 ## Read First
 
 1. Spec: `docs/superpowers/specs/2026-10-14-software-engineering-kb-design.md`
