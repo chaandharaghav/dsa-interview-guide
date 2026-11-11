@@ -29,7 +29,7 @@ for num in nums:
     result ^= num
 return result
 ```
-**Examples:** LC 136 (Single Number), LC 268 (Missing Number: XOR index ^ value)
+**Examples:** [LC 136](https://leetcode.com/problems/single-number/) (Single Number), [LC 268](https://leetcode.com/problems/missing-number/) (Missing Number: XOR index ^ value)
 
 ---
 
@@ -47,7 +47,7 @@ for num in nums:
     else:         b ^= num
 return a, b
 ```
-**Examples:** LC 260 (Single Number III)
+**Examples:** [LC 260](https://leetcode.com/problems/single-number-iii/) (Single Number III)
 
 ---
 
@@ -60,7 +60,7 @@ return a, b
 return n > 0 and (n & (n - 1)) == 0
 // n > 0 guard is essential — 0 passes (0 & -1 == 0) falsely
 ```
-**Examples:** LC 231 (Power of Two), LC 342 (Power of Four adds extra mask check)
+**Examples:** [LC 231](https://leetcode.com/problems/power-of-two/) (Power of Two), [LC 342](https://leetcode.com/problems/power-of-four/) (Power of Four adds extra mask check)
 
 ---
 
@@ -76,7 +76,7 @@ while n != 0:
     count += 1
 return count
 ```
-**Examples:** LC 191 (Number of 1 Bits), LC 338 (Counting Bits — dp[i] = dp[i >> 1] + (i & 1))
+**Examples:** [LC 191](https://leetcode.com/problems/number-of-1-bits/) (Number of 1 Bits), [LC 338](https://leetcode.com/problems/counting-bits/) (Counting Bits — dp[i] = dp[i >> 1] + (i & 1))
 
 ---
 
@@ -89,7 +89,7 @@ return count
 lowest_bit = n & (-n)
 // -n in two's complement = ~n + 1; bits above the lowest set bit flip, that bit and the zeros below it stay
 ```
-**Examples:** Fenwick Tree updates, LC 260 (partitioning by lowest differing bit)
+**Examples:** Fenwick Tree updates, [LC 260](https://leetcode.com/problems/single-number-iii/) (partitioning by lowest differing bit)
 
 ---
 
@@ -106,7 +106,7 @@ for mask in range(1 << n):
             subset.append(items[i])
     process(subset)
 ```
-**Examples:** LC 78 (Subsets), LC 1286 (Iterator for Combination)
+**Examples:** [LC 78](https://leetcode.com/problems/subsets/) (Subsets), [LC 1286](https://leetcode.com/problems/iterator-for-combination/) (Iterator for Combination)
 
 ---
 
@@ -125,10 +125,10 @@ for val in arr:
 return count
 ```
 **Examples (related prefix-XOR problems):**
-- LC 1310 (XOR Queries of a Subarray): answer each query as `prefix[r] ^ prefix[l-1]`. It uses the prefix XOR array without a hashmap.
-- LC 1442 (Count Triplets That Can Form Two Arrays of Equal XOR): `a == b` holds when `XOR(arr[i..k]) == 0`. That means `prefix[i-1] == prefix[k]`. Count the pairs of equal prefix values. Each pair gives `k - i` choices of `j`.
-- LC 1915 (Number of Wonderful Substrings): count substrings using a prefix XOR bitmask and a hashmap of counts. This is the same counting structure as the code above.
-- LC 560 (Subarray Sum Equals K) uses the same structure with addition.
+- [LC 1310](https://leetcode.com/problems/xor-queries-of-a-subarray/) (XOR Queries of a Subarray): answer each query as `prefix[r] ^ prefix[l-1]`. It uses the prefix XOR array without a hashmap.
+- [LC 1442](https://leetcode.com/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/) (Count Triplets That Can Form Two Arrays of Equal XOR): `a == b` holds when `XOR(arr[i..k]) == 0`. That means `prefix[i-1] == prefix[k]`. Count the pairs of equal prefix values. Each pair gives `k - i` choices of `j`.
+- [LC 1915](https://leetcode.com/problems/number-of-wonderful-substrings/) (Number of Wonderful Substrings): count substrings using a prefix XOR bitmask and a hashmap of counts. This is the same counting structure as the code above.
+- [LC 560](https://leetcode.com/problems/subarray-sum-equals-k/) (Subarray Sum Equals K) uses the same structure with addition.
 
 ---
 
@@ -152,7 +152,7 @@ function f(n):
 
 return f(b) ^ f(a - 1)
 ```
-**Examples:** LC 1486 (XOR Operation in an Array, O(1) solution)
+**Examples:** [LC 1486](https://leetcode.com/problems/xor-operation-in-an-array/) (XOR Operation in an Array, O(1) solution)
 
 ---
 
@@ -176,7 +176,7 @@ for i in n-2..0:
 
 total = sum(max(0, min(maxLeft[i], maxRight[i]) - height[i]) for i in range(n))
 ```
-**Examples:** LC 42 (Trapping Rain Water). Two-pointer variant does this in O(1) space.
+**Examples:** [LC 42](https://leetcode.com/problems/trapping-rain-water/) (Trapping Rain Water). Two-pointer variant does this in O(1) space.
 
 ---
 
@@ -195,7 +195,7 @@ for i in n-1..0:
     result[i] *= right
     right *= nums[i]                        // suffix product
 ```
-**Examples:** LC 238 (Product of Array Except Self)
+**Examples:** [LC 238](https://leetcode.com/problems/product-of-array-except-self/) (Product of Array Except Self)
 
 ---
 
@@ -217,7 +217,7 @@ for i in n-2..0:
     if rating[i] > rating[i+1]:
         candy[i] = max(candy[i], candy[i+1] + 1)
 ```
-**Examples:** LC 135 (Candy), same pattern in LC 42 two-pointer
+**Examples:** [LC 135](https://leetcode.com/problems/candy/) (Candy), same pattern in [LC 42](https://leetcode.com/problems/trapping-rain-water/) two-pointer
 
 ---
 
@@ -239,7 +239,7 @@ for i in 1..n-1:
 return candidate
 // Works only if majority is guaranteed to exist. Verify in a second pass if needed.
 ```
-**Examples:** LC 169 (Majority Element), LC 229 (Majority Element II — two candidates)
+**Examples:** [LC 169](https://leetcode.com/problems/majority-element/) (Majority Element), [LC 229](https://leetcode.com/problems/majority-element-ii/) (Majority Element II — two candidates)
 
 ---
 
@@ -248,7 +248,7 @@ return candidate
 
 **Trick:** One left-to-right pass builds the "left result" array. One right-to-left pass builds the "right result" array. Combine per index.
 
-**Examples:** LC 42, LC 238, LC 2012 (Sum of Beauty in the Array: prefix max and suffix min). General pattern for any "how am I relative to everything on my left/right" question.
+**Examples:** [LC 42](https://leetcode.com/problems/trapping-rain-water/), [LC 238](https://leetcode.com/problems/product-of-array-except-self/), [LC 2012](https://leetcode.com/problems/sum-of-beauty-in-the-array/) (Sum of Beauty in the Array: prefix max and suffix min). General pattern for any "how am I relative to everything on my left/right" question.
 
 ---
 
@@ -269,7 +269,7 @@ for i, num in enumerate(nums):
         return [seen[complement], i]
     seen[num] = i
 ```
-**Examples:** LC 1 (Two Sum), LC 653 (Two Sum IV on BST), extension to 3Sum (sort + fix one + this)
+**Examples:** [LC 1](https://leetcode.com/problems/two-sum/) (Two Sum), [LC 653](https://leetcode.com/problems/two-sum-iv-input-is-a-bst/) (Two Sum IV on BST), extension to 3Sum (sort + fix one + this)
 
 ---
 
@@ -287,7 +287,7 @@ for num in nums:
     seen[prefSum] = seen.get(prefSum, 0) + 1
 return count
 ```
-**Examples:** LC 560 (Subarray Sum Equals K), LC 523 (Continuous Subarray Sum), LC 974 (Divisible by K)
+**Examples:** [LC 560](https://leetcode.com/problems/subarray-sum-equals-k/) (Subarray Sum Equals K), [LC 523](https://leetcode.com/problems/continuous-subarray-sum/) (Continuous Subarray Sum), [LC 974](https://leetcode.com/problems/subarray-sums-divisible-by-k/) (Divisible by K)
 
 ---
 
@@ -296,7 +296,7 @@ return count
 
 **Trick:** Sliding window naturally handles "AT MOST k distinct." Exactly k = atMost(k) − atMost(k−1).
 
-**Precondition:** the counted quantity must never decrease when the window grows. Distinct counts meet this. The number of odd values in the window (LC 1248) also meets it. A sum meets it only when every value is ≥ 0 (LC 930 has only 0s and 1s). With negative values, use prefix sum + hashmap (3.2).
+**Precondition:** the counted quantity must never decrease when the window grows. Distinct counts meet this. The number of odd values in the window ([LC 1248](https://leetcode.com/problems/count-number-of-nice-subarrays/)) also meets it. A sum meets it only when every value is ≥ 0 ([LC 930](https://leetcode.com/problems/binary-subarrays-with-sum/) has only 0s and 1s). With negative values, use prefix sum + hashmap (3.2).
 
 ```
 function atMost(k):
@@ -313,7 +313,7 @@ function atMost(k):
 
 return atMost(k) - atMost(k - 1)
 ```
-**Examples:** LC 992 (Subarrays with K Different Integers), LC 1248 (Count Number of Nice Subarrays)
+**Examples:** [LC 992](https://leetcode.com/problems/subarrays-with-k-different-integers/) (Subarrays with K Different Integers), [LC 1248](https://leetcode.com/problems/count-number-of-nice-subarrays/) (Count Number of Nice Subarrays)
 
 ---
 
@@ -322,7 +322,7 @@ return atMost(k) - atMost(k - 1)
 
 **Trick:** Count total configurations − count invalid configurations.
 
-**Examples:** LC 2364 (Count Number of Bad Pairs: total pairs − good pairs), number of pairs NOT satisfying a property.
+**Examples:** [LC 2364](https://leetcode.com/problems/count-number-of-bad-pairs/) (Count Number of Bad Pairs: total pairs − good pairs), number of pairs NOT satisfying a property.
 
 ---
 
@@ -331,7 +331,7 @@ return atMost(k) - atMost(k - 1)
 
 **Trick:** Applies when two sets overlap and you'd otherwise double-count.
 
-**Examples:** LC 1201 (Ugly Number III uses GCD/LCM + inclusion-exclusion), any "union of sets" counting.
+**Examples:** [LC 1201](https://leetcode.com/problems/ugly-number-iii/) (Ugly Number III uses GCD/LCM + inclusion-exclusion), any "union of sets" counting.
 
 ---
 
@@ -352,7 +352,7 @@ function gcd(a, b):
 
 lcm(a, b) = a // gcd(a, b) * b   // divide first to avoid overflow
 ```
-**Examples:** LC 1071 (GCD of Strings), LC 365 (Water and Jug — check using GCD), LC 1201 (Ugly Number III)
+**Examples:** [LC 1071](https://leetcode.com/problems/greatest-common-divisor-of-strings/) (GCD of Strings), [LC 365](https://leetcode.com/problems/water-and-jug-problem/) (Water and Jug — check using GCD), [LC 1201](https://leetcode.com/problems/ugly-number-iii/) (Ugly Number III)
 
 ---
 
@@ -372,7 +372,7 @@ function pow(x, n):
         return half * half
     return x * pow(x, n - 1)
 ```
-**Examples:** LC 50 (Pow(x, n)), matrix exponentiation for Fibonacci in O(log n)
+**Examples:** [LC 50](https://leetcode.com/problems/powx-n/) (Pow(x, n)), matrix exponentiation for Fibonacci in O(log n)
 
 ---
 
@@ -381,7 +381,7 @@ function pow(x, n):
 
 **Trick:** n+1 items in n slots → at least one slot has two items. No searching needed — existence is guaranteed by pigeonhole.
 
-**Examples:** LC 287 (Find Duplicate Number — n+1 numbers in range [1..n]), LC 41 (First Missing Positive — n numbers, so the answer lies in [1..n+1])
+**Examples:** [LC 287](https://leetcode.com/problems/find-the-duplicate-number/) (Find Duplicate Number — n+1 numbers in range [1..n]), [LC 41](https://leetcode.com/problems/first-missing-positive/) (First Missing Positive — n numbers, so the answer lies in [1..n+1])
 
 ---
 
@@ -395,7 +395,7 @@ Sum of cubes     = (n*(n+1)/2)^2
 Arithmetic sum   = count * (first + last) / 2
 Geometric sum    = first * (ratio^count - 1) / (ratio - 1)
 ```
-**Examples:** LC 268 (Missing Number = n*(n+1)/2 − sum(nums)), LC 1512 (Number of Good Pairs)
+**Examples:** [LC 268](https://leetcode.com/problems/missing-number/) (Missing Number = n*(n+1)/2 − sum(nums)), [LC 1512](https://leetcode.com/problems/number-of-good-pairs/) (Number of Good Pairs)
 
 ---
 
@@ -412,7 +412,7 @@ next_index = (current_index + 1) % n
 // Option 2: max(linear_max_subarray, total_sum - linear_min_subarray)
 //           if linear_max_subarray < 0 (all values negative), return linear_max_subarray
 ```
-**Examples:** LC 918 (Maximum Sum Circular Subarray), LC 213 (House Robber II — split into two linear)
+**Examples:** [LC 918](https://leetcode.com/problems/maximum-sum-circular-subarray/) (Maximum Sum Circular Subarray), [LC 213](https://leetcode.com/problems/house-robber-ii/) (House Robber II — split into two linear)
 
 ---
 
@@ -431,7 +431,7 @@ result = (a * b) % MOD
 inv_b = pow(b, MOD - 2, MOD)   // only for prime MOD
 result = (a * inv_b) % MOD
 ```
-**Examples:** LC 1269 (Number of Ways to Stay in Same Place), LC 1220 (Count Vowels Permutation)
+**Examples:** [LC 1269](https://leetcode.com/problems/number-of-ways-to-stay-in-the-same-place-after-some-steps/) (Number of Ways to Stay in Same Place), [LC 1220](https://leetcode.com/problems/count-vowels-permutation/) (Count Vowels Permutation)
 
 ---
 
@@ -457,7 +457,7 @@ while mid <= hi:
     else:             // arr[mid] == 1
         mid++
 ```
-**Examples:** LC 75 (Sort Colors), partitioning around a pivot in QuickSort
+**Examples:** [LC 75](https://leetcode.com/problems/sort-colors/) (Sort Colors), partitioning around a pivot in QuickSort
 
 ---
 
@@ -475,7 +475,7 @@ curr = dummy
 
 return dummy.next
 ```
-**Examples:** LC 19 (Remove Nth Node From End), LC 21 (Merge Two Sorted Lists), LC 82 (Remove Duplicates II)
+**Examples:** [LC 19](https://leetcode.com/problems/remove-nth-node-from-end-of-list/) (Remove Nth Node From End), [LC 21](https://leetcode.com/problems/merge-two-sorted-lists/) (Merge Two Sorted Lists), [LC 82](https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/) (Remove Duplicates II)
 
 ---
 
@@ -502,7 +502,7 @@ for i in range(n):
     if i >= k - 1:
         result.append(arr[deque[0]])
 ```
-**Examples:** LC 239 (Sliding Window Maximum), LC 862 (Shortest Subarray with Sum at Least K)
+**Examples:** [LC 239](https://leetcode.com/problems/sliding-window-maximum/) (Sliding Window Maximum), [LC 862](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/) (Shortest Subarray with Sum at Least K)
 
 ---
 
@@ -522,7 +522,7 @@ for char in s:
         stack.pop()
 return stack is empty
 ```
-**Examples:** LC 20 (Valid Parentheses), LC 32 (Longest Valid Parentheses), LC 394 (Decode String)
+**Examples:** [LC 20](https://leetcode.com/problems/valid-parentheses/) (Valid Parentheses), [LC 32](https://leetcode.com/problems/longest-valid-parentheses/) (Longest Valid Parentheses), [LC 394](https://leetcode.com/problems/decode-string/) (Decode String)
 
 ---
 
@@ -542,7 +542,7 @@ for i in 1..n-1:
         reservoir = stream[i]
 return reservoir
 ```
-**Examples:** LC 382 (Linked List Random Node), LC 398 (Random Pick Index)
+**Examples:** [LC 382](https://leetcode.com/problems/linked-list-random-node/) (Linked List Random Node), [LC 398](https://leetcode.com/problems/random-pick-index/) (Random Pick Index)
 
 ---
 
@@ -558,7 +558,7 @@ sorted_unique = sorted(set(values))
 compress = {val: i for i, val in enumerate(sorted_unique)}
 compressed = [compress[v] for v in values]
 ```
-**Examples:** LC 315 (Count of Smaller Numbers After Self), LC 327 (Count of Range Sum), segment tree problems
+**Examples:** [LC 315](https://leetcode.com/problems/count-of-smaller-numbers-after-self/) (Count of Smaller Numbers After Self), [LC 327](https://leetcode.com/problems/count-of-range-sum/) (Count of Range Sum), segment tree problems
 
 ---
 
@@ -587,7 +587,7 @@ while slow != fast:
     fast = fast.next
 return slow  // cycle entry
 ```
-**Examples:** LC 142 (Linked List Cycle II), LC 287 (Find Duplicate — treat array as linked list)
+**Examples:** [LC 142](https://leetcode.com/problems/linked-list-cycle-ii/) (Linked List Cycle II), [LC 287](https://leetcode.com/problems/find-the-duplicate-number/) (Find Duplicate — treat array as linked list)
 
 ---
 
@@ -609,7 +609,7 @@ while queue:
             dist[neighbor] = d + 1
             queue.append((neighbor, d + 1))
 ```
-**Examples:** LC 994 (Rotting Oranges), LC 286 (Walls and Gates), LC 1162 (As Far from Land as Possible)
+**Examples:** [LC 994](https://leetcode.com/problems/rotting-oranges/) (Rotting Oranges), [LC 286](https://leetcode.com/problems/walls-and-gates/) (Walls and Gates) (premium), [LC 1162](https://leetcode.com/problems/as-far-from-land-as-possible/) (As Far from Land as Possible)
 
 ---
 
@@ -628,7 +628,7 @@ function height(node):
     maxDiameter = max(maxDiameter, left + right)  // path through node
     return max(left, right) + 1
 ```
-**Examples:** LC 543 (Diameter of Binary Tree), LC 124 (Binary Tree Maximum Path Sum — use node values instead of height. Clamp negative child gains to 0: `gain = max(0, child gain)`. A negative branch lowers the sum, so the path skips it. Start the global max at `Integer.MIN_VALUE` so an all-negative tree returns its largest node.)
+**Examples:** [LC 543](https://leetcode.com/problems/diameter-of-binary-tree/) (Diameter of Binary Tree), [LC 124](https://leetcode.com/problems/binary-tree-maximum-path-sum/) (Binary Tree Maximum Path Sum — use node values instead of height. Clamp negative child gains to 0: `gain = max(0, child gain)`. A negative branch lowers the sum, so the path skips it. Start the global max at `Integer.MIN_VALUE` so an all-negative tree returns its largest node.)
 
 ---
 
@@ -653,7 +653,7 @@ function deserialize(data):
         return node
     return build()
 ```
-**Examples:** LC 297 (Serialize and Deserialize Binary Tree), LC 449 (BST version uses preorder + BST property)
+**Examples:** [LC 297](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/) (Serialize and Deserialize Binary Tree), [LC 449](https://leetcode.com/problems/serialize-and-deserialize-bst/) (BST version uses preorder + BST property)
 
 ---
 
@@ -678,7 +678,7 @@ for start in range(n):
                     return false   // same color = not bipartite
 return true
 ```
-**Examples:** LC 785 (Is Graph Bipartite?), LC 886 (Possible Bipartition)
+**Examples:** [LC 785](https://leetcode.com/problems/is-graph-bipartite/) (Is Graph Bipartite?), [LC 886](https://leetcode.com/problems/possible-bipartition/) (Possible Bipartition)
 
 ---
 
@@ -703,7 +703,7 @@ while deque:
             else:
                 deque.push_back((dist[neighbor], neighbor))
 ```
-**Examples:** LC 1368 (Minimum Cost to Make at Least One Valid Path), LC 2290 (Minimum Obstacle Removal to Reach Corner)
+**Examples:** [LC 1368](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/) (Minimum Cost to Make at Least One Valid Path), [LC 2290](https://leetcode.com/problems/minimum-obstacle-removal-to-reach-corner/) (Minimum Obstacle Removal to Reach Corner)
 
 ---
 
@@ -727,7 +727,7 @@ for i in 1..n:
     else:
         dp[i] = other_transition
 ```
-**Examples:** LC 72 (Edit Distance), LC 1143 (LCS), LC 91 (Decode Ways)
+**Examples:** [LC 72](https://leetcode.com/problems/edit-distance/) (Edit Distance), [LC 1143](https://leetcode.com/problems/longest-common-subsequence/) (LCS), [LC 91](https://leetcode.com/problems/decode-ways/) (Decode Ways)
 
 ---
 
@@ -748,7 +748,7 @@ for mask in range(1 << n):
             prev_mask = mask ^ (1 << i)
             dp[mask] = min(dp[mask], dp[prev_mask] + cost(i, prev_mask))
 ```
-**Examples:** LC 847 (Shortest Path Visiting All Nodes), LC 1284 (Minimum Flips), LC 691 (Stickers to Spell Word)
+**Examples:** [LC 847](https://leetcode.com/problems/shortest-path-visiting-all-nodes/) (Shortest Path Visiting All Nodes), [LC 1284](https://leetcode.com/problems/minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix/) (Minimum Flips), [LC 691](https://leetcode.com/problems/stickers-to-spell-word/) (Stickers to Spell Word)
 
 ---
 
@@ -764,7 +764,7 @@ for item_weight, item_value in items:
     for w in range(capacity, item_weight - 1, -1):  // REVERSE
         dp[w] = max(dp[w], dp[w - item_weight] + item_value)
 ```
-**Examples:** LC 416 (Partition Equal Subset Sum), LC 474 (Ones and Zeroes), LC 494 (Target Sum)
+**Examples:** [LC 416](https://leetcode.com/problems/partition-equal-subset-sum/) (Partition Equal Subset Sum), [LC 474](https://leetcode.com/problems/ones-and-zeroes/) (Ones and Zeroes), [LC 494](https://leetcode.com/problems/target-sum/) (Target Sum)
 
 ---
 
@@ -780,7 +780,7 @@ for length in range(2, n + 1):
         for k in range(i, j):    // split point
             dp[i][j] = max/min(dp[i][j], dp[i][k] + dp[k+1][j] + combine(i, k, j))
 ```
-**Examples:** LC 312 (Burst Balloons), LC 1000 (Minimum Cost to Merge Stones), LC 516 (Longest Palindromic Subsequence)
+**Examples:** [LC 312](https://leetcode.com/problems/burst-balloons/) (Burst Balloons), [LC 1000](https://leetcode.com/problems/minimum-cost-to-merge-stones/) (Minimum Cost to Merge Stones), [LC 516](https://leetcode.com/problems/longest-palindromic-subsequence/) (Longest Palindromic Subsequence)
 
 ---
 
@@ -789,7 +789,7 @@ for length in range(2, n + 1):
 
 **Trick:** total = n*(n-1)/2 for pairs, or total arrangements for other structures. Compute invalid count and subtract.
 
-**Examples:** LC 2364 (Count Number of Bad Pairs), any "count pairs that do NOT satisfy X" → invert.
+**Examples:** [LC 2364](https://leetcode.com/problems/count-number-of-bad-pairs/) (Count Number of Bad Pairs), any "count pairs that do NOT satisfy X" → invert.
 
 ---
 

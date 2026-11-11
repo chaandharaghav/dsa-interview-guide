@@ -6,6 +6,8 @@ This document contains step-by-step solutions to key problems from each pattern.
 
 ## 1. Sliding Window: Minimum Window Substring (LC #76 - HARD)
 
+**LeetCode:** [LC 76: Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+
 ### Problem
 Given strings `s` and `t`, find the minimum window in `s` that contains all characters of `t`.
 
@@ -81,6 +83,8 @@ function minWindow(s, t):
 
 ## 2. Two Pointers: 3Sum (LC #15 - MEDIUM)
 
+**LeetCode:** [LC 15: 3Sum](https://leetcode.com/problems/3sum/)
+
 ### Problem
 Find all unique triplets that sum to zero.
 
@@ -146,6 +150,8 @@ function threeSum(nums):
 
 ## 3. Binary Search on Answer: Koko Eating Bananas (LC #875 - MEDIUM)
 
+**LeetCode:** [LC 875: Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)
+
 ### Problem
 Koko has `piles` of bananas and `h` hours. Find minimum eating speed `k` to finish all bananas.
 
@@ -194,6 +200,8 @@ function minEatingSpeed(piles, h):
 ---
 
 ## 4. Monotonic Stack: Largest Rectangle in Histogram (LC #84 - HARD)
+
+**LeetCode:** [LC 84: Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
 
 ### Problem
 Find the largest rectangle area in a histogram.
@@ -254,6 +262,8 @@ i=6 (virtual 0): pop all remaining
 ---
 
 ## 5. Backtracking: Word Search (LC #79 - MEDIUM)
+
+**LeetCode:** [LC 79: Word Search](https://leetcode.com/problems/word-search/)
 
 ### Problem
 Find if word exists in a grid by moving adjacent cells (no revisit).
@@ -317,6 +327,8 @@ The first cell has 4 neighbors to try. After the first step, the path cannot go 
 
 ## 6. Graph: Course Schedule II (LC #210 - MEDIUM)
 
+**LeetCode:** [LC 210: Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
+
 ### Problem
 Return course order to finish all courses (or empty if impossible).
 
@@ -371,6 +383,8 @@ function findOrder(numCourses, prerequisites):
 
 ## 7. Dynamic Programming: Coin Change (LC #322 - MEDIUM)
 
+**LeetCode:** [LC 322: Coin Change](https://leetcode.com/problems/coin-change/)
+
 ### Problem
 Find minimum coins to make amount. Return -1 if impossible.
 
@@ -424,6 +438,8 @@ Answer: 2 (coins 3+3)
 ---
 
 ## 8. DP: Longest Increasing Subsequence (LC #300 - MEDIUM)
+
+**LeetCode:** [LC 300: Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 
 ### Problem
 Find length of longest strictly increasing subsequence.
@@ -482,6 +498,8 @@ Answer: 4
 
 ## 9. DP: Edit Distance (LC #72 - MEDIUM)
 
+**LeetCode:** [LC 72: Edit Distance](https://leetcode.com/problems/edit-distance/)
+
 ### Problem
 Find minimum operations to convert word1 to word2 (insert, delete, replace).
 
@@ -535,6 +553,8 @@ function minDistance(word1, word2):
 ---
 
 ## 10. DP: House Robber II (LC #213 - MEDIUM)
+
+**LeetCode:** [LC 213: House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
 ### Problem
 Houses in a circle. Can't rob adjacent. Find max money.

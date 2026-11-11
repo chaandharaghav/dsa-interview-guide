@@ -412,31 +412,31 @@ for end = start to n-1:
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Subsets** | Include/exclude each element | 78 |
-| **Subsets II** | Sort + skip duplicates | 90 |
-| **Permutations** | Swap or used array | 46 |
-| **Permutations II** | Sort + skip duplicates | 47 |
-| **Combinations** | Choose k from n | 77 |
-| **Combination Sum** | Can reuse (i, not i+1) | 39 |
-| **Combination Sum II** | Can't reuse + duplicates | 40 |
-| **Combination Sum III** | Fixed count k, target n | 216 |
-| **Generate Parentheses** | Track open/close counts | 22 |
-| **Letter Combinations of Phone Number** | Multi-level choices | 17 |
-| **Palindrome Partitioning** | Try all palindrome prefixes | 131 |
-| **Word Search** | Grid DFS with backtracking | 79 |
-| **Restore IP Addresses** | Partition into 4 valid parts | 93 |
+| **[Subsets](https://leetcode.com/problems/subsets/)** | Include/exclude each element | 78 |
+| **[Subsets II](https://leetcode.com/problems/subsets-ii/)** | Sort + skip duplicates | 90 |
+| **[Permutations](https://leetcode.com/problems/permutations/)** | Swap or used array | 46 |
+| **[Permutations II](https://leetcode.com/problems/permutations-ii/)** | Sort + skip duplicates | 47 |
+| **[Combinations](https://leetcode.com/problems/combinations/)** | Choose k from n | 77 |
+| **[Combination Sum](https://leetcode.com/problems/combination-sum/)** | Can reuse (i, not i+1) | 39 |
+| **[Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)** | Can't reuse + duplicates | 40 |
+| **[Combination Sum III](https://leetcode.com/problems/combination-sum-iii/)** | Fixed count k, target n | 216 |
+| **[Generate Parentheses](https://leetcode.com/problems/generate-parentheses/)** | Track open/close counts | 22 |
+| **[Letter Combinations of Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)** | Multi-level choices | 17 |
+| **[Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/)** | Try all palindrome prefixes | 131 |
+| **[Word Search](https://leetcode.com/problems/word-search/)** | Grid DFS with backtracking | 79 |
+| **[Restore IP Addresses](https://leetcode.com/problems/restore-ip-addresses/)** | Partition into 4 valid parts | 93 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **N-Queens** | Place row by row, validate | 51 |
-| **N-Queens II** | Count solutions only | 52 |
-| **Sudoku Solver** | Fill cell by cell, validate | 37 |
-| **Word Search II** | Trie + backtracking | 212 |
-| **Expression Add Operators** | Handle multiplication precedence | 282 |
-| **Permutation Sequence** | Factorial number system | 60 |
-| **Word Ladder II** | BFS for distance + DFS for paths | 126 |
-| **Stickers to Spell Word** | Memoization + backtracking | 691 |
+| **[N-Queens](https://leetcode.com/problems/n-queens/)** | Place row by row, validate | 51 |
+| **[N-Queens II](https://leetcode.com/problems/n-queens-ii/)** | Count solutions only | 52 |
+| **[Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)** | Fill cell by cell, validate | 37 |
+| **[Word Search II](https://leetcode.com/problems/word-search-ii/)** | Trie + backtracking | 212 |
+| **[Expression Add Operators](https://leetcode.com/problems/expression-add-operators/)** | Handle multiplication precedence | 282 |
+| **[Permutation Sequence](https://leetcode.com/problems/permutation-sequence/)** | Factorial number system | 60 |
+| **[Word Ladder II](https://leetcode.com/problems/word-ladder-ii/)** | BFS for distance + DFS for paths | 126 |
+| **[Stickers to Spell Word](https://leetcode.com/problems/stickers-to-spell-word/)** | Memoization + backtracking | 691 |
 
 ---
 
@@ -444,44 +444,44 @@ for end = start to n-1:
 
 ### Week 1: Foundation
 **Day 1:**
-- Implement "Subsets" both ways (include/exclude and iterative)
+- Implement "[Subsets](https://leetcode.com/problems/subsets/)" both ways (include/exclude and iterative)
 - Trace through execution to understand recursion tree
 
 **Day 2:**
-- Solve "Permutations" both ways (swap and used array)
+- Solve "[Permutations](https://leetcode.com/problems/permutations/)" both ways (swap and used array)
 - Understand when each approach is better
 
 **Day 3:**
-- Solve "Combinations"
+- Solve "[Combinations](https://leetcode.com/problems/combinations/)"
 - Implement pruning optimization
 
 **Day 4:**
-- Solve "Subsets II" and "Permutations II"
+- Solve "[Subsets II](https://leetcode.com/problems/subsets-ii/)" and "[Permutations II](https://leetcode.com/problems/permutations-ii/)"
 - Master the duplicate-skipping technique
 
 **Day 5:**
-- Solve "Combination Sum" and "Combination Sum II"
+- Solve "[Combination Sum](https://leetcode.com/problems/combination-sum/)" and "[Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)"
 - Understand i vs i+1 for reusability
 
 ### Week 2: Advanced
 **Day 1:**
-- Solve "Generate Parentheses"
+- Solve "[Generate Parentheses](https://leetcode.com/problems/generate-parentheses/)"
 - Practice constraint tracking
 
 **Day 2:**
-- Solve "Palindrome Partitioning"
+- Solve "[Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/)"
 - Combine backtracking with palindrome checking
 
 **Day 3:**
-- Solve "Word Search"
+- Solve "[Word Search](https://leetcode.com/problems/word-search/)"
 - Practice grid-based backtracking
 
 **Day 4:**
-- Solve "N-Queens"
+- Solve "[N-Queens](https://leetcode.com/problems/n-queens/)"
 - Master constraint validation
 
 **Day 5:**
-- Attempt "Sudoku Solver"
+- Attempt "[Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)"
 - This combines everything
 
 ### The Key Skill to Develop:
@@ -613,10 +613,10 @@ function backtrack(index, currentSum, target):
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Backtracking for "count the ways" or "min/max cost" | Dynamic programming (Pattern 15) | Does the output list every solution, or only a number? Only a number, and two choice paths can reach the same (index, remaining) state → DP (LC 518 vs LC 39) |
-| Backtracking for "can you reach the target / is it possible" | Dynamic programming (Pattern 15) | Is n > 20? If yes, 2^n branches are too slow → DP over states (LC 416) |
-| Backtracking over a grid | BFS (Pattern 11) | Does the question ask for the shortest path, not all paths? If yes → BFS (LC 1091 vs LC 79) |
-| Backtracking for "can you reach the end / best arrangement" | Greedy (Pattern 14) | Can a fixed rule pick each step with no need to undo it? If yes, prove the rule, then use greedy (LC 55) |
+| Backtracking for "count the ways" or "min/max cost" | Dynamic programming (Pattern 15) | Does the output list every solution, or only a number? Only a number, and two choice paths can reach the same (index, remaining) state → DP ([LC 518](https://leetcode.com/problems/coin-change-ii/) vs [LC 39](https://leetcode.com/problems/combination-sum/)) |
+| Backtracking for "can you reach the target / is it possible" | Dynamic programming (Pattern 15) | Is n > 20? If yes, 2^n branches are too slow → DP over states ([LC 416](https://leetcode.com/problems/partition-equal-subset-sum/)) |
+| Backtracking over a grid | BFS (Pattern 11) | Does the question ask for the shortest path, not all paths? If yes → BFS ([LC 1091](https://leetcode.com/problems/shortest-path-in-binary-matrix/) vs [LC 79](https://leetcode.com/problems/word-search/)) |
+| Backtracking for "can you reach the end / best arrangement" | Greedy (Pattern 14) | Can a fixed rule pick each step with no need to undo it? If yes, prove the rule, then use greedy ([LC 55](https://leetcode.com/problems/jump-game/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

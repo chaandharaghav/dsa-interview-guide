@@ -319,20 +319,20 @@ A 0-weight edge is "free" — the neighbour is just as cheap as the current node
 **Problem Type:** "Find minimum cost path from top-left to bottom-right" where each cell has a cost.  
 **Reduction:** Treat each cell (r, c) as a node. Edges connect adjacent cells with the adjacent cell's cost (or edge cost depending on problem phrasing).  
 **Algorithm:** Dijkstra. Grid size n×m → V = n×m, E = 4×n×m.  
-**Examples:** LC 1631 (minimum effort), LC 1368 (0-1 BFS on grid).
+**Examples:** [LC 1631](https://leetcode.com/problems/path-with-minimum-effort/) (minimum effort), [LC 1368](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/) (0-1 BFS on grid).
 
 ### Variation B: Maximum Probability Path (Dijkstra in Disguise)
 **Problem Type:** "Find the path with maximum probability of success."  
 **Reduction:** Multiply probabilities along a path (instead of summing weights). Use a **max-heap** and keep the maximum probability to each node.  
 **Key observation:** Probabilities ∈ [0, 1] are non-negative → Dijkstra applies.  
-**Example:** LC 1514.
+**Example:** [LC 1514](https://leetcode.com/problems/path-with-maximum-probability/).
 
 ### Variation C: Shortest Path Visiting All Nodes (BFS + Bitmask)
 **Problem Type:** "Find shortest path that visits every node at least once."  
 **State:** `(node, visitedMask)` — can revisit nodes.  
 **Algorithm:** BFS over the state space (unweighted graph, so BFS is optimal).  
 **State space:** V × 2^V → feasible only for V ≤ ~20.  
-**Example:** LC 847 (V ≤ 12, so 12 × 4096 = 49152 states — fine for BFS).
+**Example:** [LC 847](https://leetcode.com/problems/shortest-path-visiting-all-nodes/) (V ≤ 12, so 12 × 4096 = 49152 states — fine for BFS).
 
 ### Variation D: Restricted Dijkstra (Custom Comparator)
 **Problem Type:** Two-dimensional cost (minimize time, break ties by cost, etc.)  
@@ -357,17 +357,17 @@ A 0-weight edge is "free" — the neighbour is just as cheap as the current node
 ### MEDIUM (Interview Favorites)
 | Problem | Algorithm | Key Insight | LC # |
 |---------|-----------|-------------|------|
-| **Network Delay Time** | Dijkstra | SSSP; return max of dist[] | 743 |
-| **Cheapest Flights Within K Stops** | Bellman-Ford (K+1 rounds) | Copy dist each round; K stops = K+1 edges | 787 |
-| **Find City With Smallest Neighbor Count** | Floyd-Warshall | All-pairs; n ≤ 100 | 1334 |
-| **Path With Minimum Effort** | Dijkstra on grid | State = cell; cost = max edge along path | 1631 |
-| **Path With Maximum Probability** | Dijkstra (max-heap) | Multiply probabilities; max-heap instead of min | 1514 |
+| **[Network Delay Time](https://leetcode.com/problems/network-delay-time/)** | Dijkstra | SSSP; return max of dist[] | 743 |
+| **[Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)** | Bellman-Ford (K+1 rounds) | Copy dist each round; K stops = K+1 edges | 787 |
+| **[Find City With Smallest Neighbor Count](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/)** | Floyd-Warshall | All-pairs; n ≤ 100 | 1334 |
+| **[Path With Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort/)** | Dijkstra on grid | State = cell; cost = max edge along path | 1631 |
+| **[Path With Maximum Probability](https://leetcode.com/problems/path-with-maximum-probability/)** | Dijkstra (max-heap) | Multiply probabilities; max-heap instead of min | 1514 |
 
 ### HARD (Differentiators)
 | Problem | Algorithm | Key Insight | LC # |
 |---------|-----------|-------------|------|
-| **Minimum Cost to Make Valid Path** | 0-1 BFS on grid | Following existing arrow = 0 cost, changing it = 1 | 1368 |
-| **Shortest Path Visiting All Nodes** | BFS + bitmask DP | State = (node, visitedMask); BFS for unweighted | 847 |
+| **[Minimum Cost to Make Valid Path](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/)** | 0-1 BFS on grid | Following existing arrow = 0 cost, changing it = 1 | 1368 |
+| **[Shortest Path Visiting All Nodes](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)** | BFS + bitmask DP | State = (node, visitedMask); BFS for unweighted | 847 |
 
 ### Algorithm Selection by Problem:
 | Constraint | Algorithm | Why |
@@ -385,12 +385,12 @@ A 0-weight edge is "free" — the neighbour is just as cheap as the current node
 
 ### Week 1: Dijkstra Mastery
 **Day 1–2:**
-- Implement Dijkstra from scratch on LC 743 (Network Delay Time)
+- Implement Dijkstra from scratch on [LC 743](https://leetcode.com/problems/network-delay-time/) (Network Delay Time)
 - Focus on: heap tuple ordering, stale-entry guard, INF initialisation
 
 **Day 3–4:**
-- Solve LC 1631 (Path With Minimum Effort) — grid Dijkstra
-- Solve LC 1514 (Path With Maximum Probability) — max-heap variant
+- Solve [LC 1631](https://leetcode.com/problems/path-with-minimum-effort/) (Path With Minimum Effort) — grid Dijkstra
+- Solve [LC 1514](https://leetcode.com/problems/path-with-maximum-probability/) (Path With Maximum Probability) — max-heap variant
 - Focus on: adapting the template to different cost functions
 
 **Day 5:**
@@ -398,22 +398,22 @@ A 0-weight edge is "free" — the neighbour is just as cheap as the current node
 
 ### Week 2: Bellman-Ford and Floyd-Warshall
 **Day 1–2:**
-- Solve LC 787 (Cheapest Flights Within K Stops)
+- Solve [LC 787](https://leetcode.com/problems/cheapest-flights-within-k-stops/) (Cheapest Flights Within K Stops)
 - Write both the naive Bellman-Ford and the K-hop copy-based variant
 - Focus on: understanding *why* the dist copy is mandatory
 
 **Day 3:**
-- Solve LC 1334 (Find the City With the Smallest Number of Neighbors)
+- Solve [LC 1334](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/) (Find the City With the Smallest Number of Neighbors)
 - Implement Floyd-Warshall; deliberately swap the k loop to the inner position and watch it break
 - Focus on: loop order correctness
 
 **Day 4–5:**
-- Solve LC 1368 (Minimum Cost to Make at Least One Valid Path) — 0-1 BFS
+- Solve [LC 1368](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/) (Minimum Cost to Make at Least One Valid Path) — 0-1 BFS
 - Focus on: deque discipline (pushFront vs pushBack)
 
 ### Week 3: Integration and Hard Problems
 **Day 1–3:**
-- Solve LC 847 (Shortest Path Visiting All Nodes) — BFS + bitmask
+- Solve [LC 847](https://leetcode.com/problems/shortest-path-visiting-all-nodes/) (Shortest Path Visiting All Nodes) — BFS + bitmask
 - Focus on: state compression; unweighted BFS over a state-space graph
 
 **Day 4–5:**

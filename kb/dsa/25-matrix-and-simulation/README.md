@@ -75,7 +75,7 @@ that applies it.
 ## 3. Recognition Signals
 
 ### Keywords in Problem Statements:
-- "Rotate the image / matrix by 90 degrees", often with "in place" (LC 48 requires it)
+- "Rotate the image / matrix by 90 degrees", often with "in place" ([LC 48](https://leetcode.com/problems/rotate-image/) requires it)
 - "Spiral order", "zigzag", "diagonal order", "anti-diagonal"
 - "Set the entire row and column to ..." (marking with O(1) extra space)
 - "Search in a matrix where each row and column is sorted"
@@ -84,7 +84,7 @@ that applies it.
 - "Do it in place", "use O(1) extra space"
 
 ### Constraint Hints:
-- `m, n <= 200` (LC 73) or smaller (LC 54: `m, n <= 10`): an O(m * n) or O(m * n * 8)
+- `m, n <= 200` ([LC 73](https://leetcode.com/problems/set-matrix-zeroes/)) or smaller ([LC 54](https://leetcode.com/problems/spiral-matrix/): `m, n <= 10`): an O(m * n) or O(m * n * 8)
   solution is expected.
 - `k` or `n` up to 10^9 days or steps, with a small state: look for a cycle.
 - "In place" or "constant extra space": the problem wants an encoding or a scratch row.
@@ -123,7 +123,7 @@ Time: O(n^2)   Space: O(n^2)
 ```
 
 The time is already optimal, because you must touch every cell. The only cost is space. The
-copy breaks the in-place requirement of LC 48, so expect the follow-up: "Can you do it in
+copy breaks the in-place requirement of [LC 48](https://leetcode.com/problems/rotate-image/), so expect the follow-up: "Can you do it in
 place?" Say the copy solution
 first. It proves that you know the index formula. Then optimize.
 
@@ -230,7 +230,7 @@ All templates compile under `javac --release 21`. Each block holds static method
 any class.
 
 Assumption: the matrix has at least one row and one column (`m >= 1` and `n >= 1`). The
-LeetCode constraints of the matrix problems in section 8 (LC 867, 54, 48, 73, 289, 74, 240, 498)
+LeetCode constraints of the matrix problems in section 8 ([LC 867](https://leetcode.com/problems/transpose-matrix/), [54](https://leetcode.com/problems/spiral-matrix/), [48](https://leetcode.com/problems/rotate-image/), [73](https://leetcode.com/problems/set-matrix-zeroes/), [289](https://leetcode.com/problems/game-of-life/), [74](https://leetcode.com/problems/search-a-2d-matrix/), [240](https://leetcode.com/problems/search-a-2d-matrix-ii/), [498](https://leetcode.com/problems/diagonal-traverse/))
 guarantee it. The templates read `a[0].length`, and that expression throws
 `ArrayIndexOutOfBoundsException` if `m = 0`. If your input can be empty, test it first with a
 helper and return early, for example `if (isEmpty(a)) return new ArrayList<>();`:
@@ -565,8 +565,8 @@ static boolean searchFlattened(int[][] a, int target) {
 ```
 
 The staircase search takes at most `m + n` steps, because each step removes one row or one column.
-The flattened search takes O(log(m * n)) steps. The staircase also works for LeetCode 74, but it
-is slower than the binary search. The binary search does not work for LeetCode 240, because the
+The flattened search takes O(log(m * n)) steps. The staircase also works for [LeetCode 74](https://leetcode.com/problems/search-a-2d-matrix/), but it
+is slower than the binary search. The binary search does not work for [LeetCode 240](https://leetcode.com/problems/search-a-2d-matrix-ii/), because the
 last value of a row can be larger than the first value of the next row.
 
 Start at the top-right or at the bottom-left corner. Do not start at the top-left or
@@ -609,7 +609,7 @@ static long key(int x, int y) {
 Move one step at a time, so that an obstacle stops the robot at the exact cell. Moving `cmd`
 steps in one jump skips the obstacle check.
 
-LC 874 uses `(x, y)` points on a plane, with north as +y. Grid problems use `(row, column)`, with
+[LC 874](https://leetcode.com/problems/walking-robot-simulation/) uses `(x, y)` points on a plane, with north as +y. Grid problems use `(row, column)`, with
 up as row - 1. The `dx` and `dy` arrays keep the same clockwise order as `DR` and `DC` in
 Template 1, so the turn formulas `(d + 1) % 4` and `(d + 3) % 4` do not change.
 
@@ -773,7 +773,7 @@ static char[][] rotateTheBox(char[][] box) {
 ```
 
 A layer with height `h` and width `w` has `2 * (h + w) - 4` cells, because the four corners
-belong to two sides each. `k` can be up to 10^9 in LC 1914, so reduce it with `k % len` before
+belong to two sides each. `k` can be up to 10^9 in [LC 1914](https://leetcode.com/problems/cyclically-rotating-a-grid/), so reduce it with `k % len` before
 you move anything. In the clockwise list, a counterclockwise step moves each value one position
 back, so position `i` receives the value from position `i + k`. Both methods run in O(m * n).
 
@@ -814,62 +814,62 @@ operations, and the board size does not appear in the cost.
 ## 7. Variations of the Pattern
 
 ### Variation A: Traversal orders
-**Problem Type:** Spiral (LC 54, 59, 885, 2326), diagonal zigzag (LC 498), Matrix Diagonal Sum
-(LC 1572), Sort the Matrix Diagonally (LC 1329), column order, snake order, zigzag string (LC 6).
+**Problem Type:** Spiral ([LC 54](https://leetcode.com/problems/spiral-matrix/), [59](https://leetcode.com/problems/spiral-matrix-ii/), [885](https://leetcode.com/problems/spiral-matrix-iii/), [2326](https://leetcode.com/problems/spiral-matrix-iv/)), diagonal zigzag ([LC 498](https://leetcode.com/problems/diagonal-traverse/)), Matrix Diagonal Sum
+([LC 1572](https://leetcode.com/problems/matrix-diagonal-sum/)), Sort the Matrix Diagonally ([LC 1329](https://leetcode.com/problems/sort-the-matrix-diagonally/)), column order, snake order, zigzag string ([LC 6](https://leetcode.com/problems/zigzag-conversion/)).
 **Key Insight:** Express the order as bounds that shrink (spiral), as a constant `r + c` or
 `r - c` (diagonals), or as a bouncing index (zigzag).
-**Technique:** Templates 2, 3, 4, 11, and 12. For LC 1572, add `a[i][i]` and `a[i][n - 1 - i]`
+**Technique:** Templates 2, 3, 4, 11, and 12. For [LC 1572](https://leetcode.com/problems/matrix-diagonal-sum/), add `a[i][i]` and `a[i][n - 1 - i]`
 for each `i`, and subtract the center cell once if `n` is odd.
 
 ### Variation B: Rotation and reflection
-**Problem Type:** Rotate Image (LC 48), Transpose Matrix (LC 867), Flipping an Image (LC 832),
-Rotating the Box (LC 1861), Cyclically Rotating a Grid (LC 1914).
+**Problem Type:** Rotate Image ([LC 48](https://leetcode.com/problems/rotate-image/)), Transpose Matrix ([LC 867](https://leetcode.com/problems/transpose-matrix/)), Flipping an Image ([LC 832](https://leetcode.com/problems/flipping-an-image/)),
+Rotating the Box ([LC 1861](https://leetcode.com/problems/rotating-the-box/)), Cyclically Rotating a Grid ([LC 1914](https://leetcode.com/problems/cyclically-rotating-a-grid/)).
 **Key Insight:** A rotation is a transpose plus a reflection. Memorize the table in Template 5.
-**Technique:** Template 5 and Template 13. LC 1914 rotates each layer counterclockwise. Treat
+**Technique:** Template 5 and Template 13. [LC 1914](https://leetcode.com/problems/cyclically-rotating-a-grid/) rotates each layer counterclockwise. Treat
 each layer as a ring: read the ring into a list, rotate the list by `k % ringLength`, and write it
-back. A layer of height `h` and width `w` has `ringLength = 2 * (h + w) - 4`. LC 832 reverses
+back. A layer of height `h` and width `w` has `ringLength = 2 * (h + w) - 4`. [LC 832](https://leetcode.com/problems/flipping-an-image/) reverses
 each row and then inverts each bit, in one pass per row.
 
 ### Variation C: In-place marking
-**Problem Type:** Set Matrix Zeroes (LC 73), Game of Life (LC 289).
+**Problem Type:** Set Matrix Zeroes ([LC 73](https://leetcode.com/problems/set-matrix-zeroes/)), Game of Life ([LC 289](https://leetcode.com/problems/game-of-life/)).
 **Key Insight:** Hold two pieces of information in one cell, or use the matrix border as scratch.
 **Technique:** Templates 6 and 7. Other encodings also work: a value outside the input range
 (for example `2` for "was 1, now 0" and `-1` for "was 0, now 1"), or a negative sign as a mark.
 
 ### Variation D: Sorted matrix search
-**Problem Type:** Search a 2D Matrix (LC 74), Search a 2D Matrix II (LC 240), Kth Smallest
-Element in a Sorted Matrix (LC 378).
+**Problem Type:** Search a 2D Matrix ([LC 74](https://leetcode.com/problems/search-a-2d-matrix/)), Search a 2D Matrix II ([LC 240](https://leetcode.com/problems/search-a-2d-matrix-ii/)), Kth Smallest
+Element in a Sorted Matrix ([LC 378](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/)).
 **Key Insight:** If only rows are sorted, use binary search per row. If each row starts above the
 previous end, flatten the index. If rows and columns are sorted, use the staircase.
-**Technique:** Template 8. LC 378 is a binary search on the answer value, covered in
+**Technique:** Template 8. [LC 378](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/) is a binary search on the answer value, covered in
 [Binary Search on Answer](../06-binary-search-on-answer/README.md), or a heap
 ([Heap](../16-heap-priority-queue/README.md)).
 
 ### Variation E: Simulation with a direction and a set of obstacles
-**Problem Type:** Walking Robot Simulation (LC 874), Robot Return to Origin (LC 657), Spiral
-Matrix III (LC 885), Count Unguarded Cells in the Grid (LC 2257).
+**Problem Type:** Walking Robot Simulation ([LC 874](https://leetcode.com/problems/walking-robot-simulation/)), Robot Return to Origin ([LC 657](https://leetcode.com/problems/robot-return-to-origin/)), Spiral
+Matrix III ([LC 885](https://leetcode.com/problems/spiral-matrix-iii/)), Count Unguarded Cells in the Grid ([LC 2257](https://leetcode.com/problems/count-unguarded-cells-in-the-grid/)).
 **Key Insight:** Keep `(x, y, d)` as the state. Apply one command at a time. Store obstacles in
 a hash set, because a lookup in a `List` is O(k).
-**Technique:** Template 9. For LC 885 the spiral leaves the matrix and returns. Walk the infinite
+**Technique:** Template 9. For [LC 885](https://leetcode.com/problems/spiral-matrix-iii/) the spiral leaves the matrix and returns. Walk the infinite
 spiral with step lengths `1, 1, 2, 2, 3, 3, ...` and record only the cells that are inside
-(Template 12). For LC 2257, walk from each guard in the four directions until a wall or another
+(Template 12). For [LC 2257](https://leetcode.com/problems/count-unguarded-cells-in-the-grid/), walk from each guard in the four directions until a wall or another
 guard stops the walk, and mark each cell on the way as guarded.
 
 ### Variation F: Cycle detection in states
-**Problem Type:** Prison Cells After N Days (LC 957), Robot Bounded In Circle (LC 1041),
-Walking Robot Simulation II (LC 2069).
+**Problem Type:** Prison Cells After N Days ([LC 957](https://leetcode.com/problems/prison-cells-after-n-days/)), Robot Bounded In Circle ([LC 1041](https://leetcode.com/problems/robot-bounded-in-circle/)),
+Walking Robot Simulation II ([LC 2069](https://leetcode.com/problems/walking-robot-simulation-ii/)).
 **Key Insight:** If the state space is small and the next state depends only on the current
 state, the sequence is eventually periodic. Skip whole periods with `%`.
 **Technique:** Template 10. For a state that is too large for a hash set, use Floyd's cycle
 detection from [Fast & Slow Pointers](../03-fast-slow-pointers/README.md). It needs O(1) memory
-and only an equality test on two states. LC 2069 needs no state set at all: the robot walks only
+and only an equality test on two states. [LC 2069](https://leetcode.com/problems/walking-robot-simulation-ii/) needs no state set at all: the robot walks only
 on the border, so its position repeats every `2 * (width + height) - 4` steps, and you reduce
 each move with `%`. One trap: after the robot returns to `(0, 0)` by moving, it faces South, not
 East. Only the robot that has not moved yet faces East.
 
 ### Variation G: Region indexing (box of a Sudoku)
-**Problem Type:** Valid Sudoku (LC 36). Check if Every Row and Column Contains All Numbers
-(LC 2133) uses only the row and column checks. Sudoku Solver (LC 37, Hard) adds
+**Problem Type:** Valid Sudoku ([LC 36](https://leetcode.com/problems/valid-sudoku/)). Check if Every Row and Column Contains All Numbers
+([LC 2133](https://leetcode.com/problems/check-if-every-row-and-column-contains-all-numbers/)) uses only the row and column checks. Sudoku Solver ([LC 37](https://leetcode.com/problems/sudoku-solver/), Hard) adds
 [Backtracking](../08-recursion-backtracking/README.md) to the same region index.
 **Key Insight:** Map a cell to its 3 x 3 box with `(r / 3) * 3 + c / 3`. One pass with three
 sets (or three boolean tables) per row, column, and box checks every rule.
@@ -879,17 +879,17 @@ holds a digit, set `v = board[r][c] - '1'`, so `v` is in the range 0 to 8. The c
 `[9][9]` table by the digit itself throws an exception for the digit 9.)
 
 ### Variation H: Reshape and re-index
-**Problem Type:** Reshape the Matrix (LC 566), Convert 1D Array Into 2D Array (LC 2022), Shift
-2D Grid (LC 1260).
+**Problem Type:** Reshape the Matrix ([LC 566](https://leetcode.com/problems/reshape-the-matrix/)), Convert 1D Array Into 2D Array ([LC 2022](https://leetcode.com/problems/convert-1d-array-into-2d-array/)), Shift
+2D Grid ([LC 1260](https://leetcode.com/problems/shift-2d-grid/)).
 **Key Insight:** Flatten with `k = r * n + c`. Unflatten with `r = k / n` and `c = k % n`. A
-reshape is an unflatten with a different `n`. For LC 1260, the value at flat index `k` moves to
+reshape is an unflatten with a different `n`. For [LC 1260](https://leetcode.com/problems/shift-2d-grid/), the value at flat index `k` moves to
 flat index `(k + shift) % (m * n)`.
 
 ### Variation I: Simulation with a cascading rule
-**Problem Type:** Candy Crush (LC 723), Rotating the Box (LC 1861).
+**Problem Type:** Candy Crush ([LC 723](https://leetcode.com/problems/candy-crush/) (premium)), Rotating the Box ([LC 1861](https://leetcode.com/problems/rotating-the-box/)).
 **Key Insight:** Split one step into phases that each have a clear rule: mark, remove, drop.
-Repeat until no change. Do not mix the phases in one pass. LC 723 is a premium problem.
-Template 13 shows the drop phase for LC 1861.
+Repeat until no change. Do not mix the phases in one pass. [LC 723](https://leetcode.com/problems/candy-crush/) is a premium problem.
+Template 13 shows the drop phase for [LC 1861](https://leetcode.com/problems/rotating-the-box/).
 
 ---
 
@@ -902,27 +902,27 @@ variation.
 ### EASY (Warm-up)
 | Problem | Key Insight | LC # | Difficulty |
 |---------|-------------|------|------------|
-| **Transpose Matrix** | `out[c][r] = a[r][c]`; the output is `n x m` for rectangles | 867 | Easy |
+| **[Transpose Matrix](https://leetcode.com/problems/transpose-matrix/)** | `out[c][r] = a[r][c]`; the output is `n x m` for rectangles | 867 | Easy |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # | Difficulty |
 |---------|-------------|------|------------|
-| **Spiral Matrix** | Four shrinking boundaries with two guards for a single row or column | 54 | Medium |
-| **Rotate Image** | Transpose, then reverse each row; or swap four cells per cycle | 48 | Medium |
-| **Set Matrix Zeroes** | Use the first row and column as markers; save their own state in two booleans | 73 | Medium |
-| **Game of Life** | Two-bit state encoding; read `& 1`, write bit 1, then shift | 289 | Medium |
-| **Search a 2D Matrix** | Flattened binary search with `mid / n` and `mid % n` | 74 | Medium |
-| **Search a 2D Matrix II** | Staircase from the top-right in O(m + n) | 240 | Medium |
-| **Diagonal Traverse** | Group by `r + c`; reverse every other anti-diagonal | 498 | Medium |
-| **Zigzag Conversion** | Row index that bounces between 0 and `numRows - 1` | 6 | Medium |
-| **Walking Robot Simulation** | Direction index, obstacle hash set, one step at a time | 874 | Medium |
-| **Robot Bounded In Circle** | One pass: back at origin or not facing north means bounded | 1041 | Medium |
-| **Prison Cells After N Days** | Encode the state; find the cycle; skip periods | 957 | Medium |
+| **[Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)** | Four shrinking boundaries with two guards for a single row or column | 54 | Medium |
+| **[Rotate Image](https://leetcode.com/problems/rotate-image/)** | Transpose, then reverse each row; or swap four cells per cycle | 48 | Medium |
+| **[Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)** | Use the first row and column as markers; save their own state in two booleans | 73 | Medium |
+| **[Game of Life](https://leetcode.com/problems/game-of-life/)** | Two-bit state encoding; read `& 1`, write bit 1, then shift | 289 | Medium |
+| **[Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)** | Flattened binary search with `mid / n` and `mid % n` | 74 | Medium |
+| **[Search a 2D Matrix II](https://leetcode.com/problems/search-a-2d-matrix-ii/)** | Staircase from the top-right in O(m + n) | 240 | Medium |
+| **[Diagonal Traverse](https://leetcode.com/problems/diagonal-traverse/)** | Group by `r + c`; reverse every other anti-diagonal | 498 | Medium |
+| **[Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)** | Row index that bounces between 0 and `numRows - 1` | 6 | Medium |
+| **[Walking Robot Simulation](https://leetcode.com/problems/walking-robot-simulation/)** | Direction index, obstacle hash set, one step at a time | 874 | Medium |
+| **[Robot Bounded In Circle](https://leetcode.com/problems/robot-bounded-in-circle/)** | One pass: back at origin or not facing north means bounded | 1041 | Medium |
+| **[Prison Cells After N Days](https://leetcode.com/problems/prison-cells-after-n-days/)** | Encode the state; find the cycle; skip periods | 957 | Medium |
 
 ### HARD (Differentiators)
 
 No problem in the list is Hard. Every problem that section 7 names is Easy or Medium, except
-Sudoku Solver (LC 37, Hard), which is a backtracking problem. These problems cost candidates
+Sudoku Solver ([LC 37](https://leetcode.com/problems/sudoku-solver/), Hard), which is a backtracking problem. These problems cost candidates
 points on precision, not on the idea. Interviewers raise the difficulty with follow-ups on the
 same problems, for example Game of Life on an infinite board (Template 14) and rotation with
 O(1) extra space (Template 5).
@@ -934,42 +934,42 @@ O(1) extra space (Template 5).
 ### Week 1: Index discipline
 **Day 1:**
 - Write `DR`, `DC`, and `inBounds` from memory.
-- Solve "Transpose Matrix" and "Reshape the Matrix".
+- Solve "[Transpose Matrix](https://leetcode.com/problems/transpose-matrix/)" and "[Reshape the Matrix](https://leetcode.com/problems/reshape-the-matrix/)".
 
 **Day 2:**
-- Solve "Spiral Matrix" with the four-boundary form.
+- Solve "[Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)" with the four-boundary form.
 - Test it on `[[1,2,3]]`, `[[1],[2],[3]]`, and a 1 x 1 matrix.
 
 **Day 3:**
-- Solve "Spiral Matrix II" with a direction array.
-- Solve "Spiral Matrix" again with the direction array and a visited marker.
+- Solve "[Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)" with a direction array.
+- Solve "[Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)" again with the direction array and a visited marker.
 
 **Day 4:**
-- Solve "Rotate Image" by transpose and by layers.
+- Solve "[Rotate Image](https://leetcode.com/problems/rotate-image/)" by transpose and by layers.
 - Draw the four-cell cycle on paper before you code it.
 
 **Day 5:**
-- Solve "Diagonal Traverse" and "Zigzag Conversion".
+- Solve "[Diagonal Traverse](https://leetcode.com/problems/diagonal-traverse/)" and "[Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)".
 - Derive the row bounds of an anti-diagonal yourself.
 
 ### Week 2: In-place work and simulation
 **Day 1:**
-- Solve "Set Matrix Zeroes" with O(m + n) space, then with O(1) space.
+- Solve "[Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)" with O(m + n) space, then with O(1) space.
 
 **Day 2:**
-- Solve "Game of Life". Write the two-bit encoding first, then the loops.
+- Solve "[Game of Life](https://leetcode.com/problems/game-of-life/)". Write the two-bit encoding first, then the loops.
 - Answer the infinite-board follow-up out loud.
 
 **Day 3:**
-- Solve "Search a 2D Matrix" and "Search a 2D Matrix II".
+- Solve "[Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)" and "[Search a 2D Matrix II](https://leetcode.com/problems/search-a-2d-matrix-ii/)".
 - Explain why the top-left corner does not work for the staircase.
 
 **Day 4:**
-- Solve "Walking Robot Simulation" and "Robot Bounded In Circle".
+- Solve "[Walking Robot Simulation](https://leetcode.com/problems/walking-robot-simulation/)" and "[Robot Bounded In Circle](https://leetcode.com/problems/robot-bounded-in-circle/)".
 
 **Day 5:**
-- Solve "Prison Cells After N Days".
-- Solve "Valid Sudoku" and "Rotating the Box" (Template 13).
+- Solve "[Prison Cells After N Days](https://leetcode.com/problems/prison-cells-after-n-days/)".
+- Solve "[Valid Sudoku](https://leetcode.com/problems/valid-sudoku/)" and "[Rotating the Box](https://leetcode.com/problems/rotating-the-box/)" (Template 13).
 
 ### Self-Check Questions:
 - Can I write all four moves and the turn formulas without looking?
@@ -1102,7 +1102,7 @@ result, so only a rectangular test finds the second error. Run the smallest inpu
 | "Unique paths", "minimum path sum", "maximal square" | [Dynamic Programming (Pattern 15)](../15-dynamic-programming/README.md) | Does the answer for a cell come from the answers of its neighbors above and to the left? If yes, fill a DP table |
 | "Sum of a rectangle" with many queries | [Prefix Sum (Pattern 04)](../04-prefix-sum/README.md) | Does the problem ask for sums of sub-rectangles? If yes, build a 2D prefix sum |
 | "Kth smallest in a sorted matrix" | [Binary Search on Answer (Pattern 06)](../06-binary-search-on-answer/README.md) | Is the answer a value that you can count against (how many cells are `<= x`)? If yes, binary search on the value |
-| "Search in a sorted matrix" (staircase) | Binary search on a flattened index (LC 74) | Does each row start above the end of the previous row? If yes, flatten and binary search; if only rows and columns are sorted, use the staircase |
+| "Search in a sorted matrix" (staircase) | Binary search on a flattened index ([LC 74](https://leetcode.com/problems/search-a-2d-matrix/)) | Does each row start above the end of the previous row? If yes, flatten and binary search; if only rows and columns are sorted, use the staircase |
 | "Simulate n steps" with a huge `n` | Cycle detection by state (Template 10) | Is the state space small and the rule deterministic? If yes, find the period and skip |
 | "Place queens", "solve Sudoku" | [Backtracking (Pattern 08)](../08-recursion-backtracking/README.md) | Do you choose, check, and undo? If yes, it is a search, not a simulation |
 

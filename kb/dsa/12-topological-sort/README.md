@@ -327,21 +327,21 @@ Use min-heap instead of queue in Kahn's algorithm.
 ### MEDIUM
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Course Schedule** | Cycle detection with topo sort | 207 |
-| **Course Schedule II** | Return one valid order | 210 |
-| **Parallel Courses** | Count levels in BFS | 1136 |
-| **Find All Possible Recipes** | Topo sort with string nodes | 2115 |
-| **Minimum Height Trees** | Trim leaves iteratively | 310 |
-| **Loud and Rich** | Reverse topo sort | 851 |
-| **Course Schedule IV** | Topo sort + reachability | 1462 |
-| **Sequence Reconstruction** | Unique topo sort check | 444 |
+| **[Course Schedule](https://leetcode.com/problems/course-schedule/)** | Cycle detection with topo sort | 207 |
+| **[Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)** | Return one valid order | 210 |
+| **[Parallel Courses](https://leetcode.com/problems/parallel-courses/)** (premium) | Count levels in BFS | 1136 |
+| **[Find All Possible Recipes](https://leetcode.com/problems/find-all-possible-recipes-from-given-supplies/)** | Topo sort with string nodes | 2115 |
+| **[Minimum Height Trees](https://leetcode.com/problems/minimum-height-trees/)** | Trim leaves iteratively | 310 |
+| **[Loud and Rich](https://leetcode.com/problems/loud-and-rich/)** | Reverse topo sort | 851 |
+| **[Course Schedule IV](https://leetcode.com/problems/course-schedule-iv/)** | Topo sort + reachability | 1462 |
+| **[Sequence Reconstruction](https://leetcode.com/problems/sequence-reconstruction/)** (premium) | Unique topo sort check | 444 |
 
 ### HARD
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Alien Dictionary** | Build graph from word comparisons | 269 |
-| **Parallel Courses III** | Topo sort with DP for longest path | 2050 |
-| **Sort Items by Groups Respecting Dependencies** | Two-level topo sort | 1203 |
+| **[Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)** (premium) | Build graph from word comparisons | 269 |
+| **[Parallel Courses III](https://leetcode.com/problems/parallel-courses-iii/)** | Topo sort with DP for longest path | 2050 |
+| **[Sort Items by Groups Respecting Dependencies](https://leetcode.com/problems/sort-items-by-groups-respecting-dependencies/)** | Two-level topo sort | 1203 |
 
 ---
 
@@ -409,7 +409,7 @@ function dfs(node):
 |---|---|---|
 | "Can all courses be finished?" | Three-color DFS cycle check ([Pattern 11](../11-graph-traversal/README.md)) or Kahn's count | Does the output need the order itself? Yes → topological sort. Only yes/no → either method works; Kahn's count check is the shortest code. |
 | Cycle detection in any graph | Undirected: parent check or Union Find | Are the edges directed? Topological sort and three colors apply only to directed graphs. |
-| Longest path or "minimum time" with dependencies | Topological order + DP over that order | Does each task have a duration or weight? Yes → process nodes in topological order and keep `best[node]` (Parallel Courses III, LC 2050). |
+| Longest path or "minimum time" with dependencies | Topological order + DP over that order | Does each task have a duration or weight? Yes → process nodes in topological order and keep `best[node]` (Parallel Courses III, [LC 2050](https://leetcode.com/problems/parallel-courses-iii/)). |
 | Memoized DFS on a DAG (directed acyclic graph) | Either one | Do you need the order as output? No → memoized DFS computes the same values. The memo table is the DP; the recursion finishes nodes in reverse topological order. |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)

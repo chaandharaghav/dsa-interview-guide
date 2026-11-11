@@ -259,7 +259,7 @@ class MyQueue {
   `out` once, and popped from `out` once. That is at most 4 steps for each element over its whole
   life. n operations cost at most 4n steps in total.
 - Space: O(n).
-- The opposite design, a stack from queues (LC 225), costs O(n) for either `push` or `pop` in its
+- The opposite design, a stack from queues ([LC 225](https://leetcode.com/problems/implement-stack-using-queues/)), costs O(n) for either `push` or `pop` in its
   standard forms. The amortized argument above does not carry over: moving elements from one queue
   to another keeps their order instead of reversing it, so the newest element does not reach the
   front. See
@@ -444,7 +444,7 @@ finds the node in O(1). The list moves the node to the front, and removes the la
 The JDK shortcut is `LinkedHashMap` with `accessOrder = true` and an overridden
 `removeEldestEntry`. The full design, the code, the thread-safe version, and the TTL extension are
 on the home page: [LRU and LFU caches](../../lld/case-studies/02-lru-and-lfu-cache/README.md).
-Read that page for LC 146. This page does not repeat it.
+Read that page for [LC 146](https://leetcode.com/problems/lru-cache/). This page does not repeat it.
 
 ### Template 7: LFU Cache in O(1) (LC 460)
 The LFU cache evicts the key with the lowest use count. If several keys have the lowest count,
@@ -645,7 +645,7 @@ class NestedIterator implements Iterator<Integer> {
   is the number of integers and L is the number of lists.
 - Space: O(d), where d is the maximum nesting depth.
 - `nextValue == null` means "no integer found yet". This is safe here because an integer item of
-  LC 341 never returns `null` from `getInteger()`.
+  [LC 341](https://leetcode.com/problems/flatten-nested-list-iterator/) never returns `null` from `getInteger()`.
 - `hasNext()` does the work, and `next()` calls it. This makes the iterator correct for callers
   that call `next()` without calling `hasNext()` first, and for callers that call `hasNext()`
   twice.
@@ -755,7 +755,7 @@ class TimeMapTree {
 | `ArrayList` plus binary search | O(1) amortized | O(log m) | Yes | O(total entries) |
 | `TreeMap` per key | O(log m) | O(log m) | No | O(total entries), larger constant |
 
-Here m is the number of entries of one key. LC 981 guarantees increasing timestamps for `set`, so
+Here m is the number of entries of one key. [LC 981](https://leetcode.com/problems/time-based-key-value-store/) guarantees increasing timestamps for `set`, so
 the list version is correct and cheaper. If the interviewer removes the guarantee, switch to
 `TreeMap`.
 
@@ -807,8 +807,8 @@ class HitCounter {
 
 ### Variation A: Stack with an Extra Fact
 **Problem Type:** A stack that also reports the minimum, the maximum, or the most frequent element.
-**Examples:** Min Stack (LC 155, Medium), Max Stack (LC 716, Hard, premium), Maximum Frequency Stack
-(LC 895, Hard).
+**Examples:** Min Stack ([LC 155](https://leetcode.com/problems/min-stack/), Medium), Max Stack ([LC 716](https://leetcode.com/problems/max-stack/), Hard, premium), Maximum Frequency Stack
+([LC 895](https://leetcode.com/problems/maximum-frequency-stack/), Hard).
 **Key Structure:** Keep a fact beside each entry (Template 1). Max Stack needs `popMax`, which
 removes from the middle, so it uses a `TreeMap` of values to lists of nodes plus a doubly linked
 list. Maximum Frequency Stack keeps one stack per frequency (the same bucket idea as the LFU
@@ -817,31 +817,31 @@ cache).
 ### Variation B: Build One Structure from Another
 **Problem Type:** Implement a queue from stacks, a stack from queues, or a circular queue from an
 array.
-**Examples:** Implement Queue using Stacks (LC 232, Easy), Implement Stack using Queues (LC 225,
-Easy), Design Circular Queue (LC 622, Medium), Design Circular Deque (LC 641, Medium).
+**Examples:** Implement Queue using Stacks ([LC 232](https://leetcode.com/problems/implement-queue-using-stacks/), Easy), Implement Stack using Queues ([LC 225](https://leetcode.com/problems/implement-stack-using-queues/),
+Easy), Design Circular Queue ([LC 622](https://leetcode.com/problems/design-circular-queue/), Medium), Design Circular Deque ([LC 641](https://leetcode.com/problems/design-circular-deque/), Medium).
 **Key Structure:** Two stacks with lazy transfer, or an array with `head` and `size` and index
 arithmetic modulo the capacity. See
 [stacks, queues, and deques](../foundations/03-stacks-queues-deques.md).
 
 ### Variation C: Array Plus Map for Random Access
 **Problem Type:** Constant-time insert, delete, and uniform random choice.
-**Examples:** Insert Delete GetRandom O(1) (LC 380, Medium), with duplicates (LC 381, Hard).
+**Examples:** Insert Delete GetRandom O(1) ([LC 380](https://leetcode.com/problems/insert-delete-getrandom-o1/), Medium), with duplicates ([LC 381](https://leetcode.com/problems/insert-delete-getrandom-o1-duplicates-allowed/), Hard).
 **Key Structure:** Dense list plus index map, with the swap-with-last delete (Templates 3 and 4).
 The **uniform** requirement forces a dense array, because random choice by index needs no gaps. For
 sampling from a stream, see [Pattern 28](../28-randomized-algorithms/README.md).
 
 ### Variation D: Order Statistics on a Stream
 **Problem Type:** Median, k-th largest, or percentile after each insert.
-**Examples:** Find Median from Data Stream (LC 295, Hard), Kth Largest Element in a Stream
-(LC 703, Easy).
+**Examples:** Find Median from Data Stream ([LC 295](https://leetcode.com/problems/find-median-from-data-stream/), Hard), Kth Largest Element in a Stream
+([LC 703](https://leetcode.com/problems/kth-largest-element-in-a-stream/), Easy).
 **Key Structure:** Two heaps for the median, a size-k min-heap for the k-th largest (see
 [Pattern 16](../16-heap-priority-queue/README.md)). If values are bounded integers, for example
 0 to 100, a count array answers the median in O(range) with no heap.
 
 ### Variation E: Eviction Caches
 **Problem Type:** A fixed capacity, and a rule for what to remove.
-**Examples:** LRU Cache (LC 146, Medium), LFU Cache (LC 460, Hard), All O\`one Data Structure
-(LC 432, Hard).
+**Examples:** LRU Cache ([LC 146](https://leetcode.com/problems/lru-cache/), Medium), LFU Cache ([LC 460](https://leetcode.com/problems/lfu-cache/), Hard), All O\`one Data Structure
+([LC 432](https://leetcode.com/problems/all-oone-data-structure/), Hard).
 **Key Structure:** A hash map plus ordered buckets or a linked list. LRU is on the
 [home page](../../lld/case-studies/02-lru-and-lfu-cache/README.md). LFU is Template 7. All
 O\`one keeps a doubly linked list of count buckets, where each bucket holds the keys of one count,
@@ -849,23 +849,23 @@ so `inc`, `dec`, `getMaxKey`, and `getMinKey` all cost O(1).
 
 ### Variation F: Iterators
 **Problem Type:** Walk a structure one element at a time without copying it.
-**Examples:** Peeking Iterator (LC 284, Medium), Flatten Nested List Iterator (LC 341, Medium),
-BST Iterator (LC 173, Medium).
+**Examples:** Peeking Iterator ([LC 284](https://leetcode.com/problems/peeking-iterator/), Medium), Flatten Nested List Iterator ([LC 341](https://leetcode.com/problems/flatten-nested-list-iterator/), Medium),
+BST Iterator ([LC 173](https://leetcode.com/problems/binary-search-tree-iterator/), Medium).
 **Key Structure:** A one-element buffer, or an explicit stack that replaces the recursion call
 stack (Templates 8, 9, 10). The explicit stack is the same technique as an iterative DFS (see
 [Pattern 10](../10-tree-patterns/README.md)).
 
 ### Variation G: Time-Aware Structures
 **Problem Type:** The answer depends on a time or a version.
-**Examples:** Time Based Key-Value Store (LC 981, Medium), Design Hit Counter (LC 362, Medium,
-premium), Snapshot Array (LC 1146, Medium).
+**Examples:** Time Based Key-Value Store ([LC 981](https://leetcode.com/problems/time-based-key-value-store/), Medium), Design Hit Counter ([LC 362](https://leetcode.com/problems/design-hit-counter/) (premium), Medium,
+premium), Snapshot Array ([LC 1146](https://leetcode.com/problems/snapshot-array/), Medium).
 **Key Structure:** Sorted history per key with binary search (Template 11), or a circular buffer
 for a fixed window (Template 12). Snapshot Array stores `(snapshot id, value)` pairs for each
 index and binary searches by snapshot id.
 
 ### Variation H: Hash Table from Scratch
 **Problem Type:** Build `HashMap` or `HashSet` without the library.
-**Examples:** Design HashSet (LC 705, Easy), Design HashMap (LC 706, Easy).
+**Examples:** Design HashSet ([LC 705](https://leetcode.com/problems/design-hashset/), Easy), Design HashMap ([LC 706](https://leetcode.com/problems/design-hashmap/), Easy).
 **Key Structure:** An array of buckets, with chaining or open addressing. See
 [hash tables](../foundations/04-hash-tables.md) for both and for the load factor.
 
@@ -879,18 +879,18 @@ the problem.
 
 | LC # | Title | Difficulty | Key insight |
 |---|---|---|---|
-| 232 | Implement Queue using Stacks | Easy | Two stacks, move only when `out` is empty, amortized O(1) |
-| 706 | Design HashMap | Easy | Bucket array with chaining, resize at a load factor |
-| 155 | Min Stack | Medium | Store the minimum so far in each entry |
-| 380 | Insert Delete GetRandom O(1) | Medium | List plus index map, swap with last on delete |
-| 146 | LRU Cache | Medium | Hash map plus doubly linked list (home page linked above) |
-| 173 | Binary Search Tree Iterator | Medium | Stack holds the left path, O(h) space |
-| 341 | Flatten Nested List Iterator | Medium | Stack of iterators, `hasNext` does the work |
-| 981 | Time Based Key-Value Store | Medium | Sorted list per key, binary search for the floor |
-| 362 | Design Hit Counter (premium) | Medium | Circular buffer of 300 slots with stale-slot reset |
-| 381 | Insert Delete GetRandom O(1) - Duplicates allowed | Hard | Set of indexes per value |
-| 295 | Find Median from Data Stream | Hard | Max-heap for the lower half, min-heap for the upper half |
-| 460 | LFU Cache | Hard | One ordered bucket per count, plus `minCount` |
+| 232 | [Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/) | Easy | Two stacks, move only when `out` is empty, amortized O(1) |
+| 706 | [Design HashMap](https://leetcode.com/problems/design-hashmap/) | Easy | Bucket array with chaining, resize at a load factor |
+| 155 | [Min Stack](https://leetcode.com/problems/min-stack/) | Medium | Store the minimum so far in each entry |
+| 380 | [Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/) | Medium | List plus index map, swap with last on delete |
+| 146 | [LRU Cache](https://leetcode.com/problems/lru-cache/) | Medium | Hash map plus doubly linked list (home page linked above) |
+| 173 | [Binary Search Tree Iterator](https://leetcode.com/problems/binary-search-tree-iterator/) | Medium | Stack holds the left path, O(h) space |
+| 341 | [Flatten Nested List Iterator](https://leetcode.com/problems/flatten-nested-list-iterator/) | Medium | Stack of iterators, `hasNext` does the work |
+| 981 | [Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store/) | Medium | Sorted list per key, binary search for the floor |
+| 362 | [Design Hit Counter](https://leetcode.com/problems/design-hit-counter/) (premium) | Medium | Circular buffer of 300 slots with stale-slot reset |
+| 381 | [Insert Delete GetRandom O(1) - Duplicates allowed](https://leetcode.com/problems/insert-delete-getrandom-o1-duplicates-allowed/) | Hard | Set of indexes per value |
+| 295 | [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/) | Hard | Max-heap for the lower half, min-heap for the upper half |
+| 460 | [LFU Cache](https://leetcode.com/problems/lfu-cache/) | Hard | One ordered bucket per count, plus `minCount` |
 
 ---
 
@@ -898,27 +898,27 @@ the problem.
 
 ### Week 1: Wrappers Around One Idea
 **Day 1-2:**
-- Solve Queue using Stacks (232) and Min Stack (155).
+- Solve Queue using Stacks ([232](https://leetcode.com/problems/implement-queue-using-stacks/)) and Min Stack ([155](https://leetcode.com/problems/min-stack/)).
 - Focus on: stating the invariant before you write the code.
 
 **Day 3-4:**
-- Solve Insert Delete GetRandom O(1) (380), then the duplicates version (381).
+- Solve Insert Delete GetRandom O(1) ([380](https://leetcode.com/problems/insert-delete-getrandom-o1/)), then the duplicates version ([381](https://leetcode.com/problems/insert-delete-getrandom-o1-duplicates-allowed/)).
 - Focus on: the three-line swap-with-last delete and the order of the writes.
 
 **Day 5:**
-- Solve Design HashMap (706). Write the bucket array and the resize by hand.
+- Solve Design HashMap ([706](https://leetcode.com/problems/design-hashmap/)). Write the bucket array and the resize by hand.
 
 ### Week 2: Composite Structures
 **Day 1-2:**
 - Read the [LRU home page](../../lld/case-studies/02-lru-and-lfu-cache/README.md). Then solve
-  LRU Cache (146) from memory, with sentinel nodes.
+  LRU Cache ([146](https://leetcode.com/problems/lru-cache/)) from memory, with sentinel nodes.
 
 **Day 3-4:**
-- Solve LFU Cache (460) and Find Median from Data Stream (295).
+- Solve LFU Cache ([460](https://leetcode.com/problems/lfu-cache/)) and Find Median from Data Stream ([295](https://leetcode.com/problems/find-median-from-data-stream/)).
 - Focus on: the cases that move `minCount`, and the heap rebalance.
 
 **Day 5:**
-- Solve the three iterator problems (173, 341, 284) and Time Based Key-Value Store (981).
+- Solve the three iterator problems ([173](https://leetcode.com/problems/binary-search-tree-iterator/), [341](https://leetcode.com/problems/flatten-nested-list-iterator/), [284](https://leetcode.com/problems/peeking-iterator/)) and Time Based Key-Value Store ([981](https://leetcode.com/problems/time-based-key-value-store/)).
 
 ### How to Present a Design-Data-Structure Answer
 Recommendation: say these steps aloud, in this order. The order shows the interviewer the design
@@ -997,7 +997,7 @@ the tops first.
   at a deleted bucket.
 - Forgetting to raise `minCount` when a `get` empties the lowest bucket.
 - Forgetting to delete an empty bucket, which leaves `minCount` pointing at an empty set.
-- Skipping the zero-capacity check. LC 460 allows capacity 0, and `put` must then do nothing.
+- Skipping the zero-capacity check. [LC 460](https://leetcode.com/problems/lfu-cache/) allows capacity 0, and `put` must then do nothing.
 - Counting a `put` of an existing key as a plain overwrite. It counts as a use.
 
 ### Mistake 8: `hasNext` That Is Not Idempotent
@@ -1005,7 +1005,7 @@ In the nested-list iterator, a `hasNext()` that consumes the next integer makes 
 `hasNext()` skip a value. Store the found value in a field, and clear the field only in `next()`.
 
 ### Mistake 9: Flattening in the Constructor
-It is correct for LC 341, but it costs O(N) time and space before the first call, and it fails if
+It is correct for [LC 341](https://leetcode.com/problems/flatten-nested-list-iterator/), but it costs O(N) time and space before the first call, and it fails if
 the interviewer asks for lazy evaluation or a very large structure. Say the trade-off, then write
 the stack version.
 

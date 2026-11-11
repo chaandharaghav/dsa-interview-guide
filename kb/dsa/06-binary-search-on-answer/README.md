@@ -60,7 +60,7 @@ If neither implication holds, the results can switch between T and F more than o
 - The input array is sorted, or sorted and then rotated.
 - The question asks for an index: "first position", "last position", "insert position", "find the minimum", "find a peak".
 - The problem requires O(log n) time.
-- A rule at `mid` tells you which half cannot contain the answer, even if the array is not sorted (LC 162).
+- A rule at `mid` tells you which half cannot contain the answer, even if the array is not sorted ([LC 162](https://leetcode.com/problems/find-peak-element/)).
 
 ---
 
@@ -172,7 +172,7 @@ Time: O(log n). A linear scan from `first` to find `last` costs O(n) when every 
 
 #### Template 0c: Search in Rotated Sorted Array (LC 33)
 A **rotated sorted array** is a sorted array that was cut at one index and the two pieces were swapped, for example `[4,5,6,7,0,1,2]`.
-LC 33 has distinct values.
+[LC 33](https://leetcode.com/problems/search-in-rotated-sorted-array/) has distinct values.
 
 **Which half is sorted:** split at `mid`. At least one of `[lo..mid]` and `[mid..hi]` contains no rotation point, so it is sorted.
 If `a[lo] <= a[mid]`, the left half is sorted. Otherwise the right half is sorted.
@@ -192,7 +192,7 @@ function searchRotated(a, target):
             else:                                   hi = mid - 1
     return -1
 ```
-Time: O(log n). With duplicates (LC 81), `a[lo] == a[mid] == a[hi]` hides the sorted half, and the worst case becomes O(n).
+Time: O(log n). With duplicates ([LC 81](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/)), `a[lo] == a[mid] == a[hi]` hides the sorted half, and the worst case becomes O(n).
 
 #### Template 0d: Find Minimum in Rotated Sorted Array (LC 153)
 Compare `a[mid]` with `a[hi]`, not with `a[lo]`.
@@ -211,7 +211,7 @@ function findMin(a):
 Time: O(log n). The array is not sorted, but the predicate "`a[i] <= a[n-1]`" is `F F F T T T` over indices, and the minimum is the first T.
 
 #### Template 0e: Find Peak Element (LC 162) — binary search without sorted input
-A **peak** is an element strictly greater than its neighbors. LC 162 treats `a[-1]` and `a[n]` as negative infinity and guarantees `a[i] != a[i+1]`.
+A **peak** is an element strictly greater than its neighbors. [LC 162](https://leetcode.com/problems/find-peak-element/) treats `a[-1]` and `a[n]` as negative infinity and guarantees `a[i] != a[i+1]`.
 
 The array is not sorted. A local property still tells you which half to keep:
 - If `a[mid] < a[mid+1]`, the values rise to the right of `mid`. Walk right from `mid+1`: either the values keep rising until `a[n-1]`, which is then a peak, or they drop after some index `j`, and `a[j]` is a peak. So a peak exists in `[mid+1, hi]`.
@@ -229,11 +229,11 @@ function findPeak(a):
 Time: O(log n). Binary search needs a rule that discards half the range and keeps at least one answer. Sorted order is one such rule, but not the only one.
 
 #### Template 0f: Search a 2D Matrix
-**LC 74:** each row is sorted, and each row's first value is greater than the previous row's last value.
+**[LC 74](https://leetcode.com/problems/search-a-2d-matrix/):** each row is sorted, and each row's first value is greater than the previous row's last value.
 Read the matrix row by row and you get one sorted array of length `m * n`. Binary search over the index `i` in `[0, m*n)` and read the value at `matrix[i / n][i % n]`, where `n` is the number of columns.
 Time: O(log(m·n)).
 
-**LC 240:** each row is sorted and each column is sorted, but rows do not continue each other. This is **not** binary search.
+**[LC 240](https://leetcode.com/problems/search-a-2d-matrix-ii/):** each row is sorted and each column is sorted, but rows do not continue each other. This is **not** binary search.
 Start at the top-right cell. If the value is greater than `target`, move left (the whole column below is also greater). If it is smaller, move down (the whole row to the left is also smaller).
 Each step removes one row or one column, so the time is O(m + n).
 
@@ -244,11 +244,11 @@ Time: O(log(min(m, n))).
 
 #### How to decide lo, hi, the loop condition, and the update
 1. **Write the predicate.** State a yes/no question about index (or value) `i` whose answers look like `F F F T T T`. You want the first T. For "last T" in `T T T F F F`, find the first F and subtract 1.
-2. **Choose `lo` and `hi` so the answer is always inside `[lo, hi]`.** If "no T exists" is a possible result, include one extra position for it: for an array, `hi = n`. If the loop body reads `a[hi]` or `a[mid+1]` (LC 153, LC 162), set `hi = n - 1` so every index you read is valid.
+2. **Choose `lo` and `hi` so the answer is always inside `[lo, hi]`.** If "no T exists" is a possible result, include one extra position for it: for an array, `hi = n`. If the loop body reads `a[hi]` or `a[mid+1]` ([LC 153](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/), [LC 162](https://leetcode.com/problems/find-peak-element/)), set `hi = n - 1` so every index you read is valid.
 3. **Loop `while lo < hi`.** The loop stops when one candidate remains, and that candidate is the answer. In this form, no `result` variable is needed.
 4. **Compute `mid = lo + (hi - lo) / 2`.** It rounds down, so `lo <= mid < hi`. It never equals `hi`, so `a[mid]` and `a[mid+1]` are valid when `hi <= n - 1`.
 5. **Update with `hi = mid` when the predicate is T, and `lo = mid + 1` when it is F.** A T at `mid` may be the first T, so you keep `mid`. An F at `mid` cannot be the answer, so you drop it. Both updates shrink the range by at least one, so the loop always ends.
-6. **The closed-range form `while lo <= hi` with `hi = mid - 1` and `lo = mid + 1` is also correct in two cases.** (a) You return from inside the loop on an exact match (LC 33, LC 704). (b) You record `result = mid` before you shrink the range. Template 1 in Part B is the closed-range form of first-T, and Template 2 is the closed-range form of last-T. In the closed form, the range `[lo, hi]` becomes empty when `lo > hi`.
+6. **The closed-range form `while lo <= hi` with `hi = mid - 1` and `lo = mid + 1` is also correct in two cases.** (a) You return from inside the loop on an exact match ([LC 33](https://leetcode.com/problems/search-in-rotated-sorted-array/), [LC 704](https://leetcode.com/problems/binary-search/)). (b) You record `result = mid` before you shrink the range. Template 1 in Part B is the closed-range form of first-T, and Template 2 is the closed-range form of last-T. In the closed form, the range `[lo, hi]` becomes empty when `lo > hi`.
 
 #### Java: Lower Bound
 ```java
@@ -390,46 +390,46 @@ function floatBinarySearch(lo, hi, epsilon):
 ### EASY — Classic Binary Search (Part A)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Binary Search** | Closed `[lo, hi]` loop with exact-match return | 704 |
-| **Search Insert Position** | Return lower bound | 35 |
-| **First Bad Version** | First T in `F F F T T T` over versions | 278 |
-| **Guess Number Higher or Lower** | Closed `[lo, hi]` loop, the API gives the direction | 374 |
+| **[Binary Search](https://leetcode.com/problems/binary-search/)** | Closed `[lo, hi]` loop with exact-match return | 704 |
+| **[Search Insert Position](https://leetcode.com/problems/search-insert-position/)** | Return lower bound | 35 |
+| **[First Bad Version](https://leetcode.com/problems/first-bad-version/)** | First T in `F F F T T T` over versions | 278 |
+| **[Guess Number Higher or Lower](https://leetcode.com/problems/guess-number-higher-or-lower/)** | Closed `[lo, hi]` loop, the API gives the direction | 374 |
 
 ### MEDIUM — Classic Binary Search (Part A)
 These problems search for a *position* in an array, not for a value in an answer range.
 
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Find First and Last Position of Element in Sorted Array** | Lower bound and upper bound − 1 | 34 |
-| **Search in Rotated Sorted Array** | Find the sorted half, range-check the target | 33 |
-| **Search in Rotated Sorted Array II** | Same as 33; on `a[lo] == a[mid] == a[hi]`, shrink both ends (worst case O(n)) | 81 |
-| **Find Minimum in Rotated Sorted Array** | Compare `a[mid]` with `a[hi]` | 153 |
-| **Find Peak Element** | Keep the side where `a[mid] < a[mid+1]` points | 162 |
-| **Search a 2D Matrix** | One sorted array of length m·n, index → `[i / n][i % n]` | 74 |
-| **Search a 2D Matrix II** | NOT binary search: staircase from top-right, O(m + n) | 240 |
+| **[Find First and Last Position of Element in Sorted Array](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)** | Lower bound and upper bound − 1 | 34 |
+| **[Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)** | Find the sorted half, range-check the target | 33 |
+| **[Search in Rotated Sorted Array II](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/)** | Same as 33; on `a[lo] == a[mid] == a[hi]`, shrink both ends (worst case O(n)) | 81 |
+| **[Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)** | Compare `a[mid]` with `a[hi]` | 153 |
+| **[Find Peak Element](https://leetcode.com/problems/find-peak-element/)** | Keep the side where `a[mid] < a[mid+1]` points | 162 |
+| **[Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)** | One sorted array of length m·n, index → `[i / n][i % n]` | 74 |
+| **[Search a 2D Matrix II](https://leetcode.com/problems/search-a-2d-matrix-ii/)** | NOT binary search: staircase from top-right, O(m + n) | 240 |
 
 ### MEDIUM — Binary Search on Answer (Part B)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Koko Eating Bananas** | Binary search on speed, verify hours | 875 |
-| **Capacity To Ship Packages Within D Days** | Binary search on capacity | 1011 |
-| **Find the Smallest Divisor** | Binary search on divisor | 1283 |
-| **Magnetic Force Between Two Balls** | Maximize minimum distance | 1552 |
-| **Minimum Limit of Balls in a Bag** | Binary search on max bag size | 1760 |
-| **Kth Smallest Element in Sorted Matrix** | BS on value + count | 378 |
-| **Find K Closest Elements** | Binary search on window start | 658 |
-| **Minimized Maximum of Products Distributed to Any Store** | BS on the max per store + count stores needed | 2064 |
+| **[Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)** | Binary search on speed, verify hours | 875 |
+| **[Capacity To Ship Packages Within D Days](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)** | Binary search on capacity | 1011 |
+| **[Find the Smallest Divisor](https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/)** | Binary search on divisor | 1283 |
+| **[Magnetic Force Between Two Balls](https://leetcode.com/problems/magnetic-force-between-two-balls/)** | Maximize minimum distance | 1552 |
+| **[Minimum Limit of Balls in a Bag](https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/)** | Binary search on max bag size | 1760 |
+| **[Kth Smallest Element in Sorted Matrix](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/)** | BS on value + count | 378 |
+| **[Find K Closest Elements](https://leetcode.com/problems/find-k-closest-elements/)** | Binary search on window start | 658 |
+| **[Minimized Maximum of Products Distributed to Any Store](https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/)** | BS on the max per store + count stores needed | 2064 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Median of Two Sorted Arrays** | Binary search on partition | 4 |
-| **Split Array Largest Sum** | Binary search on max sum | 410 |
-| **Find Minimum in Rotated Sorted Array II** | 153 with duplicates; on `a[mid] == a[hi]`, do `hi -= 1` (worst case O(n)) | 154 |
-| **Kth Smallest Number in Multiplication Table** | BS on value + count rows | 668 |
-| **Find K-th Smallest Pair Distance** | BS on distance + count pairs | 719 |
-| **Maximum Running Time of N Computers** | BS on runtime | 2141 |
-| **Minimize Max Distance to Gas Station** | BS on a real-valued distance; stop after a fixed number of iterations | 774 |
+| **[Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/)** | Binary search on partition | 4 |
+| **[Split Array Largest Sum](https://leetcode.com/problems/split-array-largest-sum/)** | Binary search on max sum | 410 |
+| **[Find Minimum in Rotated Sorted Array II](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/)** | 153 with duplicates; on `a[mid] == a[hi]`, do `hi -= 1` (worst case O(n)) | 154 |
+| **[Kth Smallest Number in Multiplication Table](https://leetcode.com/problems/kth-smallest-number-in-multiplication-table/)** | BS on value + count rows | 668 |
+| **[Find K-th Smallest Pair Distance](https://leetcode.com/problems/find-k-th-smallest-pair-distance/)** | BS on distance + count pairs | 719 |
+| **[Maximum Running Time of N Computers](https://leetcode.com/problems/maximum-running-time-of-n-computers/)** | BS on runtime | 2141 |
+| **[Minimize Max Distance to Gas Station](https://leetcode.com/problems/minimize-max-distance-to-gas-station/)** (premium) | BS on a real-valued distance; stop after a fixed number of iterations | 774 |
 
 ---
 
@@ -438,18 +438,18 @@ These problems search for a *position* in an array, not for a value in an answer
 ### Week 1: Core Pattern
 **Day 1:**
 - Understand the "binary search on answer" concept deeply
-- Solve "Koko Eating Bananas" - cleanest example
+- Solve "[Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)" - cleanest example
 
 **Day 2:**
-- Solve "Capacity To Ship Packages Within D Days"
+- Solve "[Capacity To Ship Packages Within D Days](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)"
 - Note similarity to Koko - same pattern!
 
 **Day 3:**
-- Solve "Split Array Largest Sum"
+- Solve "[Split Array Largest Sum](https://leetcode.com/problems/split-array-largest-sum/)"
 - This is the classic problem for this pattern
 
 **Day 4:**
-- Solve "Magnetic Force Between Two Balls"
+- Solve "[Magnetic Force Between Two Balls](https://leetcode.com/problems/magnetic-force-between-two-balls/)"
 - Practice "maximize minimum" variant
 
 **Day 5:**
@@ -458,15 +458,15 @@ These problems search for a *position* in an array, not for a value in an answer
 
 ### Week 2: Advanced Applications
 **Day 1:**
-- Solve "Find K-th Smallest Pair Distance"
+- Solve "[Find K-th Smallest Pair Distance](https://leetcode.com/problems/find-k-th-smallest-pair-distance/)"
 - Combine BS on answer with two-pointer counting
 
 **Day 2:**
-- Solve "Kth Smallest Element in Sorted Matrix"
+- Solve "[Kth Smallest Element in Sorted Matrix](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/)"
 - Practice value-based binary search
 
 **Day 3:**
-- Solve "Median of Two Sorted Arrays"
+- Solve "[Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/)"
 - Most elegant and difficult application
 
 **Day 4:**
@@ -621,11 +621,11 @@ function verify(mid):
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Binary search on the answer for "minimize the max" | DP (Pattern 15) | Can you write a fast `feasible(X)` check, and is it monotonic in X? If yes → binary search (LC 410). If the check needs the full search itself → DP. |
-| Greedy for "minimum speed / capacity" | Binary search on the answer + greedy check | Is the answer one number in a large range, with a yes/no check per value? If yes → binary search wraps the greedy check (LC 875, LC 1011). |
-| Heap for "k-th smallest" | Binary search on the value + count | Is the set implicit or too large to store? If yes → binary search on the value (LC 668). If you can store it and k is small → heap (LC 215). |
-| Binary search on a sorted 2D matrix | Staircase walk from the top-right corner | Does each row start after the previous row ends? If yes → binary search on the flattened index (LC 74). If only rows and columns are sorted → staircase, O(m + n) (LC 240). |
-| Sliding window for "longest segment with ≤ k changes" | Sliding window, not binary search | Can the window grow and shrink with a monotonic condition? If yes → sliding window in O(n) (LC 1004). Binary search on the length also works, but costs O(n log n). |
+| Binary search on the answer for "minimize the max" | DP (Pattern 15) | Can you write a fast `feasible(X)` check, and is it monotonic in X? If yes → binary search ([LC 410](https://leetcode.com/problems/split-array-largest-sum/)). If the check needs the full search itself → DP. |
+| Greedy for "minimum speed / capacity" | Binary search on the answer + greedy check | Is the answer one number in a large range, with a yes/no check per value? If yes → binary search wraps the greedy check ([LC 875](https://leetcode.com/problems/koko-eating-bananas/), [LC 1011](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)). |
+| Heap for "k-th smallest" | Binary search on the value + count | Is the set implicit or too large to store? If yes → binary search on the value ([LC 668](https://leetcode.com/problems/kth-smallest-number-in-multiplication-table/)). If you can store it and k is small → heap ([LC 215](https://leetcode.com/problems/kth-largest-element-in-an-array/)). |
+| Binary search on a sorted 2D matrix | Staircase walk from the top-right corner | Does each row start after the previous row ends? If yes → binary search on the flattened index ([LC 74](https://leetcode.com/problems/search-a-2d-matrix/)). If only rows and columns are sorted → staircase, O(m + n) ([LC 240](https://leetcode.com/problems/search-a-2d-matrix-ii/)). |
+| Sliding window for "longest segment with ≤ k changes" | Sliding window, not binary search | Can the window grow and shrink with a monotonic condition? If yes → sliding window in O(n) ([LC 1004](https://leetcode.com/problems/max-consecutive-ones-iii/)). Binary search on the length also works, but costs O(n log n). |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

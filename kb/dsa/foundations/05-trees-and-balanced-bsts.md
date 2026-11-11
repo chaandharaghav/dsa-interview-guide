@@ -35,7 +35,7 @@ The shapes of binary trees have names that interviewers use with exact meaning:
 | Balanced (height-balanced) | For every node, the heights of its two subtrees differ by at most 1 | The height is O(log n) |
 | Degenerate (skewed) | Every internal node has exactly 1 child. The tree is a linked list | `n = h + 1` |
 
-Two facts follow from the table. A perfect tree of height `h` has `2^h` leaves. A tree with `n` nodes has height at least `⌊log₂ n⌋`, and a complete tree reaches that minimum. The word "balanced" has no single meaning: LeetCode 110 uses the height-balanced definition above, and AVL trees enforce it.
+Two facts follow from the table. A perfect tree of height `h` has `2^h` leaves. A tree with `n` nodes has height at least `⌊log₂ n⌋`, and a complete tree reaches that minimum. The word "balanced" has no single meaning: [LeetCode 110](https://leetcode.com/problems/balanced-binary-tree/) uses the height-balanced definition above, and AVL trees enforce it.
 
 ```mermaid
 flowchart TD
@@ -652,7 +652,7 @@ Sorted input gives a tree of height 9 for 1023 keys, the perfect tree (`2^10 −
 
 ??? question "How do you build a balanced BST from a sorted array in O(n)?"
 
-    Take the middle element as the root, build the left subtree from the left half, and build the right subtree from the right half. Each element becomes a node once, so the time is O(n), and the recursion depth is O(log n). The height is ⌊log₂ n⌋. This is LeetCode 108 and an application of [divide and conquer](../09-divide-and-conquer/README.md).
+    Take the middle element as the root, build the left subtree from the left half, and build the right subtree from the right half. Each element becomes a node once, so the time is O(n), and the recursion depth is O(log n). The height is ⌊log₂ n⌋. This is [LeetCode 108](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/) and an application of [divide and conquer](../09-divide-and-conquer/README.md).
 
 ??? question "What is the height of a randomly built BST, and does the average depth differ from the height?"
 
@@ -715,6 +715,24 @@ Sorted input gives a tree of height 9 for 1023 keys, the perfect tree (`2^10 −
 - B+ tree: many keys per node, records in linked leaves, all leaves at one depth. Databases use it because a page read is the cost. See [Indexing](../../databases/03-indexing.md).
 - Traversals are O(n) time and O(h) space. Recursion on a skewed tree can overflow the stack.
 - Patterns: [tree patterns](../10-tree-patterns/README.md), [divide and conquer](../09-divide-and-conquer/README.md). Next: [heaps](06-heaps.md).
+
+## Practice Problems
+
+Solve these problems after you read this page. Each problem practices an operation from this page. The list runs from easier to harder. Difficulties come from the LeetCode problem list (`https://leetcode.com/api/problems/all/`), saved on 2026-10-21.
+
+| LC # | Title | Difficulty | What it practices |
+|---|---|---|---|
+| 104 | [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/) | Easy | Compute the height in post-order |
+| 110 | [Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/) | Easy | Check the height difference in one post-order pass |
+| 108 | [Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/) | Easy | Build a balanced BST from the middle element |
+| 102 | [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/) | Medium | Breadth-first traversal with a queue, one level at a time |
+| 98 | [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/) | Medium | Pass the allowed key range down, or check that the in-order sequence increases |
+| 230 | [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/) | Medium | In-order traversal visits the keys in sorted order |
+| 235 | [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) | Medium | Use the BST order to choose the side at each node |
+| 701 | [Insert into a Binary Search Tree](https://leetcode.com/problems/insert-into-a-binary-search-tree/) | Medium | BST insert (see "BST operations") |
+| 450 | [Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/) | Medium | The three delete cases, with the in-order successor for a node with two children |
+| 173 | [Binary Search Tree Iterator](https://leetcode.com/problems/binary-search-tree-iterator/) | Medium | In-order traversal with an explicit stack |
+| 729 | [My Calendar I](https://leetcode.com/problems/my-calendar-i/) | Medium | `TreeMap.floorKey` and `ceilingKey` (see "`TreeMap` and `TreeSet`") |
 
 ## Further Reading
 

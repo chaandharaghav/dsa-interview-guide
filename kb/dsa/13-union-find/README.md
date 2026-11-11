@@ -275,7 +275,7 @@ function kruskalMST(n, edges):
 
 **Two algorithms, same answer:**
 - **Kruskal** (above): sort the edges, then add each edge whose endpoints are in different components. Time: O(E log E) for the sort. Use it when the input is an edge list.
-- **Prim** (below): grow one tree from a start node. A min-heap holds the edges that leave the tree. Time: O(E log V) with a heap. On a complete graph (every pair of nodes has an edge, as in LC 1584), use the array version: O(V²).
+- **Prim** (below): grow one tree from a start node. A min-heap holds the edges that leave the tree. Time: O(E log V) with a heap. On a complete graph (every pair of nodes has an edge, as in [LC 1584](https://leetcode.com/problems/min-cost-to-connect-all-points/)), use the array version: O(V²).
 
 ```
 function primMST(n, graph):
@@ -347,24 +347,24 @@ function largestComponentSize(nums):
 ### MEDIUM
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Number of Provinces** | Count components | 547 |
-| **Redundant Connection** | First edge creating cycle | 684 |
-| **Accounts Merge** | Group by shared emails | 721 |
-| **Most Stones Removed** | Stones in same row/col = connected | 947 |
-| **Satisfiability of Equality Equations** | Union equals, check not equals | 990 |
-| **Longest Consecutive Sequence** | Alternative to HashSet | 128 |
-| **Number of Connected Components** | Basic UF application | 323 |
-| **Graph Valid Tree** | n-1 edges, no cycle, connected | 261 |
-| **Smallest String With Swaps** | Group swappable indices | 1202 |
+| **[Number of Provinces](https://leetcode.com/problems/number-of-provinces/)** | Count components | 547 |
+| **[Redundant Connection](https://leetcode.com/problems/redundant-connection/)** | First edge creating cycle | 684 |
+| **[Accounts Merge](https://leetcode.com/problems/accounts-merge/)** | Group by shared emails | 721 |
+| **[Most Stones Removed](https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/)** | Stones in same row/col = connected | 947 |
+| **[Satisfiability of Equality Equations](https://leetcode.com/problems/satisfiability-of-equality-equations/)** | Union equals, check not equals | 990 |
+| **[Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)** | Alternative to HashSet | 128 |
+| **[Number of Connected Components](https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/)** (premium) | Basic UF application | 323 |
+| **[Graph Valid Tree](https://leetcode.com/problems/graph-valid-tree/)** (premium) | n-1 edges, no cycle, connected | 261 |
+| **[Smallest String With Swaps](https://leetcode.com/problems/smallest-string-with-swaps/)** | Group swappable indices | 1202 |
 
 ### HARD
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Redundant Connection II** | Directed graph, complex cases | 685 |
-| **Largest Component Size by Common Factor** | Union by prime factors | 952 |
-| **Number of Islands II** | Dynamic island merging | 305 |
-| **Bricks Falling When Hit** | Reverse time simulation | 803 |
-| **Swim in Rising Water** | Binary search + UF | 778 |
+| **[Redundant Connection II](https://leetcode.com/problems/redundant-connection-ii/)** | Directed graph, complex cases | 685 |
+| **[Largest Component Size by Common Factor](https://leetcode.com/problems/largest-component-size-by-common-factor/)** | Union by prime factors | 952 |
+| **[Number of Islands II](https://leetcode.com/problems/number-of-islands-ii/)** (premium) | Dynamic island merging | 305 |
+| **[Bricks Falling When Hit](https://leetcode.com/problems/bricks-falling-when-hit/)** | Reverse time simulation | 803 |
+| **[Swim in Rising Water](https://leetcode.com/problems/swim-in-rising-water/)** | Binary search + UF | 778 |
 
 ---
 
@@ -444,8 +444,8 @@ if u == v:
 | Looks like... | But use... | The question that decides |
 |---|---|---|
 | Connected components or cycle check | DFS/BFS ([Pattern 11](../11-graph-traversal/README.md)) | Is the full graph known before any query? Yes → one DFS pass is enough. Edges arrive over time with a query after each → Union Find. |
-| "Remove an edge" or "cut a connection" | Reverse the timeline, or rerun DFS | Does the problem delete edges? Union Find cannot undo a union. Process the deletions backward as additions (Bricks Falling When Hit, LC 803), or rerun DFS. |
-| "Redundant edge" in a directed graph | Union Find plus in-degree checks (LC 685) | Are the edges directed? Plain Union Find detects cycles only in undirected graphs. |
+| "Remove an edge" or "cut a connection" | Reverse the timeline, or rerun DFS | Does the problem delete edges? Union Find cannot undo a union. Process the deletions backward as additions (Bricks Falling When Hit, [LC 803](https://leetcode.com/problems/bricks-falling-when-hit/)), or rerun DFS. |
+| "Redundant edge" in a directed graph | Union Find plus in-degree checks ([LC 685](https://leetcode.com/problems/redundant-connection-ii/)) | Are the edges directed? Plain Union Find detects cycles only in undirected graphs. |
 | Minimum cost to connect all nodes | MST (Kruskal/Prim), not Dijkstra | Does the answer cover *all* nodes as one total, or a path from one source? All nodes → MST. One source → Dijkstra. |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)

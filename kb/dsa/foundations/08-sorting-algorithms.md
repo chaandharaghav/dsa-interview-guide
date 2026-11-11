@@ -59,7 +59,7 @@ Notes on the table:
 - [Greedy](../14-greedy/README.md): many greedy solutions sort by a key first, and the proof depends on that order.
 - [Heap and priority queue](../16-heap-priority-queue/README.md): heap sort, top-k, the k-way merge, and quickselect as the alternative to a heap for the k-th element.
 - [Divide and conquer](../09-divide-and-conquer/README.md): merge sort is the standard example. Counting inversions and "count of smaller numbers after self" extend its merge step.
-- [Hashing and frequency](../05-hashing-frequency/README.md): counting sort and bucket sort replace a sort by frequency (LeetCode 347, 451).
+- [Hashing and frequency](../05-hashing-frequency/README.md): counting sort and bucket sort replace a sort by frequency ([LeetCode 347](https://leetcode.com/problems/top-k-frequent-elements/), [451](https://leetcode.com/problems/sort-characters-by-frequency/)).
 - `kb/dsa/21-segment-tree-and-fenwick-tree/README.md`: a second way to count inversions, with a Fenwick tree.
 
 Related foundations: [complexity analysis](01-complexity-analysis.md) gives the master theorem used in the merge sort and quicksort recurrences. [Heaps](06-heaps.md) gives the heap that heap sort uses.
@@ -175,8 +175,8 @@ class MergeSort {
 - **Space.** O(n) for the buffer `aux`, plus O(log n) for the recursion stack. The buffer is allocated once. A buffer allocated in each merge call gives the same bound but more garbage.
 - **Stable.** Yes. In `merge`, `aux[j] < aux[i]` is strict. On a tie, the left element wins, and the left element came first in the input.
 - **Mid index.** `lo + (hi - lo) / 2` does not overflow. `(lo + hi) / 2` overflows when `lo + hi` exceeds `Integer.MAX_VALUE`. Joshua Bloch described this bug in the JDK binary search in 2006.
-- **Linked lists.** Merge sort suits linked lists. The merge relinks nodes and needs no buffer, and it needs no random access. LeetCode 148 ("Sort List") asks for it. A top-down version uses O(log n) stack, and a bottom-up version uses O(1) extra space.
-- **Counting inversions.** While merging, each time the code takes an element from the right half, it jumps over all the elements that are still in the left half. Each of those pairs is an inversion. Adding the count of those elements gives the total number of inversions in O(n log n). LeetCode 315 and 493 use this idea.
+- **Linked lists.** Merge sort suits linked lists. The merge relinks nodes and needs no buffer, and it needs no random access. [LeetCode 148](https://leetcode.com/problems/sort-list/) ("Sort List") asks for it. A top-down version uses O(log n) stack, and a bottom-up version uses O(1) extra space.
+- **Counting inversions.** While merging, each time the code takes an element from the right half, it jumps over all the elements that are still in the left half. Each of those pairs is an inversion. Adding the count of those elements gives the total number of inversions in O(n log n). [LeetCode 315](https://leetcode.com/problems/count-of-smaller-numbers-after-self/) and [493](https://leetcode.com/problems/reverse-pairs/) use this idea.
 
 ### Quicksort
 
@@ -305,7 +305,7 @@ A split does not need to be balanced. Any split with a constant ratio keeps the 
 
 #### Three-way partition
 
-The three-way partition (the Dutch national flag problem, by Dijkstra) splits `a[lo..hi]` into three zones: less than, equal to, and greater than the pivot. The loop keeps three boundaries, `lt`, `i`, and `gt`. If `a[i] < pivot`, it swaps `a[i]` into the "less" zone and advances both `lt` and `i`. If `a[i] > pivot`, it swaps `a[i]` with `a[gt]` and decrements `gt`, but it does **not** advance `i`, because the element that came from `gt` is not yet examined. If `a[i] == pivot`, it advances `i`. The recursion skips the whole equal zone. An array with `m` distinct keys sorts in O(n · log m) expected time, and all-equal input costs O(n). LeetCode 75 ("Sort Colors") is the three-way partition with the pivot value 1.
+The three-way partition (the Dutch national flag problem, by Dijkstra) splits `a[lo..hi]` into three zones: less than, equal to, and greater than the pivot. The loop keeps three boundaries, `lt`, `i`, and `gt`. If `a[i] < pivot`, it swaps `a[i]` into the "less" zone and advances both `lt` and `i`. If `a[i] > pivot`, it swaps `a[i]` with `a[gt]` and decrements `gt`, but it does **not** advance `i`, because the element that came from `gt` is not yet examined. If `a[i] == pivot`, it advances `i`. The recursion skips the whole equal zone. An array with `m` distinct keys sorts in O(n · log m) expected time, and all-equal input costs O(n). [LeetCode 75](https://leetcode.com/problems/sort-colors/) ("Sort Colors") is the three-way partition with the pivot value 1.
 
 #### Quicksort is unstable
 
@@ -432,7 +432,7 @@ The `radixSort` method above uses base 256 on `int` values: 4 passes, each a cou
 - **Stable**: yes, because each pass is a stable counting sort.
 - **Choosing the base.** A larger base means fewer passes and a larger count array. A base near n makes the count array about as large as the input. Sorting n integers in the range 0 to n² − 1 takes 2 passes in base n, so it runs in O(n). An exercise in CLRS section 8.3 (exercise 8.3-4 in the 3rd edition) asks for the same idea with the range 0 to n³ − 1 (3 passes).
 - **When it beats a comparison sort.** If keys are fixed-width integers or fixed-length strings, and n is large. The constant factors are higher than they look, so measure first.
-- **MSD radix sort** starts from the most significant digit and recurses on each group. It suits variable-length strings, but it is more complex. LeetCode 164 ("Maximum Gap") has an O(n) solution with radix sort or with buckets.
+- **MSD radix sort** starts from the most significant digit and recurses on each group. It suits variable-length strings, but it is more complex. [LeetCode 164](https://leetcode.com/problems/maximum-gap/) ("Maximum Gap") has an O(n) solution with radix sort or with buckets.
 
 ### Bucket sort
 
@@ -441,7 +441,7 @@ Bucket sort distributes the elements into `k` buckets by value range, sorts each
 - **Time.** If the input is spread evenly, each bucket holds O(1) elements on average, and the expected time is O(n) (CLRS section 8.4 proves it for uniform input). If all elements land in one bucket, the cost is the cost of the bucket's own sort, which is O(n²) for insertion sort and O(n log n) for a good sort.
 - **Space.** O(n + k).
 - **Stable**: yes, if the elements are added to buckets in input order and each bucket is sorted by a stable sort. `Collections.sort` is stable.
-- **Frequency buckets.** A common interview use has the bucket index equal to a count, and not a value range. For "Top K Frequent Elements" (LeetCode 347), count the frequency of each number with a hash map. The frequency of any number is at most `n`, so put each number into `bucket[frequency]` and read the buckets from the highest index down. This gives O(n) time, and it is the answer when the interviewer asks for better than O(n log n).
+- **Frequency buckets.** A common interview use has the bucket index equal to a count, and not a value range. For "Top K Frequent Elements" ([LeetCode 347](https://leetcode.com/problems/top-k-frequent-elements/)), count the frequency of each number with a hash map. The frequency of any number is at most `n`, so put each number into `bucket[frequency]` and read the buckets from the highest index down. This gives O(n) time, and it is the answer when the interviewer asks for better than O(n log n).
 
 ### The lower bound: Ω(n log n) for comparison sorts
 
@@ -548,7 +548,7 @@ class Quickselect {
 - **Worst case O(n) with the median of medians** (CLRS section 9.3, groups of 5). The constant is large, so interviews and libraries use the random pivot.
 - **Space.** O(1). The method reorders the input array. Copy the array first if the caller needs it unchanged.
 - **Three-way partition** makes the code correct and fast on many equal keys: if `k` falls in the equal block, the method returns at once.
-- **Compared with other solutions for LeetCode 215:**
+- **Compared with other solutions for [LeetCode 215](https://leetcode.com/problems/kth-largest-element-in-an-array/):**
 
 | Method | Time | Space | Changes the input |
 |---|---|---|---|
@@ -596,19 +596,19 @@ All difficulties come from the LeetCode problem list.
 
 | Problem | Difficulty | Sorting idea |
 |---|---|---|
-| 1122 Relative Sort Array | Easy | Counting sort over the value range |
-| 75 Sort Colors | Medium | Three-way partition with pivot 1, in one pass and O(1) space |
-| 912 Sort an Array | Medium | Write merge sort, heap sort, or quicksort yourself. A Lomuto quicksort with a fixed pivot can time out on sorted or all-equal input |
-| 215 Kth Largest Element in an Array | Medium | Quickselect or a heap |
-| 148 Sort List | Medium | Merge sort on a linked list |
-| 56 Merge Intervals | Medium | Sort by start, then scan |
-| 179 Largest Number | Medium | Sort strings with the comparator `(a + b)` against `(b + a)` |
-| 347 Top K Frequent Elements | Medium | Bucket sort by frequency, or a heap |
-| 451 Sort Characters By Frequency | Medium | Counting sort or bucket sort by frequency |
-| 164 Maximum Gap | Medium | Radix sort or buckets, for an O(n) solution |
-| 969 Pancake Sorting | Medium | A sort by one operation (reverse a prefix), like selection sort |
-| 315 Count of Smaller Numbers After Self | Hard | Merge sort with index tracking, or a Fenwick tree |
-| 493 Reverse Pairs | Hard | Count pairs during the merge step of merge sort |
+| [1122 Relative Sort Array](https://leetcode.com/problems/relative-sort-array/) | Easy | Counting sort over the value range |
+| [75 Sort Colors](https://leetcode.com/problems/sort-colors/) | Medium | Three-way partition with pivot 1, in one pass and O(1) space |
+| [912 Sort an Array](https://leetcode.com/problems/sort-an-array/) | Medium | Write merge sort, heap sort, or quicksort yourself. A Lomuto quicksort with a fixed pivot can time out on sorted or all-equal input |
+| [215 Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) | Medium | Quickselect or a heap |
+| [148 Sort List](https://leetcode.com/problems/sort-list/) | Medium | Merge sort on a linked list |
+| [56 Merge Intervals](https://leetcode.com/problems/merge-intervals/) | Medium | Sort by start, then scan |
+| [179 Largest Number](https://leetcode.com/problems/largest-number/) | Medium | Sort strings with the comparator `(a + b)` against `(b + a)` |
+| [347 Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/) | Medium | Bucket sort by frequency, or a heap |
+| [451 Sort Characters By Frequency](https://leetcode.com/problems/sort-characters-by-frequency/) | Medium | Counting sort or bucket sort by frequency |
+| [164 Maximum Gap](https://leetcode.com/problems/maximum-gap/) | Medium | Radix sort or buckets, for an O(n) solution |
+| [969 Pancake Sorting](https://leetcode.com/problems/pancake-sorting/) | Medium | A sort by one operation (reverse a prefix), like selection sort |
+| [315 Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/) | Hard | Merge sort with index tracking, or a Fenwick tree |
+| [493 Reverse Pairs](https://leetcode.com/problems/reverse-pairs/) | Hard | Count pairs during the merge step of merge sort |
 
 ## Java Example
 
@@ -733,7 +733,7 @@ The `a - b` result `[1, -2147483648]` is wrong: the list is not in ascending ord
 
 ??? question "Which sort do you use for a linked list, and why?"
 
-    Merge sort. A linked list has no random access, so heap sort and quicksort partition schemes that index into the array do not fit. Merge sort walks the list in order, and its merge step relinks nodes, so it needs no O(n) buffer. The time is O(n log n). The recursion stack is O(log n) for the top-down version. A bottom-up version, which merges runs of size 1, 2, 4, and so on, uses O(1) extra space (LeetCode 148). Insertion sort also works on a list, but it costs O(n²).
+    Merge sort. A linked list has no random access, so heap sort and quicksort partition schemes that index into the array do not fit. Merge sort walks the list in order, and its merge step relinks nodes, so it needs no O(n) buffer. The time is O(n log n). The recursion stack is O(log n) for the top-down version. A bottom-up version, which merges runs of size 1, 2, 4, and so on, uses O(1) extra space ([LeetCode 148](https://leetcode.com/problems/sort-list/)). Insertion sort also works on a list, but it costs O(n²).
 
 ??? question "Find the k-th largest element of an array. What are your options and their costs?"
 
@@ -767,11 +767,11 @@ The `a - b` result `[1, -2147483648]` is wrong: the list is not in ascending ord
 
 ??? question "How would you count inversions in an array in O(n log n)?"
 
-    Modify merge sort. During the merge of the sorted halves `left` and `right`, if the code takes an element from `right`, then that element is smaller than every element still in `left`. Each such pair is an inversion, so add the number of remaining `left` elements to the counter. The merge step stays linear, so the total time is O(n log n). The same idea solves LeetCode 315 (with index tracking) and 493 (count the pairs before the merge). A Fenwick tree is the second method, see `kb/dsa/21-segment-tree-and-fenwick-tree/README.md`.
+    Modify merge sort. During the merge of the sorted halves `left` and `right`, if the code takes an element from `right`, then that element is smaller than every element still in `left`. Each such pair is an inversion, so add the number of remaining `left` elements to the counter. The merge step stays linear, so the total time is O(n log n). The same idea solves [LeetCode 315](https://leetcode.com/problems/count-of-smaller-numbers-after-self/) (with index tracking) and 493 (count the pairs before the merge). A Fenwick tree is the second method, see `kb/dsa/21-segment-tree-and-fenwick-tree/README.md`.
 
 ??? question "How do you sort an array that contains only 0, 1, and 2, in one pass and O(1) space?"
 
-    Use the three-way partition with the pivot value 1 (LeetCode 75). Keep `lt` (end of the 0 zone), `i` (the scan index), and `gt` (start of the 2 zone). If `a[i] == 0`, swap it with `a[lt]` and advance both. If `a[i] == 2`, swap it with `a[gt]` and decrement `gt` without advancing `i`. If it is 1, advance `i`. The loop stops when `i > gt`. Each element is examined at most once, so the time is O(n).
+    Use the three-way partition with the pivot value 1 ([LeetCode 75](https://leetcode.com/problems/sort-colors/)). Keep `lt` (end of the 0 zone), `i` (the scan index), and `gt` (start of the 2 zone). If `a[i] == 0`, swap it with `a[lt]` and advance both. If `a[i] == 2`, swap it with `a[gt]` and decrement `gt` without advancing `i`. If it is 1, advance `i`. The loop stops when `i > gt`. Each element is examined at most once, so the time is O(n).
 
 ??? question "Is Java's `Arrays.sort(int[])` safe against adversarial input that triggers quadratic time?"
 

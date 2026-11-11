@@ -622,6 +622,23 @@ The Java toolkit page lists the same calls for problem solving: [Java toolkit](.
 - Bounded producer-consumer: `ArrayBlockingQueue`, or `LinkedBlockingQueue` with a capacity.
 - Next greater element and sliding-window maximum: [pattern 07](../07-monotonic-stack-queue/README.md).
 
+## Practice Problems
+
+Solve these problems after you read this page. Each problem practices an operation from this page. The list runs from easier to harder. Difficulties come from the LeetCode problem list (`https://leetcode.com/api/problems/all/`), saved on 2026-10-21.
+
+| LC # | Title | Difficulty | What it practices |
+|---|---|---|---|
+| 20 | [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/) | Easy | Push each open bracket. Pop and match at each close bracket |
+| 232 | [Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/) | Easy | Two stacks. Move elements only when the output stack is empty (see "Queue with two stacks") |
+| 225 | [Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/) | Easy | One queue. Rotate the older elements behind each new element (see "Stack with queues") |
+| 155 | [Min Stack](https://leetcode.com/problems/min-stack/) | Medium | Store the minimum so far with each entry |
+| 622 | [Design Circular Queue](https://leetcode.com/problems/design-circular-queue/) | Medium | A circular buffer with a head index and a size (see "The circular buffer") |
+| 641 | [Design Circular Deque](https://leetcode.com/problems/design-circular-deque/) | Medium | A circular buffer that adds and removes at both ends |
+| 71 | [Simplify Path](https://leetcode.com/problems/simplify-path/) | Medium | A stack of directory names |
+| 394 | [Decode String](https://leetcode.com/problems/decode-string/) | Medium | A stack of repeat counts and a stack of partial strings |
+| 739 | [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/) | Medium | A monotonic stack ([Pattern 07](../07-monotonic-stack-queue/README.md)) |
+| 239 | [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/) | Hard | A monotonic deque ([Pattern 07](../07-monotonic-stack-queue/README.md)) |
+
 ## Further Reading
 
 - [`ArrayDeque` javadoc (JDK 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayDeque.html): states that it prohibits `null`, is not thread-safe, and is likely faster than `Stack` and `LinkedList` in the matching roles.

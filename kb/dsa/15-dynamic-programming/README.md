@@ -45,7 +45,7 @@ If YES → likely DP
 ### From Recursion to State: The Concrete Test
 The litmus question is abstract. This procedure is concrete. Write the brute-force recursion first. If the same arguments repeat, memoize. The arguments are the state.
 
-Worked example: **House Robber (LC 198).** You cannot rob two adjacent houses. Maximize the money.
+Worked example: **House Robber ([LC 198](https://leetcode.com/problems/house-robber/)).** You cannot rob two adjacent houses. Maximize the money.
 
 1. **List the choices at one step.** At house `i`, you rob it or skip it.
 2. **Write the brute-force recursion.** Each choice becomes one recursive call.
@@ -480,70 +480,70 @@ return prev1
 ### 1D Linear DP
 | Problem | State Definition | LC # |
 |---------|------------------|------|
-| **Climbing Stairs** | dp[i] = ways to reach step i | 70 |
-| **House Robber** | dp[i] = max money robbing houses 0 to i | 198 |
-| **House Robber II** | Handle circular with two passes | 213 |
-| **Maximum Subarray** | dp[i] = max sum ending at i (Kadane) | 53 |
-| **Longest Increasing Subsequence** | dp[i] = LIS ending at i | 300 |
-| **Word Break** | dp[i] = can form s[0:i] | 139 |
-| **Coin Change** | dp[i] = min coins for amount i | 322 |
-| **Perfect Squares** | dp[i] = min squares summing to i | 279 |
-| **Decode Ways** | dp[i] = ways to decode first i chars | 91 |
+| **[Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)** | dp[i] = ways to reach step i | 70 |
+| **[House Robber](https://leetcode.com/problems/house-robber/)** | dp[i] = max money robbing houses 0 to i | 198 |
+| **[House Robber II](https://leetcode.com/problems/house-robber-ii/)** | Handle circular with two passes | 213 |
+| **[Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)** | dp[i] = max sum ending at i (Kadane) | 53 |
+| **[Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)** | dp[i] = LIS ending at i | 300 |
+| **[Word Break](https://leetcode.com/problems/word-break/)** | dp[i] = can form s[0:i] | 139 |
+| **[Coin Change](https://leetcode.com/problems/coin-change/)** | dp[i] = min coins for amount i | 322 |
+| **[Perfect Squares](https://leetcode.com/problems/perfect-squares/)** | dp[i] = min squares summing to i | 279 |
+| **[Decode Ways](https://leetcode.com/problems/decode-ways/)** | dp[i] = ways to decode first i chars | 91 |
 
 ### Two Sequence DP
 | Problem | State Definition | LC # |
 |---------|------------------|------|
-| **Longest Common Subsequence** | dp[i][j] = LCS of s1[0:i] and s2[0:j] | 1143 |
-| **Edit Distance** | dp[i][j] = min ops to convert s1[0:i] to s2[0:j] | 72 |
-| **Interleaving String** | dp[i][j] = can form s3 using s1[0:i] and s2[0:j] | 97 |
-| **Distinct Subsequences** | dp[i][j] = ways s1[0:i] contains s2[0:j] | 115 |
+| **[Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)** | dp[i][j] = LCS of s1[0:i] and s2[0:j] | 1143 |
+| **[Edit Distance](https://leetcode.com/problems/edit-distance/)** | dp[i][j] = min ops to convert s1[0:i] to s2[0:j] | 72 |
+| **[Interleaving String](https://leetcode.com/problems/interleaving-string/)** | dp[i][j] = can form s3 using s1[0:i] and s2[0:j] | 97 |
+| **[Distinct Subsequences](https://leetcode.com/problems/distinct-subsequences/)** | dp[i][j] = ways s1[0:i] contains s2[0:j] | 115 |
 
 ### Knapsack Variants
 | Problem | Type | LC # |
 |---------|------|------|
-| **Partition Equal Subset Sum** | 0/1 Knapsack (existence) | 416 |
-| **Target Sum** | 0/1 Knapsack (count ways) | 494 |
-| **Coin Change II** | Unbounded Knapsack (count ways) | 518 |
-| **Ones and Zeroes** | 2D Knapsack | 474 |
-| **Profitable Schemes** | Knapsack with extra constraint | 879 |
+| **[Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)** | 0/1 Knapsack (existence) | 416 |
+| **[Target Sum](https://leetcode.com/problems/target-sum/)** | 0/1 Knapsack (count ways) | 494 |
+| **[Coin Change II](https://leetcode.com/problems/coin-change-ii/)** | Unbounded Knapsack (count ways) | 518 |
+| **[Ones and Zeroes](https://leetcode.com/problems/ones-and-zeroes/)** | 2D Knapsack | 474 |
+| **[Profitable Schemes](https://leetcode.com/problems/profitable-schemes/)** | Knapsack with extra constraint | 879 |
 
 ### Interval DP
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Longest Palindromic Subsequence** | dp[i][j] for range | 516 |
-| **Longest Palindromic Substring** | dp[i][j] = isPalindrome | 5 |
-| **Burst Balloons** | Last balloon to burst | 312 |
-| **Minimum Cost Tree From Leaf Values** | Stack-based or interval DP | 1130 |
+| **[Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)** | dp[i][j] for range | 516 |
+| **[Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)** | dp[i][j] = isPalindrome | 5 |
+| **[Burst Balloons](https://leetcode.com/problems/burst-balloons/)** | Last balloon to burst | 312 |
+| **[Minimum Cost Tree From Leaf Values](https://leetcode.com/problems/minimum-cost-tree-from-leaf-values/)** | Stack-based or interval DP | 1130 |
 
 ### Grid DP
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Unique Paths** | dp[i][j] = paths to reach (i,j) | 62 |
-| **Unique Paths II** | Handle obstacles | 63 |
-| **Minimum Path Sum** | dp[i][j] = min sum to reach (i,j) | 64 |
-| **Triangle** | Bottom-up or top-down | 120 |
-| **Maximal Square** | dp[i][j] = largest square ending at (i,j) | 221 |
+| **[Unique Paths](https://leetcode.com/problems/unique-paths/)** | dp[i][j] = paths to reach (i,j) | 62 |
+| **[Unique Paths II](https://leetcode.com/problems/unique-paths-ii/)** | Handle obstacles | 63 |
+| **[Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/)** | dp[i][j] = min sum to reach (i,j) | 64 |
+| **[Triangle](https://leetcode.com/problems/triangle/)** | Bottom-up or top-down | 120 |
+| **[Maximal Square](https://leetcode.com/problems/maximal-square/)** | dp[i][j] = largest square ending at (i,j) | 221 |
 
 ### State Machine DP
 | Problem | States | LC # |
 |---------|--------|------|
-| **Best Time to Buy/Sell Stock** | One transaction | 121 |
-| **Buy/Sell Stock II** | Unlimited transactions | 122 |
-| **Buy/Sell Stock III** | At most 2 transactions | 123 |
-| **Buy/Sell Stock IV** | At most k transactions | 188 |
-| **Buy/Sell Stock with Cooldown** | hold/sold/cooldown states | 309 |
-| **Buy/Sell Stock with Transaction Fee** | hold/cash states | 714 |
+| **[Best Time to Buy/Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)** | One transaction | 121 |
+| **[Buy/Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)** | Unlimited transactions | 122 |
+| **[Buy/Sell Stock III](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/)** | At most 2 transactions | 123 |
+| **[Buy/Sell Stock IV](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/)** | At most k transactions | 188 |
+| **[Buy/Sell Stock with Cooldown](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)** | hold/sold/cooldown states | 309 |
+| **[Buy/Sell Stock with Transaction Fee](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)** | hold/cash states | 714 |
 
 ### HARD DP
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Regular Expression Matching** | Match *, . patterns | 10 |
-| **Wildcard Matching** | Match *, ? patterns | 44 |
-| **Palindrome Partitioning II** | Min cuts for palindrome partition | 132 |
-| **Dungeon Game** | Bottom-right to top-left DP | 174 |
-| **Cherry Pickup** | Two paths simultaneously | 741 |
-| **Frog Jump** | dp[stone][lastJump] | 403 |
-| **Super Egg Drop** | Binary search + DP | 887 |
+| **[Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/)** | Match *, . patterns | 10 |
+| **[Wildcard Matching](https://leetcode.com/problems/wildcard-matching/)** | Match *, ? patterns | 44 |
+| **[Palindrome Partitioning II](https://leetcode.com/problems/palindrome-partitioning-ii/)** | Min cuts for palindrome partition | 132 |
+| **[Dungeon Game](https://leetcode.com/problems/dungeon-game/)** | Bottom-right to top-left DP | 174 |
+| **[Cherry Pickup](https://leetcode.com/problems/cherry-pickup/)** | Two paths simultaneously | 741 |
+| **[Frog Jump](https://leetcode.com/problems/frog-jump/)** | dp[stone][lastJump] | 403 |
+| **[Super Egg Drop](https://leetcode.com/problems/super-egg-drop/)** | Binary search + DP | 887 |
 
 ---
 
@@ -618,28 +618,28 @@ return dp[amount] == INFINITY ? -1 : dp[amount]
 ## 11. Practice Roadmap
 
 ### Week 1-2: Foundation
-- Climbing Stairs, House Robber
-- Maximum Subarray
-- Coin Change, Perfect Squares
-- Unique Paths, Minimum Path Sum
+- [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/), [House Robber](https://leetcode.com/problems/house-robber/)
+- [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
+- [Coin Change](https://leetcode.com/problems/coin-change/), [Perfect Squares](https://leetcode.com/problems/perfect-squares/)
+- [Unique Paths](https://leetcode.com/problems/unique-paths/), [Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/)
 
 ### Week 3-4: Two Sequence & Knapsack
-- LCS, Edit Distance
-- Partition Equal Subset Sum
-- Target Sum, Coin Change II
-- LIS (both O(n²) and O(n log n))
+- [LCS](https://leetcode.com/problems/longest-common-subsequence/), [Edit Distance](https://leetcode.com/problems/edit-distance/)
+- [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
+- [Target Sum](https://leetcode.com/problems/target-sum/), [Coin Change II](https://leetcode.com/problems/coin-change-ii/)
+- [LIS](https://leetcode.com/problems/longest-increasing-subsequence/) (both O(n²) and O(n log n))
 
 ### Week 5-6: Advanced
-- Word Break, Word Break II
-- Longest Palindromic Subsequence
-- Stock problems (all variants)
-- Maximal Square
+- [Word Break](https://leetcode.com/problems/word-break/), [Word Break II](https://leetcode.com/problems/word-break-ii/)
+- [Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)
+- Stock problems (all variants: [121](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/), [122](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/), [123](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/), [188](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/), [309](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/), [714](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/))
+- [Maximal Square](https://leetcode.com/problems/maximal-square/)
 
 ### Week 7-8: Hard Problems
-- Burst Balloons
-- Regular Expression Matching
-- Dungeon Game
-- Cherry Pickup
+- [Burst Balloons](https://leetcode.com/problems/burst-balloons/)
+- [Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/)
+- [Dungeon Game](https://leetcode.com/problems/dungeon-game/)
+- [Cherry Pickup](https://leetcode.com/problems/cherry-pickup/)
 
 ---
 
@@ -648,7 +648,7 @@ return dp[amount] == INFINITY ? -1 : dp[amount]
 | Looks like... | But use... | The question that decides |
 |---|---|---|
 | Optimization with an obvious "best next step" | Greedy ([Pattern 14](../14-greedy/README.md)) | Can a locally best choice ever need to be undone? Test a counterexample: coins {1, 3, 4}, amount 6 → greedy gives 4+1+1, optimal is 3+3. A counterexample exists → DP. None, and you can argue an exchange proof → greedy. |
-| "Find combinations that sum to target" | Backtracking ([Pattern 8](../08-recursion-backtracking/README.md)) | Does the output list every solution, or one number (count, min, max, true/false)? List → backtracking (Combination Sum, LC 39). One number → DP (Coin Change II, LC 518). |
+| "Find combinations that sum to target" | Backtracking ([Pattern 8](../08-recursion-backtracking/README.md)) | Does the output list every solution, or one number (count, min, max, true/false)? List → backtracking (Combination Sum, [LC 39](https://leetcode.com/problems/combination-sum/)). One number → DP (Coin Change II, [LC 518](https://leetcode.com/problems/coin-change-ii/)). |
 | DP on a graph of states | Memoized DFS, BFS, or Dijkstra | Can the state graph contain a cycle? No cycles (a DAG, directed acyclic graph) → memoized DFS is DP. Cycles, such as grid moves in all 4 directions → BFS or Dijkstra ([Pattern 18](../18-shortest-paths/README.md)). |
 | DP over subsets of items | Bitmask DP ([Pattern 19](../19-bit-manipulation/README.md), [Pattern 27](../27-advanced-dp/README.md)) | Must the state record *which* items are used, and is n ≤ 20? Yes → `dp[mask]`. Only *how many* or *how much* matters → an ordinary index/capacity table. |
 

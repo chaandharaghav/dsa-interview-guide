@@ -85,10 +85,10 @@ update(5): 5 -> 6 -> 8        =  bit[5], bit[6], bit[8] each change
 
 ### Keywords in Problem Statements
 
-- "Range sum / range minimum / range maximum **query**" together with "**update**" or "**modify**" (LC 307)
-- "Count the elements **before/after** index i that are smaller/larger" (LC 315, LC 493)
-- "Count inversions" or "count pairs `(i, j)` with `i < j` and a condition on the two values" (LC 1649, LC 2426)
-- "Add a value to every element in a range, then ask for a sum or a maximum" (LC 699)
+- "Range sum / range minimum / range maximum **query**" together with "**update**" or "**modify**" ([LC 307](https://leetcode.com/problems/range-sum-query-mutable/))
+- "Count the elements **before/after** index i that are smaller/larger" ([LC 315](https://leetcode.com/problems/count-of-smaller-numbers-after-self/), [LC 493](https://leetcode.com/problems/reverse-pairs/))
+- "Count inversions" or "count pairs `(i, j)` with `i < j` and a condition on the two values" ([LC 1649](https://leetcode.com/problems/create-sorted-array-through-instructions/), [LC 2426](https://leetcode.com/problems/number-of-pairs-satisfying-inequality/))
+- "Add a value to every element in a range, then ask for a sum or a maximum" ([LC 699](https://leetcode.com/problems/falling-squares/))
 - "Find the first position whose value is at least x" with updates in between
 - A sequence of operations where each operation sees the effect of all earlier ones (online)
 
@@ -655,7 +655,7 @@ class Counting {
 
 - **Compression:** sort, remove duplicates, and replace each value by its position in the sorted distinct list (`Arrays.binarySearch` on the deduplicated range). Equal values get equal ranks. The order of ranks equals the order of values. Cost: O(n log n) for the sort, O(log n) per lookup.
 - **Why deduplicate first:** if the sorted array contains duplicates, `Arrays.binarySearch` may return the index of any of them ([javadoc](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Arrays.html#binarySearch(int%5B%5D,int,int,int))). The rank would not be stable.
-- **`countSmaller` (LC 315):** scan from right to left. The Fenwick tree holds one count per rank for the elements already seen, which are exactly the elements to the right. `prefix(rank - 1)` is the number of seen elements with a strictly smaller rank, so strictly smaller value.
+- **`countSmaller` ([LC 315](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)):** scan from right to left. The Fenwick tree holds one count per rank for the elements already seen, which are exactly the elements to the right. `prefix(rank - 1)` is the number of seen elements with a strictly smaller rank, so strictly smaller value.
 - **`countInversions`:** scan from left to right. After `j` elements are inserted, `prefix(rank[j])` counts earlier elements with value `<= a[j]`. The other `j - prefix(rank[j])` earlier elements are strictly greater, and each forms an inversion with `a[j]`.
 - **Complexity:** O(n log n) time and O(n) space for both.
 - **Why `Bit` is nested here:** each block on this page must compile alone, so `Counting` carries a two-method copy of the Fenwick tree from Template 5. In an interview, use one Fenwick class.
@@ -730,7 +730,7 @@ class MaxSegmentTree {
 - A max tree stores the maximum of each range in `mx[node]`. The `max` query is the Template 1 query with `Integer.MIN_VALUE` as the identity.
 - **`firstAtLeast(from, x)`** descends instead of querying. A node whose maximum is below `x` cannot contain the answer, so the code skips it. The code tries the left child first, so the first hit is the smallest index. The `hi < from` check skips nodes that lie fully before `from`.
 - **Complexity:** O(log n). Per level, at most one node straddles the index `from`, and the code may explore both of its children. Every other node on the way is either rejected in O(1) (out of range, or maximum below `x`) or contains a valid answer, and the descent into it does not backtrack: the left child returns `-1` in O(1) if its maximum is below `x`.
-- **Use:** "find the leftmost bin that fits an item of size x" (a bin-packing greedy), "find the first building taller than h" (LC 2940), and "booking" problems (LC 2286, where `gather` finds the first row with at least `k` free seats by descent on a max tree, and `scatter` uses a range sum plus updates). In the general case, LC 2940 asks for the leftmost building after `max(a, b)` that is taller than `max(heights[a], heights[b])`, which is `firstAtLeast(max(a, b) + 1, h + 1)` on a max tree. The same shape works for min trees and sum trees with non-negative values.
+- **Use:** "find the leftmost bin that fits an item of size x" (a bin-packing greedy), "find the first building taller than h" ([LC 2940](https://leetcode.com/problems/find-building-where-alice-and-bob-can-meet/)), and "booking" problems ([LC 2286](https://leetcode.com/problems/booking-concert-tickets-in-groups/), where `gather` finds the first row with at least `k` free seats by descent on a max tree, and `scatter` uses a range sum plus updates). In the general case, LC 2940 asks for the leftmost building after `max(a, b)` that is taller than `max(heights[a], heights[b])`, which is `firstAtLeast(max(a, b) + 1, h + 1)` on a max tree. The same shape works for min trees and sum trees with non-negative values.
 
 ### Template 9: Segment Tree Whose Nodes Store Several Numbers
 
@@ -806,7 +806,7 @@ class MaxSubarrayTree {
   - `best = max(left.best, right.best, left.bestSuffix + right.bestPrefix)`. The last term is a subarray that crosses the midpoint.
   - `bestPrefix = max(left.bestPrefix, left.sum + right.bestPrefix)`, and `bestSuffix` is the mirror.
 - **Complexity:** O(log n) per query and update. The merge is associative but not commutative, so the query must combine the left part before the right part. The code does that, and it never needs an identity element, because the query returns a stored node or merges two non-empty answers.
-- **This is divide and conquer made reusable.** The one-shot version of the same merge is the divide-and-conquer solution to LC 53 in [Pattern 09](../09-divide-and-conquer/README.md). The tree keeps the intermediate answers so that updates cost O(log n).
+- **This is divide and conquer made reusable.** The one-shot version of the same merge is the divide-and-conquer solution to [LC 53](https://leetcode.com/problems/maximum-subarray/) in [Pattern 09](../09-divide-and-conquer/README.md). The tree keeps the intermediate answers so that updates cost O(log n).
 
 ### Template 10: 2D Fenwick Tree
 
@@ -844,7 +844,7 @@ class Fenwick2D {
 
 - The loop over rows and the loop over columns each follow the 1D rule, so the cost is O(log(rows) * log(cols)) per operation.
 - **Rectangle sum** is inclusion and exclusion over four prefixes, the same formula as the 2D prefix sum in [Pattern 04](../04-prefix-sum/README.md).
-- **Use:** LC 308 (Range Sum Query 2D - Mutable). Space is O(rows * cols).
+- **Use:** [LC 308](https://leetcode.com/problems/range-sum-query-2d-mutable/) (Range Sum Query 2D - Mutable) (premium). Space is O(rows * cols).
 
 ### Template 11: Dynamic (Sparse) Segment Tree
 
@@ -899,7 +899,7 @@ class DynamicSegmentTree {
 - **Problem it solves:** the index range is huge (for example `[0, 10^9]`), but only a few indices ever change. A normal tree would need `4 * 10^9` slots. The dynamic tree creates a node only when an update reaches it. A missing child means "everything below here is still zero".
 - **Complexity:** each `add` creates at most `log2(size) + 1` nodes, so `m` updates use O(m log size) space. `add` and `query` are O(log size).
 - **Alternative:** coordinate compression (Template 7) when you know all indices in advance (offline). Use the dynamic tree when the indices arrive online.
-- **Use:** counting intervals and calendar problems, for example LC 732 (My Calendar III, Hard) and LC 715 (Range Module, Hard), where the operation is a range assign or range add. Those need lazy tags on the dynamic nodes. This template shows only the structure with point updates.
+- **Use:** counting intervals and calendar problems, for example [LC 732](https://leetcode.com/problems/my-calendar-iii/) (My Calendar III, Hard) and [LC 715](https://leetcode.com/problems/range-module/) (Range Module, Hard), where the operation is a range assign or range add. Those need lazy tags on the dynamic nodes. This template shows only the structure with point updates.
 
 ### Template 12: Sqrt Decomposition (Comparison Baseline)
 
@@ -977,21 +977,21 @@ Lazy segment tree (Templates 3 and 4) or two Fenwick trees (Template 6, sum only
 For "count pairs `(i, j)`, `i < j`, with a condition on `a[i]` and `a[j]`", scan in index order. Before inserting `a[j]`, query how many earlier values satisfy the condition, then insert `a[j]`. The condition must translate to a **prefix of ranks**. Examples:
 
 - `a[i] > a[j]`: inversions (Template 7).
-- `a[i] > 2 * a[j]` (LC 493): compress both `a` and `2 * a` together, in `long`, so that you can look up the rank of `2 * a[j]` as a boundary.
-- `P[j] - upper <= P[i] <= P[j] - lower` on prefix sums `P` (LC 327): compress `P`, and also `P[j] - upper` and `P[j] - lower`. Query the range of ranks.
-- `d[i] <= d[j] + diff` where `d[i] = nums1[i] - nums2[i]` (LC 2426): the boundary `d[j] + diff` is not in the set of `d` values, so find its rank with a binary search.
+- `a[i] > 2 * a[j]` ([LC 493](https://leetcode.com/problems/reverse-pairs/)): compress both `a` and `2 * a` together, in `long`, so that you can look up the rank of `2 * a[j]` as a boundary.
+- `P[j] - upper <= P[i] <= P[j] - lower` on prefix sums `P` ([LC 327](https://leetcode.com/problems/count-of-range-sum/)): compress `P`, and also `P[j] - upper` and `P[j] - lower`. Query the range of ranks.
+- `d[i] <= d[j] + diff` where `d[i] = nums1[i] - nums2[i]` ([LC 2426](https://leetcode.com/problems/number-of-pairs-satisfying-inequality/)): the boundary `d[j] + diff` is not in the set of `d` values, so find its rank with a binary search.
 
 ### Variation F: Fenwick Tree as a DP Accelerator
 
-When a DP transition is "take the best (or the sum) over all earlier states with a smaller key", a Fenwick tree over the keys turns an O(n) transition into O(log n). Example: LC 673 (number of longest increasing subsequences) stores a pair (best length, count) in a Fenwick tree that does prefix max by length and adds the counts for equal lengths. This is valid because the stored values only improve. The same idea with a max segment tree solves LC 2407. See [Pattern 15: Dynamic Programming](../15-dynamic-programming/README.md).
+When a DP transition is "take the best (or the sum) over all earlier states with a smaller key", a Fenwick tree over the keys turns an O(n) transition into O(log n). Example: [LC 673](https://leetcode.com/problems/number-of-longest-increasing-subsequence/) (number of longest increasing subsequences) stores a pair (best length, count) in a Fenwick tree that does prefix max by length and adds the counts for equal lengths. This is valid because the stored values only improve. The same idea with a max segment tree solves [LC 2407](https://leetcode.com/problems/longest-increasing-subsequence-ii/). See [Pattern 15: Dynamic Programming](../15-dynamic-programming/README.md).
 
 ### Variation G: Positions that Move (LC 1409)
 
-The queries ask for the current position of an element, and an operation moves the element to the front. Use a Fenwick tree with 1 at every occupied slot. Let `q` be the number of queries and reserve `q` free slots in front of the `m` elements. Moving an element sets its old slot to 0 and the next free front slot (counting down from the last reserved one) to 1. The constraints of LC 1409 are small (`m <= 1000`), so a plain list also passes. The Fenwick form is the one that scales. The current position of an element is `prefix(slot - 1)`, zero-indexed.
+The queries ask for the current position of an element, and an operation moves the element to the front. Use a Fenwick tree with 1 at every occupied slot. Let `q` be the number of queries and reserve `q` free slots in front of the `m` elements. Moving an element sets its old slot to 0 and the next free front slot (counting down from the last reserved one) to 1. The constraints of [LC 1409](https://leetcode.com/problems/queries-on-a-permutation-with-key/) are small (`m <= 1000`), so a plain list also passes. The Fenwick form is the one that scales. The current position of an element is `prefix(slot - 1)`, zero-indexed.
 
 ### Variation H: Compress Then Sweep (Skyline, Rectangle Area, Falling Squares)
 
-Geometry problems with large coordinates: compress the coordinates of all edges, then run a range operation per event on a lazy segment tree (LC 699 uses range assign of a height with range max, LC 850 uses range cover count with covered length). Only the coordinates that appear matter, so `n` events give at most `2n` compressed positions.
+Geometry problems with large coordinates: compress the coordinates of all edges, then run a range operation per event on a lazy segment tree ([LC 699](https://leetcode.com/problems/falling-squares/) uses range assign of a height with range max, [LC 850](https://leetcode.com/problems/rectangle-area-ii/) uses range cover count with covered length). Only the coordinates that appear matter, so `n` events give at most `2n` compressed positions.
 
 ### Variation I: Structures Not Covered Here
 
@@ -1005,20 +1005,20 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 
 | # | Problem | Difficulty | Key insight |
 |---|---------|-----------|-------------|
-| 303 | Range Sum Query - Immutable | Easy | No updates, so a prefix sum is enough. Solve it first to see why 307 needs more ([Pattern 04](../04-prefix-sum/README.md)) |
-| 307 | Range Sum Query - Mutable | Medium | The base case. Fenwick tree (Template 5) or segment tree (Template 1). Update with `add(i, newValue - old)` |
-| 1409 | Queries on a Permutation With Key | Medium | Fenwick tree over positions with `m` free slots in front (Variation G) |
-| 1395 | Count Number of Teams | Medium | For each middle soldier, (smaller on the left) * (larger on the right) plus the mirror case. A Fenwick tree over ranks gives O(n log n). A direct O(n^2) count per middle soldier also exists |
-| 673 | Number of Longest Increasing Subsequence | Medium | Fenwick tree over ranks that stores (max length, count). Prefix max is valid because values only improve (Variation F) |
-| 315 | Count of Smaller Numbers After Self | Hard | Compress, scan right to left, `prefix(rank - 1)` before `add` (Template 7) |
-| 493 | Reverse Pairs | Hard | Count earlier `a[i] > 2 * a[j]`. Compress `a` and `2 * a` together, use `long` (Variation E) |
-| 327 | Count of Range Sum | Hard | Prefix sums `P`. For each `j`, count earlier `P[i]` in `[P[j] - upper, P[j] - lower]`. Fenwick over compressed values, or merge sort ([Pattern 09](../09-divide-and-conquer/README.md)) |
-| 1649 | Create Sorted Array through Instructions | Hard | Cost of one insert is `min(count smaller, count greater)`. Fenwick tree over values, answer modulo 10^9 + 7 |
-| 2426 | Number of Pairs Satisfying Inequality | Hard | Rewrite as `d[i] <= d[j] + diff` with `d = nums1 - nums2`. Fenwick tree and a binary search for the rank of the bound |
-| 3187 | Peaks in Array | Hard | Mark each peak with 1 in a Fenwick tree. A point change at `i` can change the peak status of `i - 1`, `i`, and `i + 1`. Query the range `[l + 1, r - 1]` |
-| 699 | Falling Squares | Hard | Compress the edges. Lazy segment tree with range assign (chmax) and range max (Variation H) |
+| 303 | [Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/) | Easy | No updates, so a prefix sum is enough. Solve it first to see why 307 needs more ([Pattern 04](../04-prefix-sum/README.md)) |
+| 307 | [Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/) | Medium | The base case. Fenwick tree (Template 5) or segment tree (Template 1). Update with `add(i, newValue - old)` |
+| 1409 | [Queries on a Permutation With Key](https://leetcode.com/problems/queries-on-a-permutation-with-key/) | Medium | Fenwick tree over positions with `m` free slots in front (Variation G) |
+| 1395 | [Count Number of Teams](https://leetcode.com/problems/count-number-of-teams/) | Medium | For each middle soldier, (smaller on the left) * (larger on the right) plus the mirror case. A Fenwick tree over ranks gives O(n log n). A direct O(n^2) count per middle soldier also exists |
+| 673 | [Number of Longest Increasing Subsequence](https://leetcode.com/problems/number-of-longest-increasing-subsequence/) | Medium | Fenwick tree over ranks that stores (max length, count). Prefix max is valid because values only improve (Variation F) |
+| 315 | [Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/) | Hard | Compress, scan right to left, `prefix(rank - 1)` before `add` (Template 7) |
+| 493 | [Reverse Pairs](https://leetcode.com/problems/reverse-pairs/) | Hard | Count earlier `a[i] > 2 * a[j]`. Compress `a` and `2 * a` together, use `long` (Variation E) |
+| 327 | [Count of Range Sum](https://leetcode.com/problems/count-of-range-sum/) | Hard | Prefix sums `P`. For each `j`, count earlier `P[i]` in `[P[j] - upper, P[j] - lower]`. Fenwick over compressed values, or merge sort ([Pattern 09](../09-divide-and-conquer/README.md)) |
+| 1649 | [Create Sorted Array through Instructions](https://leetcode.com/problems/create-sorted-array-through-instructions/) | Hard | Cost of one insert is `min(count smaller, count greater)`. Fenwick tree over values, answer modulo 10^9 + 7 |
+| 2426 | [Number of Pairs Satisfying Inequality](https://leetcode.com/problems/number-of-pairs-satisfying-inequality/) | Hard | Rewrite as `d[i] <= d[j] + diff` with `d = nums1 - nums2`. Fenwick tree and a binary search for the rank of the bound |
+| 3187 | [Peaks in Array](https://leetcode.com/problems/peaks-in-array/) | Hard | Mark each peak with 1 in a Fenwick tree. A point change at `i` can change the peak status of `i - 1`, `i`, and `i + 1`. Query the range `[l + 1, r - 1]` |
+| 699 | [Falling Squares](https://leetcode.com/problems/falling-squares/) | Hard | Compress the edges. Lazy segment tree with range assign (chmax) and range max (Variation H) |
 
-Related problems that use the same structures: LC 308 (Medium, premium, 2D Fenwick, Template 10), LC 2407 (Hard, max segment tree over values), LC 732 (Hard, dynamic segment tree with lazy tags), LC 218 (Hard, sweep with a segment tree or a heap).
+Related problems that use the same structures: [LC 308](https://leetcode.com/problems/range-sum-query-2d-mutable/) (Medium, premium, 2D Fenwick, Template 10), [LC 2407](https://leetcode.com/problems/longest-increasing-subsequence-ii/) (Hard, max segment tree over values), [LC 732](https://leetcode.com/problems/my-calendar-iii/) (Hard, dynamic segment tree with lazy tags), [LC 218](https://leetcode.com/problems/the-skyline-problem/) (Hard, sweep with a segment tree or a heap).
 
 ### Walkthrough: LeetCode 315, Count of Smaller Numbers After Self
 
@@ -1054,11 +1054,11 @@ Related problems that use the same structures: LC 308 (Medium, premium, 2D Fenwi
 ### Week 1: One Structure at a Time
 
 **Day 1:**
-- Solve LC 303, then LC 307 with a segment tree (Template 1). Write it from memory twice.
+- Solve [LC 303](https://leetcode.com/problems/range-sum-query-immutable/), then [LC 307](https://leetcode.com/problems/range-sum-query-mutable/) with a segment tree (Template 1). Write it from memory twice.
 - Focus on: the three cases of `query` (disjoint, inside, partial) and `set` recomputing on the way back up.
 
 **Day 2:**
-- Solve LC 307 again with a Fenwick tree (Template 5). Write `add` and `prefix` without looking.
+- Solve [LC 307](https://leetcode.com/problems/range-sum-query-mutable/) again with a Fenwick tree (Template 5). Write `add` and `prefix` without looking.
 - Focus on: `i += i & -i`, `i -= i & -i`, and the 1-indexed shift. Draw the 8-element table of Section 2 on paper and trace `prefix(7)`.
 
 **Day 3:**
@@ -1066,21 +1066,21 @@ Related problems that use the same structures: LC 308 (Medium, premium, 2D Fenwi
 - Focus on: the half-open range and why `left` and `right` accumulate separately.
 
 **Day 4-5:**
-- Solve LC 1409 and LC 1395.
+- Solve [LC 1409](https://leetcode.com/problems/queries-on-a-permutation-with-key/) and [LC 1395](https://leetcode.com/problems/count-number-of-teams/).
 - Focus on: building a Fenwick tree over positions or ranks, not over the original values.
 
 ### Week 2: Counting and Lazy Propagation
 
 **Day 1-2:**
-- Solve LC 315, LC 493, and LC 327. Write coordinate compression once and reuse it.
+- Solve [LC 315](https://leetcode.com/problems/count-of-smaller-numbers-after-self/), [LC 493](https://leetcode.com/problems/reverse-pairs/), and [LC 327](https://leetcode.com/problems/count-of-range-sum/). Write coordinate compression once and reuse it.
 - Focus on: query before insert, strict versus non-strict, and what to include in the compressed set.
 
 **Day 3-4:**
-- Solve LC 699 with a lazy tree (Template 3 or 4 adapted to max).
+- Solve [LC 699](https://leetcode.com/problems/falling-squares/) with a lazy tree (Template 3 or 4 adapted to max).
 - Focus on: `push` before recursion, and the tag combine rule.
 
 **Day 5:**
-- Solve LC 1649, LC 2426, and LC 3187.
+- Solve [LC 1649](https://leetcode.com/problems/create-sorted-array-through-instructions/), [LC 2426](https://leetcode.com/problems/number-of-pairs-satisfying-inequality/), and [LC 3187](https://leetcode.com/problems/peaks-in-array/).
 - Review: for each, state the structure, the index space, and the cost per operation in one sentence.
 
 ### Practice Methodology
@@ -1142,7 +1142,7 @@ For a max tree, returning 0 for a disjoint node gives a wrong answer when all va
 ### Mistake 7: Compression Bugs
 
 - **Not removing duplicates** before `Arrays.binarySearch`: the returned index for a duplicated value is unspecified.
-- **Not including the query boundaries** in the compressed set (LC 493: `2 * a[j]`, LC 327: `P[j] - upper`). The rank of a boundary that is not a stored value needs a lower-bound or upper-bound binary search.
+- **Not including the query boundaries** in the compressed set ([LC 493](https://leetcode.com/problems/reverse-pairs/): `2 * a[j]`, [LC 327](https://leetcode.com/problems/count-of-range-sum/): `P[j] - upper`). The rank of a boundary that is not a stored value needs a lower-bound or upper-bound binary search.
 - **Computing `2 * a[j]` in `int`.** It overflows when `a[j]` is near 2^30. Cast to `long` first.
 - **Using rank 0 directly** in a 1-indexed Fenwick tree. Template 5 shifts by 1 inside the methods, so pass 0-indexed ranks.
 
@@ -1172,8 +1172,8 @@ Some solutions call `build` after every `set`. This costs O(n) per update, which
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| "Range sum query" | Prefix sum array ([Pattern 04](../04-prefix-sum/README.md)) | Does the array change between queries? If no, prefix sum, O(1) per query (LC 303). If yes, Fenwick or segment tree (LC 307) |
-| "Add to a range, then read" | Difference array ([Pattern 04](../04-prefix-sum/README.md)) | Do reads come only after all updates? If yes, one pass with a difference array (LC 1109). If reads and updates alternate, lazy segment tree or two Fenwick trees |
+| "Range sum query" | Prefix sum array ([Pattern 04](../04-prefix-sum/README.md)) | Does the array change between queries? If no, prefix sum, O(1) per query ([LC 303](https://leetcode.com/problems/range-sum-query-immutable/)). If yes, Fenwick or segment tree ([LC 307](https://leetcode.com/problems/range-sum-query-mutable/)) |
+| "Add to a range, then read" | Difference array ([Pattern 04](../04-prefix-sum/README.md)) | Do reads come only after all updates? If yes, one pass with a difference array ([LC 1109](https://leetcode.com/problems/corporate-flight-bookings/)). If reads and updates alternate, lazy segment tree or two Fenwick trees |
 | "Count inversions" or "count smaller after self" | Merge sort ([Pattern 09](../09-divide-and-conquer/README.md)) | Is it offline and one-shot? Merge sort works and needs no compression. Is a Fenwick-friendly online scan natural, or do you need counts per index and a condition that is not a plain comparison? Use Fenwick |
 | Segment tree | Fenwick tree | Is the operation a sum, count, or XOR with point updates? Fenwick, shorter code. Is it min, max, gcd, a multi-field node, or a range update with a non-sum answer? Segment tree |
 | Segment tree | Sqrt decomposition | Does the per-block summary fit a tree node with an O(1) merge? Segment tree, O(log n). Is the summary awkward, such as a per-block frequency table? Sqrt decomposition, O(sqrt n) |

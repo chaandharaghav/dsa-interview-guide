@@ -27,7 +27,7 @@ Every graph problem starts with the same question: how do you store the graph? T
 
 **Dense graph**: E is close to V² (the maximum for a simple directed graph is V·(V − 1)). **Sparse graph**: E is close to V. Most interview graphs are sparse. These two words have no formal threshold. To decide, compare E with V².
 
-**Tree as a graph**: a connected undirected graph with V − 1 edges and no cycle is a tree. If an input has `n` nodes and `n - 1` edges and is connected, it is a tree (LeetCode 261, "Graph Valid Tree"). See [tree patterns](../10-tree-patterns/README.md).
+**Tree as a graph**: a connected undirected graph with V − 1 edges and no cycle is a tree. If an input has `n` nodes and `n - 1` edges and is connected, it is a tree ([LeetCode 261](https://leetcode.com/problems/graph-valid-tree/) (premium), "Graph Valid Tree"). See [tree patterns](../10-tree-patterns/README.md).
 
 ### The three representations
 
@@ -165,7 +165,7 @@ The matrix `m[u][v]` holds 1 (or the weight) if the edge `u -> v` exists. For an
 
 For a **weighted** matrix, 0 is often a valid weight, so a special value must mean "no edge". The usual choice is a large number (`Integer.MAX_VALUE / 2`, which leaves room to add two weights without overflow) or `-1`. Floyd-Warshall (see [pattern 18](../18-shortest-paths/README.md)) uses the large number, with `m[u][u] = 0`.
 
-Some LeetCode problems give the matrix as the input. In "Number of Provinces" (LeetCode 547), `isConnected[i][j] == 1` means that cities `i` and `j` are connected. The code does not build anything. It runs DFS or union-find directly on the input, in O(V²).
+Some LeetCode problems give the matrix as the input. In "Number of Provinces" ([LeetCode 547](https://leetcode.com/problems/number-of-provinces/)), `isConnected[i][j] == 1` means that cities `i` and `j` are connected. The code does not build anything. It runs DFS or union-find directly on the input, in O(V²).
 
 ### Edge list
 
@@ -182,15 +182,15 @@ LeetCode problems state the graph in a few standard shapes. Each shape has one p
 
 | Input shape | Example problem | Conversion |
 |---|---|---|
-| `n`, `edges[i] = {u, v}`, undirected | LeetCode 323, 261, 1971 | Add `v` to `g[u]` and `u` to `g[v]` |
-| `n`, `edges[i] = {u, v}`, vertices `1 .. n` | LeetCode 684 | Allocate `n + 1` lists, or subtract 1 from each end |
-| `prerequisites[i] = {a, b}`: take `b` before `a` | LeetCode 207, 210 | Add the edge `b -> a` and increment `indegree[a]`. Reading the pair in the wrong direction gives a reversed graph |
-| `times[i] = {u, v, w}`, directed and weighted | LeetCode 743 | Add `{v, w}` to `g[u]` only |
-| `isConnected[i][j]`, a matrix | LeetCode 547 | Use the matrix as it is |
-| `manager[i]`, a parent array | LeetCode 1376 | Add `manager[i] -> i` for each `i` with a manager |
-| `tickets[i] = {from, to}` with string labels | LeetCode 332 | `Map<String, PriorityQueue<String>>`, so the neighbors come out in sorted order |
-| `trust[i] = {a, b}`: `a` trusts `b` | LeetCode 997 | Do not build a graph. Count `out[a]++` and `in[b]++`. The judge has in-degree `n - 1` and out-degree 0 |
-| `connections[i] = {a, b}`, directed edges to reorient | LeetCode 1466 | Store each edge in both lists, with a flag or a sign that records the original direction |
+| `n`, `edges[i] = {u, v}`, undirected | [LeetCode 323](https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/) (premium), [261](https://leetcode.com/problems/graph-valid-tree/) (premium), [1971](https://leetcode.com/problems/find-if-path-exists-in-graph/) | Add `v` to `g[u]` and `u` to `g[v]` |
+| `n`, `edges[i] = {u, v}`, vertices `1 .. n` | [LeetCode 684](https://leetcode.com/problems/redundant-connection/) | Allocate `n + 1` lists, or subtract 1 from each end |
+| `prerequisites[i] = {a, b}`: take `b` before `a` | [LeetCode 207](https://leetcode.com/problems/course-schedule/), [210](https://leetcode.com/problems/course-schedule-ii/) | Add the edge `b -> a` and increment `indegree[a]`. Reading the pair in the wrong direction gives a reversed graph |
+| `times[i] = {u, v, w}`, directed and weighted | [LeetCode 743](https://leetcode.com/problems/network-delay-time/) | Add `{v, w}` to `g[u]` only |
+| `isConnected[i][j]`, a matrix | [LeetCode 547](https://leetcode.com/problems/number-of-provinces/) | Use the matrix as it is |
+| `manager[i]`, a parent array | [LeetCode 1376](https://leetcode.com/problems/time-needed-to-inform-all-employees/) | Add `manager[i] -> i` for each `i` with a manager |
+| `tickets[i] = {from, to}` with string labels | [LeetCode 332](https://leetcode.com/problems/reconstruct-itinerary/) | `Map<String, PriorityQueue<String>>`, so the neighbors come out in sorted order |
+| `trust[i] = {a, b}`: `a` trusts `b` | [LeetCode 997](https://leetcode.com/problems/find-the-town-judge/) | Do not build a graph. Count `out[a]++` and `in[b]++`. The judge has in-degree `n - 1` and out-degree 0 |
+| `connections[i] = {a, b}`, directed edges to reorient | [LeetCode 1466](https://leetcode.com/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/) | Store each edge in both lists, with a flag or a sign that records the original direction |
 
 The next block shows the main conversions together with a BFS and a component count. It is a complete program. Its output follows the code.
 
@@ -354,7 +354,7 @@ The count of edges in a grid graph is at most 4 × rows × cols (or 8 × rows ×
 
 To store a visited flag for each cell, use a `boolean[rows][cols]`. To store a cell in a queue, use an `int[] {r, c}` or the single number `r * cols + c`. The single number decodes as `r = id / cols` and `c = id % cols`, and it works as a `HashSet<Integer>` key or a union-find index.
 
-The next block is a complete program. It finds the shortest path in a binary matrix with 8-direction moves (LeetCode 1091), and it shows the four required steps: bound check, wall check, visited check, enqueue.
+The next block is a complete program. It finds the shortest path in a binary matrix with 8-direction moves ([LeetCode 1091](https://leetcode.com/problems/shortest-path-in-binary-matrix/)), and it shows the four required steps: bound check, wall check, visited check, enqueue.
 
 ```java
 import java.util.ArrayDeque;
@@ -407,7 +407,7 @@ The path in the example is `(0,0) -> (0,1) -> (1,2) -> (2,2)`. It has 4 cells. T
 
 #### Word ladder: neighbors from a rule
 
-In "Word Ladder" (LeetCode 127), two words are neighbors if they differ in exactly one letter. The graph has up to N words, and checking each pair costs O(N² · L) for words of length L. Two methods avoid the pair check.
+In "Word Ladder" ([LeetCode 127](https://leetcode.com/problems/word-ladder/)), two words are neighbors if they differ in exactly one letter. The graph has up to N words, and checking each pair costs O(N² · L) for words of length L. Two methods avoid the pair check.
 
 - **Try every change.** For a word of length `L`, try each of the `L` positions with each of the 26 letters, and keep the results that are in the word set. The cost is O(26 · L · L) for one word, because building and hashing each new string costs O(L).
 - **Wildcard buckets.** Replace one position with `*`, so `"hot"` gives `"*ot"`, `"h*t"`, `"ho*"`. Words in the same bucket are neighbors. The preprocessing costs O(N · L · L) in total.
@@ -433,7 +433,7 @@ List<String> neighbors(String word, Set<String> dictionary) {
 
 #### State spaces
 
-A state-space graph treats each configuration of a puzzle as a vertex and each legal move as an edge. In "Open the Lock" (LeetCode 752) the vertices are the 10,000 strings from `"0000"` to `"9999"`. A move turns one of 4 wheels one step up or down, so each vertex has 8 neighbors. BFS from `"0000"` gives the minimum number of turns. Dead ends go into the visited set at the start. In "Sliding Puzzle" (LeetCode 773) the vertices are the board layouts (at most 6! = 720). The same idea covers "Minimum Genetic Mutation" (LeetCode 433) and "Snakes and Ladders" (LeetCode 909).
+A state-space graph treats each configuration of a puzzle as a vertex and each legal move as an edge. In "Open the Lock" ([LeetCode 752](https://leetcode.com/problems/open-the-lock/)) the vertices are the 10,000 strings from `"0000"` to `"9999"`. A move turns one of 4 wheels one step up or down, so each vertex has 8 neighbors. BFS from `"0000"` gives the minimum number of turns. Dead ends go into the visited set at the start. In "Sliding Puzzle" ([LeetCode 773](https://leetcode.com/problems/sliding-puzzle/)) the vertices are the board layouts (at most 6! = 720). The same idea covers "Minimum Genetic Mutation" ([LeetCode 433](https://leetcode.com/problems/minimum-genetic-mutation/)) and "Snakes and Ladders" ([LeetCode 909](https://leetcode.com/problems/snakes-and-ladders/)).
 
 ```java
 // The 8 neighbors of a lock state: each wheel moves one step up or one step down.
@@ -595,7 +595,7 @@ Index 0 is unused, because the nodes are numbered 1 to 4. The value 2147483647 i
 
 ??? question "How do you detect that an input of `n` nodes and `edges` forms a tree?"
 
-    A graph is a tree if it is connected and has no cycle. For an undirected graph with `n` vertices, three conditions are equivalent: it is connected and acyclic, it is connected and has exactly `n - 1` edges, or it is acyclic and has exactly `n - 1` edges. So check `edges.length == n - 1` first. This rejects most wrong inputs in O(1). Then check connectivity with one BFS, DFS, or union-find. If any union joins two vertices that are already in the same set, the graph has a cycle. This is LeetCode 261 ("Graph Valid Tree"). See [union-find](../13-union-find/README.md).
+    A graph is a tree if it is connected and has no cycle. For an undirected graph with `n` vertices, three conditions are equivalent: it is connected and acyclic, it is connected and has exactly `n - 1` edges, or it is acyclic and has exactly `n - 1` edges. So check `edges.length == n - 1` first. This rejects most wrong inputs in O(1). Then check connectivity with one BFS, DFS, or union-find. If any union joins two vertices that are already in the same set, the graph has a cycle. This is [LeetCode 261](https://leetcode.com/problems/graph-valid-tree/) ("Graph Valid Tree (premium)"). See [union-find](../13-union-find/README.md).
 
 ??? question "Why does Java code on LeetCode often use `List<int[]>[]` or `List<List<int[]>>` for weighted graphs, and what does `new List<int[]>[n]` do?"
 

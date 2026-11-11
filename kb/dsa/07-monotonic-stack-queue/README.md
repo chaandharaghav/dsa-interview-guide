@@ -300,30 +300,30 @@ For each row:
 ### EASY (Warm-up)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Next Greater Element I** | HashMap + Stack for subset | 496 |
+| **[Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)** | HashMap + Stack for subset | 496 |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Next Greater Element II** | Circular array, iterate 2x | 503 |
-| **Daily Temperatures** | Next greater, return difference | 739 |
-| **Online Stock Span** | Previous greater, count span | 901 |
-| **132 Pattern** | Track min on left, stack for middle | 456 |
-| **Remove K Digits** | Maintain increasing stack | 402 |
-| **Remove Duplicate Letters** | Stack + last occurrence + used | 316 |
-| **Sum of Subarray Minimums** | Contribution counting | 907 |
-| **Maximum Width Ramp** | Decreasing stack for starts | 962 |
-| **Sum of Subarray Ranges** | Sum of max - sum of min | 2104 |
+| **[Next Greater Element II](https://leetcode.com/problems/next-greater-element-ii/)** | Circular array, iterate 2x | 503 |
+| **[Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)** | Next greater, return difference | 739 |
+| **[Online Stock Span](https://leetcode.com/problems/online-stock-span/)** | Previous greater, count span | 901 |
+| **[132 Pattern](https://leetcode.com/problems/132-pattern/)** | Track min on left, stack for middle | 456 |
+| **[Remove K Digits](https://leetcode.com/problems/remove-k-digits/)** | Maintain increasing stack | 402 |
+| **[Remove Duplicate Letters](https://leetcode.com/problems/remove-duplicate-letters/)** | Stack + last occurrence + used | 316 |
+| **[Sum of Subarray Minimums](https://leetcode.com/problems/sum-of-subarray-minimums/)** | Contribution counting | 907 |
+| **[Maximum Width Ramp](https://leetcode.com/problems/maximum-width-ramp/)** | Decreasing stack for starts | 962 |
+| **[Sum of Subarray Ranges](https://leetcode.com/problems/sum-of-subarray-ranges/)** | Sum of max - sum of min | 2104 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Maximal Rectangle** | Per-row histogram + largest rect | 85 |
-| **Largest Rectangle in Histogram** | Classic stack problem | 84 |
-| **Sliding Window Maximum** | Monotonic deque | 239 |
-| **Trapping Rain Water** | Stack or two pointers | 42 |
-| **Shortest Subarray with Sum at Least K** | Monotonic deque + prefix sum | 862 |
-| **Number of Visible People in a Queue** | Stack counting | 1944 |
+| **[Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)** | Per-row histogram + largest rect | 85 |
+| **[Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)** | Classic stack problem | 84 |
+| **[Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)** | Monotonic deque | 239 |
+| **[Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)** | Stack or two pointers | 42 |
+| **[Shortest Subarray with Sum at Least K](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)** | Monotonic deque + prefix sum | 862 |
+| **[Number of Visible People in a Queue](https://leetcode.com/problems/number-of-visible-people-in-a-queue/)** | Stack counting | 1944 |
 
 ---
 
@@ -331,19 +331,19 @@ For each row:
 
 ### Week 1: Monotonic Stack Basics
 **Day 1:**
-- Implement "Next Greater Element" from scratch
+- Implement "[Next Greater Element](https://leetcode.com/problems/next-greater-element-i/)" from scratch
 - Understand why each element is pushed/popped once
 
 **Day 2:**
-- Solve "Daily Temperatures"
-- Solve "Next Greater Element II" (circular)
+- Solve "[Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)"
+- Solve "[Next Greater Element II](https://leetcode.com/problems/next-greater-element-ii/)" (circular)
 
 **Day 3:**
-- Solve "Online Stock Span" (previous greater)
+- Solve "[Online Stock Span](https://leetcode.com/problems/online-stock-span/)" (previous greater)
 - Note: It's the mirror of next greater
 
 **Day 4:**
-- Solve "Largest Rectangle in Histogram"
+- Solve "[Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)"
 - This is THE classic monotonic stack problem
 - Draw out examples manually first
 
@@ -353,19 +353,19 @@ For each row:
 
 ### Week 2: Advanced Applications
 **Day 1:**
-- Solve "Sum of Subarray Minimums"
+- Solve "[Sum of Subarray Minimums](https://leetcode.com/problems/sum-of-subarray-minimums/)"
 - Master the contribution counting technique
 
 **Day 2:**
-- Solve "Maximal Rectangle"
+- Solve "[Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)"
 - Combine with histogram technique
 
 **Day 3:**
-- Solve "Sliding Window Maximum" (monotonic deque)
+- Solve "[Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)" (monotonic deque)
 - Understand front removal for window expiry
 
 **Day 4:**
-- Solve "Remove K Digits"
+- Solve "[Remove K Digits](https://leetcode.com/problems/remove-k-digits/)"
 - Stack for building smallest number
 
 **Day 5:**
@@ -486,10 +486,10 @@ value = arr[stack.top()]
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Monotonic stack for "max of each window of size k" | Monotonic deque | Do elements expire from the old end as the window moves? If yes → deque, removals from both ends (LC 239) |
-| Monotonic deque for "kth largest in a stream/array" | Heap (Pattern 16) | Does the question ask for the kth largest instead of the max or min? If yes → size-k heap (LC 215, LC 703) |
-| Monotonic stack for "valid parentheses / decode string" | Plain stack | Does a pop depend on matching symbols instead of value order? If yes → plain stack (LC 20, LC 394) |
-| Monotonic stack for "trapping rain water" | Two pointers (Pattern 02) | Does each position need only the max to its left and the max to its right? If yes → two pointers, O(1) space (LC 42) |
+| Monotonic stack for "max of each window of size k" | Monotonic deque | Do elements expire from the old end as the window moves? If yes → deque, removals from both ends ([LC 239](https://leetcode.com/problems/sliding-window-maximum/)) |
+| Monotonic deque for "kth largest in a stream/array" | Heap (Pattern 16) | Does the question ask for the kth largest instead of the max or min? If yes → size-k heap ([LC 215](https://leetcode.com/problems/kth-largest-element-in-an-array/), [LC 703](https://leetcode.com/problems/kth-largest-element-in-a-stream/)) |
+| Monotonic stack for "valid parentheses / decode string" | Plain stack | Does a pop depend on matching symbols instead of value order? If yes → plain stack ([LC 20](https://leetcode.com/problems/valid-parentheses/), [LC 394](https://leetcode.com/problems/decode-string/)) |
+| Monotonic stack for "trapping rain water" | Two pointers (Pattern 02) | Does each position need only the max to its left and the max to its right? If yes → two pointers, O(1) space ([LC 42](https://leetcode.com/problems/trapping-rain-water/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

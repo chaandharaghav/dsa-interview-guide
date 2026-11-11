@@ -649,13 +649,13 @@ reversed:     three two one
 
     Use three references: `prev` (starts as `null`), `cur` (starts as the head), and `next`. In each step, save `next = cur.next`, set `cur.next = prev`, then move `prev = cur` and `cur = next`. When `cur` is `null`, return `prev`.
 
-    Time is O(n), because each node is visited once. Extra space is O(1). A recursive solution is also O(n) time but uses O(n) stack space, which can overflow the stack for a long list. If the interviewer asks to reverse a sublist (LeetCode 92, Reverse Linked List II, Medium), use a dummy head and reverse only the nodes between positions `left` and `right`.
+    Time is O(n), because each node is visited once. Extra space is O(1). A recursive solution is also O(n) time but uses O(n) stack space, which can overflow the stack for a long list. If the interviewer asks to reverse a sublist ([LeetCode 92](https://leetcode.com/problems/reverse-linked-list-ii/), Reverse Linked List II, Medium), use a dummy head and reverse only the nodes between positions `left` and `right`.
 
 ??? question "How do you detect a cycle in a linked list, and why does the method work?"
 
     Use two pointers. `slow` moves one node per step and `fast` moves two. If `fast` reaches `null`, the list has no cycle. If the pointers meet, the list has a cycle.
 
-    The reason: once both pointers are in the cycle, `fast` gains one node on `slow` in each step, so the distance between them along the cycle decreases by one each step and reaches zero in fewer than the cycle length steps. The time is O(n) and the space is O(1). The alternative is a `HashSet` of visited nodes, which costs O(n) space. To find where the cycle starts (LeetCode 142, Linked List Cycle II, Medium), see [pattern 03](../03-fast-slow-pointers/README.md).
+    The reason: once both pointers are in the cycle, `fast` gains one node on `slow` in each step, so the distance between them along the cycle decreases by one each step and reaches zero in fewer than the cycle length steps. The time is O(n) and the space is O(1). The alternative is a `HashSet` of visited nodes, which costs O(n) space. To find where the cycle starts ([LeetCode 142](https://leetcode.com/problems/linked-list-cycle-ii/), Linked List Cycle II, Medium), see [pattern 03](../03-fast-slow-pointers/README.md).
 
 ??? question "Why is a linked list scan slower than an array scan when both are O(n)?"
 
@@ -663,7 +663,7 @@ reversed:     three two one
 
 ??? question "You are given only a node in the middle of a singly linked list. How do you delete it?"
 
-    This is LeetCode 237, Delete Node in a Linked List (Medium). You cannot reach the predecessor, so you cannot unlink the node in the usual way. Copy the value of `node.next` into `node`, then set `node.next = node.next.next`. This removes the next node and leaves the same sequence of values. It is O(1). It does not work for the last node, and it changes which node object holds each value, which matters if other code holds references to nodes.
+    This is [LeetCode 237](https://leetcode.com/problems/delete-node-in-a-linked-list/), Delete Node in a Linked List (Medium). You cannot reach the predecessor, so you cannot unlink the node in the usual way. Copy the value of `node.next` into `node`, then set `node.next = node.next.next`. This removes the next node and leaves the same sequence of values. It is O(1). It does not work for the last node, and it changes which node object holds each value, which matters if other code holds references to nodes.
 
 ??? question "What does `length()` return for a string that holds one emoji, such as U+1F600, and how do you count characters correctly?"
 
@@ -685,7 +685,7 @@ reversed:     three two one
 
 ??? question "How do you merge two sorted linked lists in place?"
 
-    Create a dummy node and a `tail` pointer. Compare the heads of both lists, link the smaller node after `tail`, and advance that list and `tail`. When one list ends, link the rest of the other. Time is O(n + m) and extra space is O(1), because the code reuses the existing nodes. This is LeetCode 21, Merge Two Sorted Lists (Easy), and it is the merge step of merge sort on a linked list.
+    Create a dummy node and a `tail` pointer. Compare the heads of both lists, link the smaller node after `tail`, and advance that list and `tail`. When one list ends, link the rest of the other. Time is O(n + m) and extra space is O(1), because the code reuses the existing nodes. This is [LeetCode 21](https://leetcode.com/problems/merge-two-sorted-lists/), Merge Two Sorted Lists (Easy), and it is the merge step of merge sort on a linked list.
 
 ??? question "Why does `substring` cost O(k) in modern Java, and how did it work before?"
 
@@ -747,6 +747,25 @@ reversed:     three two one
 - Linked list: no index access, O(1) insert or delete at a held node (delete needs the predecessor in a singly linked list), O(n) search.
 - Sentinel node: no special case for the head. Reverse: `prev`, `cur`, `next`, O(n) time and O(1) space. Cycle: slow and fast pointers, O(n) time and O(1) space.
 - `ArrayList` for lists and `ArrayDeque` for stacks and queues. Use a linked list when the problem is about nodes.
+
+## Practice Problems
+
+Solve these problems after you read this page. Each problem practices an operation from this page. The list runs from easier to harder. Difficulties come from the LeetCode problem list (`https://leetcode.com/api/problems/all/`), saved on 2026-10-21.
+
+| LC # | Title | Difficulty | What it practices |
+|---|---|---|---|
+| 26 | [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/) | Easy | Compact the array in place with a read index and a write index |
+| 88 | [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/) | Easy | Fill the array from the end, so that no element shifts |
+| 14 | [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/) | Easy | Compare strings character by character |
+| 206 | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) | Easy | Reverse the links with three pointers (see "Reverse a singly linked list") |
+| 21 | [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/) | Easy | Build the merged list behind a dummy head node |
+| 141 | [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/) | Easy | Detect a cycle with fast and slow pointers (see "Detect a cycle in a singly linked list") |
+| 189 | [Rotate Array](https://leetcode.com/problems/rotate-array/) | Medium | Rotate in place with three reversals |
+| 238 | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) | Medium | Combine prefix products and suffix products, without division |
+| 151 | [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/) | Medium | Build the result in a `StringBuilder`, because a Java `String` is immutable |
+| 19 | [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/) | Medium | Keep two pointers `n` nodes apart. A dummy head handles the removal of the first node |
+| 2 | [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/) | Medium | Walk two lists at the same time and carry the overflow digit |
+| 237 | [Delete Node in a Linked List](https://leetcode.com/problems/delete-node-in-a-linked-list/) | Medium | Copy the next node into the current node, because the predecessor is not reachable |
 
 ## Further Reading
 

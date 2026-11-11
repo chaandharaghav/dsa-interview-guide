@@ -264,7 +264,7 @@ Reversal is not a fast/slow technique. It appears in the same problems (palindro
 
 **Recognition trigger:** "reverse" + linked list, or "in-place" + linked list, or a step that needs the second half of a list in backward order.
 
-**6a. Reverse the whole list (LC 206):**
+**6a. Reverse the whole list ([LC 206](https://leetcode.com/problems/reverse-linked-list/)):**
 ```
 function reverseList(head):
     prev = null
@@ -279,7 +279,7 @@ function reverseList(head):
     return prev                  // prev is the new head
 ```
 
-**6b. Reverse a sublist from position left to right, 1-indexed (LC 92):**
+**6b. Reverse a sublist from position left to right, 1-indexed ([LC 92](https://leetcode.com/problems/reverse-linked-list-ii/)):**
 
 A dummy node is a placeholder node placed before `head`. It gives position 1 a predecessor, so `left = 1` needs no special case.
 ```
@@ -308,7 +308,7 @@ function reverseBetween(head, left, right):
 // after 2nd move: 1→4→3→2→5
 ```
 
-**6c. Reverse in groups of k (LC 25) — sketch:**
+**6c. Reverse in groups of k ([LC 25](https://leetcode.com/problems/reverse-nodes-in-k-group/)) — sketch:**
 ```
 function reverseKGroup(head, k):
     dummy = new Node(0)
@@ -338,7 +338,7 @@ function reverseKGroup(head, k):
         groupPrev.next = kth
         groupPrev = oldFirst
 ```
-**Swap Nodes in Pairs (LC 24)** is `reverseKGroup(head, 2)`.
+**Swap Nodes in Pairs ([LC 24](https://leetcode.com/problems/swap-nodes-in-pairs/))** is `reverseKGroup(head, 2)`.
 
 ---
 
@@ -404,29 +404,29 @@ function kthFromEnd(head, k):
 ### EASY (Warm-up)
 | Problem | Key Insight |
 |---------|-------------|
-| Linked List Cycle | Basic cycle detection |
-| Middle of Linked List | Fast travels 2x |
-| Reverse Linked List (LC 206) | Iterative prev/curr/next |
-| Happy Number (LC 202) | Cycle detection on digit sums |
-| Palindrome Linked List (LC 234) | Find middle → Reverse → Compare |
-| Intersection of Two Linked Lists (LC 160) | Two pointer length normalization |
+| [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/) | Basic cycle detection |
+| [Middle of Linked List](https://leetcode.com/problems/middle-of-the-linked-list/) | Fast travels 2x |
+| Reverse Linked List ([LC 206](https://leetcode.com/problems/reverse-linked-list/)) | Iterative prev/curr/next |
+| Happy Number ([LC 202](https://leetcode.com/problems/happy-number/)) | Cycle detection on digit sums |
+| Palindrome Linked List ([LC 234](https://leetcode.com/problems/palindrome-linked-list/)) | Find middle → Reverse → Compare |
+| Intersection of Two Linked Lists ([LC 160](https://leetcode.com/problems/intersection-of-two-linked-lists/)) | Two pointer length normalization |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Linked List Cycle II** | Find cycle start (two phases) | 142 |
-| **Find the Duplicate Number** | Array as linked list | 287 |
-| **Reorder List** | Find middle → Reverse → Merge | 143 |
-| **Sort List** | Find middle for merge sort | 148 |
-| **Reverse Linked List II** | Dummy node + head insertion | 92 |
-| **Swap Nodes in Pairs** | Reverse in groups of k = 2 | 24 |
-| **Remove Nth Node From End of List** | Fast starts n steps ahead | 19 |
+| **[Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)** | Find cycle start (two phases) | 142 |
+| **[Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)** | Array as linked list | 287 |
+| **[Reorder List](https://leetcode.com/problems/reorder-list/)** | Find middle → Reverse → Merge | 143 |
+| **[Sort List](https://leetcode.com/problems/sort-list/)** | Find middle for merge sort | 148 |
+| **[Reverse Linked List II](https://leetcode.com/problems/reverse-linked-list-ii/)** | Dummy node + head insertion | 92 |
+| **[Swap Nodes in Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/)** | Reverse in groups of k = 2 | 24 |
+| **[Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)** | Fast starts n steps ahead | 19 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Reverse Nodes in k-Group** | Count k nodes, reverse, reconnect | 25 |
-| **Merge k Sorted Lists** | Dummy node + merge lists in pairs (divide and conquer); a min-heap also works (Pattern 16) | 23 |
+| **[Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/)** | Count k nodes, reverse, reconnect | 25 |
+| **[Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)** | Dummy node + merge lists in pairs (divide and conquer); a min-heap also works (Pattern 16) | 23 |
 
 ---
 
@@ -434,36 +434,36 @@ function kthFromEnd(head, k):
 
 ### Week 1: Core Concepts
 **Day 1:**
-- Solve "Linked List Cycle" (detection only)
+- Solve "[Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)" (detection only)
 - Trace through with a drawing to understand why they meet
 
 **Day 2:**
-- Solve "Linked List Cycle II" (find start)
+- Solve "[Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)" (find start)
 - PROVE to yourself why the math works (draw it out!)
 
 **Day 3:**
-- Solve "Middle of Linked List"
+- Solve "[Middle of Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)"
 - Handle both odd and even length cases
 
 **Day 4:**
-- Solve "Happy Number"
+- Solve "[Happy Number](https://leetcode.com/problems/happy-number/)"
 - Understand the cycle detection in a non-linked-list context
 
 **Day 5:**
-- Solve "Find the Duplicate Number"
+- Solve "[Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)"
 - This is the key insight: array can be treated as linked list
 
 ### Week 2: Applications
 **Day 1:**
-- Solve "Palindrome Linked List"
+- Solve "[Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)"
 - Combine: find middle + reverse + compare
 
 **Day 2:**
-- Solve "Reorder List"
+- Solve "[Reorder List](https://leetcode.com/problems/reorder-list/)"
 - Combine: find middle + reverse + interleave
 
 **Day 3:**
-- Solve "Intersection of Two Linked Lists"
+- Solve "[Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)"
 - Understand the a+b = b+a length normalization trick
 
 **Day 4:**
@@ -604,10 +604,10 @@ moving at same speed, they'll meet at cycle start.
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Fast/slow for "does the list have a cycle?" | HashSet of visited nodes (Pattern 05) | Does the problem require O(1) extra space? If no, a hashset also works; if yes → Floyd's algorithm (LC 141) |
-| Floyd on "find the duplicate in [1..n]" | Cyclic sort (Pattern 05) | May you modify the array? If yes → cyclic sort (LC 442); if no → Floyd (LC 287) |
-| Fast/slow for "detect a cycle" in a graph | DFS with visited states (Patterns 11, 12) | Can a node have more than one outgoing edge? If yes, it is a graph, not a linked list → DFS or topological sort (LC 207) |
-| Fast/slow for "find a pair in a sorted array" | Opposite-direction two pointers (Pattern 02) | Do the pointers start at opposite ends and move by comparison? If yes → two pointers (LC 167) |
+| Fast/slow for "does the list have a cycle?" | HashSet of visited nodes (Pattern 05) | Does the problem require O(1) extra space? If no, a hashset also works; if yes → Floyd's algorithm ([LC 141](https://leetcode.com/problems/linked-list-cycle/)) |
+| Floyd on "find the duplicate in [1..n]" | Cyclic sort (Pattern 05) | May you modify the array? If yes → cyclic sort ([LC 442](https://leetcode.com/problems/find-all-duplicates-in-an-array/)); if no → Floyd ([LC 287](https://leetcode.com/problems/find-the-duplicate-number/)) |
+| Fast/slow for "detect a cycle" in a graph | DFS with visited states (Patterns 11, 12) | Can a node have more than one outgoing edge? If yes, it is a graph, not a linked list → DFS or topological sort ([LC 207](https://leetcode.com/problems/course-schedule/)) |
+| Fast/slow for "find a pair in a sorted array" | Opposite-direction two pointers (Pattern 02) | Do the pointers start at opposite ends and move by comparison? If yes → two pointers ([LC 167](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

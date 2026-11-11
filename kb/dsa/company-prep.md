@@ -21,23 +21,23 @@ Each company has its own interview style and focus areas. Here's how to tailor y
 ### Frequently Asked Topics
 | Topic | Frequency | Example Problems |
 |-------|-----------|------------------|
-| DP | ⭐⭐⭐⭐⭐ | Word Break, Coin Change, LIS |
-| Graphs | ⭐⭐⭐⭐ | Number of Islands, Word Ladder |
-| Arrays/Strings | ⭐⭐⭐⭐ | Longest Substring, Median of Arrays |
-| Trees | ⭐⭐⭐ | LCA, Serialize/Deserialize |
-| Design | ⭐⭐⭐ | LRU Cache, Min Stack |
+| DP | ⭐⭐⭐⭐⭐ | [Word Break](https://leetcode.com/problems/word-break/), [Coin Change](https://leetcode.com/problems/coin-change/), [LIS](https://leetcode.com/problems/longest-increasing-subsequence/) |
+| Graphs | ⭐⭐⭐⭐ | [Number of Islands](https://leetcode.com/problems/number-of-islands/), [Word Ladder](https://leetcode.com/problems/word-ladder/) |
+| Arrays/Strings | ⭐⭐⭐⭐ | [Longest Substring](https://leetcode.com/problems/longest-substring-without-repeating-characters/), [Median of Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/) |
+| Trees | ⭐⭐⭐ | [LCA](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/), [Serialize/Deserialize](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/) |
+| Design | ⭐⭐⭐ | [LRU Cache](https://leetcode.com/problems/lru-cache/), [Min Stack](https://leetcode.com/problems/min-stack/) |
 
 ### Google-Specific Problems to Focus On
-- [ ] LC 4: Median of Two Sorted Arrays (Hard) ⭐⭐
-- [ ] LC 42: Trapping Rain Water (Hard) ⭐⭐
-- [ ] LC 76: Minimum Window Substring (Hard) ⭐⭐
-- [ ] LC 127: Word Ladder (Hard) ⭐
-- [ ] LC 295: Find Median from Data Stream (Hard) ⭐
-- [ ] LC 329: Longest Increasing Path in a Matrix (Hard) ⭐
-- [ ] LC 403: Frog Jump (Hard) ⭐
-- [ ] LC 410: Split Array Largest Sum (Hard) ⭐
-- [ ] LC 855: Exam Room (Medium) ⭐
-- [ ] LC 843: Guess the Word (Hard) - Interactive!
+- [ ] [LC 4: Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/) (Hard) ⭐⭐
+- [ ] [LC 42: Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/) (Hard) ⭐⭐
+- [ ] [LC 76: Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/) (Hard) ⭐⭐
+- [ ] [LC 127: Word Ladder](https://leetcode.com/problems/word-ladder/) (Hard) ⭐
+- [ ] [LC 295: Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/) (Hard) ⭐
+- [ ] [LC 329: Longest Increasing Path in a Matrix](https://leetcode.com/problems/longest-increasing-path-in-a-matrix/) (Hard) ⭐
+- [ ] [LC 403: Frog Jump](https://leetcode.com/problems/frog-jump/) (Hard) ⭐
+- [ ] [LC 410: Split Array Largest Sum](https://leetcode.com/problems/split-array-largest-sum/) (Hard) ⭐
+- [ ] [LC 855: Exam Room](https://leetcode.com/problems/exam-room/) (Medium) ⭐
+- [ ] [LC 843: Guess the Word](https://leetcode.com/problems/guess-the-word/) (Hard) - Interactive!
 
 ### Google Interview Tips
 1. **Think out loud constantly** - They want to see your thought process
@@ -72,24 +72,24 @@ Each company has its own interview style and focus areas. Here's how to tailor y
 ### Frequently Asked Topics
 | Topic | Frequency | Example Problems |
 |-------|-----------|------------------|
-| Arrays | ⭐⭐⭐⭐⭐ | Two Sum, Product of Array |
-| Trees | ⭐⭐⭐⭐ | Validate BST, Right Side View |
-| Strings | ⭐⭐⭐⭐ | Group Anagrams, Longest Palindrome |
-| Graphs | ⭐⭐⭐ | Number of Islands, Course Schedule |
+| Arrays | ⭐⭐⭐⭐⭐ | [Two Sum](https://leetcode.com/problems/two-sum/), [Product of Array](https://leetcode.com/problems/product-of-array-except-self/) |
+| Trees | ⭐⭐⭐⭐ | [Validate BST](https://leetcode.com/problems/validate-binary-search-tree/), [Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/) |
+| Strings | ⭐⭐⭐⭐ | [Group Anagrams](https://leetcode.com/problems/group-anagrams/), [Longest Palindrome](https://leetcode.com/problems/longest-palindromic-substring/) |
+| Graphs | ⭐⭐⭐ | [Number of Islands](https://leetcode.com/problems/number-of-islands/), [Course Schedule](https://leetcode.com/problems/course-schedule/) |
 | OOP Design | ⭐⭐⭐ | Parking Lot, Library System |
 
 ### Amazon-Specific Problems to Focus On
-- [ ] LC 1: Two Sum (Easy) ⭐⭐ - Yes, they ask it!
-- [ ] LC 5: Longest Palindromic Substring (Medium) ⭐
-- [ ] LC 21: Merge Two Sorted Lists (Easy) ⭐
-- [ ] LC 23: Merge k Sorted Lists (Hard) ⭐⭐
-- [ ] LC 49: Group Anagrams (Medium) ⭐⭐
-- [ ] LC 56: Merge Intervals (Medium) ⭐⭐
-- [ ] LC 138: Copy List with Random Pointer (Medium) ⭐
-- [ ] LC 200: Number of Islands (Medium) ⭐⭐
-- [ ] LC 253: Meeting Rooms II (Medium) ⭐⭐
-- [ ] LC 937: Reorder Data in Log Files (Medium) ⭐
-- [ ] LC 973: K Closest Points to Origin (Medium) ⭐
+- [ ] [LC 1: Two Sum](https://leetcode.com/problems/two-sum/) (Easy) ⭐⭐ - Yes, they ask it!
+- [ ] [LC 5: Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/) (Medium) ⭐
+- [ ] [LC 21: Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/) (Easy) ⭐
+- [ ] [LC 23: Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/) (Hard) ⭐⭐
+- [ ] [LC 49: Group Anagrams](https://leetcode.com/problems/group-anagrams/) (Medium) ⭐⭐
+- [ ] [LC 56: Merge Intervals](https://leetcode.com/problems/merge-intervals/) (Medium) ⭐⭐
+- [ ] [LC 138: Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/) (Medium) ⭐
+- [ ] [LC 200: Number of Islands](https://leetcode.com/problems/number-of-islands/) (Medium) ⭐⭐
+- [ ] [LC 253: Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/) (premium) (Medium) ⭐⭐
+- [ ] [LC 937: Reorder Data in Log Files](https://leetcode.com/problems/reorder-data-in-log-files/) (Medium) ⭐
+- [ ] [LC 973: K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/) (Medium) ⭐
 
 ### Amazon Interview Tips
 1. **Prepare LP stories** - Have 6-8 stories covering multiple LPs
@@ -117,29 +117,29 @@ Each company has its own interview style and focus areas. Here's how to tailor y
 ### Frequently Asked Topics
 | Topic | Frequency | Example Problems |
 |-------|-----------|------------------|
-| Arrays | ⭐⭐⭐⭐⭐ | Move Zeroes, Product of Array |
-| Trees | ⭐⭐⭐⭐⭐ | Binary Tree Paths, Vertical Order |
-| Strings | ⭐⭐⭐⭐ | Valid Palindrome, Add Strings |
-| Graphs | ⭐⭐⭐⭐ | Clone Graph, Shortest Path |
-| Intervals | ⭐⭐⭐ | Merge Intervals, Meeting Rooms |
+| Arrays | ⭐⭐⭐⭐⭐ | [Move Zeroes](https://leetcode.com/problems/move-zeroes/), [Product of Array](https://leetcode.com/problems/product-of-array-except-self/) |
+| Trees | ⭐⭐⭐⭐⭐ | [Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/), [Vertical Order](https://leetcode.com/problems/binary-tree-vertical-order-traversal/) (premium) |
+| Strings | ⭐⭐⭐⭐ | [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/), [Add Strings](https://leetcode.com/problems/add-strings/) |
+| Graphs | ⭐⭐⭐⭐ | [Clone Graph](https://leetcode.com/problems/clone-graph/), Shortest Path |
+| Intervals | ⭐⭐⭐ | [Merge Intervals](https://leetcode.com/problems/merge-intervals/), [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/) (premium) |
 
 ### Meta-Specific Problems to Focus On
-- [ ] LC 1: Two Sum (Easy) ⭐
-- [ ] LC 15: 3Sum (Medium) ⭐
-- [ ] LC 56: Merge Intervals (Medium) ⭐⭐
-- [ ] LC 71: Simplify Path (Medium) ⭐
-- [ ] LC 88: Merge Sorted Array (Easy) ⭐
-- [ ] LC 125: Valid Palindrome (Easy) ⭐
-- [ ] LC 133: Clone Graph (Medium) ⭐⭐
-- [ ] LC 199: Binary Tree Right Side View (Medium) ⭐
-- [ ] LC 215: Kth Largest Element (Medium) ⭐
-- [ ] LC 227: Basic Calculator II (Medium) ⭐⭐
-- [ ] LC 314: Binary Tree Vertical Order Traversal (Medium) ⭐⭐
-- [ ] LC 339: Nested List Weight Sum (Medium) ⭐
-- [ ] LC 426: Convert BST to Sorted Doubly Linked List (Medium) ⭐
-- [ ] LC 528: Random Pick with Weight (Medium) ⭐
-- [ ] LC 921: Minimum Add to Make Parentheses Valid (Medium) ⭐
-- [ ] LC 1249: Minimum Remove to Make Valid Parentheses (Medium) ⭐⭐
+- [ ] [LC 1: Two Sum](https://leetcode.com/problems/two-sum/) (Easy) ⭐
+- [ ] [LC 15: 3Sum](https://leetcode.com/problems/3sum/) (Medium) ⭐
+- [ ] [LC 56: Merge Intervals](https://leetcode.com/problems/merge-intervals/) (Medium) ⭐⭐
+- [ ] [LC 71: Simplify Path](https://leetcode.com/problems/simplify-path/) (Medium) ⭐
+- [ ] [LC 88: Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/) (Easy) ⭐
+- [ ] [LC 125: Valid Palindrome](https://leetcode.com/problems/valid-palindrome/) (Easy) ⭐
+- [ ] [LC 133: Clone Graph](https://leetcode.com/problems/clone-graph/) (Medium) ⭐⭐
+- [ ] [LC 199: Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/) (Medium) ⭐
+- [ ] [LC 215: Kth Largest Element](https://leetcode.com/problems/kth-largest-element-in-an-array/) (Medium) ⭐
+- [ ] [LC 227: Basic Calculator II](https://leetcode.com/problems/basic-calculator-ii/) (Medium) ⭐⭐
+- [ ] [LC 314: Binary Tree Vertical Order Traversal](https://leetcode.com/problems/binary-tree-vertical-order-traversal/) (premium) (Medium) ⭐⭐
+- [ ] [LC 339: Nested List Weight Sum](https://leetcode.com/problems/nested-list-weight-sum/) (premium) (Medium) ⭐
+- [ ] [LC 426: Convert BST to Sorted Doubly Linked List](https://leetcode.com/problems/convert-binary-search-tree-to-sorted-doubly-linked-list/) (premium) (Medium) ⭐
+- [ ] [LC 528: Random Pick with Weight](https://leetcode.com/problems/random-pick-with-weight/) (Medium) ⭐
+- [ ] [LC 921: Minimum Add to Make Parentheses Valid](https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/) (Medium) ⭐
+- [ ] [LC 1249: Minimum Remove to Make Valid Parentheses](https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/) (Medium) ⭐⭐
 
 ### Meta Interview Tips
 1. **Be FAST** - 2 problems in 45 minutes means ~20 min each
@@ -167,27 +167,27 @@ Each company has its own interview style and focus areas. Here's how to tailor y
 ### Frequently Asked Topics
 | Topic | Frequency | Example Problems |
 |-------|-----------|------------------|
-| Arrays | ⭐⭐⭐⭐⭐ | Two Sum, Rotate Array |
-| Linked Lists | ⭐⭐⭐⭐ | Reverse List, Merge Lists |
-| Trees | ⭐⭐⭐⭐ | Validate BST, Level Order |
-| Strings | ⭐⭐⭐⭐ | Reverse Words, Anagrams |
-| DP | ⭐⭐⭐ | Climbing Stairs, House Robber |
+| Arrays | ⭐⭐⭐⭐⭐ | [Two Sum](https://leetcode.com/problems/two-sum/), [Rotate Array](https://leetcode.com/problems/rotate-array/) |
+| Linked Lists | ⭐⭐⭐⭐ | [Reverse List](https://leetcode.com/problems/reverse-linked-list/), [Merge Lists](https://leetcode.com/problems/merge-two-sorted-lists/) |
+| Trees | ⭐⭐⭐⭐ | [Validate BST](https://leetcode.com/problems/validate-binary-search-tree/), [Level Order](https://leetcode.com/problems/binary-tree-level-order-traversal/) |
+| Strings | ⭐⭐⭐⭐ | [Reverse Words](https://leetcode.com/problems/reverse-words-in-a-string/), Anagrams |
+| DP | ⭐⭐⭐ | [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/), [House Robber](https://leetcode.com/problems/house-robber/) |
 
 ### Microsoft-Specific Problems to Focus On
-- [ ] LC 1: Two Sum (Easy) ⭐
-- [ ] LC 2: Add Two Numbers (Medium) ⭐
-- [ ] LC 21: Merge Two Sorted Lists (Easy) ⭐⭐
-- [ ] LC 23: Merge k Sorted Lists (Hard) ⭐
-- [ ] LC 33: Search in Rotated Sorted Array (Medium) ⭐
-- [ ] LC 53: Maximum Subarray (Medium) ⭐⭐
-- [ ] LC 54: Spiral Matrix (Medium) ⭐
-- [ ] LC 98: Validate Binary Search Tree (Medium) ⭐
-- [ ] LC 103: Binary Tree Zigzag Level Order (Medium) ⭐
-- [ ] LC 146: LRU Cache (Medium) ⭐⭐
-- [ ] LC 151: Reverse Words in a String (Medium) ⭐
-- [ ] LC 206: Reverse Linked List (Easy) ⭐⭐
-- [ ] LC 236: Lowest Common Ancestor (Medium) ⭐
-- [ ] LC 273: Integer to English Words (Hard) ⭐
+- [ ] [LC 1: Two Sum](https://leetcode.com/problems/two-sum/) (Easy) ⭐
+- [ ] [LC 2: Add Two Numbers](https://leetcode.com/problems/add-two-numbers/) (Medium) ⭐
+- [ ] [LC 21: Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/) (Easy) ⭐⭐
+- [ ] [LC 23: Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/) (Hard) ⭐
+- [ ] [LC 33: Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/) (Medium) ⭐
+- [ ] [LC 53: Maximum Subarray](https://leetcode.com/problems/maximum-subarray/) (Medium) ⭐⭐
+- [ ] [LC 54: Spiral Matrix](https://leetcode.com/problems/spiral-matrix/) (Medium) ⭐
+- [ ] [LC 98: Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/) (Medium) ⭐
+- [ ] [LC 103: Binary Tree Zigzag Level Order](https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/) (Medium) ⭐
+- [ ] [LC 146: LRU Cache](https://leetcode.com/problems/lru-cache/) (Medium) ⭐⭐
+- [ ] [LC 151: Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/) (Medium) ⭐
+- [ ] [LC 206: Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) (Easy) ⭐⭐
+- [ ] [LC 236: Lowest Common Ancestor](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/) (Medium) ⭐
+- [ ] [LC 273: Integer to English Words](https://leetcode.com/problems/integer-to-english-words/) (Hard) ⭐
 
 ### Microsoft Interview Tips
 1. **Write readable code** - They value clarity
@@ -213,16 +213,16 @@ Each company has its own interview style and focus areas. Here's how to tailor y
 4. **Concurrency** - For some roles
 
 ### Apple-Specific Problems to Focus On
-- [ ] LC 3: Longest Substring Without Repeating (Medium) ⭐
-- [ ] LC 4: Median of Two Sorted Arrays (Hard) ⭐
-- [ ] LC 7: Reverse Integer (Medium)
-- [ ] LC 20: Valid Parentheses (Easy) ⭐
-- [ ] LC 50: Pow(x, n) (Medium) ⭐
-- [ ] LC 121: Best Time to Buy and Sell Stock (Easy) ⭐⭐
-- [ ] LC 138: Copy List with Random Pointer (Medium) ⭐
-- [ ] LC 155: Min Stack (Medium) ⭐
-- [ ] LC 162: Find Peak Element (Medium) ⭐
-- [ ] LC 380: Insert Delete GetRandom O(1) (Medium) ⭐
+- [ ] [LC 3: Longest Substring Without Repeating](https://leetcode.com/problems/longest-substring-without-repeating-characters/) (Medium) ⭐
+- [ ] [LC 4: Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/) (Hard) ⭐
+- [ ] [LC 7: Reverse Integer](https://leetcode.com/problems/reverse-integer/) (Medium)
+- [ ] [LC 20: Valid Parentheses](https://leetcode.com/problems/valid-parentheses/) (Easy) ⭐
+- [ ] [LC 50: Pow(x, n)](https://leetcode.com/problems/powx-n/) (Medium) ⭐
+- [ ] [LC 121: Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) (Easy) ⭐⭐
+- [ ] [LC 138: Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/) (Medium) ⭐
+- [ ] [LC 155: Min Stack](https://leetcode.com/problems/min-stack/) (Medium) ⭐
+- [ ] [LC 162: Find Peak Element](https://leetcode.com/problems/find-peak-element/) (Medium) ⭐
+- [ ] [LC 380: Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/) (Medium) ⭐
 
 ---
 
@@ -244,58 +244,58 @@ Each company has its own interview style and focus areas. Here's how to tailor y
 These problems appear across ALL major companies:
 
 ### Must-Know (Top 20)
-1. [ ] LC 1: Two Sum
-2. [ ] LC 3: Longest Substring Without Repeating Characters
-3. [ ] LC 15: 3Sum
-4. [ ] LC 20: Valid Parentheses
-5. [ ] LC 21: Merge Two Sorted Lists
-6. [ ] LC 23: Merge k Sorted Lists
-7. [ ] LC 33: Search in Rotated Sorted Array
-8. [ ] LC 49: Group Anagrams
-9. [ ] LC 53: Maximum Subarray
-10. [ ] LC 56: Merge Intervals
-11. [ ] LC 121: Best Time to Buy and Sell Stock
-12. [ ] LC 146: LRU Cache
-13. [ ] LC 200: Number of Islands
-14. [ ] LC 206: Reverse Linked List
-15. [ ] LC 207: Course Schedule
-16. [ ] LC 215: Kth Largest Element in an Array
-17. [ ] LC 236: Lowest Common Ancestor of a Binary Tree
-18. [ ] LC 297: Serialize and Deserialize Binary Tree
-19. [ ] LC 322: Coin Change
-20. [ ] LC 300: Longest Increasing Subsequence
+1. [ ] [LC 1: Two Sum](https://leetcode.com/problems/two-sum/)
+2. [ ] [LC 3: Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
+3. [ ] [LC 15: 3Sum](https://leetcode.com/problems/3sum/)
+4. [ ] [LC 20: Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
+5. [ ] [LC 21: Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
+6. [ ] [LC 23: Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
+7. [ ] [LC 33: Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
+8. [ ] [LC 49: Group Anagrams](https://leetcode.com/problems/group-anagrams/)
+9. [ ] [LC 53: Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
+10. [ ] [LC 56: Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+11. [ ] [LC 121: Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
+12. [ ] [LC 146: LRU Cache](https://leetcode.com/problems/lru-cache/)
+13. [ ] [LC 200: Number of Islands](https://leetcode.com/problems/number-of-islands/)
+14. [ ] [LC 206: Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
+15. [ ] [LC 207: Course Schedule](https://leetcode.com/problems/course-schedule/)
+16. [ ] [LC 215: Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
+17. [ ] [LC 236: Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+18. [ ] [LC 297: Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)
+19. [ ] [LC 322: Coin Change](https://leetcode.com/problems/coin-change/)
+20. [ ] [LC 300: Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 
 ### Highly Recommended (Next 30)
-21. [ ] LC 5: Longest Palindromic Substring
-22. [ ] LC 11: Container With Most Water
-23. [ ] LC 42: Trapping Rain Water
-24. [ ] LC 46: Permutations
-25. [ ] LC 48: Rotate Image
-26. [ ] LC 55: Jump Game
-27. [ ] LC 62: Unique Paths
-28. [ ] LC 72: Edit Distance
-29. [ ] LC 76: Minimum Window Substring
-30. [ ] LC 78: Subsets
-31. [ ] LC 79: Word Search
-32. [ ] LC 98: Validate Binary Search Tree
-33. [ ] LC 102: Binary Tree Level Order Traversal
-34. [ ] LC 104: Maximum Depth of Binary Tree
-35. [ ] LC 105: Construct Binary Tree from Preorder and Inorder
-36. [ ] LC 124: Binary Tree Maximum Path Sum
-37. [ ] LC 128: Longest Consecutive Sequence
-38. [ ] LC 133: Clone Graph
-39. [ ] LC 139: Word Break
-40. [ ] LC 141: Linked List Cycle
-41. [ ] LC 152: Maximum Product Subarray
-42. [ ] LC 153: Find Minimum in Rotated Sorted Array
-43. [ ] LC 198: House Robber
-44. [ ] LC 238: Product of Array Except Self
-45. [ ] LC 253: Meeting Rooms II
-46. [ ] LC 347: Top K Frequent Elements
-47. [ ] LC 416: Partition Equal Subset Sum
-48. [ ] LC 543: Diameter of Binary Tree
-49. [ ] LC 560: Subarray Sum Equals K
-50. [ ] LC 1143: Longest Common Subsequence
+21. [ ] [LC 5: Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
+22. [ ] [LC 11: Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
+23. [ ] [LC 42: Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+24. [ ] [LC 46: Permutations](https://leetcode.com/problems/permutations/)
+25. [ ] [LC 48: Rotate Image](https://leetcode.com/problems/rotate-image/)
+26. [ ] [LC 55: Jump Game](https://leetcode.com/problems/jump-game/)
+27. [ ] [LC 62: Unique Paths](https://leetcode.com/problems/unique-paths/)
+28. [ ] [LC 72: Edit Distance](https://leetcode.com/problems/edit-distance/)
+29. [ ] [LC 76: Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+30. [ ] [LC 78: Subsets](https://leetcode.com/problems/subsets/)
+31. [ ] [LC 79: Word Search](https://leetcode.com/problems/word-search/)
+32. [ ] [LC 98: Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
+33. [ ] [LC 102: Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
+34. [ ] [LC 104: Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
+35. [ ] [LC 105](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/): Construct Binary Tree from Preorder and Inorder
+36. [ ] [LC 124: Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
+37. [ ] [LC 128: Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
+38. [ ] [LC 133: Clone Graph](https://leetcode.com/problems/clone-graph/)
+39. [ ] [LC 139: Word Break](https://leetcode.com/problems/word-break/)
+40. [ ] [LC 141: Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
+41. [ ] [LC 152: Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
+42. [ ] [LC 153: Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
+43. [ ] [LC 198: House Robber](https://leetcode.com/problems/house-robber/)
+44. [ ] [LC 238: Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
+45. [ ] [LC 253: Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/) (premium)
+46. [ ] [LC 347: Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
+47. [ ] [LC 416: Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
+48. [ ] [LC 543: Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
+49. [ ] [LC 560: Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
+50. [ ] [LC 1143: Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
 
 ---
 

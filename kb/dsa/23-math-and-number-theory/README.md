@@ -441,9 +441,9 @@ long[][] pascal(int n, long mod) {
 ```
 
 - **Factorial table:** `nCr = n! / (r! * (n - r)!)`. Division becomes multiplication by `invFact`. The backward loop uses `(i-1)!^(-1) = i!^(-1) * i`, so the build needs only **one** modular exponentiation. Build time is O(n + log MOD). Each query is O(1).
-- **Pascal's triangle:** `C(i, j) = C(i-1, j-1) + C(i-1, j)` (choose the i-th item or not). Build time is O(n^2). It needs only addition, so the modulus can be any number, and `mod = Long.MAX_VALUE` gives exact values up to `C(66, 33)` before overflow. Use a one-dimensional array and update `j` from high to low to cut space to O(n) when you need only one row (LeetCode 119).
+- **Pascal's triangle:** `C(i, j) = C(i-1, j-1) + C(i-1, j)` (choose the i-th item or not). Build time is O(n^2). It needs only addition, so the modulus can be any number, and `mod = Long.MAX_VALUE` gives exact values up to `C(66, 33)` before overflow. Use a one-dimensional array and update `j` from high to low to cut space to O(n) when you need only one row ([LeetCode 119](https://leetcode.com/problems/pascals-triangle-ii/)).
 - **When `n ≥ p`** (the modulus is smaller than `n`), `n!` contains the factor `p`, and the inverse does not exist. Lucas' theorem handles this case: write `n` and `r` in base `p` and multiply the small `C(n_i, r_i)` values. This page does not cover Lucas' theorem further.
-- **Paths in a grid** (LeetCode 62): an `m x n` grid has `C(m + n - 2, m - 1)` paths, because each path chooses which `m - 1` of its `m + n - 2` moves go down.
+- **Paths in a grid** ([LeetCode 62](https://leetcode.com/problems/unique-paths/)): an `m x n` grid has `C(m + n - 2, m - 1)` paths, because each path chooses which `m - 1` of its `m + n - 2` moves go down.
 
 ### Template 8: Overflow-Safe Arithmetic
 
@@ -472,7 +472,7 @@ int mid = lo + (hi - lo) / 2;           // (lo + hi) / 2 would overflow; this fo
 | `BigInteger` | No overflow, slower, use for exact big results |
 
 - **Rule of thumb:** compute in `long` when inputs are `int`. Convert back to `int` at the end, with `Math.toIntExact` if the problem promises the result fits and you want a loud failure when it does not.
-- **Detect overflow before it happens** when you must stay in `int` (LeetCode 7): test `r > Integer.MAX_VALUE / 10` before `r * 10`.
+- **Detect overflow before it happens** when you must stay in `int` ([LeetCode 7](https://leetcode.com/problems/reverse-integer/)): test `r > Integer.MAX_VALUE / 10` before `r * 10`.
 
 ### Template 9: Digit Manipulation
 
@@ -602,12 +602,12 @@ int trailingZeroes(int n) {                // LeetCode 172
 
 ### Variation A: Counting With a Sieve
 
-**Problem type:** count or list primes below `n`; build prime-based arrays (LeetCode 204, 1175).
+**Problem type:** count or list primes below `n`; build prime-based arrays ([LeetCode 204](https://leetcode.com/problems/count-primes/), [1175](https://leetcode.com/problems/prime-arrangements/)).
 **Key insight:** build the sieve once, then answer with prefix counts. A prefix count array `pi[i]` (the number of primes up to `i`) answers "how many primes in `[l, r]`" in O(1) as `pi[r] - pi[l - 1]`. This reuses the idea of [prefix sums](../04-prefix-sum/README.md).
 
 ### Variation B: Binary Search Plus Inclusion-Exclusion (Ugly/Magical Number)
 
-**Problem type:** the k-th positive integer divisible by `a`, `b`, or `c` (LeetCode 1201, 878).
+**Problem type:** the k-th positive integer divisible by `a`, `b`, or `c` ([LeetCode 1201](https://leetcode.com/problems/ugly-number-iii/), [878](https://leetcode.com/problems/nth-magical-number/)).
 **Key insight:** the count of such integers up to `x` is monotone in `x`, so [binary search on the answer](../06-binary-search-on-answer/README.md) applies. Count with inclusion-exclusion:
 
 `count(x) = x/a + x/b + x/c - x/lcm(a,b) - x/lcm(b,c) - x/lcm(a,c) + x/lcm(a,b,c)`
@@ -632,8 +632,8 @@ Time O(log(max(a, b, c)) + log(hi)): the LCMs cost O(log max) once, and the bina
 
 ### Variation C: Counting Formulas With a Modulus
 
-**Problem type:** count arrangements with a closed form and return it modulo `10^9 + 7` (LeetCode 1359, 1175, 1808).
-**Key insight:** find the product or `nCr` form, then reduce after each step. LeetCode 1359 (pickup and delivery): build the sequence one pair at a time. When pair `i` joins a valid sequence of `2(i - 1)` events, the new sequence has `2i` positions. Pick 2 of them for the new pair. The pickup takes the earlier position, so the order inside the pair is fixed. That gives `C(2i, 2) = i * (2i - 1)` choices.
+**Problem type:** count arrangements with a closed form and return it modulo `10^9 + 7` ([LeetCode 1359](https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/), [1175](https://leetcode.com/problems/prime-arrangements/), [1808](https://leetcode.com/problems/maximize-number-of-nice-divisors/)).
+**Key insight:** find the product or `nCr` form, then reduce after each step. [LeetCode 1359](https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/) (pickup and delivery): build the sequence one pair at a time. When pair `i` joins a valid sequence of `2(i - 1)` events, the new sequence has `2i` positions. Pick 2 of them for the new pair. The pickup takes the earlier position, so the order inside the pair is fixed. That gives `C(2i, 2) = i * (2i - 1)` choices.
 
 ```java
 int countOrders(int n) {
@@ -648,7 +648,7 @@ int countOrders(int n) {
 
 Time O(n), space O(1).
 
-LeetCode 1808 (maximize nice divisors): the number of nice divisors of a number whose prime factors, counted with multiplicity, total `n` equals the product of the prime exponents `e_1 * e_2 * ...`, where `e_1 + e_2 + ... = n`. Splitting `n` into parts of size 3 maximizes the product (the same argument as LeetCode 343, Integer Break). Use 4 as the part when the remainder is 1 (`3 + 1` is worse than `2 + 2`).
+[LeetCode 1808](https://leetcode.com/problems/maximize-number-of-nice-divisors/) (maximize nice divisors): the number of nice divisors of a number whose prime factors, counted with multiplicity, total `n` equals the product of the prime exponents `e_1 * e_2 * ...`, where `e_1 + e_2 + ... = n`. Splitting `n` into parts of size 3 maximizes the product (the same argument as [LeetCode 343](https://leetcode.com/problems/integer-break/), Integer Break). Use 4 as the part when the remainder is 1 (`3 + 1` is worse than `2 + 2`).
 
 ```java
 int maxNiceDivisors(int primeFactors) {
@@ -679,7 +679,7 @@ Time O(log n), space O(1).
 
 ### Variation D: Power With a Non-Prime Modulus and a Huge Exponent
 
-**Problem type:** `a^b mod 1337` where `b` is given as an array of decimal digits (LeetCode 372).
+**Problem type:** `a^b mod 1337` where `b` is given as an array of decimal digits ([LeetCode 372](https://leetcode.com/problems/super-pow/)).
 **Key insight:** `1337 = 7 * 191` is not prime, so Fermat does not apply. No inverse is needed. Process the digits of `b` from the left: `a^(10 * q + d) = (a^q)^10 * a^d`.
 
 ```java
@@ -711,13 +711,13 @@ Time O(len(b) * log 10), which is O(len(b)). Space O(1).
 
 | Fact | Use | Example problem |
 |---|---|---|
-| `gcd(a, b) * lcm(a, b) = a * b` | Compute LCM from GCD | LeetCode 1201 |
-| Bezout: `a*x + b*y = c` has integer solutions exactly when `gcd(a, b)` divides `c` | Reachability with two step sizes | LeetCode 365 (water jugs: `target` is reachable if `target <= x + y` and `gcd(x, y)` divides `target`), LeetCode 1250 (good array: gcd of all elements is 1) |
-| A number has an odd count of divisors exactly when it is a perfect square | Toggle problems | LeetCode 319 (bulb switcher: answer `floor(sqrt(n))`) |
-| The GCD of a growing subarray changes at most `log2(max)` times | Subarray GCD counting | LeetCode 2447 |
+| `gcd(a, b) * lcm(a, b) = a * b` | Compute LCM from GCD | [LeetCode 1201](https://leetcode.com/problems/ugly-number-iii/) |
+| Bezout: `a*x + b*y = c` has integer solutions exactly when `gcd(a, b)` divides `c` | Reachability with two step sizes | [LeetCode 365](https://leetcode.com/problems/water-and-jug-problem/) (water jugs: `target` is reachable if `target <= x + y` and `gcd(x, y)` divides `target`), [LeetCode 1250](https://leetcode.com/problems/check-if-it-is-a-good-array/) (good array: gcd of all elements is 1) |
+| A number has an odd count of divisors exactly when it is a perfect square | Toggle problems | [LeetCode 319](https://leetcode.com/problems/bulb-switcher/) (bulb switcher: answer `floor(sqrt(n))`) |
+| The GCD of a growing subarray changes at most `log2(max)` times | Subarray GCD counting | [LeetCode 2447](https://leetcode.com/problems/number-of-subarrays-with-gcd-equal-to-k/) |
 | Euler's totient: `phi(n) = n * product of (1 - 1/p)` over the primes `p` dividing `n` | Count of integers in `1..n` that are co-prime to `n` | Compute during `factorize` |
 | `1 + 2 + ... + n = n(n + 1) / 2`. Use `long` for `n` above 46,340: the product `n(n + 1)` overflows `int` at `n = 46,341`, even though the sum fits in `int` up to `n = 65,535` | Closed forms | Many easy problems |
-| Integer square root: binary search, or `(long) Math.sqrt(n)` with a correction | Perfect-square and floor-sqrt problems | LeetCode 69 |
+| Integer square root: binary search, or `(long) Math.sqrt(n)` with a correction | Perfect-square and floor-sqrt problems | [LeetCode 69](https://leetcode.com/problems/sqrtx/) |
 
 On the square root: `Math.sqrt` returns the `double` closest to the true root (javadoc). A `double` has 53 significant bits. For `long` values above `2^53`, the conversion from `long` to `double` already rounds, and the result can be one too large. For example, `(long) Math.sqrt(999_999_999_999_999_999L)` returns `1_000_000_000`, but the true floor is `999_999_999`. Correct the estimate with divisions, because `r * r` and `(r + 1) * (r + 1)` overflow for `n` near `Long.MAX_VALUE`:
 
@@ -735,7 +735,7 @@ For `int` inputs, `(int) Math.sqrt(n)` is exact: every `int` converts to `double
 
 ### Variation F: Geometry With Slopes as Reduced Fractions
 
-**Problem type:** maximum points on one line (LeetCode 149).
+**Problem type:** maximum points on one line ([LeetCode 149](https://leetcode.com/problems/max-points-on-a-line/)).
 **Key insight:** fix a point `i`. For each other point `j`, reduce `(dx, dy)` by their GCD and fix the sign so that equal directions have equal keys. The most common key is the best line through `i`. Cross products give an O(n^3) alternative with no map.
 
 ```java
@@ -770,7 +770,7 @@ long gcd(long a, long b) {
 }
 ```
 
-Time O(n^2) map operations, space O(n). The key `dx * 100_003 + dy` is unique because after normalization `dx` is in `[0, 2 * 10^4]` and `dy` is in `[-2 * 10^4, 2 * 10^4]`, and `100_003` exceeds the range of `dy`. The code assumes distinct points, as LeetCode 149 guarantees. Equal points give `g = 0` and a division by zero.
+Time O(n^2) map operations, space O(n). The key `dx * 100_003 + dy` is unique because after normalization `dx` is in `[0, 2 * 10^4]` and `dy` is in `[-2 * 10^4, 2 * 10^4]`, and `100_003` exceeds the range of `dy`. The code assumes distinct points, as [LeetCode 149](https://leetcode.com/problems/max-points-on-a-line/) guarantees. Equal points give `g = 0` and a division by zero.
 
 ---
 
@@ -780,18 +780,18 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 
 | # | Problem | Difficulty | Key insight |
 |---|---------|-----------|-------------|
-| 1979 | Find Greatest Common Divisor of Array | Easy | The problem asks for the GCD of the smallest and the largest element only, not of all elements. Find `min` and `max` in one pass, then return `gcd(min, max)` |
-| 1175 | Prime Arrangements | Easy | Sieve for the count `p` of primes up to `n`. Primes can fill the prime positions in `p!` ways and the rest in `(n - p)!` ways. Multiply modulo `10^9 + 7` |
-| 172 | Factorial Trailing Zeroes | Medium | Legendre's formula: count factors of 5 with `n/5 + n/25 + ...` (Template 11) |
-| 204 | Count Primes | Medium | Sieve for numbers below `n` (strictly less than `n`). O(n log log n) |
-| 50 | Pow(x, n) | Medium | Fast exponentiation. Use a `long` exponent so `Integer.MIN_VALUE` works |
-| 7 | Reverse Integer | Medium | Digit loop with an overflow check before `reversed * 10 + digit` |
-| 62 | Unique Paths | Medium | `C(m + n - 2, m - 1)`. Use Pascal's triangle, or compute with a `long` and exact division at each step |
-| 372 | Super Pow | Medium | `a^(10q + d) = (a^q)^10 * a^d`. Modulus 1337 is not prime, so avoid inverses |
-| 1201 | Ugly Number III | Medium | Binary search on the answer, count by inclusion-exclusion with LCMs |
-| 149 | Max Points on a Line | Hard | Reduced-fraction slopes with GCD, or cross products |
-| 1359 | Count All Valid Pickup and Delivery Options | Hard | Multiply `i * (2i - 1)` for `i = 1..n`, modulo `10^9 + 7` |
-| 1808 | Maximize Number of Nice Divisors | Hard | Split the prime-factor count into 3s, then use fast exponentiation |
+| 1979 | [Find Greatest Common Divisor of Array](https://leetcode.com/problems/find-greatest-common-divisor-of-array/) | Easy | The problem asks for the GCD of the smallest and the largest element only, not of all elements. Find `min` and `max` in one pass, then return `gcd(min, max)` |
+| 1175 | [Prime Arrangements](https://leetcode.com/problems/prime-arrangements/) | Easy | Sieve for the count `p` of primes up to `n`. Primes can fill the prime positions in `p!` ways and the rest in `(n - p)!` ways. Multiply modulo `10^9 + 7` |
+| 172 | [Factorial Trailing Zeroes](https://leetcode.com/problems/factorial-trailing-zeroes/) | Medium | Legendre's formula: count factors of 5 with `n/5 + n/25 + ...` (Template 11) |
+| 204 | [Count Primes](https://leetcode.com/problems/count-primes/) | Medium | Sieve for numbers below `n` (strictly less than `n`). O(n log log n) |
+| 50 | [Pow(x, n)](https://leetcode.com/problems/powx-n/) | Medium | Fast exponentiation. Use a `long` exponent so `Integer.MIN_VALUE` works |
+| 7 | [Reverse Integer](https://leetcode.com/problems/reverse-integer/) | Medium | Digit loop with an overflow check before `reversed * 10 + digit` |
+| 62 | [Unique Paths](https://leetcode.com/problems/unique-paths/) | Medium | `C(m + n - 2, m - 1)`. Use Pascal's triangle, or compute with a `long` and exact division at each step |
+| 372 | [Super Pow](https://leetcode.com/problems/super-pow/) | Medium | `a^(10q + d) = (a^q)^10 * a^d`. Modulus 1337 is not prime, so avoid inverses |
+| 1201 | [Ugly Number III](https://leetcode.com/problems/ugly-number-iii/) | Medium | Binary search on the answer, count by inclusion-exclusion with LCMs |
+| 149 | [Max Points on a Line](https://leetcode.com/problems/max-points-on-a-line/) | Hard | Reduced-fraction slopes with GCD, or cross products |
+| 1359 | [Count All Valid Pickup and Delivery Options](https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/) | Hard | Multiply `i * (2i - 1)` for `i = 1..n`, modulo `10^9 + 7` |
+| 1808 | [Maximize Number of Nice Divisors](https://leetcode.com/problems/maximize-number-of-nice-divisors/) | Hard | Split the prime-factor count into 3s, then use fast exponentiation |
 
 ### Walkthrough: LeetCode 172, Factorial Trailing Zeroes
 
@@ -817,19 +817,19 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 
 ### Phase 1: Foundations (3 problems)
 
-Write `gcd`, `power`, and `sieve` from memory, without looking. LeetCode 1979, 204, and 50.
+Write `gcd`, `power`, and `sieve` from memory, without looking. [LeetCode 1979](https://leetcode.com/problems/find-greatest-common-divisor-of-array/), [204](https://leetcode.com/problems/count-primes/), and 50.
 
 ### Phase 2: Modular arithmetic (4 problems)
 
-LeetCode 1175, 1359, 372, and 62. For each, state the modulus rules you use, and mark every place where an overflow could happen.
+[LeetCode 1175](https://leetcode.com/problems/prime-arrangements/), [1359](https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/), [372](https://leetcode.com/problems/super-pow/), and 62. For each, state the modulus rules you use, and mark every place where an overflow could happen.
 
 ### Phase 3: Combining with other patterns (3 problems)
 
-LeetCode 1201 (binary search), 172 (formula), and 149 (hash map plus GCD). The goal is to see math as a counting or hashing tool.
+[LeetCode 1201](https://leetcode.com/problems/ugly-number-iii/) (binary search), 172 (formula), and 149 (hash map plus GCD). The goal is to see math as a counting or hashing tool.
 
 ### Phase 4: Hard formula problems (2 problems)
 
-LeetCode 1808 and 2338 (Count the Number of Ideal Arrays, Hard: combines prime factorization, `nCr` with a factorial table, and a modulus). Derive the formula on paper before you code.
+[LeetCode 1808](https://leetcode.com/problems/maximize-number-of-nice-divisors/) and [2338](https://leetcode.com/problems/count-the-number-of-ideal-arrays/) (Count the Number of Ideal Arrays, Hard: combines prime factorization, `nCr` with a factorial table, and a modulus). Derive the formula on paper before you code.
 
 ### Self-Check Questions
 
@@ -907,11 +907,11 @@ The loop `for (int i = 2; i * i <= n; i++)` fails for `n` near `Integer.MAX_VALU
 
 ### Mistake 6: `Math.abs(Integer.MIN_VALUE)`
 
-`Math.abs(Integer.MIN_VALUE)` returns `Integer.MIN_VALUE`, which is negative (javadoc). The magnitude `2^31` does not fit in an `int`. Convert to `long` first: `Math.abs((long) x)`. The same problem hits `-x`, `Integer.MIN_VALUE / -1`, and the exponent in LeetCode 50 (`n = -2^31`).
+`Math.abs(Integer.MIN_VALUE)` returns `Integer.MIN_VALUE`, which is negative (javadoc). The magnitude `2^31` does not fit in an `int`. Convert to `long` first: `Math.abs((long) x)`. The same problem hits `-x`, `Integer.MIN_VALUE / -1`, and the exponent in [LeetCode 50](https://leetcode.com/problems/powx-n/) (`n = -2^31`).
 
 ### Mistake 7: Wrong Sieve Bounds
 
-Off-by-one errors: `new boolean[n]` instead of `new boolean[n + 1]` drops `n` itself, and LeetCode 204 asks for primes **strictly below** `n`. Also, 0 and 1 are not prime, but `composite[0]` and `composite[1]` stay `false` in Template 2. Start every count at index 2.
+Off-by-one errors: `new boolean[n]` instead of `new boolean[n + 1]` drops `n` itself, and [LeetCode 204](https://leetcode.com/problems/count-primes/) asks for primes **strictly below** `n`. Also, 0 and 1 are not prime, but `composite[0]` and `composite[1]` stay `false` in Template 2. Start every count at index 2.
 
 ### Mistake 8: Reducing Too Late (Or Not at All)
 
@@ -931,9 +931,9 @@ Summing a loop of products and taking `% MOD` once at the end overflows `long` a
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| "Count the ways" with a modulus | [Dynamic programming](../15-dynamic-programming/README.md) | Is there a closed form or a product that you can derive (LC 1359, 1808)? Use a formula. Do the choices depend on earlier states (LC 62 with obstacles)? Use DP |
+| "Count the ways" with a modulus | [Dynamic programming](../15-dynamic-programming/README.md) | Is there a closed form or a product that you can derive ([LC 1359](https://leetcode.com/problems/count-all-valid-pickup-and-delivery-options/), [1808](https://leetcode.com/problems/maximize-number-of-nice-divisors/))? Use a formula. Do the choices depend on earlier states ([LC 62](https://leetcode.com/problems/unique-paths/) with obstacles)? Use DP |
 | Bit tricks for "power of two", "count set bits" | [Bit manipulation](../19-bit-manipulation/README.md) | Is the operation a bit operation (`n & (n - 1)`)? Use pattern 19. Is it divisibility or exponents? Use this page |
-| "K-th number with property X" | [Binary search on the answer](../06-binary-search-on-answer/README.md) | Can you count how many valid values are `≤ x` in O(1) or O(log)? Use binary search with the counting formula (LC 1201) |
+| "K-th number with property X" | [Binary search on the answer](../06-binary-search-on-answer/README.md) | Can you count how many valid values are `≤ x` in O(1) or O(log)? Use binary search with the counting formula ([LC 1201](https://leetcode.com/problems/ugly-number-iii/)) |
 | "Pairs with a given remainder" | [Hashing and frequency](../05-hashing-frequency/README.md) | Is the task to count pairs or subarrays by remainder class? Use a hash map on `floorMod` values. Is it to compute a power or an inverse? Use this page |
 | Prime test for a single number | Sieve | One number up to `10^12`: trial division, O(sqrt n). Many numbers or all numbers up to `10^7`: sieve |
 | `nCr` for small `n` | Pascal's triangle versus factorial table | Is the modulus prime and are there many queries with large `n`? Factorial table. Is `n` up to 1000 or is the modulus not prime? Pascal's triangle |

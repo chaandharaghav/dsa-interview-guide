@@ -378,7 +378,7 @@ function minMeetingRooms(intervals):
 **Time:** O(n log m) where m = number of distinct chars (at most 26 for lowercase).
 
 ### Variation C: Find Median of a Sorted Matrix / Stream with Constraints
-**Variant of LC 295** with sliding window constraints (e.g., "median of last k elements").  
+**Variant of [LC 295](https://leetcode.com/problems/find-median-from-data-stream/)** with sliding window constraints (e.g., "median of last k elements").  
 **Approach:** Two heaps plus a mechanism to lazily evict expired elements (lazy deletion using a set or counter).
 
 ### Variation D: Ugly Numbers / Super Ugly Numbers
@@ -401,34 +401,34 @@ function minMeetingRooms(intervals):
 ### EASY (Warm-up)
 | Problem | LC # | Key Insight |
 |---------|------|-------------|
-| Last Stone Weight | 1046 | Max-heap; simulate smashing the two heaviest |
-| Kth Largest Element in a Stream | 703 | Min-heap of size k; top = answer |
+| [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/) | 1046 | Max-heap; simulate smashing the two heaviest |
+| [Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/) | 703 | Min-heap of size k; top = answer |
 
 ### MEDIUM (Interview Favorites)
 | Problem | LC # | Key Insight |
 |---------|------|-------------|
-| Find K Closest Elements | 658 | Binary search + expand outward; or max-heap of size k |
-| **Kth Largest Element in an Array** | 215 | Min-heap size k; also learnable via QuickSelect O(n) avg |
-| **K Closest Points to Origin** | 973 | Max-heap size k keyed by distance; evict farthest |
-| **Top K Frequent Elements** | 347 | Frequency map + min-heap size k (or bucket sort) |
-| **Sort Characters by Frequency** | 451 | Max-heap of (freq, char); reconstruct string |
-| **Task Scheduler** | 621 | Max-heap of task frequencies + cooldown queue |
-| **Meeting Rooms II** | 253 | Min-heap of end times; size = rooms needed |
-| **Reorganize String** | 767 | Max-heap of char frequencies; interleave greedily |
-| **K Pairs with Smallest Sums** | 373 | Min-heap over initial pairs; advance column on pop |
-| **Ugly Number II** | 264 | Min-heap with dedup; multiply by 2, 3, 5 on pop |
+| [Find K Closest Elements](https://leetcode.com/problems/find-k-closest-elements/) | 658 | Binary search + expand outward; or max-heap of size k |
+| **[Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)** | 215 | Min-heap size k; also learnable via QuickSelect O(n) avg |
+| **[K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/)** | 973 | Max-heap size k keyed by distance; evict farthest |
+| **[Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)** | 347 | Frequency map + min-heap size k (or bucket sort) |
+| **[Sort Characters by Frequency](https://leetcode.com/problems/sort-characters-by-frequency/)** | 451 | Max-heap of (freq, char); reconstruct string |
+| **[Task Scheduler](https://leetcode.com/problems/task-scheduler/)** | 621 | Max-heap of task frequencies + cooldown queue |
+| **[Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/)** (premium) | 253 | Min-heap of end times; size = rooms needed |
+| **[Reorganize String](https://leetcode.com/problems/reorganize-string/)** | 767 | Max-heap of char frequencies; interleave greedily |
+| **[K Pairs with Smallest Sums](https://leetcode.com/problems/find-k-pairs-with-smallest-sums/)** | 373 | Min-heap over initial pairs; advance column on pop |
+| **[Ugly Number II](https://leetcode.com/problems/ugly-number-ii/)** | 264 | Min-heap with dedup; multiply by 2, 3, 5 on pop |
 
 ### HARD (Differentiators)
 | Problem | LC # | Key Insight |
 |---------|------|-------------|
-| **Merge K Sorted Lists** | 23 | Min-heap over list heads; O(N log k) |
-| **Find Median from Data Stream** | 295 | Two-heap split; rebalance on every insert |
-| **Sliding Window Median** | 480 | Two heaps + lazy deletion for expired elements |
-| **IPO (Maximize Capital)** | 502 | Two heaps: projects sorted by capital (min) + profit (max) |
-| **Trapping Rain Water II** | 407 | Min-heap BFS from boundary inward |
-| **Find K-th Smallest Pair Distance** | 719 | Binary search + sliding window (heap gives TLE) |
-| **Minimum Cost to Hire K Workers** | 857 | Sort by wage/quality ratio + max-heap for quality sum |
-| **Employee Free Time** | 759 | Merge all intervals via min-heap over interval heads |
+| **[Merge K Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)** | 23 | Min-heap over list heads; O(N log k) |
+| **[Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)** | 295 | Two-heap split; rebalance on every insert |
+| **[Sliding Window Median](https://leetcode.com/problems/sliding-window-median/)** | 480 | Two heaps + lazy deletion for expired elements |
+| **[IPO (Maximize Capital)](https://leetcode.com/problems/ipo/)** | 502 | Two heaps: projects sorted by capital (min) + profit (max) |
+| **[Trapping Rain Water II](https://leetcode.com/problems/trapping-rain-water-ii/)** | 407 | Min-heap BFS from boundary inward |
+| **[Find K-th Smallest Pair Distance](https://leetcode.com/problems/find-k-th-smallest-pair-distance/)** | 719 | Binary search + sliding window (heap gives TLE) |
+| **[Minimum Cost to Hire K Workers](https://leetcode.com/problems/minimum-cost-to-hire-k-workers/)** | 857 | Sort by wage/quality ratio + max-heap for quality sum |
+| **[Employee Free Time](https://leetcode.com/problems/employee-free-time/)** (premium) | 759 | Merge all intervals via min-heap over interval heads |
 
 ---
 

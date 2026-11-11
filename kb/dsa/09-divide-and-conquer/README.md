@@ -343,24 +343,24 @@ function build(preorder, preStart, preEnd,
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Sort an Array** | Merge sort or quick sort | 912 |
-| **Kth Largest Element** | Quick select (D&C) | 215 |
-| **Construct Binary Tree from Preorder and Inorder** | D&C with maps | 105 |
-| **Construct Binary Tree from Inorder and Postorder** | Similar approach | 106 |
-| **Maximum Subarray** | D&C or Kadane's | 53 |
-| **Different Ways to Add Parentheses** | D&C on operators | 241 |
-| **Search a 2D Matrix II** | D&C or staircase | 240 |
-| **Beautiful Array** | D&C construction | 932 |
+| **[Sort an Array](https://leetcode.com/problems/sort-an-array/)** | Merge sort or quick sort | 912 |
+| **[Kth Largest Element](https://leetcode.com/problems/kth-largest-element-in-an-array/)** | Quick select (D&C) | 215 |
+| **[Construct Binary Tree from Preorder and Inorder](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)** | D&C with maps | 105 |
+| **[Construct Binary Tree from Inorder and Postorder](https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)** | Similar approach | 106 |
+| **[Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)** | D&C or Kadane's | 53 |
+| **[Different Ways to Add Parentheses](https://leetcode.com/problems/different-ways-to-add-parentheses/)** | D&C on operators | 241 |
+| **[Search a 2D Matrix II](https://leetcode.com/problems/search-a-2d-matrix-ii/)** | D&C or staircase | 240 |
+| **[Beautiful Array](https://leetcode.com/problems/beautiful-array/)** | D&C construction | 932 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Count of Smaller Numbers After Self** | Merge sort with index tracking | 315 |
-| **Reverse Pairs** | Modified merge sort | 493 |
-| **Count of Range Sum** | Merge sort on prefix sums | 327 |
-| **Median of Two Sorted Arrays** | Binary search (D&C variant) | 4 |
+| **[Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)** | Merge sort with index tracking | 315 |
+| **[Reverse Pairs](https://leetcode.com/problems/reverse-pairs/)** | Modified merge sort | 493 |
+| **[Count of Range Sum](https://leetcode.com/problems/count-of-range-sum/)** | Merge sort on prefix sums | 327 |
+| **[Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/)** | Binary search (D&C variant) | 4 |
 | **Closest Pair of Points** | Classic D&C geometry | - |
-| **The Skyline Problem** | D&C or sweep line | 218 |
+| **[The Skyline Problem](https://leetcode.com/problems/the-skyline-problem/)** | D&C or sweep line | 218 |
 
 ---
 
@@ -380,28 +380,28 @@ function build(preorder, preStart, preEnd,
 - Key insight: count during merge
 
 **Day 4:**
-- Solve "Construct Binary Tree from Preorder and Inorder"
+- Solve "[Construct Binary Tree from Preorder and Inorder](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)"
 - Practice recursive tree construction
 
 **Day 5:**
-- Solve "Different Ways to Add Parentheses"
+- Solve "[Different Ways to Add Parentheses](https://leetcode.com/problems/different-ways-to-add-parentheses/)"
 - Practice combining results from subproblems
 
 ### Week 2: Advanced
 **Day 1:**
-- Solve "Kth Largest Element" using Quick Select
+- Solve "[Kth Largest Element](https://leetcode.com/problems/kth-largest-element-in-an-array/)" using Quick Select
 - Understand partial sorting
 
 **Day 2:**
-- Solve "Count of Smaller Numbers After Self"
+- Solve "[Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)"
 - Most challenging D&C problem
 
 **Day 3:**
-- Solve "Reverse Pairs"
+- Solve "[Reverse Pairs](https://leetcode.com/problems/reverse-pairs/)"
 - Practice modified counting conditions
 
 **Day 4:**
-- Solve "The Skyline Problem"
+- Solve "[The Skyline Problem](https://leetcode.com/problems/the-skyline-problem/)"
 - Combine D&C with clever merging
 
 **Day 5:**
@@ -499,10 +499,10 @@ For recurrence T(n) = aT(n/b) + O(n^d):
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| D&C recursion on "f(n) from smaller f values" | Dynamic programming (Pattern 15) | Do two recursive branches call the same arguments? If yes, subproblems overlap → memoize or DP (LC 70, LC 509) |
-| D&C for "search in a sorted array" | Binary search (Pattern 06) | Does each step discard one half without solving it? If yes, there is no combine step → binary search (LC 704) |
-| D&C (Template 4) for "maximum subarray sum" | Kadane's algorithm (Pattern 04) | Is the input one array with no range queries? If yes → Kadane, O(n) instead of O(n log n) (LC 53) |
-| Quickselect for "kth largest" | Heap (Pattern 16) | Is the input a stream, or must the array stay unmodified? If yes → size-k heap, O(n log k); if no → quickselect, O(n) average (LC 215) |
+| D&C recursion on "f(n) from smaller f values" | Dynamic programming (Pattern 15) | Do two recursive branches call the same arguments? If yes, subproblems overlap → memoize or DP ([LC 70](https://leetcode.com/problems/climbing-stairs/), [LC 509](https://leetcode.com/problems/fibonacci-number/)) |
+| D&C for "search in a sorted array" | Binary search (Pattern 06) | Does each step discard one half without solving it? If yes, there is no combine step → binary search ([LC 704](https://leetcode.com/problems/binary-search/)) |
+| D&C (Template 4) for "maximum subarray sum" | Kadane's algorithm (Pattern 04) | Is the input one array with no range queries? If yes → Kadane, O(n) instead of O(n log n) ([LC 53](https://leetcode.com/problems/maximum-subarray/)) |
+| Quickselect for "kth largest" | Heap (Pattern 16) | Is the input a stream, or must the array stay unmodified? If yes → size-k heap, O(n log k); if no → quickselect, O(n) average ([LC 215](https://leetcode.com/problems/kth-largest-element-in-an-array/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

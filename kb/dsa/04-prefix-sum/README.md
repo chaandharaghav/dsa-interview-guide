@@ -250,7 +250,7 @@ function applyUpdatesToExisting(arr, updates):
 **Technique:** HashMap to store remainder frequencies
 
 ### Variation C: Maximum Subarray Sum
-**Problem Type:** Find maximum sum subarray (LC 53)
+**Problem Type:** Find maximum sum subarray ([LC 53](https://leetcode.com/problems/maximum-subarray/))
 **Key Insight:** max(prefix[j] - prefix[i]) where j > i. Track the minimum prefix seen so far: O(n) time, O(1) space.
 **Alternative:** Kadane's algorithm. It has the same O(n) time and O(1) space. It is the standard interview answer.
 
@@ -274,7 +274,7 @@ function maxSubArray(arr):
 ```
 Initialize with arr[0], not 0. With 0, an all-negative array returns 0 instead of its largest element.
 
-**Maximum Product Subarray (LC 152):** Track both the max and the min product that ends at i. A negative arr[i] turns the smallest product into the largest. A zero resets both through the candidate arr[i].
+**Maximum Product Subarray ([LC 152](https://leetcode.com/problems/maximum-product-subarray/)):** Track both the max and the min product that ends at i. A negative arr[i] turns the smallest product into the largest. A zero resets both through the candidate arr[i].
 ```
 function maxProduct(arr):
     curMax = arr[0]
@@ -314,33 +314,33 @@ function maxProduct(arr):
 ### EASY (Warm-up)
 | Problem | Key Insight |
 |---------|-------------|
-| Running Sum of 1D Array | Basic prefix sum |
-| Range Sum Query - Immutable | Precompute prefix, O(1) query |
-| Find Pivot Index | prefixLeft == prefixRight |
+| [Running Sum of 1D Array](https://leetcode.com/problems/running-sum-of-1d-array/) | Basic prefix sum |
+| [Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/) | Precompute prefix, O(1) query |
+| [Find Pivot Index](https://leetcode.com/problems/find-pivot-index/) | prefixLeft == prefixRight |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Subarray Sum Equals K** | Prefix sum + HashMap | 560 |
-| **Contiguous Array** | Replace 0 with -1, find sum=0 subarray | 525 |
-| **Range Sum Query 2D - Immutable** | 2D prefix sum | 304 |
-| **Product of Array Except Self** | Prefix & suffix products | 238 |
-| **Subarray Sums Divisible by K** | Prefix sum mod + HashMap | 974 |
-| **Continuous Subarray Sum** | Sum divisible by k (length ≥ 2) | 523 |
-| **Range Addition** | Difference array | 370 |
-| **Corporate Flight Bookings** | Difference array | 1109 |
-| **Car Pooling** | Difference array (timeline) | 1094 |
-| **Maximum Sum of Two Non-Overlapping Subarrays** | Prefix sum + tracking | 1031 |
-| **Maximum Subarray** | Kadane: extend or restart | 53 |
-| **Maximum Product Subarray** | Kadane variant: track max and min | 152 |
+| **[Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)** | Prefix sum + HashMap | 560 |
+| **[Contiguous Array](https://leetcode.com/problems/contiguous-array/)** | Replace 0 with -1, find sum=0 subarray | 525 |
+| **[Range Sum Query 2D - Immutable](https://leetcode.com/problems/range-sum-query-2d-immutable/)** | 2D prefix sum | 304 |
+| **[Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)** | Prefix & suffix products | 238 |
+| **[Subarray Sums Divisible by K](https://leetcode.com/problems/subarray-sums-divisible-by-k/)** | Prefix sum mod + HashMap | 974 |
+| **[Continuous Subarray Sum](https://leetcode.com/problems/continuous-subarray-sum/)** | Sum divisible by k (length ≥ 2) | 523 |
+| **[Range Addition](https://leetcode.com/problems/range-addition/)** (premium) | Difference array | 370 |
+| **[Corporate Flight Bookings](https://leetcode.com/problems/corporate-flight-bookings/)** | Difference array | 1109 |
+| **[Car Pooling](https://leetcode.com/problems/car-pooling/)** | Difference array (timeline) | 1094 |
+| **[Maximum Sum of Two Non-Overlapping Subarrays](https://leetcode.com/problems/maximum-sum-of-two-non-overlapping-subarrays/)** | Prefix sum + tracking | 1031 |
+| **[Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)** | Kadane: extend or restart | 53 |
+| **[Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)** | Kadane variant: track max and min | 152 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Max Sum of Rectangle No Larger Than K** | 2D prefix + TreeSet | 363 |
-| **Count of Range Sum** | Merge sort with counting | 327 |
-| **Range Module** | Interval management | 715 |
-| **Number of Submatrices That Sum to Target** | 2D to 1D reduction + prefix | 1074 |
+| **[Max Sum of Rectangle No Larger Than K](https://leetcode.com/problems/max-sum-of-rectangle-no-larger-than-k/)** | 2D prefix + TreeSet | 363 |
+| **[Count of Range Sum](https://leetcode.com/problems/count-of-range-sum/)** | Merge sort with counting | 327 |
+| **[Range Module](https://leetcode.com/problems/range-module/)** | Interval management | 715 |
+| **[Number of Submatrices That Sum to Target](https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/)** | 2D to 1D reduction + prefix | 1074 |
 
 ---
 
@@ -349,40 +349,40 @@ function maxProduct(arr):
 ### Week 1: Prefix Sum Fundamentals
 **Day 1:**
 - Implement basic prefix sum from scratch
-- Solve "Range Sum Query - Immutable"
+- Solve "[Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)"
 
 **Day 2:**
-- Solve "Subarray Sum Equals K"
+- Solve "[Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)"
 - Understand the prefix[j] - prefix[i] = k insight
 - Master the HashMap technique
 
 **Day 3:**
-- Solve "Contiguous Array"
+- Solve "[Contiguous Array](https://leetcode.com/problems/contiguous-array/)"
 - Key transformation: replace 0 with -1
 
 **Day 4:**
-- Solve "Subarray Sums Divisible by K"
+- Solve "[Subarray Sums Divisible by K](https://leetcode.com/problems/subarray-sums-divisible-by-k/)"
 - Handle negative remainders correctly!
 
 **Day 5:**
-- Solve "Product of Array Except Self"
+- Solve "[Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)"
 - Understand prefix AND suffix idea
 
 ### Week 2: Advanced Applications
 **Day 1:**
 - Implement 2D prefix sum from scratch
-- Solve "Range Sum Query 2D - Immutable"
+- Solve "[Range Sum Query 2D - Immutable](https://leetcode.com/problems/range-sum-query-2d-immutable/)"
 
 **Day 2:**
 - Implement difference array
-- Solve "Range Addition" and "Corporate Flight Bookings"
+- Solve "[Range Addition](https://leetcode.com/problems/range-addition/)" (premium) and "[Corporate Flight Bookings](https://leetcode.com/problems/corporate-flight-bookings/)"
 
 **Day 3:**
-- Solve "Car Pooling"
+- Solve "[Car Pooling](https://leetcode.com/problems/car-pooling/)"
 - Model problem as timeline with difference array
 
 **Day 4:**
-- Solve "Number of Submatrices That Sum to Target"
+- Solve "[Number of Submatrices That Sum to Target](https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/)"
 - Reduce 2D to 1D using row prefix sums
 
 **Day 5:**
@@ -509,11 +509,11 @@ Difference: [1, 2, 2, -3, 2]  (diff[i] = arr[i] - arr[i-1])
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Prefix sum + hashmap for "shortest/longest subarray with sum ≥ k" | Sliding window (Pattern 01) | Are all values non-negative? If yes → sliding window, O(1) space (LC 209); if negatives are allowed → prefix sum + hashmap (LC 560) or prefix sum + monotonic deque (LC 862) |
-| Prefix sum for "range sum queries" | Fenwick tree (binary indexed tree: point update and prefix sum in O(log n); [Pattern 21](../21-segment-tree-and-fenwick-tree/README.md)) | Does the array change between queries? If yes, a prefix array needs an O(n) rebuild per update → Fenwick tree (LC 307) |
-| Prefix sum for "add val to every element in [l, r]" | Difference array | Are the operations range updates, with reads only after all updates? If yes → difference array (LC 1109) |
-| Prefix sum for "range min/max" | Monotonic deque (Pattern 07) | Is the operation min or max? Subtraction cannot undo a min or max → deque for fixed windows (LC 239) |
-| Prefix sum + hashmap for "maximum subarray sum" | Kadane's algorithm | Does the problem give a target sum k? If yes → prefix sum + hashmap (LC 560); if it asks for the largest sum → Kadane (LC 53) |
+| Prefix sum + hashmap for "shortest/longest subarray with sum ≥ k" | Sliding window (Pattern 01) | Are all values non-negative? If yes → sliding window, O(1) space ([LC 209](https://leetcode.com/problems/minimum-size-subarray-sum/)); if negatives are allowed → prefix sum + hashmap ([LC 560](https://leetcode.com/problems/subarray-sum-equals-k/)) or prefix sum + monotonic deque ([LC 862](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)) |
+| Prefix sum for "range sum queries" | Fenwick tree (binary indexed tree: point update and prefix sum in O(log n); [Pattern 21](../21-segment-tree-and-fenwick-tree/README.md)) | Does the array change between queries? If yes, a prefix array needs an O(n) rebuild per update → Fenwick tree ([LC 307](https://leetcode.com/problems/range-sum-query-mutable/)) |
+| Prefix sum for "add val to every element in [l, r]" | Difference array | Are the operations range updates, with reads only after all updates? If yes → difference array ([LC 1109](https://leetcode.com/problems/corporate-flight-bookings/)) |
+| Prefix sum for "range min/max" | Monotonic deque (Pattern 07) | Is the operation min or max? Subtraction cannot undo a min or max → deque for fixed windows ([LC 239](https://leetcode.com/problems/sliding-window-maximum/)) |
+| Prefix sum + hashmap for "maximum subarray sum" | Kadane's algorithm | Does the problem give a target sum k? If yes → prefix sum + hashmap ([LC 560](https://leetcode.com/problems/subarray-sum-equals-k/)); if it asks for the largest sum → Kadane ([LC 53](https://leetcode.com/problems/maximum-subarray/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

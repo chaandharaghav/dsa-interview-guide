@@ -186,11 +186,11 @@ All templates compile with `javac --release 21` and passed a test against a brut
 | Tarjan, Kosaraju | Reachability from every vertex to every vertex (Floyd-Warshall closure) | 5,000 digraphs with up to 9 vertices. Also a cycle of 200,000 vertices |
 | Bridges, articulation points | Remove each edge or vertex and count components. Included parallel edges, self-loops, and several components | 8,000 multigraphs with up to 9 vertices. Also a path of 300,000 vertices |
 | Euler (directed, undirected) | Try every order of the edges. The returned path must also use each edge once | 6,000 graphs each |
-| LC 332 itinerary | All permutations of the tickets, then the smallest in lexical order | 3,000 ticket sets |
+| [LC 332](https://leetcode.com/problems/reconstruct-itinerary/) itinerary | All permutations of the tickets, then the smallest in lexical order | 3,000 ticket sets |
 | Edmonds-Karp | The minimum cut over all vertex subsets. The extracted cut must have the same capacity | 3,000 networks |
 | Kuhn | The best subset of edges that touches each vertex at most once, and the flow network of the same graph | 4,000 bipartite graphs |
-| Critical edges (LC 1489) | Enumerate all MSTs. Critical means "in all", pseudo-critical means "in some but not all" | 2,500 random graphs without self-loops (the cases with no spanning tree were skipped, as LC 1489 guarantees a connected graph) |
-| `MinCostConnectPoints`, `WaterDistribution` | Kruskal on the complete graph. Every choice of wells and pipes for LC 1168 | 2,000 cases each |
+| Critical edges ([LC 1489](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/)) | Enumerate all MSTs. Critical means "in all", pseudo-critical means "in some but not all" | 2,500 random graphs without self-loops (the cases with no spanning tree were skipped, as LC 1489 guarantees a connected graph) |
+| `MinCostConnectPoints`, `WaterDistribution` | Kruskal on the complete graph. Every choice of wells and pipes for [LC 1168](https://leetcode.com/problems/optimize-water-distribution-in-a-village/) (premium) | 2,000 cases each |
 
 A mutation check also confirmed that the tests catch the typical errors: using `>=` for bridges, using `>` for articulation points, skipping the parent vertex instead of the parent edge, and removing the `onStack` test from Tarjan.
 
@@ -260,7 +260,7 @@ class Kruskal {
 **Time:** O(E log E) for the sort, which equals O(E log V) because E is at most V², so log E is at most 2 log V. The union-find work is O(E α(V)), where α is the inverse Ackermann function, which is at most 4 for any input that fits in memory. The sort dominates.
 **Space:** O(V) for the union-find, plus the sorted copy of the edges.
 
-**Why `clone()`?** Sorting the caller's array reorders it. Problems like LC 1489 need the original edge indexes. Template 8 sorts an index array for the same reason.
+**Why `clone()`?** Sorting the caller's array reorders it. Problems like [LC 1489](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/) need the original edge indexes. Template 8 sorts an index array for the same reason.
 
 **Disconnected input.** The loop ends with fewer than V - 1 edges. The function returns -1. The picked edges then form a **minimum spanning forest** (an MST of each component). Return the forest weight instead if the problem asks for it.
 
@@ -604,7 +604,7 @@ class Lowlink {
 **Time:** O(V + E). Each vertex is pushed once and each adjacency entry is read once.
 **Space:** O(V + E) for the CSR (compressed sparse row) adjacency arrays, plus O(V) for the DFS arrays.
 
-**LC 1192 with this class.** Build `int[][] edges` from the `connections` list. Create `new Lowlink(n, edges)`. For each index `i` in `bridges`, add `connections.get(i)` to the answer.
+**[LC 1192](https://leetcode.com/problems/critical-connections-in-a-network/) with this class.** Build `int[][] edges` from the `connections` list. Create `new Lowlink(n, edges)`. For each index `i` in `bridges`, add `connections.get(i)` to the answer.
 
 **Two-edge-connected components.** Delete all bridges. The remaining connected components are the 2-edge-connected components (components that no single edge removal can split). Contract each one to a node. The result is a tree (a forest if the input is disconnected), the **bridge tree**. Queries such as "how many bridges lie on the path between `a` and `b`" become distance queries on that tree.
 
@@ -956,7 +956,7 @@ class CriticalEdges {
 | Minimum spanning forest | Run Kruskal and do not stop at V - 1 edges. Count the components |
 | Some edges are forced | Union the forced edges first, add their weight, then continue (Template 8 does this) |
 | Second-best MST | For each non-tree edge, add it to the MST and remove the heaviest edge on the cycle. Take the smallest increase. This is the standard approach, and it needs the maximum edge on a tree path (binary lifting or a plain DFS for small V) |
-| Virtual vertex | A cost to "start" at a vertex becomes an edge from a new vertex (LC 1168, above) |
+| Virtual vertex | A cost to "start" at a vertex becomes an edge from a new vertex ([LC 1168](https://leetcode.com/problems/optimize-water-distribution-in-a-village/) (premium), above) |
 | Minimum bottleneck path | The path between `a` and `b` that minimizes its largest edge lies on the MST. See Variation G |
 
 ### Variation B: SCC and the Condensation
@@ -965,21 +965,21 @@ class CriticalEdges {
 - **Is the whole graph strongly connected?** One component, or one forward DFS and one reverse DFS from vertex 0 both reach all vertices.
 - **Minimum edges to add so that the graph becomes strongly connected.** If the condensation has `c > 1` nodes, the answer is `max(sources, sinks)`, where a source has no incoming edge and a sink has no outgoing edge in the condensation (Eswaran and Tarjan, 1976). The code test verified this formula against brute force on 600 small digraphs.
 - **2-SAT** (satisfiability of a formula where each clause has two literals). Build an implication graph with a node for each literal and its negation. The formula is unsatisfiable exactly when some variable and its negation lie in one SCC. Mention it as an application. Interviews rarely ask for the full solution.
-- **Functional graphs** (each node has exactly one outgoing edge, as in LC 2360 and LC 2127). Every component has exactly one cycle. You can find the cycles by following pointers with a visit-state array, which is simpler than SCC. LC 2127 combines the cycle lengths with the longest chains that lead into 2-cycles.
-- **Safe states (LC 802).** A node is safe if every path from it ends at a terminal node. The safe nodes are the nodes that cannot reach a cycle. A reverse-graph topological sort ([pattern 12](../12-topological-sort/README.md)) solves it with less code than SCC.
+- **Functional graphs** (each node has exactly one outgoing edge, as in [LC 2360](https://leetcode.com/problems/longest-cycle-in-a-graph/) and [LC 2127](https://leetcode.com/problems/maximum-employees-to-be-invited-to-a-meeting/)). Every component has exactly one cycle. You can find the cycles by following pointers with a visit-state array, which is simpler than SCC. LC 2127 combines the cycle lengths with the longest chains that lead into 2-cycles.
+- **Safe states ([LC 802](https://leetcode.com/problems/find-eventual-safe-states/)).** A node is safe if every path from it ends at a terminal node. The safe nodes are the nodes that cannot reach a cycle. A reverse-graph topological sort ([pattern 12](../12-topological-sort/README.md)) solves it with less code than SCC.
 
 ### Variation C: Bridges and Their Relatives
 
 - **Count the bridges, or list them** (Template 4).
-- **Minimum days to disconnect an island (LC 1568).** The answer is at most 2. If the land cells form zero or at least two islands, the answer is 0. If the land is a single cell, or one cell is an articulation point of the cell graph, the answer is 1. Otherwise the answer is 2. The articulation test is Template 4 on the grid graph. Two adjacent land cells have no articulation point, so the answer is 2 (the LeetCode example `[[1,1]]`: an empty grid with zero islands also counts as disconnected).
+- **Minimum days to disconnect an island ([LC 1568](https://leetcode.com/problems/minimum-number-of-days-to-disconnect-island/)).** The answer is at most 2. If the land cells form zero or at least two islands, the answer is 0. If the land is a single cell, or one cell is an articulation point of the cell graph, the answer is 1. Otherwise the answer is 2. The articulation test is Template 4 on the grid graph. Two adjacent land cells have no articulation point, so the answer is 2 (the LeetCode example `[[1,1]]`: an empty grid with zero islands also counts as disconnected).
 - **Add one edge to a tree or forest and ask whether it creates a cycle.** That question is union-find, not low-link ([pattern 13](../13-union-find/README.md)).
-- **Dynamic edge removal.** Process the removals in reverse order as additions with union-find (compare LC 803 in pattern 13).
+- **Dynamic edge removal.** Process the removals in reverse order as additions with union-find (compare [LC 803](https://leetcode.com/problems/bricks-falling-when-hit/) in pattern 13).
 
 ### Variation D: Euler Variants
 
 - **Euler circuit on an undirected graph (every degree even).** Template 5 with the odd-degree test set to zero.
-- **De Bruijn sequence (LC 753, Cracking the Safe).** The nodes are all strings of length `n - 1` over `k` digits, and the edges are all strings of length `n`. An Euler circuit in this graph spells the shortest string that contains every `n`-digit code.
-- **Valid arrangement of pairs (LC 2097).** The pairs `[start, end]` are the edges. The input guarantees that an Euler path exists. Template 5 (directed) finds it. The start vertex is the one with `out - in == 1`, or any vertex if none has it. The vertex names are large integers, so map them to `0..V-1` first or use a `HashMap<Integer, Deque<Integer>>`.
+- **De Bruijn sequence ([LC 753](https://leetcode.com/problems/cracking-the-safe/), Cracking the Safe).** The nodes are all strings of length `n - 1` over `k` digits, and the edges are all strings of length `n`. An Euler circuit in this graph spells the shortest string that contains every `n`-digit code.
+- **Valid arrangement of pairs ([LC 2097](https://leetcode.com/problems/valid-arrangement-of-pairs/)).** The pairs `[start, end]` are the edges. The input guarantees that an Euler path exists. Template 5 (directed) finds it. The start vertex is the one with `out - in == 1`, or any vertex if none has it. The vertex names are large integers, so map them to `0..V-1` first or use a `HashMap<Integer, Deque<Integer>>`.
 - **Chinese postman** (the shortest closed walk that uses every edge at least once). It is beyond interview scope, but it shows why parity matters: you pair up the odd vertices with the cheapest extra edges.
 
 ### Variation E: Flow Modeling
@@ -1002,8 +1002,8 @@ If every edge has weight 0 or 1 and you want the shortest path, use 0-1 BFS with
 
 Sort the edges by weight and sort the queries by their limit. Sweep both lists together, uniting edges below the current limit, and answer each query when the sweep reaches it.
 
-- **LC 1697 (Checking Existence of Edge Length Limited Paths).** Query `(p, q, limit)` asks whether a path exists that uses only edges with weight below `limit`. Sort the queries by `limit`. Before each query, unite all edges with weight below `limit`. The answer is `find(p) == find(q)`.
-- **LC 1101 (The Earliest Moment When Everyone Become Friends, Medium, premium).** The earliest time at which everyone is connected is the weight of the heaviest edge that Kruskal adds, or -1 if the result is not a spanning tree.
+- **[LC 1697](https://leetcode.com/problems/checking-existence-of-edge-length-limited-paths/) (Checking Existence of Edge Length Limited Paths).** Query `(p, q, limit)` asks whether a path exists that uses only edges with weight below `limit`. Sort the queries by `limit`. Before each query, unite all edges with weight below `limit`. The answer is `find(p) == find(q)`.
+- **[LC 1101](https://leetcode.com/problems/the-earliest-moment-when-everyone-become-friends/) (The Earliest Moment When Everyone Become Friends, Medium, premium).** The earliest time at which everyone is connected is the weight of the heaviest edge that Kruskal adds, or -1 if the result is not a spanning tree.
 - **Minimax paths.** The smallest possible largest edge on a path between `a` and `b` equals the largest edge on the tree path between them in the MST. The code test checked this against a Floyd-Warshall minimax computation on 2,000 graphs.
 
 ---
@@ -1014,18 +1014,18 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 
 | LC # | Title | Difficulty | Key insight |
 |---|---|---|---|
-| 684 | Redundant Connection | Medium | The first edge whose ends are already connected closes the cycle (Kruskal's skip test, without weights) |
-| 1319 | Number of Operations to Make Network Connected | Medium | If E < V - 1, the answer is -1. Otherwise the answer is the number of components minus 1 |
-| 1584 | Min Cost to Connect All Points | Medium | Complete graph, so use dense Prim in O(n²) (Template 2) |
-| 1135 | Connecting Cities With Minimum Cost (premium) | Medium | Plain Kruskal. Return -1 if fewer than n - 1 edges were taken |
-| 1192 | Critical Connections in a Network | Hard | The bridges (Template 4). Recursive DFS overflows on `10^5` vertices, so use the iterative version |
-| 1568 | Minimum Number of Days to Disconnect Island | Hard | The answer is 0, 1, or 2. Use articulation points on the land cells |
-| 332 | Reconstruct Itinerary | Hard | Hierholzer with a sorted adjacency list. Emit a vertex when it is stuck (Template 5) |
-| 2097 | Valid Arrangement of Pairs | Hard | Euler path on a directed graph. Find the start by `out - in == 1` |
-| 1489 | Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree | Hard | Kruskal with one edge skipped, then with one edge forced (Template 8) |
-| 1579 | Remove Max Number of Edges to Keep Graph Fully Traversable | Hard | Two union-find structures (Alice and Bob). Process the shared edges (type 3) first, as in Kruskal |
-| 1168 | Optimize Water Distribution in a Village (premium) | Hard | Virtual vertex 0 turns wells into edges, then run Kruskal |
-| 2127 | Maximum Employees to Be Invited to a Meeting | Hard | Functional graph. The larger of two values: the longest cycle, and the sum over all 2-cycles of (2 + the longest chain into one end + the longest chain into the other end) |
+| 684 | [Redundant Connection](https://leetcode.com/problems/redundant-connection/) | Medium | The first edge whose ends are already connected closes the cycle (Kruskal's skip test, without weights) |
+| 1319 | [Number of Operations to Make Network Connected](https://leetcode.com/problems/number-of-operations-to-make-network-connected/) | Medium | If E < V - 1, the answer is -1. Otherwise the answer is the number of components minus 1 |
+| 1584 | [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/) | Medium | Complete graph, so use dense Prim in O(n²) (Template 2) |
+| 1135 | [Connecting Cities With Minimum Cost](https://leetcode.com/problems/connecting-cities-with-minimum-cost/) (premium) | Medium | Plain Kruskal. Return -1 if fewer than n - 1 edges were taken |
+| 1192 | [Critical Connections in a Network](https://leetcode.com/problems/critical-connections-in-a-network/) | Hard | The bridges (Template 4). Recursive DFS overflows on `10^5` vertices, so use the iterative version |
+| 1568 | [Minimum Number of Days to Disconnect Island](https://leetcode.com/problems/minimum-number-of-days-to-disconnect-island/) | Hard | The answer is 0, 1, or 2. Use articulation points on the land cells |
+| 332 | [Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/) | Hard | Hierholzer with a sorted adjacency list. Emit a vertex when it is stuck (Template 5) |
+| 2097 | [Valid Arrangement of Pairs](https://leetcode.com/problems/valid-arrangement-of-pairs/) | Hard | Euler path on a directed graph. Find the start by `out - in == 1` |
+| 1489 | [Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/) | Hard | Kruskal with one edge skipped, then with one edge forced (Template 8) |
+| 1579 | [Remove Max Number of Edges to Keep Graph Fully Traversable](https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/) | Hard | Two union-find structures (Alice and Bob). Process the shared edges (type 3) first, as in Kruskal |
+| 1168 | [Optimize Water Distribution in a Village](https://leetcode.com/problems/optimize-water-distribution-in-a-village/) (premium) | Hard | Virtual vertex 0 turns wells into edges, then run Kruskal |
+| 2127 | [Maximum Employees to Be Invited to a Meeting](https://leetcode.com/problems/maximum-employees-to-be-invited-to-a-meeting/) | Hard | Functional graph. The larger of two values: the longest cycle, and the sum over all 2-cycles of (2 + the longest chain into one end + the longest chain into the other end) |
 
 Other problems that use these tools: 685 (Redundant Connection II, Hard, a union-find case analysis for a directed graph), 1697 (Checking Existence of Edge Length Limited Paths, Hard, Variation G), 753 (Cracking the Safe, Hard, De Bruijn sequence), 2360 (Longest Cycle in a Graph, Hard, functional graph), 802 (Find Eventual Safe States, Medium, reverse topological order), and 1820 (Maximum Number of Accepted Invitations, Medium, premium, bipartite matching).
 
@@ -1068,25 +1068,25 @@ class CriticalConnections {
 ### Week 1: Spanning Trees and Union-Find
 
 **Day 1-2:**
-- Solve Redundant Connection (684) and Number of Operations to Make Network Connected (1319).
+- Solve Redundant Connection ([684](https://leetcode.com/problems/redundant-connection/)) and Number of Operations to Make Network Connected ([1319](https://leetcode.com/problems/number-of-operations-to-make-network-connected/)).
 - Write Kruskal from memory in under 10 minutes, with `find` using path halving.
 
 **Day 3:**
-- Solve Min Cost to Connect All Points (1584) twice: with Kruskal (build the `n²/2` edges) and with dense Prim. Compare the run times.
+- Solve Min Cost to Connect All Points ([1584](https://leetcode.com/problems/min-cost-to-connect-all-points/)) twice: with Kruskal (build the `n²/2` edges) and with dense Prim. Compare the run times.
 
 **Day 4-5:**
-- Solve Connecting Cities (1135), then Optimize Water Distribution (1168) and Find Critical and Pseudo-Critical Edges (1489).
+- Solve Connecting Cities ([1135](https://leetcode.com/problems/connecting-cities-with-minimum-cost/), premium), then Optimize Water Distribution ([1168](https://leetcode.com/problems/optimize-water-distribution-in-a-village/), premium) and Find Critical and Pseudo-Critical Edges ([1489](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/)).
 - Prove the cut property out loud, with the exchange argument.
 
 ### Week 2: DFS Numbering
 
 **Day 1-2:**
 - Write Tarjan's SCC iteratively from memory. Verify the component order property on a small example.
-- Solve Find Eventual Safe States (802) with SCC, then with reverse topological sort. Compare.
+- Solve Find Eventual Safe States ([802](https://leetcode.com/problems/find-eventual-safe-states/)) with SCC, then with reverse topological sort. Compare.
 
 **Day 3-4:**
-- Solve Critical Connections (1192). Write the recursive version first, then convert it to the iterative one.
-- Solve Minimum Number of Days to Disconnect Island (1568).
+- Solve Critical Connections ([1192](https://leetcode.com/problems/critical-connections-in-a-network/)). Write the recursive version first, then convert it to the iterative one.
+- Solve Minimum Number of Days to Disconnect Island ([1568](https://leetcode.com/problems/minimum-number-of-days-to-disconnect-island/)).
 
 **Day 5:**
 - Test your bridge code on a graph with two parallel edges between the same pair of vertices.
@@ -1094,11 +1094,11 @@ class CriticalConnections {
 ### Week 3: Euler and Flow
 
 **Day 1-2:**
-- Solve Reconstruct Itinerary (332) and Valid Arrangement of Pairs (2097).
+- Solve Reconstruct Itinerary ([332](https://leetcode.com/problems/reconstruct-itinerary/)) and Valid Arrangement of Pairs ([2097](https://leetcode.com/problems/valid-arrangement-of-pairs/)).
 - Write the existence rules for the directed and undirected cases from memory.
 
 **Day 3-5:**
-- Write Edmonds-Karp from memory. Then solve a bipartite matching problem (1820) with Kuhn.
+- Write Edmonds-Karp from memory. Then solve a bipartite matching problem ([1820](https://leetcode.com/problems/maximum-number-of-accepted-invitations/), premium) with Kuhn.
 - Write a brute-force min cut for 6 vertices and check your flow against it.
 
 ### How to Present These in an Interview

@@ -680,6 +680,24 @@ The first output line shows that the iteration order of a `PriorityQueue` is the
 - No `decreaseKey` in the JDK: use lazy deletion (O(E log V) Dijkstra) or an indexed heap. A d-ary heap helps when decrease-key dominates.
 - Patterns: [heap and priority queue](../16-heap-priority-queue/README.md), [shortest paths](../18-shortest-paths/README.md). Related: [trees and balanced BSTs](05-trees-and-balanced-bsts.md), [sorting algorithms](08-sorting-algorithms.md).
 
+## Practice Problems
+
+Solve these problems after you read this page. Each problem practices an operation from this page. The list runs from easier to harder. Difficulties come from the LeetCode problem list (`https://leetcode.com/api/problems/all/`), saved on 2026-10-21.
+
+| LC # | Title | Difficulty | What it practices |
+|---|---|---|---|
+| 1046 | [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/) | Easy | A max-heap simulation |
+| 703 | [Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/) | Easy | A min-heap of size `k` |
+| 215 | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) | Medium | A min-heap of size `k` (see "Top-k and k-way merge"), or quickselect |
+| 347 | [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/) | Medium | Count with a map, then keep a heap of size `k` |
+| 973 | [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/) | Medium | A max-heap of size `k`, ordered by distance |
+| 378 | [Kth Smallest Element in a Sorted Matrix](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/) | Medium | A k-way merge of the sorted rows |
+| 373 | [Find K Pairs with Smallest Sums](https://leetcode.com/problems/find-k-pairs-with-smallest-sums/) | Medium | A heap of candidate pairs that grows from the smallest pair |
+| 767 | [Reorganize String](https://leetcode.com/problems/reorganize-string/) | Medium | A max-heap by count. Place the two most frequent characters at each step |
+| 621 | [Task Scheduler](https://leetcode.com/problems/task-scheduler/) | Medium | A max-heap by count, or a counting formula |
+| 23 | [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/) | Hard | A k-way merge with a min-heap of list heads |
+| 295 | [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/) | Hard | Two heaps: a max-heap for the lower half and a min-heap for the upper half |
+
 ## Further Reading
 
 - [`PriorityQueue` javadoc (JDK 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/PriorityQueue.html): the ordering, the tie rule, the unsorted iteration, and the cost of each method.

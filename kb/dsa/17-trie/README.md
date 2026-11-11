@@ -4,12 +4,12 @@
 **Trie** (also called Prefix Tree or Digital Tree)
 
 Sub-patterns covered:
-- Basic Trie — Insert, Search, StartsWith (LC 208)
-- Word Dictionary with `.` wildcards (LC 211)
-- Word Search II — Trie + DFS on grid (LC 212)
-- Longest Common Prefix (LC 14)
-- Replace Words / Prefix Replacement (LC 648)
-- Maximum XOR of Two Numbers in Array (LC 421) — bit Trie
+- Basic Trie — Insert, Search, StartsWith ([LC 208](https://leetcode.com/problems/implement-trie-prefix-tree/))
+- Word Dictionary with `.` wildcards ([LC 211](https://leetcode.com/problems/design-add-and-search-words-data-structure/))
+- Word Search II — Trie + DFS on grid ([LC 212](https://leetcode.com/problems/word-search-ii/))
+- Longest Common Prefix ([LC 14](https://leetcode.com/problems/longest-common-prefix/))
+- Replace Words / Prefix Replacement ([LC 648](https://leetcode.com/problems/replace-words/))
+- Maximum XOR of Two Numbers in Array ([LC 421](https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/)) — bit Trie
 
 ---
 
@@ -318,7 +318,7 @@ function longestCommonPrefix(strs):
     return first[0..i-1]
 ```
 
-**Interview note:** Option B is often preferable for LC 14 — sorting is O(n log n × L) but the code is simpler. The Trie approach is better when you need to answer many such queries over a changing dictionary.
+**Interview note:** Option B is often preferable for [LC 14](https://leetcode.com/problems/longest-common-prefix/) — sorting is O(n log n × L) but the code is simpler. The Trie approach is better when you need to answer many such queries over a changing dictionary.
 
 ### Template 5: Replace Words / Prefix Replacement (LC 648)
 ```
@@ -418,26 +418,26 @@ function findMaximumXOR(nums):
 ### EASY (Warm-up)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Longest Common Prefix** | Sort + compare first/last, or traverse Trie until branch | 14 |
-| **Index Pairs of a String** | Scan text with Trie to find all matching word start positions | 1065 |
+| **[Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)** | Sort + compare first/last, or traverse Trie until branch | 14 |
+| **[Index Pairs of a String](https://leetcode.com/problems/index-pairs-of-a-string/)** (premium) | Scan text with Trie to find all matching word start positions | 1065 |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Implement Trie (Prefix Tree)** | isEnd flag separates search from startsWith | 208 |
-| **Design Add and Search Words** | DFS with wildcard `.` branching into all children | 211 |
-| **Replace Words** | Find shortest prefix root; walk Trie and stop at first isEnd | 648 |
-| **Map Sum Pairs** | Prefix sum via Trie; store values at nodes | 677 |
-| **Longest Word in Dictionary** | Insert all words; BFS/DFS through Trie keeping only isEnd paths | 720 |
-| **Maximum XOR of Two Numbers in Array** | Bit Trie (32 levels); greedy opposite-bit traversal | 421 |
+| **[Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)** | isEnd flag separates search from startsWith | 208 |
+| **[Design Add and Search Words](https://leetcode.com/problems/design-add-and-search-words-data-structure/)** | DFS with wildcard `.` branching into all children | 211 |
+| **[Replace Words](https://leetcode.com/problems/replace-words/)** | Find shortest prefix root; walk Trie and stop at first isEnd | 648 |
+| **[Map Sum Pairs](https://leetcode.com/problems/map-sum-pairs/)** | Prefix sum via Trie; store values at nodes | 677 |
+| **[Longest Word in Dictionary](https://leetcode.com/problems/longest-word-in-dictionary/)** | Insert all words; BFS/DFS through Trie keeping only isEnd paths | 720 |
+| **[Maximum XOR of Two Numbers in Array](https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/)** | Bit Trie (32 levels); greedy opposite-bit traversal | 421 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Word Search II** | Trie + grid DFS; prune empty Trie nodes after finding words | 212 |
-| **Palindrome Pairs** | Trie of reversed words; complex case analysis | 336 |
-| **Word Squares** | Trie to enumerate valid next words given column constraints | 425 |
-| **Stream of Characters** | Reversed Trie: insert reversed words, slide window on stream | 1032 |
+| **[Word Search II](https://leetcode.com/problems/word-search-ii/)** | Trie + grid DFS; prune empty Trie nodes after finding words | 212 |
+| **[Palindrome Pairs](https://leetcode.com/problems/palindrome-pairs/)** | Trie of reversed words; complex case analysis | 336 |
+| **[Word Squares](https://leetcode.com/problems/word-squares/)** (premium) | Trie to enumerate valid next words given column constraints | 425 |
+| **[Stream of Characters](https://leetcode.com/problems/stream-of-characters/)** | Reversed Trie: insert reversed words, slide window on stream | 1032 |
 
 ---
 
@@ -453,20 +453,20 @@ function findMaximumXOR(nums):
 ### Phase 2: Extend to Wildcards (LC 211)
 **Goal:** Be comfortable switching from iteration to DFS when the query requires branching.
 
-- Notice the structural similarity: the search loop in LC 208 becomes a recursive DFS in LC 211.
+- Notice the structural similarity: the search loop in [LC 208](https://leetcode.com/problems/implement-trie-prefix-tree/) becomes a recursive DFS in [LC 211](https://leetcode.com/problems/design-add-and-search-words-data-structure/).
 - Ask yourself: "Why can't I solve this iteratively?" (Because `.` fans out — you'd need to manage a queue of nodes, which is just BFS and equally valid but less natural.)
 
 ### Phase 3: Grid Integration (LC 212)
 **Goal:** The hardest application — combining Trie with matrix DFS.
 
-- Solve LC 79 (Word Search I, single word) first if you haven't. Get the grid DFS pattern solid.
+- Solve [LC 79](https://leetcode.com/problems/word-search/) (Word Search I, single word) first if you haven't. Get the grid DFS pattern solid.
 - Then overlay the Trie: instead of comparing against a fixed word string with an index, you follow `node.children[ch]`.
 - Add the pruning step last: verify correctness first, then add leaf-node deletion for efficiency.
 
 ### Phase 4: Problem Variants
-- **LC 648** (Replace Words) — straight prefix matching, good confidence builder.
-- **LC 421** (Maximum XOR) — entirely different flavor. Practice explaining the bit-level greedy.
-- **LC 14** (Longest Common Prefix) — understand both the Trie approach and the sort approach, and explain why you'd choose each.
+- **[LC 648](https://leetcode.com/problems/replace-words/)** (Replace Words) — straight prefix matching, good confidence builder.
+- **[LC 421](https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/)** (Maximum XOR) — entirely different flavor. Practice explaining the bit-level greedy.
+- **[LC 14](https://leetcode.com/problems/longest-common-prefix/)** (Longest Common Prefix) — understand both the Trie approach and the sort approach, and explain why you'd choose each.
 
 ### Practice Methodology:
 1. **First 3 minutes:** Identify Trie. Decide array vs HashMap. Sketch TrieNode on paper.
@@ -514,7 +514,7 @@ function search(word):
     return node.isEnd
 ```
 
-This is the most common runtime error in Trie problems. `startsWith` returns `true` when the loop finishes. `search` returns `node.isEnd`. If you mix these up, LC 208 test cases will catch it immediately — but under interview pressure, it is easy to miss.
+This is the most common runtime error in Trie problems. `startsWith` returns `true` when the loop finishes. `search` returns `node.isEnd`. If you mix these up, [LC 208](https://leetcode.com/problems/implement-trie-prefix-tree/) test cases will catch it immediately — but under interview pressure, it is easy to miss.
 
 ### Mistake 3: Mutating the Trie During Word Search II Causes Missed Words
 ```
@@ -528,7 +528,7 @@ This is the most common runtime error in Trie problems. `startsWith` returns `tr
 // This marks "found" without disturbing the structural path for sibling words.
 ```
 
-LC 212 is notoriously tricky here. The fix is to store the actual word string at the terminal node, collect it, null it out (to prevent duplicates), and continue. Using a boolean `isEnd` and setting it to `false` when found is semantically wrong if the node still serves as a path for other words.
+[LC 212](https://leetcode.com/problems/word-search-ii/) is notoriously tricky here. The fix is to store the actual word string at the terminal node, collect it, null it out (to prevent duplicates), and continue. Using a boolean `isEnd` and setting it to `false` when found is semantically wrong if the node still serves as a path for other words.
 
 ### Mistake 4: Choosing the Wrong Children Structure
 ```
@@ -562,7 +562,7 @@ function findShortestRoot(word):
     return word
 ```
 
-LC 648 is specifically about finding the **shortest** matching prefix, not an exact match. Using `search()` is flat-out wrong here.
+[LC 648](https://leetcode.com/problems/replace-words/) is specifically about finding the **shortest** matching prefix, not an exact match. Using `search()` is flat-out wrong here.
 
 ### Mistake 6: Not Pruning Empty Nodes in Word Search II
 ```
@@ -592,7 +592,7 @@ Phase 1: insert all words into Trie
 Phase 2: answer all queries
 ```
 
-In design problems (LC 208, 211) this is explicit. In one-off problems like LC 212 or 648, make sure you build the entire Trie from the word list **before** starting your main algorithm.
+In design problems ([LC 208](https://leetcode.com/problems/implement-trie-prefix-tree/), [211](https://leetcode.com/problems/design-add-and-search-words-data-structure/)) this is explicit. In one-off problems like [LC 212](https://leetcode.com/problems/word-search-ii/) or [648](https://leetcode.com/problems/replace-words/), make sure you build the entire Trie from the word list **before** starting your main algorithm.
 
 ---
 
@@ -604,7 +604,7 @@ When you recognize a Trie problem, here's how to communicate it out loud:
 >
 > I'll build a TrieNode with [26-element array / HashMap of children] — I'll use [array / HashMap] because [the problem guarantees lowercase letters / the character set is broader]. Each node also has an `isEnd` flag to mark complete words.
 >
-> [For LC 212:] The tricky part is Word Search II — rather than running one DFS per word, I'll build a Trie of all target words and run one DFS over the grid, using the Trie to prune paths that can't lead to any word. When I find a word, I'll null out its terminal marker in the Trie to prevent duplicates and shrink dead branches.
+> [For [LC 212](https://leetcode.com/problems/word-search-ii/):] The tricky part is Word Search II — rather than running one DFS per word, I'll build a Trie of all target words and run one DFS over the grid, using the Trie to prune paths that can't lead to any word. When I find a word, I'll null out its terminal marker in the Trie to prevent duplicates and shrink dead branches.
 >
 > Let me trace a small example before coding..."
 
@@ -615,9 +615,9 @@ When you recognize a Trie problem, here's how to communicate it out loud:
 | Looks like... | But use... | The question that decides |
 |---|---|---|
 | Dictionary of words with lookups | `HashSet<String>` | Does any query ask about a *prefix* ("starts with", autocomplete, shortest root)? No, only exact lookups → HashSet. |
-| Find many words in a grid | One DFS per word ([Pattern 8](../08-recursion-backtracking/README.md)) | Is there more than one target word? One word → plain grid DFS (LC 79). Many words → Trie + DFS (LC 212). |
+| Find many words in a grid | One DFS per word ([Pattern 8](../08-recursion-backtracking/README.md)) | Is there more than one target word? One word → plain grid DFS ([LC 79](https://leetcode.com/problems/word-search/)). Many words → Trie + DFS ([LC 212](https://leetcode.com/problems/word-search-ii/)). |
 | Find one pattern inside a text | String matching (KMP) or sliding window | Is there a fixed word list to preprocess? No, one pattern and one text → no Trie. |
-| Prefix Trie for "does a word end with X?" | Trie of reversed words | Does the query look at the *end* of a word? Yes → insert each word reversed, then query the reversed suffix as a prefix (Stream of Characters, LC 1032). |
+| Prefix Trie for "does a word end with X?" | Trie of reversed words | Does the query look at the *end* of a word? Yes → insert each word reversed, then query the reversed suffix as a prefix (Stream of Characters, [LC 1032](https://leetcode.com/problems/stream-of-characters/)). |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

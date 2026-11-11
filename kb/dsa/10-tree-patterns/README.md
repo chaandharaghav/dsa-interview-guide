@@ -463,36 +463,36 @@ function verticalOrder(root):
 ### EASY (Warm-up)
 | Problem | Key Insight |
 |---------|-------------|
-| Maximum Depth of Binary Tree | DFS return height |
-| Invert Binary Tree | Swap children recursively |
-| Same Tree | Compare structure and values |
-| Symmetric Tree | Compare left.left with right.right |
-| Path Sum | DFS with remaining sum |
-| Diameter of Binary Tree (LC 543) | Global max, height DFS |
+| [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/) | DFS return height |
+| [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/) | Swap children recursively |
+| [Same Tree](https://leetcode.com/problems/same-tree/) | Compare structure and values |
+| [Symmetric Tree](https://leetcode.com/problems/symmetric-tree/) | Compare left.left with right.right |
+| [Path Sum](https://leetcode.com/problems/path-sum/) | DFS with remaining sum |
+| Diameter of Binary Tree ([LC 543](https://leetcode.com/problems/diameter-of-binary-tree/)) | Global max, height DFS |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Binary Tree Level Order Traversal** | BFS with level tracking | 102 |
-| **Binary Tree Zigzag Level Order** | BFS + alternate reverse | 103 |
-| **Binary Tree Right Side View** | BFS, last in level OR DFS right-first | 199 |
-| **Validate Binary Search Tree** | DFS with min/max bounds | 98 |
-| **Lowest Common Ancestor of Binary Tree** | DFS, return found nodes | 236 |
-| **Construct Binary Tree from Preorder and Inorder** | D&C with hashmap | 105 |
-| **Kth Smallest Element in BST** | Inorder traversal | 230 |
-| **Flatten Binary Tree to Linked List** | Reverse preorder (right, left, root) | 114 |
-| **Path Sum II** | DFS with path tracking | 113 |
-| **Count Good Nodes in Binary Tree** | DFS with max-so-far | 1448 |
-| **Recover Binary Search Tree** | Inorder to find swapped | 99 |
+| **[Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)** | BFS with level tracking | 102 |
+| **[Binary Tree Zigzag Level Order](https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/)** | BFS + alternate reverse | 103 |
+| **[Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)** | BFS, last in level OR DFS right-first | 199 |
+| **[Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)** | DFS with min/max bounds | 98 |
+| **[Lowest Common Ancestor of Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)** | DFS, return found nodes | 236 |
+| **[Construct Binary Tree from Preorder and Inorder](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)** | D&C with hashmap | 105 |
+| **[Kth Smallest Element in BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)** | Inorder traversal | 230 |
+| **[Flatten Binary Tree to Linked List](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/)** | Reverse preorder (right, left, root) | 114 |
+| **[Path Sum II](https://leetcode.com/problems/path-sum-ii/)** | DFS with path tracking | 113 |
+| **[Count Good Nodes in Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree/)** | DFS with max-so-far | 1448 |
+| **[Recover Binary Search Tree](https://leetcode.com/problems/recover-binary-search-tree/)** | Inorder to find swapped | 99 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Vertical Order Traversal** | BFS with column tracking | 987 |
-| **Binary Tree Cameras** | Greedy DFS from leaves | 968 |
-| **Maximum Sum BST in Binary Tree** | DFS returning (isValid, min, max, sum) | 1373 |
-| **Binary Tree Maximum Path Sum** | Global max with gain function | 124 |
-| **Serialize and Deserialize Binary Tree** | Preorder with null markers | 297 |
+| **[Vertical Order Traversal](https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/)** | BFS with column tracking | 987 |
+| **[Binary Tree Cameras](https://leetcode.com/problems/binary-tree-cameras/)** | Greedy DFS from leaves | 968 |
+| **[Maximum Sum BST in Binary Tree](https://leetcode.com/problems/maximum-sum-bst-in-binary-tree/)** | DFS returning (isValid, min, max, sum) | 1373 |
+| **[Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)** | Global max with gain function | 124 |
+| **[Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)** | Preorder with null markers | 297 |
 
 ---
 
@@ -500,44 +500,44 @@ function verticalOrder(root):
 
 ### Week 1: DFS Foundation
 **Day 1:**
-- Solve "Maximum Depth" and "Minimum Depth"
+- Solve "[Maximum Depth](https://leetcode.com/problems/maximum-depth-of-binary-tree/)" and "[Minimum Depth](https://leetcode.com/problems/minimum-depth-of-binary-tree/)"
 - Understand return value propagation
 
 **Day 2:**
-- Solve "Path Sum" and "Path Sum II"
+- Solve "[Path Sum](https://leetcode.com/problems/path-sum/)" and "[Path Sum II](https://leetcode.com/problems/path-sum-ii/)"
 - Practice path tracking and backtracking
 
 **Day 3:**
-- Solve "Validate BST"
+- Solve "[Validate BST](https://leetcode.com/problems/validate-binary-search-tree/)"
 - Understand the min/max bounds technique
 
 **Day 4:**
-- Solve "Lowest Common Ancestor"
+- Solve "[Lowest Common Ancestor](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)"
 - Master the "return what you found" pattern
 
 **Day 5:**
-- Solve "Diameter of Binary Tree"
+- Solve "[Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)"
 - Practice the global maximum pattern
 
 ### Week 2: BFS and Advanced
 **Day 1:**
-- Solve "Level Order Traversal" and "Zigzag"
+- Solve "[Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)" and "[Zigzag](https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/)"
 - Master the level-by-level BFS template
 
 **Day 2:**
-- Solve "Right Side View"
+- Solve "[Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)"
 - Compare BFS vs DFS approaches
 
 **Day 3:**
-- Solve "Serialize and Deserialize"
+- Solve "[Serialize and Deserialize](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)"
 - Practice preorder with null markers
 
 **Day 4:**
-- Solve "Binary Tree Maximum Path Sum"
+- Solve "[Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)"
 - Combine global tracking with gain calculation
 
 **Day 5:**
-- Solve "Construct from Preorder and Inorder"
+- Solve "[Construct from Preorder and Inorder](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)"
 - Understand the divide and conquer tree building
 
 ### Self-Check Questions:
@@ -639,10 +639,10 @@ function findPaths(node, path):
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| DFS for "minimum depth / nearest leaf" | BFS | Is the answer the first node found by level (minimum depth, level values, right view)? If yes → BFS, which stops at the first leaf (LC 111, LC 102) |
-| BFS for "path sum / height / diameter" | DFS | Does each node need a value aggregated from its whole subtree or its root path? If yes → DFS (LC 543, LC 112) |
-| Plain binary-tree DFS on a BST | BST property | Does the problem say "binary search tree"? If yes, use left < root < right to skip one subtree, O(h) (LC 235 vs LC 236) or inorder for sorted order (LC 230) |
-| Tree DFS on a structure with cycles or shared children | Graph traversal (Pattern 11) | Can a node be reached by two different paths? If yes, it is a graph → track visited (LC 133) |
+| DFS for "minimum depth / nearest leaf" | BFS | Is the answer the first node found by level (minimum depth, level values, right view)? If yes → BFS, which stops at the first leaf ([LC 111](https://leetcode.com/problems/minimum-depth-of-binary-tree/), [LC 102](https://leetcode.com/problems/binary-tree-level-order-traversal/)) |
+| BFS for "path sum / height / diameter" | DFS | Does each node need a value aggregated from its whole subtree or its root path? If yes → DFS ([LC 543](https://leetcode.com/problems/diameter-of-binary-tree/), [LC 112](https://leetcode.com/problems/path-sum/)) |
+| Plain binary-tree DFS on a BST | BST property | Does the problem say "binary search tree"? If yes, use left < root < right to skip one subtree, O(h) ([LC 235](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) vs [LC 236](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)) or inorder for sorted order ([LC 230](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)) |
+| Tree DFS on a structure with cycles or shared children | Graph traversal (Pattern 11) | Can a node be reached by two different paths? If yes, it is a graph → track visited ([LC 133](https://leetcode.com/problems/clone-graph/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

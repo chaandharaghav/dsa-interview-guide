@@ -309,33 +309,33 @@ function partitionLabels(s):
 ### EASY
 | Problem | Greedy Strategy | LC # |
 |---------|-----------------|------|
-| **Assign Cookies** | Sort both, match greedily | 455 |
-| **Lemonade Change** | Prefer keeping $5 bills | 860 |
+| **[Assign Cookies](https://leetcode.com/problems/assign-cookies/)** | Sort both, match greedily | 455 |
+| **[Lemonade Change](https://leetcode.com/problems/lemonade-change/)** | Prefer keeping $5 bills | 860 |
 
 ### MEDIUM
 | Problem | Greedy Strategy | LC # |
 |---------|-----------------|------|
-| **Non-overlapping Intervals** | Sort by end, maximize kept | 435 |
-| **Merge Intervals** | Sort by start, merge overlapping | 56 |
-| **Meeting Rooms II** | Sweep line or sort start/end | 253 |
-| **Jump Game** | Track max reachable | 55 |
-| **Jump Game II** | Track farthest in current range | 45 |
-| **Gas Station** | Single valid start exists | 134 |
-| **Task Scheduler** | Fill with most frequent first | 621 |
-| **Boats to Save People** | Two pointers, pair heavy+light | 881 |
-| **Partition Labels** | Extend partition to include all occurrences | 763 |
-| **Queue Reconstruction by Height** | Sort and insert by position | 406 |
-| **Minimum Number of Arrows** | Sort by end, like LC 435, but touching balloons share one arrow: start a new arrow only when `start > lastEnd` (LC 435 keeps an interval when `start >= lastEnd`) | 452 |
+| **[Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)** | Sort by end, maximize kept | 435 |
+| **[Merge Intervals](https://leetcode.com/problems/merge-intervals/)** | Sort by start, merge overlapping | 56 |
+| **[Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/)** (premium) | Sweep line or sort start/end | 253 |
+| **[Jump Game](https://leetcode.com/problems/jump-game/)** | Track max reachable | 55 |
+| **[Jump Game II](https://leetcode.com/problems/jump-game-ii/)** | Track farthest in current range | 45 |
+| **[Gas Station](https://leetcode.com/problems/gas-station/)** | Single valid start exists | 134 |
+| **[Task Scheduler](https://leetcode.com/problems/task-scheduler/)** | Fill with most frequent first | 621 |
+| **[Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)** | Two pointers, pair heavy+light | 881 |
+| **[Partition Labels](https://leetcode.com/problems/partition-labels/)** | Extend partition to include all occurrences | 763 |
+| **[Queue Reconstruction by Height](https://leetcode.com/problems/queue-reconstruction-by-height/)** | Sort and insert by position | 406 |
+| **[Minimum Number of Arrows](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)** | Sort by end, like [LC 435](https://leetcode.com/problems/non-overlapping-intervals/), but touching balloons share one arrow: start a new arrow only when `start > lastEnd` (LC 435 keeps an interval when `start >= lastEnd`) | 452 |
 
 ### HARD
 | Problem | Greedy Strategy | LC # |
 |---------|-----------------|------|
-| **Candy** | Two passes, left-to-right and right-to-left | 135 |
-| **Course Schedule III** | Sort by deadline, use max-heap | 630 |
-| **IPO** | Two heaps, pick affordable with max profit | 502 |
-| **Minimum Cost to Hire K Workers** | Ratio-based greedy + heap | 857 |
-| **Create Maximum Number** | Merge two greedy selections | 321 |
-| **Patching Array** | Greedily extend coverage | 330 |
+| **[Candy](https://leetcode.com/problems/candy/)** | Two passes, left-to-right and right-to-left | 135 |
+| **[Course Schedule III](https://leetcode.com/problems/course-schedule-iii/)** | Sort by deadline, use max-heap | 630 |
+| **[IPO](https://leetcode.com/problems/ipo/)** | Two heaps, pick affordable with max profit | 502 |
+| **[Minimum Cost to Hire K Workers](https://leetcode.com/problems/minimum-cost-to-hire-k-workers/)** | Ratio-based greedy + heap | 857 |
+| **[Create Maximum Number](https://leetcode.com/problems/create-maximum-number/)** | Merge two greedy selections | 321 |
+| **[Patching Array](https://leetcode.com/problems/patching-array/)** | Greedily extend coverage | 330 |
 
 ---
 
@@ -401,17 +401,17 @@ if current.start < last.end:  // What about touching? [1,2] and [2,3]
 ## 9. How to Practice
 
 ### Week 1: Interval Problems
-- Merge Intervals
-- Non-overlapping Intervals
-- Meeting Rooms I & II
-- Minimum Arrows to Burst Balloons
+- [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+- [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
+- [Meeting Rooms I](https://leetcode.com/problems/meeting-rooms/) & [II](https://leetcode.com/problems/meeting-rooms-ii/) (both premium)
+- [Minimum Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
 
 ### Week 2: Array Greedy
-- Jump Game I & II
-- Gas Station
-- Candy
-- Task Scheduler
-- Boats to Save People
+- [Jump Game I](https://leetcode.com/problems/jump-game/) & [II](https://leetcode.com/problems/jump-game-ii/)
+- [Gas Station](https://leetcode.com/problems/gas-station/)
+- [Candy](https://leetcode.com/problems/candy/)
+- [Task Scheduler](https://leetcode.com/problems/task-scheduler/)
+- [Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)
 
 ### Skill to Develop:
 1. Identify if greedy might work
@@ -427,7 +427,7 @@ if current.start < last.end:  // What about touching? [1,2] and [2,3]
 |---|---|---|
 | "Minimum coins / minimum cost" by taking the biggest option first | DP ([Pattern 15](../15-dynamic-programming/README.md)) | Can a locally best choice ever need to be undone? Try a small counterexample. Coins {1, 3, 4}, amount 6: greedy takes 4+1+1 (3 coins), but 3+3 uses 2 coins. A counterexample exists → DP. |
 | Pick items under a weight limit | DP (0/1 knapsack) | Can an item be split into fractions? Yes → greedy by value/weight ratio. No → DP. |
-| Maximum non-overlapping intervals | DP + binary search (LC 1235) | Does each interval carry its own profit or weight? Yes → DP. Only the count matters → greedy by end time. |
+| Maximum non-overlapping intervals | DP + binary search ([LC 1235](https://leetcode.com/problems/maximum-profit-in-job-scheduling/)) | Does each interval carry its own profit or weight? Yes → DP. Only the count matters → greedy by end time. |
 | Connect all nodes at minimum total cost | MST: Kruskal or Prim ([Pattern 13](../13-union-find/README.md#application-5-kruskals-mst)) | Is the answer one total for *all* nodes? Yes → MST, which is a proven greedy. A path cost from one source → Dijkstra. |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)

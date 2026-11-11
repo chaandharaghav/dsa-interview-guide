@@ -336,7 +336,7 @@ Read the output:
 
 **Time:** O(n). **Space:** O(1) extra. The method `sampleWithoutReplacement` stops the loop after `k` swaps and returns `k` distinct elements in random order. It costs O(n) for the copy and O(k) for the swaps. An alternative that uses less memory when `k` is much smaller than `n` is the virtual shuffle in Template 6.
 
-The JDK method `Collections.shuffle(List, RandomGenerator)` (since Java 21) and `Collections.shuffle(List, Random)` use the correct loop. Their javadoc says that the implementation traverses the list backwards, from the last element up to the second, and swaps each element with a random element from the first element up to the current position, inclusive. Use the library call in production. Write the loop yourself in interviews, where the problem (LC 384) asks for it.
+The JDK method `Collections.shuffle(List, RandomGenerator)` (since Java 21) and `Collections.shuffle(List, Random)` use the correct loop. Their javadoc says that the implementation traverses the list backwards, from the last element up to the second, and swaps each element with a random element from the first element up to the current position, inclusive. Use the library call in production. Write the loop yourself in interviews, where the problem ([LC 384](https://leetcode.com/problems/shuffle-an-array/)) asks for it.
 
 ### Template 3: Weighted Choice (LC 528) and Weighted Points in Rectangles (LC 497)
 
@@ -395,7 +395,7 @@ class RandomPointInRects {
 
 - **Time:** O(n) to build. O(log n) per `pick()`. **Space:** O(n).
 - `rng.nextLong(total)` returns a value in `[0, total)`, and the binary search finds the first index with `prefix[i] > r`. Index `i` owns the values `[prefix[i-1], prefix[i])`, which is `w[i]` values. A weight of 0 owns no value, so it is never chosen.
-- LC 497 weights each rectangle by its number of **integer points**, `(width + 1) * (height + 1)`. The area `width * height` is wrong, because the corners are points of the rectangle (Mistake 8). Inside the chosen rectangle, the point is uniform in x and in y, independently.
+- [LC 497](https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/) weights each rectangle by its number of **integer points**, `(width + 1) * (height + 1)`. The area `width * height` is wrong, because the corners are points of the rectangle (Mistake 8). Inside the chosen rectangle, the point is uniform in x and in y, independently.
 
 **The alias method (O(1) per pick).** The alias method makes `pick()` O(1) at the cost of an O(n) build and more code. It splits the weights into `n` columns of equal height. Each column holds at most two items: the item of its own index, with chance `prob[i]`, and an alias item that fills the rest. A pick chooses a column uniformly and then flips a biased coin. Vose's algorithm builds the columns in O(n) with two work lists, one for columns below the average height and one for columns at or above it.
 
@@ -498,7 +498,7 @@ class RandomPointInCircle {
 - Circle by the polar formula: `r = R * sqrt(u)`. The area of a disk of radius `r` is `π r²`, so a uniform point has `P(distance ≤ r) = (r/R)²`. Solve `u = (r/R)²` for `r`. Taking `r = R * u` without the square root puts too many points near the center (Mistake 7). In the test, with four rings of equal area, the wrong formula put 50% of the points in the innermost ring, not 25%.
 - **Do not add two calls.** `rand7() + rand7()` is not uniform: 7 appears six times more often than 2 (the sum has a triangular distribution). Do not take `(rand7() * rand7()) % 10` for the same reason. Use the base-7 digit trick `(a - 1) * 7 + b`, which gives 49 equally likely pairs.
 - `RandomGenerator.nextInt(origin, bound)` and `nextDouble(origin, bound)` (used in `pointByRejection`) throw `IllegalArgumentException` when `origin >= bound`. The `nextInt(origin, bound)` javadoc says that the default implementation "checks that origin and bound are positive ints". That wording is too strict: a negative origin works, and a test run of `nextInt(-5, 5)` on JDK 21 returned values from -5 to 4. The condition that matters is `origin < bound`.
-- LeetCode 470 has two follow-ups: "What is the expected value for the number of calls to rand7() function?" and "Could you minimize the number of calls to rand7()?" The basic method above answers the first one: `2 * 49/40 = 2.45` calls. The second follow-up asks you to stop wasting the rejected draws. A rejected value in `41..49` is still uniform on 9 values, so it can serve as a smaller uniform source. The class below keeps such a remainder and combines it with the next `rand7()` call.
+- [LeetCode 470](https://leetcode.com/problems/implement-rand10-using-rand7/) has two follow-ups: "What is the expected value for the number of calls to rand7() function?" and "Could you minimize the number of calls to rand7()?" The basic method above answers the first one: `2 * 49/40 = 2.45` calls. The second follow-up asks you to stop wasting the rejected draws. A rejected value in `41..49` is still uniform on 9 values, so it can serve as a smaller uniform source. The class below keeps such a remainder and combines it with the next `rand7()` call.
 
 ```java
 import java.util.function.IntSupplier;
@@ -564,9 +564,9 @@ class RandomizedMajority {
 - **Las Vegas form.** The majority element fills more than half of the array, so one draw hits it with probability `p > 1/2`. The expected number of draws is `1/p < 2`. Each draw costs one O(n) counting pass, so the expected time is O(n). The probability of more than `t` failed draws is below `2^-t`.
 - **Monte Carlo form.** With `trials` draws the failure probability is below `2^-trials`, and the running time is fixed at O(n · trials). The result `-1` means "no majority element found". It is a one-sided error: a returned candidate is always verified by counting.
 - In a seeded test with `n = 101` and 51 copies of the majority value, the average was 1.98 draws (exact: `101/51 = 1.980`), and the 3-trial Monte Carlo form missed in 12.1% of the runs (exact: `(50/101)³ = 12.1%`, below the bound of 12.5%).
-- The deterministic solutions are Boyer-Moore voting (O(n) time, O(1) space, Pattern [05](../05-hashing-frequency/README.md) for the hash map version) and sorting. The randomized solution is a good interview talking point, but it is not the best answer to LC 169.
+- The deterministic solutions are Boyer-Moore voting (O(n) time, O(1) space, Pattern [05](../05-hashing-frequency/README.md) for the hash map version) and sorting. The randomized solution is a good interview talking point, but it is not the best answer to [LC 169](https://leetcode.com/problems/majority-element/).
 
-**Randomized quickselect (LC 215)** is a Las Vegas algorithm of the same kind. It always returns the correct element. Only the number of partition passes is random, with expected O(n) time and O(n²) in the worst case. The partition code and the proof of the expected bound are on [Sorting Algorithms](../foundations/08-sorting-algorithms.md). The comparison with the heap solution (O(n log k), works on a stream) is in the same place.
+**Randomized quickselect ([LC 215](https://leetcode.com/problems/kth-largest-element-in-an-array/))** is a Las Vegas algorithm of the same kind. It always returns the correct element. Only the number of partition passes is random, with expected O(n) time and O(n²) in the worst case. The partition code and the proof of the expected bound are on [Sorting Algorithms](../foundations/08-sorting-algorithms.md). The comparison with the heap solution (O(n log k), works on a stream) is in the same place.
 
 ### Template 6: Virtual Shuffle and Remapping (LC 519 and LC 710)
 
@@ -640,8 +640,8 @@ class BlacklistPicker {
 }
 ```
 
-- LC 519: O(1) expected time per `flip()` (one hash map update). `reset()` clears the map in O(number of flips). Memory is O(number of flips). The seeded test flipped all 6 cells of a 2 × 3 matrix, 720,000 times. All 720 possible orders appeared, with a chi-square statistic of 764 for 719 degrees of freedom (p = 0.12 at the first seed).
-- LC 710: O(b) to build with `b` blacklist entries, O(1) per `pick()`. The pick draws from `size` values, so all allowed values have equal probability.
+- [LC 519](https://leetcode.com/problems/random-flip-matrix/): O(1) expected time per `flip()` (one hash map update). `reset()` clears the map in O(number of flips). Memory is O(number of flips). The seeded test flipped all 6 cells of a 2 × 3 matrix, 720,000 times. All 720 possible orders appeared, with a chi-square statistic of 764 for 719 degrees of freedom (p = 0.12 at the first seed).
+- [LC 710](https://leetcode.com/problems/random-pick-with-blacklist/): O(b) to build with `b` blacklist entries, O(1) per `pick()`. The pick draws from `size` values, so all allowed values have equal probability.
 
 ### Template 7: Choosing a Generator in Java
 
@@ -877,7 +877,7 @@ class WeightedStreamPick {
 | Situation | Method | Time | Space |
 |---|---|---|---|
 | `k` is close to `n`, the data fits in memory | Partial Fisher-Yates (`sampleWithoutReplacement`) | O(n + k) | O(n) |
-| `k` is much smaller than `n`, `n` is huge (a matrix of 10^9 cells) | Virtual Fisher-Yates with a hash map (LC 519) | O(k) | O(k) |
+| `k` is much smaller than `n`, `n` is huge (a matrix of 10^9 cells) | Virtual Fisher-Yates with a hash map ([LC 519](https://leetcode.com/problems/random-flip-matrix/)) | O(k) | O(k) |
 | `k` is small and `n` is huge, and repeats are rare | Draw, then reject if seen (hash set) | O(k) expected | O(k) |
 | The data arrives as a stream | Reservoir sampling | O(n) | O(k) |
 
@@ -904,7 +904,7 @@ Rejection of repeats has a catch: if `k` is close to `n`, the last draws reject 
 
 ### Variation G: Insert Delete GetRandom O(1)
 
-LC 380 and LC 381 ask for a data structure and not for a sampling algorithm. The solution is an array plus a hash map from value to index. Remove by swapping with the last element. See pattern [26: Design Data Structures](../26-design-data-structures/README.md).
+[LC 380](https://leetcode.com/problems/insert-delete-getrandom-o1/) and [LC 381](https://leetcode.com/problems/insert-delete-getrandom-o1-duplicates-allowed/) ask for a data structure and not for a sampling algorithm. The solution is an array plus a hash map from value to index. Remove by swapping with the last element. See pattern [26: Design Data Structures](../26-design-data-structures/README.md).
 
 ---
 
@@ -914,18 +914,18 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 
 | # | Problem | Difficulty | Key insight |
 |---|---------|-----------|-------------|
-| 169 | Majority Element | Easy | The expected answer is Boyer-Moore voting. The randomized solution (draw, count, repeat) is a Las Vegas algorithm with fewer than 2 expected draws |
-| 384 | Shuffle an Array | Medium | Fisher-Yates from the back with `nextInt(i + 1)`. `reset()` returns a saved copy. The off-by-one and the swap-with-any-slot versions are biased (Template 2) |
-| 382 | Linked List Random Node | Medium | Reservoir sampling with `k = 1`: replace with probability `1/seen` (Template 1) |
-| 398 | Random Pick Index | Medium | Reservoir over the matching positions, or a map from value to a list of indices (Variation A) |
-| 528 | Random Pick with Weight | Medium | Prefix sums, a draw in `[0, total)`, and binary search for the first prefix larger than the draw (Template 3) |
-| 470 | Implement Rand10() Using Rand7() | Medium | `(rand7() - 1) * 7 + rand7()` is uniform on `1..49`. Reject `41..49` (Template 4) |
-| 478 | Generate Random Point in a Circle | Medium | Rejection from the bounding square, or `r = R * sqrt(u)` with a uniform angle (Template 4) |
-| 497 | Random Point in Non-overlapping Rectangles | Medium | Weight each rectangle by its number of integer points, `(w + 1) * (h + 1)`. Pick a rectangle, then a point inside it (Template 3) |
-| 519 | Random Flip Matrix | Medium | Virtual Fisher-Yates with a hash map of moved slots (Template 6) |
-| 215 | Kth Largest Element in an Array | Medium | Randomized quickselect gives expected O(n). A heap gives O(n log k). See [Sorting Algorithms](../foundations/08-sorting-algorithms.md) |
-| 380 | Insert Delete GetRandom O(1) | Medium | Array plus hash map, swap with the last element on delete. See pattern [26](../26-design-data-structures/README.md) |
-| 710 | Random Pick with Blacklist | Hard | Draw from `n - b` values. Remap each blacklisted value below `n - b` to an allowed value at or above it (Template 6) |
+| 169 | [Majority Element](https://leetcode.com/problems/majority-element/) | Easy | The expected answer is Boyer-Moore voting. The randomized solution (draw, count, repeat) is a Las Vegas algorithm with fewer than 2 expected draws |
+| 384 | [Shuffle an Array](https://leetcode.com/problems/shuffle-an-array/) | Medium | Fisher-Yates from the back with `nextInt(i + 1)`. `reset()` returns a saved copy. The off-by-one and the swap-with-any-slot versions are biased (Template 2) |
+| 382 | [Linked List Random Node](https://leetcode.com/problems/linked-list-random-node/) | Medium | Reservoir sampling with `k = 1`: replace with probability `1/seen` (Template 1) |
+| 398 | [Random Pick Index](https://leetcode.com/problems/random-pick-index/) | Medium | Reservoir over the matching positions, or a map from value to a list of indices (Variation A) |
+| 528 | [Random Pick with Weight](https://leetcode.com/problems/random-pick-with-weight/) | Medium | Prefix sums, a draw in `[0, total)`, and binary search for the first prefix larger than the draw (Template 3) |
+| 470 | [Implement Rand10() Using Rand7()](https://leetcode.com/problems/implement-rand10-using-rand7/) | Medium | `(rand7() - 1) * 7 + rand7()` is uniform on `1..49`. Reject `41..49` (Template 4) |
+| 478 | [Generate Random Point in a Circle](https://leetcode.com/problems/generate-random-point-in-a-circle/) | Medium | Rejection from the bounding square, or `r = R * sqrt(u)` with a uniform angle (Template 4) |
+| 497 | [Random Point in Non-overlapping Rectangles](https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/) | Medium | Weight each rectangle by its number of integer points, `(w + 1) * (h + 1)`. Pick a rectangle, then a point inside it (Template 3) |
+| 519 | [Random Flip Matrix](https://leetcode.com/problems/random-flip-matrix/) | Medium | Virtual Fisher-Yates with a hash map of moved slots (Template 6) |
+| 215 | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) | Medium | Randomized quickselect gives expected O(n). A heap gives O(n log k). See [Sorting Algorithms](../foundations/08-sorting-algorithms.md) |
+| 380 | [Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/) | Medium | Array plus hash map, swap with the last element on delete. See pattern [26](../26-design-data-structures/README.md) |
+| 710 | [Random Pick with Blacklist](https://leetcode.com/problems/random-pick-with-blacklist/) | Hard | Draw from `n - b` values. Remap each blacklisted value below `n - b` to an allowed value at or above it (Template 6) |
 
 ### Walkthrough: LeetCode 470, Implement Rand10() Using Rand7()
 
@@ -942,19 +942,19 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 
 ### Phase 1: The Two Core Proofs (3 problems)
 
-- LC 382 (Linked List Random Node). Write the `k = 1` reservoir, then write the proof that every node has probability `1/n`.
-- LC 384 (Shuffle an Array). Write Fisher-Yates from memory. Then write the biased version and explain why it is biased with the count `n^n` against `n!`.
-- LC 169 (Majority Element). Solve it with Boyer-Moore, then with random draws, and state the expected number of draws.
+- [LC 382](https://leetcode.com/problems/linked-list-random-node/) (Linked List Random Node). Write the `k = 1` reservoir, then write the proof that every node has probability `1/n`.
+- [LC 384](https://leetcode.com/problems/shuffle-an-array/) (Shuffle an Array). Write Fisher-Yates from memory. Then write the biased version and explain why it is biased with the count `n^n` against `n!`.
+- [LC 169](https://leetcode.com/problems/majority-element/) (Majority Element). Solve it with Boyer-Moore, then with random draws, and state the expected number of draws.
 
 ### Phase 2: Weights and Rejection (4 problems)
 
-- LC 528, then LC 497 (reuse the prefix-sum picker).
-- LC 470, then LC 478. For each, state the acceptance probability and the expected number of draws.
+- [LC 528](https://leetcode.com/problems/random-pick-with-weight/), then [LC 497](https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/) (reuse the prefix-sum picker).
+- [LC 470](https://leetcode.com/problems/implement-rand10-using-rand7/), then [LC 478](https://leetcode.com/problems/generate-random-point-in-a-circle/). For each, state the acceptance probability and the expected number of draws.
 
 ### Phase 3: Hard Variants (3 problems)
 
-- LC 398 with the reservoir and with the map. State when each is better.
-- LC 519 (virtual shuffle) and LC 710 (remap the blacklist).
+- [LC 398](https://leetcode.com/problems/random-pick-index/) with the reservoir and with the map. State when each is better.
+- [LC 519](https://leetcode.com/problems/random-flip-matrix/) (virtual shuffle) and [LC 710](https://leetcode.com/problems/random-pick-with-blacklist/) (remap the blacklist).
 
 ### Phase 4: Test Your Own Code
 
@@ -1043,7 +1043,7 @@ The `Comparator` contract needs `compare(x, y)` to give the opposite sign of `co
 
 ### Mistake 8: Weighting by Area When Points Are Integers
 
-For LC 497, a rectangle `[x1, y1, x2, y2]` holds `(x2 - x1 + 1) * (y2 - y1 + 1)` integer points. A rectangle with `x1 == x2` has area 0 but still has points. Use the point count as the weight and draw `x1 + nextInt(x2 - x1 + 1)`.
+For [LC 497](https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/), a rectangle `[x1, y1, x2, y2]` holds `(x2 - x1 + 1) * (y2 - y1 + 1)` integer points. A rectangle with `x1 == x2` has area 0 but still has points. Use the point count as the weight and draw `x1 + nextInt(x2 - x1 + 1)`.
 
 ### Mistake 9: Sharing a `ThreadLocalRandom` Across Threads
 
@@ -1075,7 +1075,7 @@ If the search uses `prefix[mid] >= r` with `r` in `[0, total)`, then `r = prefix
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| "Return a random element" on a changing set | Array plus hash map (pattern [26](../26-design-data-structures/README.md), LC 380) | Does the set change with insert and delete between calls? If yes, keep a dense array. If the data is a fixed stream, use reservoir sampling |
+| "Return a random element" on a changing set | Array plus hash map (pattern [26](../26-design-data-structures/README.md), [LC 380](https://leetcode.com/problems/insert-delete-getrandom-o1/)) | Does the set change with insert and delete between calls? If yes, keep a dense array. If the data is a fixed stream, use reservoir sampling |
 | Weighted random pick | Prefix sum (pattern [04](../04-prefix-sum/README.md)) plus binary search (pattern [06](../06-binary-search-on-answer/README.md)) | Is the pick probability proportional to a weight? If yes, prefix sums turn the weights into intervals |
 | Reservoir sampling for a stored array | `nextInt(n)` on the array | Is the length known and the data in memory? If yes, one draw is enough |
 | Random shuffle | Sorting | Does the output need an order defined by keys? Then sort. A random order needs Fisher-Yates, not a sort with random keys or a random comparator |

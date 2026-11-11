@@ -272,32 +272,32 @@ while left < right:
 ### EASY (Warm-up)
 | Problem | Key Insight |
 |---------|-------------|
-| Valid Palindrome | Opposite direction, skip non-alphanumeric |
-| Merge Sorted Array (LC 88) | Same direction merge |
-| Move Zeroes | Same direction, partition zeros to end |
-| Remove Duplicates from Sorted Array | Same direction, slow-fast |
-| Squares of a Sorted Array (LC 977) | Two pointers from ends, compare abs |
+| [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/) | Opposite direction, skip non-alphanumeric |
+| Merge Sorted Array ([LC 88](https://leetcode.com/problems/merge-sorted-array/)) | Same direction merge |
+| [Move Zeroes](https://leetcode.com/problems/move-zeroes/) | Same direction, partition zeros to end |
+| [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/) | Same direction, slow-fast |
+| Squares of a Sorted Array ([LC 977](https://leetcode.com/problems/squares-of-a-sorted-array/)) | Two pointers from ends, compare abs |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **3Sum** | Fix one + Two Sum | 15 |
-| **3Sum Closest** | Fix one + closest pair | 16 |
-| **Container With Most Water** | Move shorter line inward | 11 |
-| **Sort Colors** | Dutch National Flag (3 pointers) | 75 |
-| **Partition Labels** | Two pointers to find segment boundaries | 763 |
-| **Boats to Save People** | Greedy pairing lightest + heaviest | 881 |
-| **Interval List Intersections** | Two pointers on interval lists | 986 |
-| **4Sum** | Fix two + Two Sum | 18 |
-| **Longest Mountain in Array** | Expand from peaks | 845 |
-| **Two Sum II - Input Array Is Sorted** | Basic opposite direction | 167 |
-| **3Sum Smaller** | Count pairs less than target | 259 |
+| **[3Sum](https://leetcode.com/problems/3sum/)** | Fix one + Two Sum | 15 |
+| **[3Sum Closest](https://leetcode.com/problems/3sum-closest/)** | Fix one + closest pair | 16 |
+| **[Container With Most Water](https://leetcode.com/problems/container-with-most-water/)** | Move shorter line inward | 11 |
+| **[Sort Colors](https://leetcode.com/problems/sort-colors/)** | Dutch National Flag (3 pointers) | 75 |
+| **[Partition Labels](https://leetcode.com/problems/partition-labels/)** | Two pointers to find segment boundaries | 763 |
+| **[Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)** | Greedy pairing lightest + heaviest | 881 |
+| **[Interval List Intersections](https://leetcode.com/problems/interval-list-intersections/)** | Two pointers on interval lists | 986 |
+| **[4Sum](https://leetcode.com/problems/4sum/)** | Fix two + Two Sum | 18 |
+| **[Longest Mountain in Array](https://leetcode.com/problems/longest-mountain-in-array/)** | Expand from peaks | 845 |
+| **[Two Sum II - Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)** | Basic opposite direction | 167 |
+| **[3Sum Smaller](https://leetcode.com/problems/3sum-smaller/)** (premium) | Count pairs less than target | 259 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Trapping Rain Water** | Two pointers with maxLeft/maxRight | 42 |
-| **Minimum Window Substring** | (Overlaps with Sliding Window) | 76 |
+| **[Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)** | Two pointers with maxLeft/maxRight | 42 |
+| **[Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)** | (Overlaps with Sliding Window) | 76 |
 
 ---
 
@@ -305,36 +305,36 @@ while left < right:
 
 ### Week 1: Foundation
 **Day 1:**
-- Solve "Two Sum II - Sorted Array"
+- Solve "[Two Sum II - Sorted Array](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)"
 - Understand WHY moving pointers is correct
 
 **Day 2:**
-- Solve "Valid Palindrome" and "Valid Palindrome II"
+- Solve "[Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)" and "[Valid Palindrome II](https://leetcode.com/problems/valid-palindrome-ii/)"
 - Practice the "skip and check" pattern
 
 **Day 3:**
-- Solve "Move Zeroes" and "Remove Duplicates"
+- Solve "[Move Zeroes](https://leetcode.com/problems/move-zeroes/)" and "[Remove Duplicates](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)"
 - Master the slow/fast pointer partition
 
 **Day 4:**
-- Solve "3Sum" - this is THE classic
+- Solve "[3Sum](https://leetcode.com/problems/3sum/)" - this is THE classic
 - Focus on duplicate skipping logic
 
 **Day 5:**
-- Solve "Container With Most Water"
+- Solve "[Container With Most Water](https://leetcode.com/problems/container-with-most-water/)"
 - Understand the greedy choice of moving shorter line
 
 ### Week 2: Advanced
 **Day 1-2:**
-- Solve "Sort Colors" (Dutch National Flag)
+- Solve "[Sort Colors](https://leetcode.com/problems/sort-colors/)" (Dutch National Flag)
 - This is tricky - practice until confident
 
 **Day 3:**
-- Solve "Trapping Rain Water"
+- Solve "[Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)"
 - Both O(n) space (with arrays) and O(1) space (two pointers)
 
 **Day 4:**
-- Solve "Boats to Save People"
+- Solve "[Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)"
 - Practice greedy pairing
 
 **Day 5:**
@@ -461,10 +461,10 @@ Some problems can be solved by either:
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Two pointers on "find two numbers that sum to target" | Hashmap (Pattern 05) | Is the array sorted, or may you sort it? If unsorted and the output needs original indices → hashmap (LC 1 vs LC 167) |
-| Two pointers on "longest/shortest subarray with property X" | Sliding window (Pattern 01) | Does the answer cover every element between the pointers? If yes → sliding window (LC 209) |
-| Same-direction slow/fast on an array | Fast & slow pointers (Pattern 03) | Do the pointers move at different speeds to find a cycle or a middle? If yes → Floyd's algorithm (LC 141, LC 876) |
-| Two pointers on "values in [1..n], find missing/duplicate" | Cyclic sort / index-as-hash (Pattern 05) | Are values in [1..n] and is extra space limited to O(1)? If yes → place each value at index value−1 (LC 448) |
+| Two pointers on "find two numbers that sum to target" | Hashmap (Pattern 05) | Is the array sorted, or may you sort it? If unsorted and the output needs original indices → hashmap ([LC 1](https://leetcode.com/problems/two-sum/) vs [LC 167](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)) |
+| Two pointers on "longest/shortest subarray with property X" | Sliding window (Pattern 01) | Does the answer cover every element between the pointers? If yes → sliding window ([LC 209](https://leetcode.com/problems/minimum-size-subarray-sum/)) |
+| Same-direction slow/fast on an array | Fast & slow pointers (Pattern 03) | Do the pointers move at different speeds to find a cycle or a middle? If yes → Floyd's algorithm ([LC 141](https://leetcode.com/problems/linked-list-cycle/), [LC 876](https://leetcode.com/problems/middle-of-the-linked-list/)) |
+| Two pointers on "values in [1..n], find missing/duplicate" | Cyclic sort / index-as-hash (Pattern 05) | Are values in [1..n] and is extra space limited to O(1)? If yes → place each value at index value−1 ([LC 448](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

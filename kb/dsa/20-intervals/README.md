@@ -28,7 +28,7 @@ At each point, you update a running state (a counter, a heap, or a set) instead 
 ### Two Interval Conventions:
 
 1. **Half-open** `[start, end)`: the interval contains `start` but not `end`. Meetings use this convention. A meeting `[1, 3)` and a meeting `[3, 5)` can share one room.
-2. **Closed** `[start, end]`: the interval contains both endpoints. Balloons (LC 452) and interval intersections (LC 986) use this convention. `[1, 3]` and `[3, 5]` share the point 3.
+2. **Closed** `[start, end]`: the interval contains both endpoints. Balloons ([LC 452](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)) and interval intersections ([LC 986](https://leetcode.com/problems/interval-list-intersections/)) use this convention. `[1, 3]` and `[3, 5]` share the point 3.
 
 Read the problem statement to find which convention it uses. The convention decides every `<` versus `<=` in your code.
 
@@ -71,19 +71,19 @@ If the intervals are already sorted by start (so `a.start <= b.start`), the test
 
 | Problem | Touching endpoints `[1,4]` and `[4,5]` | Comparison in code |
 |---------|----------------------------------------|--------------------|
-| 56 Merge Intervals | Merge them | `cur.start <= last.end` |
-| 57 Insert Interval | Merge them | `iv.start <= new.end` |
-| 435 Non-overlapping Intervals | Do not overlap | keep if `iv.start >= lastEnd` |
-| 646 Maximum Length of Pair Chain | Do not chain (needs `b < c`) | keep if `iv.start > lastEnd` |
-| 452 Min Arrows (closed) | Overlap, one arrow bursts both | new arrow only if `iv.start > arrowPos` |
-| 986 Interval List Intersections (closed) | Intersect at point 4 | keep if `lo <= hi` |
-| 252 / 253 Meeting Rooms (half-open) | Do not conflict | reuse room if `minEnd <= start` |
-| 729 My Calendar I (half-open) | Do not conflict | conflict if `prev.end > start` |
-| 1094 Car Pooling | Drop-off happens before pick-up | `diff[to] -= p` |
+| [56 Merge Intervals](https://leetcode.com/problems/merge-intervals/) | Merge them | `cur.start <= last.end` |
+| [57 Insert Interval](https://leetcode.com/problems/insert-interval/) | Merge them | `iv.start <= new.end` |
+| [435 Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/) | Do not overlap | keep if `iv.start >= lastEnd` |
+| [646 Maximum Length of Pair Chain](https://leetcode.com/problems/maximum-length-of-pair-chain/) | Do not chain (needs `b < c`) | keep if `iv.start > lastEnd` |
+| [452 Min Arrows](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/) (closed) | Overlap, one arrow bursts both | new arrow only if `iv.start > arrowPos` |
+| [986 Interval List Intersections](https://leetcode.com/problems/interval-list-intersections/) (closed) | Intersect at point 4 | keep if `lo <= hi` |
+| [252](https://leetcode.com/problems/meeting-rooms/) / [253](https://leetcode.com/problems/meeting-rooms-ii/) Meeting Rooms (half-open) (premium) | Do not conflict | reuse room if `minEnd <= start` |
+| [729 My Calendar I](https://leetcode.com/problems/my-calendar-i/) (half-open) | Do not conflict | conflict if `prev.end > start` |
+| [1094 Car Pooling](https://leetcode.com/problems/car-pooling/) | Drop-off happens before pick-up | `diff[to] -= p` |
 
 ### RED FLAGS - NOT This Pattern:
 - The "intervals" are subarrays of one array and you need a sum or a count of distinct values inside a window. Use Sliding Window (01) or Prefix Sum (04).
-- Each interval has a **weight** and you must maximize total weight of non-overlapping intervals (LC 1235). Greedy by end fails. Use DP with binary search (15 + 06).
+- Each interval has a **weight** and you must maximize total weight of non-overlapping intervals ([LC 1235](https://leetcode.com/problems/maximum-profit-in-job-scheduling/)). Greedy by end fails. Use DP with binary search (15 + 06).
 - You need the k-th smallest or largest value, not overlap structure. Use Heap (16).
 - Ranges are ranges of values in a sorted array ("find the range of target"). Use Binary Search (06).
 
@@ -150,7 +150,7 @@ The greedy rule is: always pick the interval that ends first, then skip all inte
 - Sort by start: `[1,100], [2,3], [4,5]`. Picking `[1,100]` first blocks both others. Optimal is 2.
 - Sort by length: `[1,5], [4,7], [6,10]`. The shortest is `[4,7]` (length 3), and it overlaps both others. Optimal is 2: `[1,5]` and `[6,10]`.
 
-LC 435 (minimum removals) is `n - maxNonOverlapping`. LC 452 (minimum arrows) is the same greedy on closed intervals: each arrow sits at the end of the earliest-ending balloon that is not burst yet.
+[LC 435](https://leetcode.com/problems/non-overlapping-intervals/) (minimum removals) is `n - maxNonOverlapping`. [LC 452](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/) (minimum arrows) is the same greedy on closed intervals: each arrow sits at the end of the earliest-ending balloon that is not burst yet.
 
 ### Insight 3: Count active intervals with events (Sweep Line)
 The number of rooms equals the maximum number of meetings active at one time.
@@ -159,13 +159,13 @@ Sort events by time and keep a running sum. The largest running sum is the answe
 
 **The tie rule:** when a start and an end have the same time, the sort order decides the answer.
 - Half-open intervals (meetings): process the **end (-1) before the start (+1)**. A meeting ending at 10 frees its room for a meeting starting at 10.
-- Closed intervals (LC 2406): process the **start (+1) before the end (-1)**. Two intervals that share a point are both active at that point.
+- Closed intervals ([LC 2406](https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups/)): process the **start (+1) before the end (-1)**. Two intervals that share a point are both active at that point.
 
 ### Insight 4: Keep a min-heap of end times (Meeting Rooms II, alternative)
 Sort meetings by start. Keep a **min-heap** (a priority queue that returns the smallest element first) of end times of rooms in use.
 For each meeting, if the smallest end is `<= start`, that room is free: remove it from the heap.
 Push the meeting's end. The heap size never decreases, because each step removes at most one and adds one, so the final heap size is the maximum.
-The heap also tells you **which** room frees first. You need that information in LC 2402.
+The heap also tells you **which** room frees first. You need that information in [LC 2402](https://leetcode.com/problems/meeting-rooms-iii/).
 
 ### Insight 5: Difference array for bounded coordinates
 When coordinates are small integers, add `+value` at `start` and `-value` at `end` in an array.
@@ -176,13 +176,13 @@ Time: O(n + C), where C is the coordinate range. No sorting is needed.
 
 | Tool | Question it answers | Typical problems | Time |
 |------|---------------------|------------------|------|
-| **Sort by start + merge** | "What is the union of these intervals?" "Where are the gaps?" | 56, 57, 759, 1288 | O(n log n) |
-| **Sort by end + greedy** | "What is the maximum number of intervals with no overlap?" "Minimum removals?" "Minimum points that hit every interval?" | 435, 452, 646 | O(n log n) |
-| **Events sweep (+1 / -1)** | "What is the maximum number of intervals active at one time?" | 253, 2406, 1094 (large coords) | O(n log n) |
-| **Min-heap of end times** | "Which resource frees first?" "Assign each interval to a resource." | 253, 2402, 1851 | O(n log n) |
-| **Difference array** | "What is the load at every coordinate?" (coordinates small, all updates known first) | 1094, 1109, 1854 | O(n + C) |
-| **TreeMap floor / ceiling** | "Does this new interval conflict with the ones booked so far?" (online) | 729, 731, 732, 715 | O(log n) per insert for 729 |
-| **Two pointers on two sorted lists** | "What do these two lists of intervals have in common?" | 986 | O(m + n) |
+| **Sort by start + merge** | "What is the union of these intervals?" "Where are the gaps?" | [56](https://leetcode.com/problems/merge-intervals/), [57](https://leetcode.com/problems/insert-interval/), [759](https://leetcode.com/problems/employee-free-time/) (premium), [1288](https://leetcode.com/problems/remove-covered-intervals/) | O(n log n) |
+| **Sort by end + greedy** | "What is the maximum number of intervals with no overlap?" "Minimum removals?" "Minimum points that hit every interval?" | [435](https://leetcode.com/problems/non-overlapping-intervals/), [452](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/), [646](https://leetcode.com/problems/maximum-length-of-pair-chain/) | O(n log n) |
+| **Events sweep (+1 / -1)** | "What is the maximum number of intervals active at one time?" | [253](https://leetcode.com/problems/meeting-rooms-ii/) (premium), [2406](https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups/), [1094](https://leetcode.com/problems/car-pooling/) (large coords) | O(n log n) |
+| **Min-heap of end times** | "Which resource frees first?" "Assign each interval to a resource." | [253](https://leetcode.com/problems/meeting-rooms-ii/) (premium), [2402](https://leetcode.com/problems/meeting-rooms-iii/), [1851](https://leetcode.com/problems/minimum-interval-to-include-each-query/) | O(n log n) |
+| **Difference array** | "What is the load at every coordinate?" (coordinates small, all updates known first) | [1094](https://leetcode.com/problems/car-pooling/), [1109](https://leetcode.com/problems/corporate-flight-bookings/), [1854](https://leetcode.com/problems/maximum-population-year/) | O(n + C) |
+| **TreeMap floor / ceiling** | "Does this new interval conflict with the ones booked so far?" (online) | [729](https://leetcode.com/problems/my-calendar-i/), [731](https://leetcode.com/problems/my-calendar-ii/), [732](https://leetcode.com/problems/my-calendar-iii/), [715](https://leetcode.com/problems/range-module/) | O(log n) per insert for 729 |
+| **Two pointers on two sorted lists** | "What do these two lists of intervals have in common?" | [986](https://leetcode.com/problems/interval-list-intersections/) | O(m + n) |
 
 ---
 
@@ -205,7 +205,7 @@ function merge(intervals):
     return result
 ```
 Use `max` when you extend. An interval can sit fully inside the current one: `[1,10]` then `[2,3]`.
-LC 56 merges touching intervals, so the "new interval" test is strict: `last.end < iv.start`.
+[LC 56](https://leetcode.com/problems/merge-intervals/) merges touching intervals, so the "new interval" test is strict: `last.end < iv.start`.
 
 ### Template 2: Insert Interval (input already sorted, no sort needed) — LC 57
 ```
@@ -370,9 +370,9 @@ function book(start, end):
             return false
     return true
 ```
-Time: O(n) per booking, O(n²) total. LC 731 allows at most 1000 calls, so this fits.
+Time: O(n) per booking, O(n²) total. [LC 731](https://leetcode.com/problems/my-calendar-ii/) allows at most 1000 calls, so this fits.
 The TreeMap keeps events sorted, so the sweep needs no extra sort.
-The same code with `max(active)` returned answers LC 732 (My Calendar III).
+The same code with `max(active)` returned answers [LC 732](https://leetcode.com/problems/my-calendar-iii/) (My Calendar III).
 
 ### Template 10: Difference Array — LC 1094 Car Pooling
 ```
@@ -388,7 +388,7 @@ function carPooling(trips, capacity):
         if load > capacity: return false
     return true
 ```
-Time: O(n + C) with C = 1001 for LC 1094.
+Time: O(n + C) with C = 1001 for [LC 1094](https://leetcode.com/problems/car-pooling/).
 
 ### Java: Merge Intervals (LC 56)
 ```java
@@ -423,7 +423,7 @@ static int minMeetingRooms(int[][] intervals) {
 }
 ```
 
-**Why `Integer.compare` and not `a - b`:** in LC 452 the coordinates range over the full `int` range, from `-2^31` to `2^31 - 1`.
+**Why `Integer.compare` and not `a - b`:** in [LC 452](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/) the coordinates range over the full `int` range, from `-2^31` to `2^31 - 1`.
 For `a = 2^31 - 1` and `b = -1`, `a - b` overflows to a negative number, and the sort order becomes wrong.
 `Integer.compare(a, b)` never overflows.
 
@@ -437,34 +437,34 @@ For `a = 2^31 - 1` and `b = -1`, `a - b` overflows to a negative number, and the
 **State:** the current merged interval (or the largest end so far).
 
 ### Variation B: Maximum Non-Overlapping Selection
-**Problem Type:** Minimum removals (435), minimum arrows (452), longest pair chain (646).
+**Problem Type:** Minimum removals ([435](https://leetcode.com/problems/non-overlapping-intervals/)), minimum arrows ([452](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)), longest pair chain ([646](https://leetcode.com/problems/maximum-length-of-pair-chain/)).
 **Sort key:** end.
 **State:** the end of the last chosen interval.
 
 ### Variation C: Maximum Concurrency
-**Problem Type:** Meeting rooms (253), minimum groups (2406), platforms needed at a station.
+**Problem Type:** Meeting rooms ([253](https://leetcode.com/problems/meeting-rooms-ii/), premium), minimum groups ([2406](https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups/)), platforms needed at a station.
 **Tool:** event sweep with the tie rule, or a min-heap of ends.
 **Watch for:** half-open versus closed decides the tie order.
 
 ### Variation D: Resource Assignment
-**Problem Type:** Which room hosts the most meetings (2402), smallest interval that contains each query (1851).
+**Problem Type:** Which room hosts the most meetings ([2402](https://leetcode.com/problems/meeting-rooms-iii/)), smallest interval that contains each query ([1851](https://leetcode.com/problems/minimum-interval-to-include-each-query/)).
 **Tool:** heaps. You need to know which resource frees first, not only how many are busy.
-**Watch for:** LC 2402 delays meetings, so end times grow past the input range. Store them as `long`.
+**Watch for:** [LC 2402](https://leetcode.com/problems/meeting-rooms-iii/) delays meetings, so end times grow past the input range. Store them as `long`.
 
 ### Variation E: Online Booking
-**Problem Type:** My Calendar I/II/III (729, 731, 732), Range Module (715), Data Stream as Disjoint Intervals (352).
+**Problem Type:** My Calendar I/II/III ([729](https://leetcode.com/problems/my-calendar-i/), [731](https://leetcode.com/problems/my-calendar-ii/), [732](https://leetcode.com/problems/my-calendar-iii/)), Range Module ([715](https://leetcode.com/problems/range-module/)), Data Stream as Disjoint Intervals ([352](https://leetcode.com/problems/data-stream-as-disjoint-intervals/)).
 **Tool:** TreeMap. `floorEntry` and `ceilingEntry` find the neighbors of a new interval in O(log n).
 
 ### Variation F: Load at Each Point
-**Problem Type:** Car pooling (1094), corporate flight bookings (1109), maximum population year (1854).
+**Problem Type:** Car pooling ([1094](https://leetcode.com/problems/car-pooling/)), corporate flight bookings ([1109](https://leetcode.com/problems/corporate-flight-bookings/)), maximum population year ([1854](https://leetcode.com/problems/maximum-population-year/)).
 **Tool:** difference array when coordinates are small; sorted events when they are large.
 
 ### Variation G: Two Sorted Lists
-**Problem Type:** Interval list intersections (986), meeting scheduler (1229).
+**Problem Type:** Interval list intersections ([986](https://leetcode.com/problems/interval-list-intersections/)), meeting scheduler ([1229](https://leetcode.com/problems/meeting-scheduler/), premium).
 **Tool:** two pointers. Advance the pointer whose interval ends first.
 
 ### Variation H: Sweep Line with a Height Structure
-**Problem Type:** The Skyline Problem (218).
+**Problem Type:** The Skyline Problem ([218](https://leetcode.com/problems/the-skyline-problem/)).
 **Tool:** sort building edges as events. Keep the active heights in a TreeMap of height → count, or in a max-heap with **lazy deletion** (remove a top element only when its building has ended).
 **Watch for:** `PriorityQueue.remove(Object)` costs O(n). Calling it per event makes the solution O(n²). Lazy deletion or a TreeMap keeps it O(n log n).
 
@@ -475,39 +475,39 @@ For `a = 2^31 - 1` and `b = -1`, `a - b` overflows to a negative number, and the
 ### EASY (Warm-up)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Meeting Rooms** | Sort by start, check neighbors | 252 |
-| **Summary Ranges** | Build ranges from a sorted array in one scan | 228 |
-| **Teemo Attacking** | Add `min(duration, next - cur)` per attack | 495 |
-| **Maximum Population Year** | Difference array over years | 1854 |
+| **[Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)** (premium) | Sort by start, check neighbors | 252 |
+| **[Summary Ranges](https://leetcode.com/problems/summary-ranges/)** | Build ranges from a sorted array in one scan | 228 |
+| **[Teemo Attacking](https://leetcode.com/problems/teemo-attacking/)** | Add `min(duration, next - cur)` per attack | 495 |
+| **[Maximum Population Year](https://leetcode.com/problems/maximum-population-year/)** | Difference array over years | 1854 |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Merge Intervals** | Sort by start, extend with max | 56 |
-| **Insert Interval** | Three phases, no sort needed | 57 |
-| **Non-overlapping Intervals** | Sort by end, n - kept | 435 |
-| **Minimum Number of Arrows to Burst Balloons** | Sort by end, closed intervals | 452 |
-| **Meeting Rooms II** | Min-heap of ends, or sweep with ends first on ties | 253 |
-| **Interval List Intersections** | Two pointers, advance the earlier end | 986 |
-| **My Calendar I** | TreeMap floor / ceiling neighbors | 729 |
-| **My Calendar II** | TreeMap of +1/-1 counts, undo on triple | 731 |
-| **Car Pooling** | Difference array over locations | 1094 |
-| **Corporate Flight Bookings** | Difference array, then prefix sum | 1109 |
-| **Remove Covered Intervals** | Sort by start asc, end desc | 1288 |
-| **Maximum Length of Pair Chain** | Activity selection, sort by end | 646 |
-| **Divide Intervals Into Minimum Number of Groups** | Meeting rooms on closed intervals: starts before ends on ties | 2406 |
+| **[Merge Intervals](https://leetcode.com/problems/merge-intervals/)** | Sort by start, extend with max | 56 |
+| **[Insert Interval](https://leetcode.com/problems/insert-interval/)** | Three phases, no sort needed | 57 |
+| **[Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)** | Sort by end, n - kept | 435 |
+| **[Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)** | Sort by end, closed intervals | 452 |
+| **[Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/)** (premium) | Min-heap of ends, or sweep with ends first on ties | 253 |
+| **[Interval List Intersections](https://leetcode.com/problems/interval-list-intersections/)** | Two pointers, advance the earlier end | 986 |
+| **[My Calendar I](https://leetcode.com/problems/my-calendar-i/)** | TreeMap floor / ceiling neighbors | 729 |
+| **[My Calendar II](https://leetcode.com/problems/my-calendar-ii/)** | TreeMap of +1/-1 counts, undo on triple | 731 |
+| **[Car Pooling](https://leetcode.com/problems/car-pooling/)** | Difference array over locations | 1094 |
+| **[Corporate Flight Bookings](https://leetcode.com/problems/corporate-flight-bookings/)** | Difference array, then prefix sum | 1109 |
+| **[Remove Covered Intervals](https://leetcode.com/problems/remove-covered-intervals/)** | Sort by start asc, end desc | 1288 |
+| **[Maximum Length of Pair Chain](https://leetcode.com/problems/maximum-length-of-pair-chain/)** | Activity selection, sort by end | 646 |
+| **[Divide Intervals Into Minimum Number of Groups](https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups/)** | Meeting rooms on closed intervals: starts before ends on ties | 2406 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **The Skyline Problem** | Sweep edges + TreeMap of heights (or heap with lazy deletion) | 218 |
-| **Employee Free Time** | Merge all schedules, output gaps | 759 |
-| **Meeting Rooms III** | Heap of free room indices + heap of (end, room); `long` end times | 2402 |
-| **My Calendar III** | Sweep a TreeMap of counts, return max active | 732 |
-| **Minimum Interval to Include Each Query** | Sort queries and intervals, min-heap by size | 1851 |
-| **Data Stream as Disjoint Intervals** | TreeMap, merge with neighbors on insert | 352 |
-| **Range Module** | TreeMap of disjoint intervals, split and merge | 715 |
-| **Maximum Profit in Job Scheduling** | Weighted intervals: DP + binary search, not greedy | 1235 |
+| **[The Skyline Problem](https://leetcode.com/problems/the-skyline-problem/)** | Sweep edges + TreeMap of heights (or heap with lazy deletion) | 218 |
+| **[Employee Free Time](https://leetcode.com/problems/employee-free-time/)** (premium) | Merge all schedules, output gaps | 759 |
+| **[Meeting Rooms III](https://leetcode.com/problems/meeting-rooms-iii/)** | Heap of free room indices + heap of (end, room); `long` end times | 2402 |
+| **[My Calendar III](https://leetcode.com/problems/my-calendar-iii/)** | Sweep a TreeMap of counts, return max active | 732 |
+| **[Minimum Interval to Include Each Query](https://leetcode.com/problems/minimum-interval-to-include-each-query/)** | Sort queries and intervals, min-heap by size | 1851 |
+| **[Data Stream as Disjoint Intervals](https://leetcode.com/problems/data-stream-as-disjoint-intervals/)** | TreeMap, merge with neighbors on insert | 352 |
+| **[Range Module](https://leetcode.com/problems/range-module/)** | TreeMap of disjoint intervals, split and merge | 715 |
+| **[Maximum Profit in Job Scheduling](https://leetcode.com/problems/maximum-profit-in-job-scheduling/)** | Weighted intervals: DP + binary search, not greedy | 1235 |
 
 ---
 
@@ -515,31 +515,31 @@ For `a = 2^31 - 1` and `b = -1`, `a - b` overflows to a negative number, and the
 
 ### Week 1: Sorting Keys
 **Day 1-2:**
-- Solve 252, 56, 57.
+- Solve [252](https://leetcode.com/problems/meeting-rooms/) (premium), [56](https://leetcode.com/problems/merge-intervals/), [57](https://leetcode.com/problems/insert-interval/).
 - Focus on: the overlap test and the `<` versus `<=` choice for each problem.
 
 **Day 3-4:**
-- Solve 435, 452, 646.
+- Solve [435](https://leetcode.com/problems/non-overlapping-intervals/), [452](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/), [646](https://leetcode.com/problems/maximum-length-of-pair-chain/).
 - Focus on: why the sort key is end. Write the exchange argument in your own words.
 
 **Day 5:**
-- Solve 986 and 1288.
+- Solve [986](https://leetcode.com/problems/interval-list-intersections/) and [1288](https://leetcode.com/problems/remove-covered-intervals/).
 - Review the decision table in section 5.
 
 ### Week 2: Counting and Assigning
 **Day 1-2:**
-- Solve 253 twice: once with a heap, once with a sweep line.
-- Solve 2406 and note the reversed tie rule for closed intervals.
+- Solve [253](https://leetcode.com/problems/meeting-rooms-ii/) (premium) twice: once with a heap, once with a sweep line.
+- Solve [2406](https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups/) and note the reversed tie rule for closed intervals.
 
 **Day 3:**
-- Solve 1094 and 1109 with a difference array.
-- Then solve 1094 again with sorted events, as if coordinates were up to 10^9.
+- Solve [1094](https://leetcode.com/problems/car-pooling/) and [1109](https://leetcode.com/problems/corporate-flight-bookings/) with a difference array.
+- Then solve [1094](https://leetcode.com/problems/car-pooling/) again with sorted events, as if coordinates were up to 10^9.
 
 **Day 4:**
-- Solve 729 and 731 with a TreeMap.
+- Solve [729](https://leetcode.com/problems/my-calendar-i/) and [731](https://leetcode.com/problems/my-calendar-ii/) with a TreeMap.
 
 **Day 5:**
-- Solve 759 and 2402. Attempt 218.
+- Solve [759](https://leetcode.com/problems/employee-free-time/) (premium) and [2402](https://leetcode.com/problems/meeting-rooms-iii/). Attempt [218](https://leetcode.com/problems/the-skyline-problem/).
 
 ### Practice Methodology:
 1. **First 2 minutes:** Is each interval half-open or closed? Write it down.
@@ -630,9 +630,9 @@ last.end = max(last.end, iv.end)
 
 ## Commonly Confused With
 
-- **Greedy (Pattern 14):** activity selection (435, 452) is a greedy problem. Pattern 14 covers the general exchange argument. This pattern covers the interval-specific sort keys.
+- **Greedy (Pattern 14):** activity selection ([435](https://leetcode.com/problems/non-overlapping-intervals/), [452](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)) is a greedy problem. Pattern 14 covers the general exchange argument. This pattern covers the interval-specific sort keys.
 - **Heap (Pattern 16):** a heap appears in 253 and 2402, but the core step is sorting by start. Use Pattern 16 when the question is "k-th" or "top k" with no overlap structure.
-- **Prefix Sum / Difference Array (Pattern 04):** car pooling (1094) is a difference array. Choose it over an event sweep only when coordinates are small.
+- **Prefix Sum / Difference Array (Pattern 04):** car pooling ([1094](https://leetcode.com/problems/car-pooling/)) is a difference array. Choose it over an event sweep only when coordinates are small.
 - **Weighted intervals:** 1235 looks like 435 but has profits. Greedy fails. Use DP with binary search.
 
 For a side-by-side guide across all patterns, see [How to Choose a Pattern](../how-to-choose-a-pattern.md).

@@ -574,6 +574,24 @@ The entry stays in the map under its old hash, so `get` with the changed key loo
 - Use an array when keys are small integers. Use `merge(k, 1, Integer::sum)` to count.
 - Patterns: [hashing and frequency maps](../05-hashing-frequency/README.md), [prefix sum](../04-prefix-sum/README.md).
 
+## Practice Problems
+
+Solve these problems after you read this page. Each problem practices an operation from this page. The list runs from easier to harder. Difficulties come from the LeetCode problem list (`https://leetcode.com/api/problems/all/`), saved on 2026-10-21.
+
+| LC # | Title | Difficulty | What it practices |
+|---|---|---|---|
+| 1 | [Two Sum](https://leetcode.com/problems/two-sum/) | Easy | A map from value to index, in one pass |
+| 217 | [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/) | Easy | Membership tests in a `HashSet` |
+| 242 | [Valid Anagram](https://leetcode.com/problems/valid-anagram/) | Easy | A count array or a count map |
+| 205 | [Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/) | Easy | Two maps keep the mapping one-to-one in both directions |
+| 706 | [Design HashMap](https://leetcode.com/problems/design-hashmap/) | Easy | A bucket array with separate chaining (see "Separate chaining") |
+| 705 | [Design HashSet](https://leetcode.com/problems/design-hashset/) | Easy | The same structure as Design HashMap, without values |
+| 49 | [Group Anagrams](https://leetcode.com/problems/group-anagrams/) | Medium | A canonical form of each string as the map key |
+| 128 | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) | Medium | Set lookups. Start counting only at the first number of a sequence |
+| 560 | [Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/) | Medium | A map of prefix-sum counts ([Pattern 04](../04-prefix-sum/README.md)) |
+| 380 | [Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/) | Medium | A map from value to array index, plus swap-with-last on delete |
+| 146 | [LRU Cache](https://leetcode.com/problems/lru-cache/) | Medium | A hash map plus a doubly linked list |
+
 ## Further Reading
 
 - [`Object.hashCode` javadoc (JDK 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()): the three-rule contract.

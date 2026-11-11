@@ -57,7 +57,7 @@ Naive matching compares the pattern with the text at every start position. When 
 
 - **Many patterns at once** (a dictionary of words): use a trie, or Aho-Corasick (a trie plus KMP-style failure links). See pattern [17](../17-trie/README.md).
 - **Edit distance, longest common subsequence, "subsequence" in the statement**: these are dynamic programming, pattern [15](../15-dynamic-programming/README.md). Matching algorithms handle *contiguous* substrings only.
-- **Anagrams or permutations of the pattern** (LC 438, 567): a fixed-size window with a frequency count, pattern [1](../01-sliding-window/README.md).
+- **Anagrams or permutations of the pattern** ([LC 438](https://leetcode.com/problems/find-all-anagrams-in-a-string/), [567](https://leetcode.com/problems/permutation-in-string/)): a fixed-size window with a frequency count, pattern [1](../01-sliding-window/README.md).
 - **"Does `pattern` occur?" with a short pattern and a short text**: `String.indexOf` is enough (Section 4).
 - **Regex or wildcard matching** (`?`, `*`): dynamic programming or backtracking, not these algorithms.
 
@@ -130,7 +130,7 @@ What this code does:
 | Comparing many substrings of one string | Rolling hash with prefix hashes |
 | Longest repeated substring, binary search on length | Rolling hash (this page), or a suffix array |
 
-**Recommendation:** in an interview, if the problem is "implement `strStr`" (LC 28), the interviewer wants KMP or Rabin-Karp. If the problem only uses substring search as a step (LC 796), calling `contains` is fine, and you should state the complexity honestly.
+**Recommendation:** in an interview, if the problem is "implement `strStr`" ([LC 28](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)), the interviewer wants KMP or Rabin-Karp. If the problem only uses substring search as a step ([LC 796](https://leetcode.com/problems/rotate-string/)), calling `contains` is fine, and you should state the complexity honestly.
 
 ---
 
@@ -196,7 +196,7 @@ H(l+1, r+1) = (H(l, r) - s[l] * B^(L-1)) * B + s[r]   (mod M)
 - Equal strings have equal hashes, always. So a hash mismatch proves the strings differ.
 - A hash match does **not** prove equality. Two different strings can collide.
 - **Collision bound.** Fix two different strings of length at most `L`. Choose `B` uniformly at random in `[0, M)` with `M` prime. The difference of the two hashes is a polynomial in `B` of degree at most `L - 1`, not identically zero. It has at most `L - 1` roots modulo `M`. So the collision probability is at most `(L - 1) / M`. This holds for one pair. With a fixed base, an adversary who knows the base can build colliding strings.
-- **Birthday effect.** If you store `N` hashes in a set and `M ≈ 10^9`, the expected number of colliding pairs is about `N² / (2M)`. For `N = 30,000` (the size of the input of LC 1044), that is about `0.45` pairs, so a single-modulus set without verification fails on a noticeable share of inputs. This is why the templates verify or use two moduli.
+- **Birthday effect.** If you store `N` hashes in a set and `M ≈ 10^9`, the expected number of colliding pairs is about `N² / (2M)`. For `N = 30,000` (the size of the input of [LC 1044](https://leetcode.com/problems/longest-duplicate-substring/)), that is about `0.45` pairs, so a single-modulus set without verification fails on a noticeable share of inputs. This is why the templates verify or use two moduli.
 - **Two kinds of Rabin-Karp.** *Verify on match* (Las Vegas): after a hash match, compare the strings character by character. The answer is always correct. Only the running time can degrade, and the expected extra cost is small. *Trust the hash* (Monte Carlo): skip the comparison and accept a small error probability. Use this only when the hash is wide enough (two moduli), and say so out loud in an interview.
 - **Do not use natural `long` overflow as the modulus.** Arithmetic modulo `2^64` breaks in two ways. For an *odd* base, the Thue-Morse strings of length 1024 collide (Section 6, Template 8 gives the proof and a run). For an *even* base, `B^64 ≡ 0 (mod 2^64)`, so the hash ignores every character except the last 64, and any two strings that share their last 64 characters collide.
 
@@ -263,7 +263,7 @@ static List<Integer> kmpSearch(String text, String pattern) {
 ```
 
 - **Time:** O(n + m). **Space:** O(m) for `pi`, plus the result list.
-- The empty pattern returns an empty list here. LC 28 defines it as index 0, so handle it before the call if the problem allows it.
+- The empty pattern returns an empty list here. [LC 28](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/) defines it as index 0, so handle it before the call if the problem allows it.
 - `k == m` in the loop condition handles overlapping matches. Without it, `pattern.charAt(k)` reads past the end.
 
 ### Template 2: Borders and Periods From the Prefix Function
@@ -300,7 +300,7 @@ static int smallestPeriod(String s) {
 ```
 
 - **Why `n - pi[n - 1]`.** A border of length `b` means `s[i] = s[i + (n - b)]` for all valid `i`, so the string has a "period" `n - b` in the loose sense. The shortest such loose period uses the longest border. The string is an exact repetition only if that period divides `n`.
-- LC 459 returns `smallestPeriod(s) < s.length()`.
+- [LC 459](https://leetcode.com/problems/repeated-substring-pattern/) returns `smallestPeriod(s) < s.length()`.
 
 ### Template 3: Z-Function and Z Search
 
@@ -433,7 +433,7 @@ class PrefixHash {
 
 - **Build:** O(n) time and space. **Query:** O(1).
 - The formula is `H(l, r) = h[r] - h[l] * B^(r - l)`. Prefix `h[l]` carries `B^(r - l)` extra weight in `h[r]`, and the subtraction removes it.
-- Use this class when the problem compares many substrings at arbitrary positions (LC 1923, LC 1044 with arbitrary comparisons, palindrome checks with a forward and a reverse hash).
+- Use this class when the problem compares many substrings at arbitrary positions ([LC 1923](https://leetcode.com/problems/longest-common-subpath/), [LC 1044](https://leetcode.com/problems/longest-duplicate-substring/) with arbitrary comparisons, palindrome checks with a forward and a reverse hash).
 
 ### Template 6: Manacher and Longest Palindromic Substring
 
@@ -484,9 +484,9 @@ static String longestPalindrome(String s) {
 ```
 
 - **Time:** O(n). **Space:** O(n).
-- **Count of palindromic substrings (LC 647):** `sum(d1[i] + d2[i])`. Each `d1[i]` value counts the odd palindromes centred at `i`, and each `d2[i]` value counts the even ones. The tests above checked this sum against brute force.
+- **Count of palindromic substrings ([LC 647](https://leetcode.com/problems/palindromic-substrings/)):** `sum(d1[i] + d2[i])`. Each `d1[i]` value counts the odd palindromes centred at `i`, and each `d2[i]` value counts the even ones. The tests above checked this sum against brute force.
 - **The alternative with a separator:** insert `#` between all characters (`abc` becomes `#a#b#c#`), then one array handles both parities. The `d1`/`d2` form avoids a second string and the question of whether `#` occurs in the input.
-- **Expand-around-centre** (the O(n²) method) is the usual first answer to LC 5. It is accepted for `n ≤ 1000`. Manacher is the answer to the follow-up "can you do it in linear time?".
+- **Expand-around-centre** (the O(n²) method) is the usual first answer to [LC 5](https://leetcode.com/problems/longest-palindromic-substring/). It is accepted for `n ≤ 1000`. Manacher is the answer to the follow-up "can you do it in linear time?".
 
 ### Template 7: Longest Duplicate Substring (Hash and Binary Search)
 
@@ -624,7 +624,7 @@ static String shortestPalindrome(String s) {
 }
 ```
 
-**Complexity:** O(n) time and space. The character `#` must not occur in `s`. For LC 214 the input has lowercase letters only.
+**Complexity:** O(n) time and space. The character `#` must not occur in `s`. For [LC 214](https://leetcode.com/problems/shortest-palindrome/) the input has lowercase letters only.
 
 ### Variation B: Longest Happy Prefix (LC 1392)
 
@@ -632,8 +632,8 @@ The answer is `s.substring(0, pi[n - 1])`. This is Template 2.
 
 ### Variation C: Repeated Substring Pattern (LC 459) and Rotate String (LC 796)
 
-- LC 459: `(s + s).indexOf(s, 1) != s.length()`. If `s` is made of repeats, `s` also occurs inside `s + s` at an offset smaller than `n`. The KMP form is `smallestPeriod(s) < s.length()` (Template 2), which has a linear worst-case guarantee.
-- LC 796: `s.length() == goal.length() && (s + s).contains(goal)`. Every rotation of `s` is a substring of `s + s`, and the length check removes false matches.
+- [LC 459](https://leetcode.com/problems/repeated-substring-pattern/): `(s + s).indexOf(s, 1) != s.length()`. If `s` is made of repeats, `s` also occurs inside `s + s` at an offset smaller than `n`. The KMP form is `smallestPeriod(s) < s.length()` (Template 2), which has a linear worst-case guarantee.
+- [LC 796](https://leetcode.com/problems/rotate-string/): `s.length() == goal.length() && (s + s).contains(goal)`. Every rotation of `s` is a substring of `s + s`, and the length check removes false matches.
 
 ### Variation D: Repeated String Match (LC 686)
 
@@ -677,18 +677,18 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 
 | # | Problem | Difficulty | Key insight |
 |---|---------|-----------|-------------|
-| 28 | Find the Index of the First Occurrence in a String | Easy | `indexOf` solves it, but interviewers expect KMP (Template 1) or Rabin-Karp (Template 4). Handle the empty needle |
-| 459 | Repeated Substring Pattern | Easy | `n - pi[n - 1]` divides `n` (Template 2), or `(s + s).indexOf(s, 1) < n` |
-| 796 | Rotate String | Easy | `goal` is a rotation of `s` if the lengths are equal and `goal` occurs in `s + s` |
-| 686 | Repeated String Match | Medium | Try `ceil(|b| / |a|)` copies and one more. Use KMP for a guaranteed bound |
-| 5 | Longest Palindromic Substring | Medium | Expand around each centre in O(n²), or Manacher in O(n) (Template 6) |
-| 647 | Palindromic Substrings | Medium | Count = `sum(d1) + sum(d2)` from Manacher. Expand-around-centre is O(n²) |
-| 187 | Repeated DNA Sequences | Medium | Fixed 10-letter window, 2 bits per letter, `HashSet` of codes |
-| 1392 | Longest Happy Prefix | Hard | The answer is `pi[n - 1]`. A hash comparison of prefix and suffix at each length also works (Template 5) |
-| 214 | Shortest Palindrome | Hard | Prefix function of `s + "#" + reverse(s)` (Variation A) |
-| 1044 | Longest Duplicate Substring | Hard | Binary search on the length, rolling hash per length, verify matches (Template 7) |
-| 2156 | Find Substring With Given Hash Value | Hard | Rolling hash from the right end. The powers run in the opposite direction (Variation F) |
-| 1923 | Longest Common Subpath | Hard | Binary search on length. Intersect window-hash sets across paths (Variation G) |
+| 28 | [Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/) | Easy | `indexOf` solves it, but interviewers expect KMP (Template 1) or Rabin-Karp (Template 4). Handle the empty needle |
+| 459 | [Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/) | Easy | `n - pi[n - 1]` divides `n` (Template 2), or `(s + s).indexOf(s, 1) < n` |
+| 796 | [Rotate String](https://leetcode.com/problems/rotate-string/) | Easy | `goal` is a rotation of `s` if the lengths are equal and `goal` occurs in `s + s` |
+| 686 | [Repeated String Match](https://leetcode.com/problems/repeated-string-match/) | Medium | Try `ceil(|b| / |a|)` copies and one more. Use KMP for a guaranteed bound |
+| 5 | [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/) | Medium | Expand around each centre in O(n²), or Manacher in O(n) (Template 6) |
+| 647 | [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/) | Medium | Count = `sum(d1) + sum(d2)` from Manacher. Expand-around-centre is O(n²) |
+| 187 | [Repeated DNA Sequences](https://leetcode.com/problems/repeated-dna-sequences/) | Medium | Fixed 10-letter window, 2 bits per letter, `HashSet` of codes |
+| 1392 | [Longest Happy Prefix](https://leetcode.com/problems/longest-happy-prefix/) | Hard | The answer is `pi[n - 1]`. A hash comparison of prefix and suffix at each length also works (Template 5) |
+| 214 | [Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/) | Hard | Prefix function of `s + "#" + reverse(s)` (Variation A) |
+| 1044 | [Longest Duplicate Substring](https://leetcode.com/problems/longest-duplicate-substring/) | Hard | Binary search on the length, rolling hash per length, verify matches (Template 7) |
+| 2156 | [Find Substring With Given Hash Value](https://leetcode.com/problems/find-substring-with-given-hash-value/) | Hard | Rolling hash from the right end. The powers run in the opposite direction (Variation F) |
+| 1923 | [Longest Common Subpath](https://leetcode.com/problems/longest-common-subpath/) | Hard | Binary search on length. Intersect window-hash sets across paths (Variation G) |
 
 ### Walkthrough: LeetCode 1044, Longest Duplicate Substring
 
@@ -704,24 +704,24 @@ Difficulties come from the LeetCode problem list (`https://leetcode.com/api/prob
 ## 9. How to Practice This Pattern Effectively
 
 ### Phase 1: Matching (3 problems)
-- LC 28 with KMP, then again with Z, then again with Rabin-Karp. Write each from memory.
-- LC 459 and LC 796 with both `indexOf` and the prefix function.
+- [LC 28](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/) with KMP, then again with Z, then again with Rabin-Karp. Write each from memory.
+- [LC 459](https://leetcode.com/problems/repeated-substring-pattern/) and [LC 796](https://leetcode.com/problems/rotate-string/) with both `indexOf` and the prefix function.
 - Goal: derive the fallback `k = pi[k - 1]` and state why the total work is O(n).
 
 ### Phase 2: Palindromes (3 problems)
-- LC 5 with expand-around-centre, then with Manacher.
-- LC 647 with the Manacher arrays.
-- LC 214 with the prefix function.
+- [LC 5](https://leetcode.com/problems/longest-palindromic-substring/) with expand-around-centre, then with Manacher.
+- [LC 647](https://leetcode.com/problems/palindromic-substrings/) with the Manacher arrays.
+- [LC 214](https://leetcode.com/problems/shortest-palindrome/) with the prefix function.
 - Goal: explain why the mirror value is a lower bound and why `r` only moves right.
 
 ### Phase 3: Hashing (3 problems)
-- LC 187 (exact hash, no collisions).
-- LC 1044 (binary search plus rolling hash with verification).
-- LC 2156 (a hash with a given formula).
+- [LC 187](https://leetcode.com/problems/repeated-dna-sequences/) (exact hash, no collisions).
+- [LC 1044](https://leetcode.com/problems/longest-duplicate-substring/) (binary search plus rolling hash with verification).
+- [LC 2156](https://leetcode.com/problems/find-substring-with-given-hash-value/) (a hash with a given formula).
 - Goal: write the `floorMod` slide update without a bug, and state the collision handling.
 
 ### Phase 4: Hard variants (3 problems)
-- LC 1392, LC 686, LC 1923.
+- [LC 1392](https://leetcode.com/problems/longest-happy-prefix/), [LC 686](https://leetcode.com/problems/repeated-string-match/), [LC 1923](https://leetcode.com/problems/longest-common-subpath/).
 
 ### Self-Check Questions
 - Can I compute the prefix function of `"abacabab"` by hand?
@@ -792,9 +792,9 @@ Java `char` is a UTF-16 code unit. A supplementary character is two `char` value
 | Find a pattern in a text | `String.indexOf` | Is the input small or random, and is a linear worst case not required? Use `indexOf`. Is a guaranteed bound required, or are repeated characters likely in the tests? Use KMP or Z |
 | KMP | Z-function | Do you need borders and periods directly? Use the prefix function. Do you need "how far does each suffix match the prefix"? Use Z |
 | Search a dictionary of words | Trie, pattern [17](../17-trie/README.md) | Is there more than one pattern? Use a trie (or Aho-Corasick). One pattern: this page |
-| Anagram or permutation search (LC 438, 567) | Sliding window, pattern [1](../01-sliding-window/README.md) | Does order matter? If the order may change, it is a frequency window. If order is fixed, it is matching |
-| Longest palindromic *subsequence* (LC 516) | Dynamic programming, pattern [15](../15-dynamic-programming/README.md) | Must the characters be contiguous? Substring: Manacher. Subsequence: DP |
-| Longest common substring of two strings | Binary search plus hash, or DP | Is `n` up to `10^5`? Use hash plus binary search (like LC 1044). Is `n` up to a few thousand? A DP table is simpler (LC 718) |
+| Anagram or permutation search ([LC 438](https://leetcode.com/problems/find-all-anagrams-in-a-string/), [567](https://leetcode.com/problems/permutation-in-string/)) | Sliding window, pattern [1](../01-sliding-window/README.md) | Does order matter? If the order may change, it is a frequency window. If order is fixed, it is matching |
+| Longest palindromic *subsequence* ([LC 516](https://leetcode.com/problems/longest-palindromic-subsequence/)) | Dynamic programming, pattern [15](../15-dynamic-programming/README.md) | Must the characters be contiguous? Substring: Manacher. Subsequence: DP |
+| Longest common substring of two strings | Binary search plus hash, or DP | Is `n` up to `10^5`? Use hash plus binary search (like [LC 1044](https://leetcode.com/problems/longest-duplicate-substring/)). Is `n` up to a few thousand? A DP table is simpler ([LC 718](https://leetcode.com/problems/maximum-length-of-repeated-subarray/)) |
 | Count equal substrings or compare many substrings | Prefix hashes (Template 5) | Is each comparison between arbitrary positions? Use prefix hashes. Is it between consecutive windows? Use a rolling hash |
 | Distinct substrings count | Suffix array or suffix automaton | Does the problem count *all* distinct substrings of a long string? Hash and KMP are not enough. A suffix array with an LCP array is the standard tool. For a short string (a few hundred characters), a `HashSet<String>` of all substrings is enough |
 

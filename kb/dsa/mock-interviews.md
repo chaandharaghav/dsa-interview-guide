@@ -18,7 +18,7 @@ Practice these timed sessions to simulate real interviews.
 **Target:** Warm up, build confidence
 
 ### Problem 1 (20 min): Two Sum II - Sorted Array
-**Difficulty:** Medium | **Pattern:** Two Pointers
+**Difficulty:** Medium | **Pattern:** Two Pointers | **LeetCode:** [LC 167: Two Sum II - Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 Given a **sorted** array and a target sum, find indices of two numbers that add up to target.
 ```
@@ -39,7 +39,7 @@ Start pointers at both ends. If sum < target, move left up. If sum > target, mov
 ---
 
 ### Problem 2 (25 min): Longest Substring Without Repeating Characters
-**Difficulty:** Medium | **Pattern:** Sliding Window
+**Difficulty:** Medium | **Pattern:** Sliding Window | **LeetCode:** [LC 3: Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 Find the length of the longest substring without repeating characters.
 ```
@@ -64,7 +64,7 @@ When you find a duplicate, shrink window from left until no duplicate.
 **Target:** Practice tree recursion and DFS/BFS
 
 ### Problem 1 (20 min): Validate Binary Search Tree
-**Difficulty:** Medium | **Pattern:** Tree DFS
+**Difficulty:** Medium | **Pattern:** Tree DFS | **LeetCode:** [LC 98: Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 Given a binary tree, determine if it is a valid BST.
 
@@ -81,7 +81,7 @@ Pass min and max bounds down the recursion.
 ---
 
 ### Problem 2 (25 min): Binary Tree Level Order Traversal
-**Difficulty:** Medium | **Pattern:** Tree BFS
+**Difficulty:** Medium | **Pattern:** Tree BFS | **LeetCode:** [LC 102: Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 Return level order traversal as a list of lists.
 ```
@@ -106,7 +106,7 @@ Track level size at the start of each level to know when level ends.
 **Target:** Graph traversal mastery
 
 ### Problem 1 (20 min): Number of Islands
-**Difficulty:** Medium | **Pattern:** Graph DFS/BFS
+**Difficulty:** Medium | **Pattern:** Graph DFS/BFS | **LeetCode:** [LC 200: Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 Given a 2D grid, count the number of islands (connected 1s).
 ```
@@ -128,7 +128,7 @@ DFS/BFS from each unvisited '1', marking all connected '1's as visited.
 ---
 
 ### Problem 2 (25 min): Course Schedule
-**Difficulty:** Medium | **Pattern:** Topological Sort / Cycle Detection
+**Difficulty:** Medium | **Pattern:** Topological Sort / Cycle Detection | **LeetCode:** [LC 207: Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 Can you finish all courses given prerequisites?
 ```
@@ -153,7 +153,7 @@ Use topological sort (Kahn's algorithm) or DFS with cycle detection.
 **Target:** Dynamic Programming pattern recognition
 
 ### Problem 1 (25 min): House Robber
-**Difficulty:** Medium | **Pattern:** 1D DP
+**Difficulty:** Medium | **Pattern:** 1D DP | **LeetCode:** [LC 198: House Robber](https://leetcode.com/problems/house-robber/)
 
 Rob houses without robbing adjacent ones. Maximize money.
 ```
@@ -174,7 +174,7 @@ dp[i] = max(dp[i-1], dp[i-2] + nums[i])
 ---
 
 ### Problem 2 (35 min): Coin Change
-**Difficulty:** Medium | **Pattern:** Unbounded Knapsack
+**Difficulty:** Medium | **Pattern:** Unbounded Knapsack | **LeetCode:** [LC 322: Coin Change](https://leetcode.com/problems/coin-change/)
 
 Find minimum coins to make amount.
 ```
@@ -199,7 +199,7 @@ For each amount, try all coins: dp[a] = min(dp[a], dp[a-coin] + 1)
 **Target:** Interview-level difficulty
 
 ### Problem 1 (30 min): Merge k Sorted Lists
-**Difficulty:** Hard | **Pattern:** Heap / Divide & Conquer
+**Difficulty:** Hard | **Pattern:** Heap / Divide & Conquer | **LeetCode:** [LC 23: Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 Merge k sorted linked lists into one sorted list.
 
@@ -216,7 +216,7 @@ Alternative: Divide and conquer - merge pairs, halve the problem.
 ---
 
 ### Problem 2 (30 min): Word Ladder
-**Difficulty:** Hard | **Pattern:** BFS
+**Difficulty:** Hard | **Pattern:** BFS | **LeetCode:** [LC 127: Word Ladder](https://leetcode.com/problems/word-ladder/)
 
 Transform beginWord to endWord by changing one letter at a time. Find shortest transformation length.
 ```
@@ -241,6 +241,8 @@ Use pattern matching: "hot" matches "*ot", "h*t", "ho*". Build adjacency via pat
 **Target:** Speed under pressure
 
 ### Problem 1 (20 min): Valid Palindrome
+**Difficulty:** Easy | **LeetCode:** [LC 125: Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
+
 Given a string, determine if it is a palindrome considering only alphanumeric characters.
 ```
 Input: s = "A man, a plan, a canal: Panama"
@@ -250,6 +252,8 @@ Output: true
 ---
 
 ### Problem 2 (20 min): Add Strings
+**Difficulty:** Easy | **LeetCode:** [LC 415: Add Strings](https://leetcode.com/problems/add-strings/)
+
 Given two non-negative integers represented as strings, return their sum as a string.
 ```
 Input: num1 = "456", num2 = "77"

@@ -179,7 +179,7 @@ function singleNumber(nums):
 
 **Why it works:** XOR is commutative and associative. Every pair of duplicates produces 0. The lone survivor XORs with 0 and remains itself.
 
-**Extension — Two Singles (LC 260):**
+**Extension — Two Singles ([LC 260](https://leetcode.com/problems/single-number-iii/)):**
 ```
 // Problem: Exactly two numbers appear once; all others appear twice.
 
@@ -421,7 +421,7 @@ More DP forms (digit DP, tree DP, rerooting) are in [Pattern 27](../27-advanced-
 **Problem Type:** Assign n tasks to n workers optimally; find minimum cost Hamiltonian path.  
 **Key Insight:** `dp[mask][i]` = minimum cost to complete exactly the tasks in `mask`, ending on task i.  
 **Transition:** `dp[mask | (1<<j)][j] = min(..., dp[mask][i] + cost[i][j])` for each unvisited j.  
-**LC:** 1986 Minimum Number of Work Sessions to Finish the Tasks, 1879 Minimum XOR Sum of Two Arrays
+**LC:** [1986 Minimum Number of Work Sessions to Finish the Tasks](https://leetcode.com/problems/minimum-number-of-work-sessions-to-finish-the-tasks/), [1879 Minimum XOR Sum of Two Arrays](https://leetcode.com/problems/minimum-xor-sum-of-two-arrays/)
 
 ### Variation F: XOR Swap
 **Problem Type:** Swap two variables without a temporary variable (interview trivia).  
@@ -435,31 +435,31 @@ More DP forms (digit DP, tree DP, rerooting) are in [Pattern 27](../27-advanced-
 ### EASY (Warm-up)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Single Number** | XOR all — pairs cancel, survivor remains | 136 |
-| **Number of 1 Bits** | Brian Kernighan: n = n & (n-1) each step | 191 |
-| **Power of Two** | n > 0 AND (n & (n-1)) == 0 | 231 |
-| **Reverse Bits** | Extract LSB 32 times, shift into result | 190 |
-| **Missing Number** | XOR indices 0..n with array values | 268 |
-| **Counting Bits** | dp[i] = dp[i >> 1] + (i & 1) | 338 |
+| **[Single Number](https://leetcode.com/problems/single-number/)** | XOR all — pairs cancel, survivor remains | 136 |
+| **[Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/)** | Brian Kernighan: n = n & (n-1) each step | 191 |
+| **[Power of Two](https://leetcode.com/problems/power-of-two/)** | n > 0 AND (n & (n-1)) == 0 | 231 |
+| **[Reverse Bits](https://leetcode.com/problems/reverse-bits/)** | Extract LSB 32 times, shift into result | 190 |
+| **[Missing Number](https://leetcode.com/problems/missing-number/)** | XOR indices 0..n with array values | 268 |
+| **[Counting Bits](https://leetcode.com/problems/counting-bits/)** | dp[i] = dp[i >> 1] + (i & 1) | 338 |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Single Number II** | Count bits mod 3; bit that appears once survives | 137 |
-| **Single Number III** | XOR all, partition by differing bit | 260 |
-| **Subsets** | Iterate mask from 0 to 2^n - 1 | 78 |
-| **XOR Queries of a Subarray** | Prefix XOR + range formula | 1310 |
-| **Count Triplets That Form Two Equal XOR** | Prefix XOR; any split of equal halves works | 1442 |
-| **Iterator for Combination** | Bitmask enumeration with carry | 1286 |
-| **Minimum Flips to Make OR Equal** | Inspect each bit independently | 1318 |
-| **Maximum XOR of Two Numbers in Array** | Greedy bit trie, or bit-by-bit prefix hash set | 421 |
+| **[Single Number II](https://leetcode.com/problems/single-number-ii/)** | Count bits mod 3; bit that appears once survives | 137 |
+| **[Single Number III](https://leetcode.com/problems/single-number-iii/)** | XOR all, partition by differing bit | 260 |
+| **[Subsets](https://leetcode.com/problems/subsets/)** | Iterate mask from 0 to 2^n - 1 | 78 |
+| **[XOR Queries of a Subarray](https://leetcode.com/problems/xor-queries-of-a-subarray/)** | Prefix XOR + range formula | 1310 |
+| **[Count Triplets That Form Two Equal XOR](https://leetcode.com/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/)** | Prefix XOR; any split of equal halves works | 1442 |
+| **[Iterator for Combination](https://leetcode.com/problems/iterator-for-combination/)** | Bitmask enumeration with carry | 1286 |
+| **[Minimum Flips to Make OR Equal](https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/)** | Inspect each bit independently | 1318 |
+| **[Maximum XOR of Two Numbers in Array](https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/)** | Greedy bit trie, or bit-by-bit prefix hash set | 421 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Shortest Path Visiting All Nodes** | BFS + bitmask DP; state = (node, visitedMask) | 847 |
-| **Minimum Number of Flips to Convert Binary Matrix** | BFS over board states encoded as a bitmask (m, n ≤ 3) | 1284 |
-| **Number of Ways to Wear Different Hats** | Bitmask DP; dp[mask] = ways to assign hats | 1434 |
+| **[Shortest Path Visiting All Nodes](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)** | BFS + bitmask DP; state = (node, visitedMask) | 847 |
+| **[Minimum Number of Flips to Convert Binary Matrix](https://leetcode.com/problems/minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix/)** | BFS over board states encoded as a bitmask (m, n ≤ 3) | 1284 |
+| **[Number of Ways to Wear Different Hats](https://leetcode.com/problems/number-of-ways-to-wear-different-hats-to-each-other/)** | Bitmask DP; dp[mask] = ways to assign hats | 1434 |
 
 ---
 
@@ -467,36 +467,36 @@ More DP forms (digit DP, tree DP, rerooting) are in [Pattern 27](../27-advanced-
 
 ### Week 1: Single-Number Tricks and Bit Facts
 **Day 1:**
-- Solve LC 136 (Single Number) — pure XOR, one line
-- Solve LC 191 (Number of 1 Bits) — write both naive and Kernighan versions
+- Solve [LC 136](https://leetcode.com/problems/single-number/) (Single Number) — pure XOR, one line
+- Solve [LC 191](https://leetcode.com/problems/number-of-1-bits/) (Number of 1 Bits) — write both naive and Kernighan versions
 - Manually trace through several small examples to internalize `a ^ a = 0`
 
 **Day 2:**
-- Solve LC 231 (Power of Two) — practice adding the `n > 0` guard
-- Solve LC 268 (Missing Number) — apply XOR with index trick
+- Solve [LC 231](https://leetcode.com/problems/power-of-two/) (Power of Two) — practice adding the `n > 0` guard
+- Solve [LC 268](https://leetcode.com/problems/missing-number/) (Missing Number) — apply XOR with index trick
 - Write out the XOR range formula from memory and verify with n = 4..7
 
 **Day 3:**
-- Solve LC 190 (Reverse Bits) and LC 338 (Counting Bits)
-- For LC 338: code both the naive version and the dp[i >> 1] version
+- Solve [LC 190](https://leetcode.com/problems/reverse-bits/) (Reverse Bits) and [LC 338](https://leetcode.com/problems/counting-bits/) (Counting Bits)
+- For [LC 338](https://leetcode.com/problems/counting-bits/): code both the naive version and the dp[i >> 1] version
 - Compare run times mentally
 
 **Day 4-5:**
-- Solve LC 260 (Single Number III) — the two-group partition is the key step
-- Solve LC 1310 (XOR Queries) — practice building prefix XOR array
+- Solve [LC 260](https://leetcode.com/problems/single-number-iii/) (Single Number III) — the two-group partition is the key step
+- Solve [LC 1310](https://leetcode.com/problems/xor-queries-of-a-subarray/) (XOR Queries) — practice building prefix XOR array
 - Review: can you write all 8 templates from memory in 5 minutes?
 
 ### Week 2: Bitmask and Advanced
 **Day 1-2:**
-- Solve LC 78 (Subsets) — code the bitmask enumeration template explicitly
-- Solve LC 1442 (Count Triplets) — prefix XOR in a counting context
+- Solve [LC 78](https://leetcode.com/problems/subsets/) (Subsets) — code the bitmask enumeration template explicitly
+- Solve [LC 1442](https://leetcode.com/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/) (Count Triplets) — prefix XOR in a counting context
 
 **Day 3-4:**
-- Solve LC 847 (Shortest Path Visiting All Nodes) — the BFS + bitmask state is hard; trace through a 3-node example by hand first
-- Solve LC 421 (Maximum XOR) — introduces trie-based greedy bit choice
+- Solve [LC 847](https://leetcode.com/problems/shortest-path-visiting-all-nodes/) (Shortest Path Visiting All Nodes) — the BFS + bitmask state is hard; trace through a 3-node example by hand first
+- Solve [LC 421](https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/) (Maximum XOR) — introduces trie-based greedy bit choice
 
 **Day 5:**
-- Attempt LC 1879 or LC 1434 — full bitmask DP with transitions
+- Attempt [LC 1879](https://leetcode.com/problems/minimum-xor-sum-of-two-arrays/) or [LC 1434](https://leetcode.com/problems/number-of-ways-to-wear-different-hats-to-each-other/) — full bitmask DP with transitions
 - If stuck: write the state definition first (`dp[mask] = ...`), then the transition, then the base case
 
 ### Practice Methodology:
@@ -600,7 +600,7 @@ while n != 0:
 // CORRECT: Use unsigned shift, or work with positive values / unsigned types
 n = n >>> 1       // Java unsigned right shift
 ```
-This matters for LC 190 (Reverse Bits) and any bit problem where the input could be negative. Always clarify whether inputs are signed and use the appropriate shift operator.
+This matters for [LC 190](https://leetcode.com/problems/reverse-bits/) (Reverse Bits) and any bit problem where the input could be negative. Always clarify whether inputs are signed and use the appropriate shift operator.
 
 ---
 

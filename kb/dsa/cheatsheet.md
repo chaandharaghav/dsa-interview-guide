@@ -73,30 +73,30 @@ Print this and keep it handy during practice sessions.
 
 | Trigger | Trick | Example LC # |
 |---------|-------|-------------|
-| Every number appears twice except one | XOR all elements | 136 |
-| Is n a power of 2? | `n > 0 && (n & (n-1)) == 0` | 231 |
-| Count 1-bits in integer | Brian Kernighan: `n &= (n-1)` in loop | 191 |
-| Subarray XOR = k, count | Prefix XOR + hashmap (like prefix sum) | 1310 |
-| Subarray sum = k, count | Prefix sum + hashmap | 560 |
-| Exactly k distinct, count subarrays | atMost(k) − atMost(k−1) | 992 |
-| Find two numbers summing to target | Hashmap: check `target - x` | 1 |
-| Every number appears twice except TWO | XOR all → find differing bit → partition | 260 |
-| Majority element, O(1) space | Boyer-Moore: candidate + cancel-out count | 169 |
-| Sort 0/1/2 in-place, O(n) | Dutch National Flag: lo/mid/hi pointers | 75 |
-| Water trapped between bars | Two-pass: maxLeft[i] and maxRight[i] precomputed | 42 |
-| Product except self, no division | Two-pass: prefix products × suffix products | 238 |
-| Both left AND right neighbor rule | Two-sweep (left→right then right→left) | 135 |
-| Operations may delete/change head node | Dummy sentinel node before head | 19 |
-| Max of every window of size k | Monotonic deque (front = window max) | 239 |
-| Cycle entry in linked list | Floyd two-phase: meet → reset one to head | 142 |
-| Nearest source from multiple start points | Multi-source BFS: add all sources at t=0 | 994 |
-| Longest path in binary tree | DFS: left_h + right_h at each node | 543 |
-| 0 or 1 edge weights, shortest path | 0-1 BFS via deque (0→front, 1→back) | 1368 |
-| 0/1 knapsack, reduce 2D DP to 1D | Reverse inner loop (high→low capacity) | 416 |
-| Optimal range split (burst, chain mult) | Interval DP: fill by increasing length | 312 |
-| GCD / divisibility / step sync | Euclidean GCD: `gcd(a,b) = gcd(b, a%b)` | 1071 |
-| Large exponent mod m | Binary exponentiation (square and halve) | 50 |
-| n+1 items in [1..n], duplicate exists | Pigeonhole — guaranteed, no search needed | 287 |
+| Every number appears twice except one | XOR all elements | [136](https://leetcode.com/problems/single-number/) |
+| Is n a power of 2? | `n > 0 && (n & (n-1)) == 0` | [231](https://leetcode.com/problems/power-of-two/) |
+| Count 1-bits in integer | Brian Kernighan: `n &= (n-1)` in loop | [191](https://leetcode.com/problems/number-of-1-bits/) |
+| Subarray XOR = k, count | Prefix XOR + hashmap (like prefix sum) | [1310](https://leetcode.com/problems/xor-queries-of-a-subarray/) |
+| Subarray sum = k, count | Prefix sum + hashmap | [560](https://leetcode.com/problems/subarray-sum-equals-k/) |
+| Exactly k distinct, count subarrays | atMost(k) − atMost(k−1) | [992](https://leetcode.com/problems/subarrays-with-k-different-integers/) |
+| Find two numbers summing to target | Hashmap: check `target - x` | [1](https://leetcode.com/problems/two-sum/) |
+| Every number appears twice except TWO | XOR all → find differing bit → partition | [260](https://leetcode.com/problems/single-number-iii/) |
+| Majority element, O(1) space | Boyer-Moore: candidate + cancel-out count | [169](https://leetcode.com/problems/majority-element/) |
+| Sort 0/1/2 in-place, O(n) | Dutch National Flag: lo/mid/hi pointers | [75](https://leetcode.com/problems/sort-colors/) |
+| Water trapped between bars | Two-pass: maxLeft[i] and maxRight[i] precomputed | [42](https://leetcode.com/problems/trapping-rain-water/) |
+| Product except self, no division | Two-pass: prefix products × suffix products | [238](https://leetcode.com/problems/product-of-array-except-self/) |
+| Both left AND right neighbor rule | Two-sweep (left→right then right→left) | [135](https://leetcode.com/problems/candy/) |
+| Operations may delete/change head node | Dummy sentinel node before head | [19](https://leetcode.com/problems/remove-nth-node-from-end-of-list/) |
+| Max of every window of size k | Monotonic deque (front = window max) | [239](https://leetcode.com/problems/sliding-window-maximum/) |
+| Cycle entry in linked list | Floyd two-phase: meet → reset one to head | [142](https://leetcode.com/problems/linked-list-cycle-ii/) |
+| Nearest source from multiple start points | Multi-source BFS: add all sources at t=0 | [994](https://leetcode.com/problems/rotting-oranges/) |
+| Longest path in binary tree | DFS: left_h + right_h at each node | [543](https://leetcode.com/problems/diameter-of-binary-tree/) |
+| 0 or 1 edge weights, shortest path | 0-1 BFS via deque (0→front, 1→back) | [1368](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/) |
+| 0/1 knapsack, reduce 2D DP to 1D | Reverse inner loop (high→low capacity) | [416](https://leetcode.com/problems/partition-equal-subset-sum/) |
+| Optimal range split (burst, chain mult) | Interval DP: fill by increasing length | [312](https://leetcode.com/problems/burst-balloons/) |
+| GCD / divisibility / step sync | Euclidean GCD: `gcd(a,b) = gcd(b, a%b)` | [1071](https://leetcode.com/problems/greatest-common-divisor-of-strings/) |
+| Large exponent mod m | Binary exponentiation (square and halve) | [50](https://leetcode.com/problems/powx-n/) |
+| n+1 items in [1..n], duplicate exists | Pigeonhole — guaranteed, no search needed | [287](https://leetcode.com/problems/find-the-duplicate-number/) |
 
 ---
 
@@ -346,16 +346,16 @@ Level 2: [neighbors of level 1]
 
 | Problem | Key Insight |
 |---------|-------------|
-| Two Sum | Hash map: check complement |
-| 3Sum | Sort + fix one + two pointers |
-| Valid Parentheses | Stack: push open, pop for close |
-| Merge Intervals | Sort by start, extend end |
-| LRU Cache | HashMap + Doubly Linked List |
-| Word Break | DP: dp[i] = can form s[0:i] |
-| Number of Islands | DFS/BFS, mark visited |
-| Course Schedule | Topological sort (cycle = impossible) |
-| Coin Change | DP: dp[amount] = min coins |
-| Binary Tree Max Path | DFS, track global max |
+| [Two Sum](https://leetcode.com/problems/two-sum/) | Hash map: check complement |
+| [3Sum](https://leetcode.com/problems/3sum/) | Sort + fix one + two pointers |
+| [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/) | Stack: push open, pop for close |
+| [Merge Intervals](https://leetcode.com/problems/merge-intervals/) | Sort by start, extend end |
+| [LRU Cache](https://leetcode.com/problems/lru-cache/) | HashMap + Doubly Linked List |
+| [Word Break](https://leetcode.com/problems/word-break/) | DP: dp[i] = can form s[0:i] |
+| [Number of Islands](https://leetcode.com/problems/number-of-islands/) | DFS/BFS, mark visited |
+| [Course Schedule](https://leetcode.com/problems/course-schedule/) | Topological sort (cycle = impossible) |
+| [Coin Change](https://leetcode.com/problems/coin-change/) | DP: dp[amount] = min coins |
+| [Binary Tree Max Path](https://leetcode.com/problems/binary-tree-maximum-path-sum/) | DFS, track global max |
 
 ---
 
@@ -363,16 +363,16 @@ Level 2: [neighbors of level 1]
 
 | Combination | When to Use | Classic Problem |
 |-------------|-------------|-----------------|
-| Prefix Sum + HashMap | Subarray sum = k | LC 560 Subarray Sum Equals K |
-| Binary Search + Greedy | Minimize max / Maximize min | LC 410 Split Array Largest Sum |
-| DFS + Memoization | Grid paths with caching | LC 329 Longest Increasing Path |
-| Sliding Window + HashMap | Substring with frequency constraint | LC 76 Minimum Window Substring |
-| Sorting + Two Pointers | k-Sum problems | LC 15 3Sum |
-| Monotonic Stack + Contribution | Contribution to all subarrays | LC 907 Sum of Subarray Minimums |
-| BFS + Bitmask | Shortest path with state | LC 864 Shortest Path to Get All Keys |
-| Union Find + HashMap | Group by connectivity | LC 721 Accounts Merge |
-| Trie + DFS | Multi-word search in grid | LC 212 Word Search II |
-| Heap + Sorting + Greedy | Scheduling / allocation | LC 253 Meeting Rooms II |
+| Prefix Sum + HashMap | Subarray sum = k | [LC 560 Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/) |
+| Binary Search + Greedy | Minimize max / Maximize min | [LC 410 Split Array Largest Sum](https://leetcode.com/problems/split-array-largest-sum/) |
+| DFS + Memoization | Grid paths with caching | [LC 329](https://leetcode.com/problems/longest-increasing-path-in-a-matrix/) Longest Increasing Path |
+| Sliding Window + HashMap | Substring with frequency constraint | [LC 76 Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/) |
+| Sorting + Two Pointers | k-Sum problems | [LC 15 3Sum](https://leetcode.com/problems/3sum/) |
+| Monotonic Stack + Contribution | Contribution to all subarrays | [LC 907 Sum of Subarray Minimums](https://leetcode.com/problems/sum-of-subarray-minimums/) |
+| BFS + Bitmask | Shortest path with state | [LC 864 Shortest Path to Get All Keys](https://leetcode.com/problems/shortest-path-to-get-all-keys/) |
+| Union Find + HashMap | Group by connectivity | [LC 721 Accounts Merge](https://leetcode.com/problems/accounts-merge/) |
+| Trie + DFS | Multi-word search in grid | [LC 212 Word Search II](https://leetcode.com/problems/word-search-ii/) |
+| Heap + Sorting + Greedy | Scheduling / allocation | [LC 253 Meeting Rooms II](https://leetcode.com/problems/meeting-rooms-ii/) (premium) |
 
 **Key Insight:** Hard problems = 2-3 patterns combined. Identify each pattern first!
 

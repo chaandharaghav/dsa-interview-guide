@@ -439,31 +439,31 @@ function countPaths(graph, target):
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Number of Islands** | Grid DFS/BFS, mark visited | 200 |
-| **Clone Graph** | DFS with hashmap for clones | 133 |
-| **Course Schedule** | Cycle detection in directed graph | 207 |
-| **Course Schedule II** | Topological sort | 210 |
-| **Pacific Atlantic Water Flow** | Multi-source DFS from borders | 417 |
-| **Number of Connected Components** | DFS/BFS or Union Find | 323 |
-| **Graph Valid Tree** | n-1 edges + connected + no cycle | 261 |
-| **Rotting Oranges** | Multi-source BFS | 994 |
-| **01 Matrix** | Multi-source BFS from 0s | 542 |
-| **Surrounded Regions** | DFS from borders | 130 |
-| **Is Graph Bipartite** | BFS/DFS with 2-coloring | 785 |
-| **All Paths From Source to Target** | DFS on DAG | 797 |
-| **Keys and Rooms** | DFS, collect keys | 841 |
-| **Shortest Bridge** | DFS to find island + BFS to expand | 934 |
-| **Evaluate Division** | Graph with weighted edges, DFS | 399 |
+| **[Number of Islands](https://leetcode.com/problems/number-of-islands/)** | Grid DFS/BFS, mark visited | 200 |
+| **[Clone Graph](https://leetcode.com/problems/clone-graph/)** | DFS with hashmap for clones | 133 |
+| **[Course Schedule](https://leetcode.com/problems/course-schedule/)** | Cycle detection in directed graph | 207 |
+| **[Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)** | Topological sort | 210 |
+| **[Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)** | Multi-source DFS from borders | 417 |
+| **[Number of Connected Components](https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/)** (premium) | DFS/BFS or Union Find | 323 |
+| **[Graph Valid Tree](https://leetcode.com/problems/graph-valid-tree/)** (premium) | n-1 edges + connected + no cycle | 261 |
+| **[Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)** | Multi-source BFS | 994 |
+| **[01 Matrix](https://leetcode.com/problems/01-matrix/)** | Multi-source BFS from 0s | 542 |
+| **[Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)** | DFS from borders | 130 |
+| **[Is Graph Bipartite](https://leetcode.com/problems/is-graph-bipartite/)** | BFS/DFS with 2-coloring | 785 |
+| **[All Paths From Source to Target](https://leetcode.com/problems/all-paths-from-source-to-target/)** | DFS on DAG | 797 |
+| **[Keys and Rooms](https://leetcode.com/problems/keys-and-rooms/)** | DFS, collect keys | 841 |
+| **[Shortest Bridge](https://leetcode.com/problems/shortest-bridge/)** | DFS to find island + BFS to expand | 934 |
+| **[Evaluate Division](https://leetcode.com/problems/evaluate-division/)** | Graph with weighted edges, DFS | 399 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Word Ladder** | BFS on word transformation graph | 127 |
-| **Word Ladder II** | BFS + backtracking for all paths | 126 |
-| **Alien Dictionary** | Topological sort from comparisons | 269 |
-| **Shortest Path in a Grid with Obstacles Elimination** | BFS with state (position + obstacles) | 1293 |
-| **Reconstruct Itinerary** | Hierholzer's algorithm (Eulerian path) | 332 |
-| **Critical Connections** | Tarjan's algorithm (bridges; see [Pattern 24](../24-advanced-graphs/README.md)) | 1192 |
+| **[Word Ladder](https://leetcode.com/problems/word-ladder/)** | BFS on word transformation graph | 127 |
+| **[Word Ladder II](https://leetcode.com/problems/word-ladder-ii/)** | BFS + backtracking for all paths | 126 |
+| **[Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)** (premium) | Topological sort from comparisons | 269 |
+| **[Shortest Path in a Grid with Obstacles Elimination](https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/)** | BFS with state (position + obstacles) | 1293 |
+| **[Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/)** | Hierholzer's algorithm (Eulerian path) | 332 |
+| **[Critical Connections](https://leetcode.com/problems/critical-connections-in-a-network/)** | Tarjan's algorithm (bridges; see [Pattern 24](../24-advanced-graphs/README.md)) | 1192 |
 
 ---
 
@@ -472,39 +472,39 @@ function countPaths(graph, target):
 ### Week 1: Foundation
 **Day 1:**
 - Implement DFS and BFS from scratch
-- Solve "Number of Islands"
+- Solve "[Number of Islands](https://leetcode.com/problems/number-of-islands/)"
 
 **Day 2:**
-- Solve "Clone Graph"
+- Solve "[Clone Graph](https://leetcode.com/problems/clone-graph/)"
 - Practice DFS with hashmap
 
 **Day 3:**
-- Solve "Course Schedule" (cycle detection)
+- Solve "[Course Schedule](https://leetcode.com/problems/course-schedule/)" (cycle detection)
 - Understand the three-color technique
 
 **Day 4:**
-- Solve "Rotting Oranges"
+- Solve "[Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)"
 - Master multi-source BFS
 
 **Day 5:**
-- Solve "Is Graph Bipartite"
+- Solve "[Is Graph Bipartite](https://leetcode.com/problems/is-graph-bipartite/)"
 - Practice 2-coloring technique
 
 ### Week 2: Advanced
 **Day 1:**
-- Solve "Pacific Atlantic Water Flow"
+- Solve "[Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)"
 - Multi-source DFS from different starting points
 
 **Day 2:**
-- Solve "Word Ladder"
+- Solve "[Word Ladder](https://leetcode.com/problems/word-ladder/)"
 - BFS on implicit graph
 
 **Day 3:**
-- Solve "Shortest Path with Obstacles"
+- Solve "[Shortest Path with Obstacles](https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/)"
 - BFS with state
 
 **Day 4:**
-- Solve "Evaluate Division"
+- Solve "[Evaluate Division](https://leetcode.com/problems/evaluate-division/)"
 - Weighted graph traversal
 
 **Day 5:**

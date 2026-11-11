@@ -442,11 +442,11 @@ class DigitOne {
 Three tree problems use one shape: a post-order recursion where the function returns what the
 *parent* needs, and a field records what the *answer* needs.
 
-- Robber (LC 337): the function returns `{robbed, skipped}`. The parent uses both.
-- Diameter (LC 543): the function returns the height. The answer is the largest `left + right`,
+- Robber ([LC 337](https://leetcode.com/problems/house-robber-iii/)): the function returns `{robbed, skipped}`. The parent uses both.
+- Diameter ([LC 543](https://leetcode.com/problems/diameter-of-binary-tree/)): the function returns the height. The answer is the largest `left + right`,
   recorded in a field. The best path *bends* at some node, but the parent can extend only a
   straight path.
-- Maximum path sum (LC 124): the same shape. A negative branch is replaced by 0, because the path
+- Maximum path sum ([LC 124](https://leetcode.com/problems/binary-tree-maximum-path-sum/)): the same shape. A negative branch is replaced by 0, because the path
   can stop before the branch.
 
 ```java
@@ -575,7 +575,7 @@ class Reroot {
 - Time: O(n). Space: O(n).
 - Example: edges `{{0,1},{0,2},{2,3},{2,4},{2,5}}` with n = 6 give `[8, 12, 6, 10, 10, 10]`.
 - The result for node 0 is `ans[0]` after pass 1, because every node is in its subtree.
-- The sum fits in an `int` for n ≤ 3 × 10^4 (LC 834). For a bigger n, use `long`: the sum for a
+- The sum fits in an `int` for n ≤ 3 × 10^4 ([LC 834](https://leetcode.com/problems/sum-of-distances-in-tree/)). For a bigger n, use `long`: the sum for a
   line of n nodes is n(n-1)/2.
 
 ### Template 8: Rerooting, Non-Invertible Combine (Farthest Node from Every Node)
@@ -659,10 +659,10 @@ stateDiagram-v2
     Sold --> Free: cooldown day
 ```
 
-- With a **cooldown** (LC 309), a sale leads to state `Sold`, and the next day moves to `Free`
+- With a **cooldown** ([LC 309](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)), a sale leads to state `Sold`, and the next day moves to `Free`
   without buying.
-- With a **fee** (LC 714), the sale subtracts the fee, and two states are enough (`Hold`, `Cash`).
-- With **at most k transactions** (LC 188), the state also carries the number of buys used.
+- With a **fee** ([LC 714](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)), the sale subtracts the fee, and two states are enough (`Hold`, `Cash`).
+- With **at most k transactions** ([LC 188](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/)), the state also carries the number of buys used.
 
 ```java
 class StockStates {
@@ -720,7 +720,7 @@ class StockStates {
   temporaries first for this reason (Mistake 5).
 - If k ≥ n / 2, the limit does not apply, because each transaction needs at least 2 days. The
   code caps `k` at `n / 2`, so the table never has more than n / 2 + 1 entries. The current
-  constraints of LC 188 are `k ≤ 100` and `n ≤ 1000`, so the cap is a safety measure there. It
+  constraints of [LC 188](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/) are `k ≤ 100` and `n ≤ 1000`, so the cap is a safety measure there. It
   matters when `k` is much larger than `n`.
 
 ### Template 10: Interval DP, Last-Event Choice (Burst Balloons) and Split Choice (Matrix Chain)
@@ -778,7 +778,7 @@ class IntervalDp {
   (multiply the first two matrices first: 10 × 30 × 5 + 10 × 5 × 60 = 1500 + 3000. The other
   order costs 30 × 5 × 60 + 10 × 30 × 60 = 9000 + 18000 = 27000).
 - The `a[0] = a[n + 1] = 1` padding turns the "no neighbor" case into an ordinary case.
-- For the bounds of LC 312 (n ≤ 300, values ≤ 100), one product is at most 10^6 and the total is
+- For the bounds of [LC 312](https://leetcode.com/problems/burst-balloons/) (n ≤ 300, values ≤ 100), one product is at most 10^6 and the total is
   at most 3 × 10^8, so an `int` is enough. Check the bounds for other problems.
 
 ### Template 11: Probability DP and Expected-Value DP
@@ -895,7 +895,7 @@ cannot be packed. An item is added only when the fill stays at most `target`. Th
 
 ### Variation C: Bitmask with a Set Cover
 **Problem Type:** Choose the smallest set of people whose skills cover all required skills
-(problem 1125 Smallest Sufficient Team).
+(problem [1125 Smallest Sufficient Team](https://leetcode.com/problems/smallest-sufficient-team/)).
 **Key Structure:** Map each required skill to a bit. `dp[skillMask]` is the smallest team (a
 list of people, or a bitmask of up to 60 people in a `long`) that covers exactly the skills in
 `skillMask`. For each person, and for every `mask` that already has a team, compare the team
@@ -912,7 +912,7 @@ completions follows the Fibonacci numbers.
 
 ### Variation E: Tree DP with a Third State
 **Problem Type:** Put the fewest cameras in a binary tree so that every node is watched (problem
-968 Binary Tree Cameras).
+[968 Binary Tree Cameras](https://leetcode.com/problems/binary-tree-cameras/)).
 **Key Structure:** Each node returns one of three states: "has a camera", "is watched but has no
 camera", "is not watched". The parent chooses a camera when any child is "not watched".
 
@@ -939,21 +939,21 @@ O(1), and count the roots whose total is at least `k`. This is rerooting with a 
 two-largest trick, because the update is an exact add and subtract.
 
 ### Variation H: Interval DP with an Extra Dimension
-**Problem Type:** Merge `k` adjacent piles at a time (problem 1000 Minimum Cost to Merge Stones),
+**Problem Type:** Merge `k` adjacent piles at a time (problem [1000 Minimum Cost to Merge Stones](https://leetcode.com/problems/minimum-cost-to-merge-stones/)),
 and print a string with the fewest turns of a printer that prints a run of one character per
-turn and may overprint earlier characters (problem 664 Strange Printer).
+turn and may overprint earlier characters (problem [664 Strange Printer](https://leetcode.com/problems/strange-printer/)).
 **Key Structure:** For problem 1000, add the number of piles that remain to the state:
 `dp[i][j][m]` is the cheapest way to turn piles `i..j` into `m` piles. Merging into one pile
 costs `dp[i][j][k]` plus the sum of the piles `i..j`. Check first that `(n - 1) % (k - 1) == 0`,
 otherwise the answer is -1. For problem 664, the first character `s[i]` is either printed alone,
 `dp[i][j] = dp[i + 1][j] + 1`, or its print also covers a later equal character `s[k]`,
 `dp[i][j] = dp[i + 1][k - 1] + dp[k][j]` (with 0 for an empty range). Take the minimum over
-all `k` with `s[k] == s[i]`. Interval DP also appears as the "cut a stick" problem (1547) and as polygon
-triangulation (1039).
+all `k` with `s[k] == s[i]`. Interval DP also appears as the "cut a stick" problem ([1547](https://leetcode.com/problems/minimum-cost-to-cut-a-stick/)) and as polygon
+triangulation ([1039](https://leetcode.com/problems/minimum-score-triangulation-of-polygon/)).
 
 ### Variation I: Probability with a Cutoff
 **Problem Type:** The probability of reaching a score without going over (problem 837 New 21
-Game), or a process that converges (problem 808 Soup Servings).
+Game), or a process that converges (problem [808 Soup Servings](https://leetcode.com/problems/soup-servings/)).
 **Key Structure:** In problem 837, a sliding window sum of the previous probabilities gives O(n)
 time. In problem 808, the answer tends to 1 as n grows. Measure the servings in units of 25 mL,
 so the table has `ceil(n / 25)` rows and columns. Computing the DP shows that the answer
@@ -971,29 +971,29 @@ The list is in order of difficulty. Difficulties are from the LeetCode problem l
 
 | LC # | Title | Difficulty | Key insight |
 |---|---|---|---|
-| 543 | Diameter of Binary Tree | Easy | Return the height, record `left + right` at each node |
-| 337 | House Robber III | Medium | Return `{robbed, skipped}` from each node |
-| 309 | Best Time to Buy and Sell Stock with Cooldown | Medium | Three states: hold, sold, free |
-| 714 | Best Time to Buy and Sell Stock with Transaction Fee | Medium | Two states, subtract the fee at the sale |
-| 688 | Knight Probability in Chessboard | Medium | Push probability forward for k steps, divide by 8 |
-| 526 | Beautiful Arrangement | Medium | `dp[mask]`, the position is `bitCount(mask) + 1` |
-| 698 | Partition to K Equal Sum Subsets | Medium | `dp[mask]` with the fill of the current bucket |
-| 124 | Binary Tree Maximum Path Sum | Hard | Drop negative branches, record the bend at each node |
-| 312 | Burst Balloons | Hard | Choose the LAST balloon in the interval |
-| 1879 | Minimum XOR Sum of Two Arrays | Hard | Assignment DP, worker = `bitCount(mask)` |
-| 2376 | Count Special Integers | Hard | Digit DP with a mask of used digits, `tight`, `started` |
-| 834 | Sum of Distances in Tree | Hard | Rerooting: `ans[v] = ans[p] - size[v] + n - size[v]` |
+| 543 | [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/) | Easy | Return the height, record `left + right` at each node |
+| 337 | [House Robber III](https://leetcode.com/problems/house-robber-iii/) | Medium | Return `{robbed, skipped}` from each node |
+| 309 | [Best Time to Buy and Sell Stock with Cooldown](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/) | Medium | Three states: hold, sold, free |
+| 714 | [Best Time to Buy and Sell Stock with Transaction Fee](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/) | Medium | Two states, subtract the fee at the sale |
+| 688 | [Knight Probability in Chessboard](https://leetcode.com/problems/knight-probability-in-chessboard/) | Medium | Push probability forward for k steps, divide by 8 |
+| 526 | [Beautiful Arrangement](https://leetcode.com/problems/beautiful-arrangement/) | Medium | `dp[mask]`, the position is `bitCount(mask) + 1` |
+| 698 | [Partition to K Equal Sum Subsets](https://leetcode.com/problems/partition-to-k-equal-sum-subsets/) | Medium | `dp[mask]` with the fill of the current bucket |
+| 124 | [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/) | Hard | Drop negative branches, record the bend at each node |
+| 312 | [Burst Balloons](https://leetcode.com/problems/burst-balloons/) | Hard | Choose the LAST balloon in the interval |
+| 1879 | [Minimum XOR Sum of Two Arrays](https://leetcode.com/problems/minimum-xor-sum-of-two-arrays/) | Hard | Assignment DP, worker = `bitCount(mask)` |
+| 2376 | [Count Special Integers](https://leetcode.com/problems/count-special-integers/) | Hard | Digit DP with a mask of used digits, `tight`, `started` |
+| 834 | [Sum of Distances in Tree](https://leetcode.com/problems/sum-of-distances-in-tree/) | Hard | Rerooting: `ans[v] = ans[p] - size[v] + n - size[v]` |
 
 More practice by family:
 
 | Family | Problems |
 |---|---|
-| Bitmask | 464 Can I Win (Medium), 1986 Minimum Number of Work Sessions to Finish the Tasks (Medium), 2305 Fair Distribution of Cookies (Medium), 847 Shortest Path Visiting All Nodes (Hard), 943 Find the Shortest Superstring (Hard), 1723 Find Minimum Time to Finish All Jobs (Hard), 1125 Smallest Sufficient Team (Hard), 1349 Maximum Students Taking Exam (Hard) |
-| Digit | 357 Count Numbers with Unique Digits (Medium), 233 Number of Digit One (Hard), 600 Non-negative Integers without Consecutive Ones (Hard), 902 Numbers At Most N Given Digit Set (Hard), 1012 Numbers With Repeated Digits (Hard) |
-| Tree and rerooting | 979 Distribute Coins in Binary Tree (Medium), 968 Binary Tree Cameras (Hard), 2538 Difference Between Maximum and Minimum Price Sum (Hard), 2581 Count Number of Possible Root Nodes (Hard) |
-| State machine | 122 Best Time to Buy and Sell Stock II (Medium), 123 Best Time to Buy and Sell Stock III (Hard), 188 Best Time to Buy and Sell Stock IV (Hard) |
-| Interval | 375 Guess Number Higher or Lower II (Medium), 1039 Minimum Score Triangulation of Polygon (Medium), 1130 Minimum Cost Tree From Leaf Values (Medium), 664 Strange Printer (Hard), 1000 Minimum Cost to Merge Stones (Hard), 1547 Minimum Cost to Cut a Stick (Hard) |
-| Probability | 808 Soup Servings (Medium), 837 New 21 Game (Medium) |
+| Bitmask | [464 Can I Win](https://leetcode.com/problems/can-i-win/) (Medium), [1986 Minimum Number of Work Sessions to Finish the Tasks](https://leetcode.com/problems/minimum-number-of-work-sessions-to-finish-the-tasks/) (Medium), [2305 Fair Distribution of Cookies](https://leetcode.com/problems/fair-distribution-of-cookies/) (Medium), [847 Shortest Path Visiting All Nodes](https://leetcode.com/problems/shortest-path-visiting-all-nodes/) (Hard), [943 Find the Shortest Superstring](https://leetcode.com/problems/find-the-shortest-superstring/) (Hard), [1723 Find Minimum Time to Finish All Jobs](https://leetcode.com/problems/find-minimum-time-to-finish-all-jobs/) (Hard), [1125 Smallest Sufficient Team](https://leetcode.com/problems/smallest-sufficient-team/) (Hard), [1349 Maximum Students Taking Exam](https://leetcode.com/problems/maximum-students-taking-exam/) (Hard) |
+| Digit | [357 Count Numbers with Unique Digits](https://leetcode.com/problems/count-numbers-with-unique-digits/) (Medium), [233 Number of Digit One](https://leetcode.com/problems/number-of-digit-one/) (Hard), [600 Non-negative Integers without Consecutive Ones](https://leetcode.com/problems/non-negative-integers-without-consecutive-ones/) (Hard), [902 Numbers At Most N Given Digit Set](https://leetcode.com/problems/numbers-at-most-n-given-digit-set/) (Hard), [1012 Numbers With Repeated Digits](https://leetcode.com/problems/numbers-with-repeated-digits/) (Hard) |
+| Tree and rerooting | [979 Distribute Coins in Binary Tree](https://leetcode.com/problems/distribute-coins-in-binary-tree/) (Medium), [968 Binary Tree Cameras](https://leetcode.com/problems/binary-tree-cameras/) (Hard), [2538 Difference Between Maximum and Minimum Price Sum](https://leetcode.com/problems/difference-between-maximum-and-minimum-price-sum/) (Hard), [2581 Count Number of Possible Root Nodes](https://leetcode.com/problems/count-number-of-possible-root-nodes/) (Hard) |
+| State machine | [122 Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/) (Medium), [123 Best Time to Buy and Sell Stock III](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/) (Hard), [188 Best Time to Buy and Sell Stock IV](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/) (Hard) |
+| Interval | [375 Guess Number Higher or Lower II](https://leetcode.com/problems/guess-number-higher-or-lower-ii/) (Medium), [1039 Minimum Score Triangulation of Polygon](https://leetcode.com/problems/minimum-score-triangulation-of-polygon/) (Medium), [1130 Minimum Cost Tree From Leaf Values](https://leetcode.com/problems/minimum-cost-tree-from-leaf-values/) (Medium), [664 Strange Printer](https://leetcode.com/problems/strange-printer/) (Hard), [1000 Minimum Cost to Merge Stones](https://leetcode.com/problems/minimum-cost-to-merge-stones/) (Hard), [1547 Minimum Cost to Cut a Stick](https://leetcode.com/problems/minimum-cost-to-cut-a-stick/) (Hard) |
+| Probability | [808 Soup Servings](https://leetcode.com/problems/soup-servings/) (Medium), [837 New 21 Game](https://leetcode.com/problems/new-21-game/) (Medium) |
 
 ---
 
@@ -1001,37 +1001,37 @@ More practice by family:
 
 ### Week 1: Masks and Digits
 **Day 1-2:**
-- Solve Beautiful Arrangement (526) and Can I Win (464) with `dp[mask]`.
+- Solve Beautiful Arrangement ([526](https://leetcode.com/problems/beautiful-arrangement/)) and Can I Win ([464](https://leetcode.com/problems/can-i-win/)) with `dp[mask]`.
 - Focus on: writing the meaning of `dp[mask]` in one sentence before the code.
 
 **Day 3-4:**
-- Solve Minimum XOR Sum of Two Arrays (1879) and Shortest Path Visiting All Nodes (847).
+- Solve Minimum XOR Sum of Two Arrays ([1879](https://leetcode.com/problems/minimum-xor-sum-of-two-arrays/)) and Shortest Path Visiting All Nodes ([847](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)).
 - Focus on: the fill order, and why BFS suits 847.
 
 **Day 5-6:**
-- Solve Count Numbers with Unique Digits (357), Number of Digit One (233), and Count Special
-  Integers (2376). Write the `tight` and `started` logic by hand each time.
+- Solve Count Numbers with Unique Digits ([357](https://leetcode.com/problems/count-numbers-with-unique-digits/)), Number of Digit One ([233](https://leetcode.com/problems/number-of-digit-one/)), and Count Special
+  Integers ([2376](https://leetcode.com/problems/count-special-integers/)). Write the `tight` and `started` logic by hand each time.
 
 **Day 7:**
-- Solve Find Minimum Time to Finish All Jobs (1723). Practice the submask loop.
+- Solve Find Minimum Time to Finish All Jobs ([1723](https://leetcode.com/problems/find-minimum-time-to-finish-all-jobs/)). Practice the submask loop.
 
 ### Week 2: Trees, Machines, Intervals, Probability
 **Day 1-2:**
-- Solve Diameter of Binary Tree (543), House Robber III (337), and Binary Tree Maximum Path
-  Sum (124). For each, say what the function *returns* and what it *records*.
+- Solve Diameter of Binary Tree ([543](https://leetcode.com/problems/diameter-of-binary-tree/)), House Robber III ([337](https://leetcode.com/problems/house-robber-iii/)), and Binary Tree Maximum Path
+  Sum ([124](https://leetcode.com/problems/binary-tree-maximum-path-sum/)). For each, say what the function *returns* and what it *records*.
 
 **Day 3:**
-- Solve Sum of Distances in Tree (834). Then write the farthest-node version (Template 8).
+- Solve Sum of Distances in Tree ([834](https://leetcode.com/problems/sum-of-distances-in-tree/)). Then write the farthest-node version (Template 8).
 
 **Day 4-5:**
-- Solve the stock problems (309, 714, 123, 188). Draw the automaton before the code.
+- Solve the stock problems ([309](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/), [714](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/), [123](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/), [188](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/)). Draw the automaton before the code.
 
 **Day 6:**
-- Solve Burst Balloons (312), Guess Number Higher or Lower II (375), and Minimum Cost to Cut a
-  Stick (1547).
+- Solve Burst Balloons ([312](https://leetcode.com/problems/burst-balloons/)), Guess Number Higher or Lower II ([375](https://leetcode.com/problems/guess-number-higher-or-lower-ii/)), and Minimum Cost to Cut a
+  Stick ([1547](https://leetcode.com/problems/minimum-cost-to-cut-a-stick/)).
 
 **Day 7:**
-- Solve Knight Probability in Chessboard (688) and New 21 Game (837).
+- Solve Knight Probability in Chessboard ([688](https://leetcode.com/problems/knight-probability-in-chessboard/)) and New 21 Game ([837](https://leetcode.com/problems/new-21-game/)).
 
 ### Practice Methodology:
 1. Write a brute force first. Keep it, and compare your DP with it on small random inputs. Every

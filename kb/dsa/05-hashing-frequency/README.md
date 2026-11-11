@@ -302,11 +302,11 @@ Each swap puts one value at its target index, so cyclic sort does at most n swap
 
 | Problem | How cyclic sort / index-as-hash applies |
 |---------|------------------------------------------|
-| Missing Number (LC 268) | Values in [0..n], length n. The target index of v is v. Value n has no slot, so skip it. Sum formula or XOR also work. |
-| Find All Numbers Disappeared (LC 448) | Negation marking; positive slots at the end are missing values |
-| Find All Duplicates (LC 442) | Negation marking; a slot that is already negative marks a duplicate |
-| First Missing Positive (LC 41) | Ignore values ≤ 0 or > n. After cyclic sort, the first i with nums[i] != i+1 gives i+1; if none, the answer is n+1 |
-| Find the Duplicate Number (LC 287) | The problem forbids modifying the array, so cyclic sort is not allowed → Floyd's cycle detection ([Pattern 03](../03-fast-slow-pointers/README.md), Template 5) |
+| Missing Number ([LC 268](https://leetcode.com/problems/missing-number/)) | Values in [0..n], length n. The target index of v is v. Value n has no slot, so skip it. Sum formula or XOR also work. |
+| Find All Numbers Disappeared ([LC 448](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)) | Negation marking; positive slots at the end are missing values |
+| Find All Duplicates ([LC 442](https://leetcode.com/problems/find-all-duplicates-in-an-array/)) | Negation marking; a slot that is already negative marks a duplicate |
+| First Missing Positive ([LC 41](https://leetcode.com/problems/first-missing-positive/)) | Ignore values ≤ 0 or > n. After cyclic sort, the first i with nums[i] != i+1 gives i+1; if none, the answer is n+1 |
+| Find the Duplicate Number ([LC 287](https://leetcode.com/problems/find-the-duplicate-number/)) | The problem forbids modifying the array, so cyclic sort is not allowed → Floyd's cycle detection ([Pattern 03](../03-fast-slow-pointers/README.md), Template 5) |
 
 ---
 
@@ -315,39 +315,39 @@ Each swap puts one value at its target index, so cyclic sort does at most n swap
 ### EASY (Warm-up)
 | Problem | Key Insight |
 |---------|-------------|
-| Two Sum | HashMap for complement lookup |
-| Contains Duplicate | HashSet for seen elements |
-| Valid Anagram | Frequency map comparison |
-| Single Number | XOR or HashMap |
-| Intersection of Two Arrays | HashSet intersection |
-| Missing Number (LC 268) | Cyclic sort, or sum/XOR |
-| Find All Numbers Disappeared in an Array (LC 448) | Negate nums[v-1] to mark v as seen |
-| Isomorphic Strings (LC 205) | Two HashMaps for bidirectional mapping |
-| Word Pattern (LC 290) | Two-way mapping pattern↔word |
+| [Two Sum](https://leetcode.com/problems/two-sum/) | HashMap for complement lookup |
+| [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/) | HashSet for seen elements |
+| [Valid Anagram](https://leetcode.com/problems/valid-anagram/) | Frequency map comparison |
+| [Single Number](https://leetcode.com/problems/single-number/) | XOR or HashMap |
+| [Intersection of Two Arrays](https://leetcode.com/problems/intersection-of-two-arrays/) | HashSet intersection |
+| Missing Number ([LC 268](https://leetcode.com/problems/missing-number/)) | Cyclic sort, or sum/XOR |
+| Find All Numbers Disappeared in an Array ([LC 448](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)) | Negate nums[v-1] to mark v as seen |
+| Isomorphic Strings ([LC 205](https://leetcode.com/problems/isomorphic-strings/)) | Two HashMaps for bidirectional mapping |
+| Word Pattern ([LC 290](https://leetcode.com/problems/word-pattern/)) | Two-way mapping pattern↔word |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Group Anagrams** | Sorted string as key | 49 |
-| **Top K Frequent Elements** | Bucket sort by frequency | 347 |
-| **Longest Consecutive Sequence** | Only start from sequence heads | 128 |
-| **Longest Substring Without Repeating** | HashMap for last position | 3 |
-| **4Sum II** | Split into two groups, count sums | 454 |
-| **Subarray Sum Equals K** | Prefix sum in HashMap | 560 |
-| **Encode and Decode TinyURL** | HashMap for URL mapping | 535 |
-| **LRU Cache** | HashMap + Doubly Linked List | 146 |
-| **Insert Delete GetRandom O(1)** | HashMap + Array | 380 |
-| **Copy List with Random Pointer** | HashMap for old→new mapping | 138 |
-| **Find All Duplicates in an Array** | Negation marking (index-as-hash) | 442 |
+| **[Group Anagrams](https://leetcode.com/problems/group-anagrams/)** | Sorted string as key | 49 |
+| **[Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)** | Bucket sort by frequency | 347 |
+| **[Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)** | Only start from sequence heads | 128 |
+| **[Longest Substring Without Repeating](https://leetcode.com/problems/longest-substring-without-repeating-characters/)** | HashMap for last position | 3 |
+| **[4Sum II](https://leetcode.com/problems/4sum-ii/)** | Split into two groups, count sums | 454 |
+| **[Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)** | Prefix sum in HashMap | 560 |
+| **[Encode and Decode TinyURL](https://leetcode.com/problems/encode-and-decode-tinyurl/)** | HashMap for URL mapping | 535 |
+| **[LRU Cache](https://leetcode.com/problems/lru-cache/)** | HashMap + Doubly Linked List | 146 |
+| **[Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/)** | HashMap + Array | 380 |
+| **[Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/)** | HashMap for old→new mapping | 138 |
+| **[Find All Duplicates in an Array](https://leetcode.com/problems/find-all-duplicates-in-an-array/)** | Negation marking (index-as-hash) | 442 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Minimum Window Substring** | Two frequency maps + valid window | 76 |
-| **Substring with Concatenation of All Words** | Word frequency matching | 30 |
-| **First Missing Positive** | Array itself as hash table (cyclic sort, Variation F) | 41 |
-| **LFU Cache** | HashMap + Frequency buckets | 460 |
-| **All O'one Data Structure** | HashMap + Doubly Linked List | 432 |
+| **[Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)** | Two frequency maps + valid window | 76 |
+| **[Substring with Concatenation of All Words](https://leetcode.com/problems/substring-with-concatenation-of-all-words/)** | Word frequency matching | 30 |
+| **[First Missing Positive](https://leetcode.com/problems/first-missing-positive/)** | Array itself as hash table (cyclic sort, Variation F) | 41 |
+| **[LFU Cache](https://leetcode.com/problems/lfu-cache/)** | HashMap + Frequency buckets | 460 |
+| **[All O'one Data Structure](https://leetcode.com/problems/all-oone-data-structure/)** | HashMap + Doubly Linked List | 432 |
 
 ---
 
@@ -355,40 +355,40 @@ Each swap puts one value at its target index, so cyclic sort does at most n swap
 
 ### Week 1: Foundation
 **Day 1:**
-- Solve "Two Sum"
+- Solve "[Two Sum](https://leetcode.com/problems/two-sum/)"
 - Understand complement lookup pattern
 
 **Day 2:**
-- Solve "Contains Duplicate" (HashSet)
-- Solve "Valid Anagram" (frequency map)
+- Solve "[Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)" (HashSet)
+- Solve "[Valid Anagram](https://leetcode.com/problems/valid-anagram/)" (frequency map)
 
 **Day 3:**
-- Solve "Group Anagrams"
+- Solve "[Group Anagrams](https://leetcode.com/problems/group-anagrams/)"
 - Master the "canonical form as key" technique
 
 **Day 4:**
-- Solve "Longest Consecutive Sequence"
+- Solve "[Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)"
 - Understand "start from sequence head" optimization
 
 **Day 5:**
-- Solve "Top K Frequent Elements"
+- Solve "[Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)"
 - Learn bucket sort technique
 
 ### Week 2: Advanced Applications
 **Day 1:**
-- Solve "4Sum II"
+- Solve "[4Sum II](https://leetcode.com/problems/4sum-ii/)"
 - Practice divide-and-conquer with hashing
 
 **Day 2:**
-- Solve "LRU Cache"
+- Solve "[LRU Cache](https://leetcode.com/problems/lru-cache/)"
 - Combine HashMap with LinkedList
 
 **Day 3:**
-- Solve "Insert Delete GetRandom O(1)"
+- Solve "[Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/)"
 - Combine HashMap with Array
 
 **Day 4:**
-- Solve "Copy List with Random Pointer"
+- Solve "[Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/)"
 - HashMap for old-to-new node mapping
 
 **Day 5:**
@@ -550,11 +550,11 @@ Track minimum frequency separately
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Hashmap for "count letters / compare frequencies" | Counting array `int[26]` | Is the key set small and fixed (e.g. 26 lowercase letters)? If yes → counting array, no hashing (LC 242) |
-| Hashmap for "find the missing / duplicate values" | Cyclic sort (Variation F) | Are values in [1..n] and is extra space limited to O(1)? If yes → cyclic sort or negation marking (LC 448) |
-| Hashmap for "pair with sum = target" | Two pointers (Pattern 02) | Is the array already sorted? If yes → two pointers, O(1) space (LC 167) |
-| HashSet for "contains duplicate" | Sorting | Is O(1) extra space required, and may you reorder the input? If yes → sort, then compare neighbors in O(n log n) (LC 217) |
-| Hashmap + sort for "top k frequent" | Heap (Pattern 16) or bucket sort | Is the input a stream, or is k much smaller than n? If yes → size-k heap (LC 347) |
+| Hashmap for "count letters / compare frequencies" | Counting array `int[26]` | Is the key set small and fixed (e.g. 26 lowercase letters)? If yes → counting array, no hashing ([LC 242](https://leetcode.com/problems/valid-anagram/)) |
+| Hashmap for "find the missing / duplicate values" | Cyclic sort (Variation F) | Are values in [1..n] and is extra space limited to O(1)? If yes → cyclic sort or negation marking ([LC 448](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)) |
+| Hashmap for "pair with sum = target" | Two pointers (Pattern 02) | Is the array already sorted? If yes → two pointers, O(1) space ([LC 167](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)) |
+| HashSet for "contains duplicate" | Sorting | Is O(1) extra space required, and may you reorder the input? If yes → sort, then compare neighbors in O(n log n) ([LC 217](https://leetcode.com/problems/contains-duplicate/)) |
+| Hashmap + sort for "top k frequent" | Heap (Pattern 16) or bucket sort | Is the input a stream, or is k much smaller than n? If yes → size-k heap ([LC 347](https://leetcode.com/problems/top-k-frequent-elements/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 

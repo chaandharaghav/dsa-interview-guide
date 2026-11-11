@@ -23,7 +23,7 @@ Top companies specifically ask combination problems to test:
 ## Common Pattern Combinations
 
 ### Combination 1: Prefix Sum + HashMap
-**Classic Problem:** Subarray Sum Equals K (LC #560)
+**Classic Problem:** Subarray Sum Equals K ([LC #560](https://leetcode.com/problems/subarray-sum-equals-k/))
 
 **Why Two Patterns:**
 - Prefix Sum: Convert range sum to simple subtraction
@@ -63,14 +63,14 @@ function subarraySum(nums, k):
 ```
 
 **Similar Problems:**
-- LC 525: Contiguous Array (0s and 1s)
-- LC 974: Subarray Sums Divisible by K
-- LC 523: Continuous Subarray Sum
+- [LC 525: Contiguous Array](https://leetcode.com/problems/contiguous-array/) (0s and 1s)
+- [LC 974: Subarray Sums Divisible by K](https://leetcode.com/problems/subarray-sums-divisible-by-k/)
+- [LC 523: Continuous Subarray Sum](https://leetcode.com/problems/continuous-subarray-sum/)
 
 ---
 
 ### Combination 2: Binary Search + Greedy Validation
-**Classic Problem:** Split Array Largest Sum (LC #410)
+**Classic Problem:** Split Array Largest Sum ([LC #410](https://leetcode.com/problems/split-array-largest-sum/))
 
 **Why Two Patterns:**
 - Binary Search: Search the answer space (minimum possible maximum sum)
@@ -119,14 +119,14 @@ function splitArray(nums, m):
 ```
 
 **Similar Problems:**
-- LC 875: Koko Eating Bananas
-- LC 1011: Capacity To Ship Packages Within D Days
-- LC 1482: Minimum Number of Days to Make m Bouquets
+- [LC 875: Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)
+- [LC 1011: Capacity To Ship Packages Within D Days](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)
+- [LC 1482: Minimum Number of Days to Make m Bouquets](https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/)
 
 ---
 
 ### Combination 3: DFS/BFS + Memoization (DP on Graphs)
-**Classic Problem:** Longest Increasing Path in a Matrix (LC #329)
+**Classic Problem:** Longest Increasing Path in a Matrix ([LC #329](https://leetcode.com/problems/longest-increasing-path-in-a-matrix/))
 
 **Why Two Patterns:**
 - DFS: Explore paths in all directions
@@ -171,14 +171,14 @@ function longestIncreasingPath(matrix):
 ```
 
 **Similar Problems:**
-- LC 576: Out of Boundary Paths
-- LC 2328: Number of Increasing Paths in a Grid
-- LC 1444: Number of Ways of Cutting a Pizza
+- [LC 576: Out of Boundary Paths](https://leetcode.com/problems/out-of-boundary-paths/)
+- [LC 2328: Number of Increasing Paths in a Grid](https://leetcode.com/problems/number-of-increasing-paths-in-a-grid/)
+- [LC 1444: Number of Ways of Cutting a Pizza](https://leetcode.com/problems/number-of-ways-of-cutting-a-pizza/)
 
 ---
 
 ### Combination 4: Sliding Window + HashMap (Frequency Tracking)
-**Classic Problem:** Minimum Window Substring (LC #76)
+**Classic Problem:** Minimum Window Substring ([LC #76](https://leetcode.com/problems/minimum-window-substring/))
 
 **Why Two Patterns:**
 - Sliding Window: Efficiently consider all substrings
@@ -234,14 +234,14 @@ function minWindow(s, t):
 ```
 
 **Similar Problems:**
-- LC 438: Find All Anagrams in a String
-- LC 567: Permutation in String
-- LC 992: Subarrays with K Different Integers
+- [LC 438: Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/)
+- [LC 567: Permutation in String](https://leetcode.com/problems/permutation-in-string/)
+- [LC 992: Subarrays with K Different Integers](https://leetcode.com/problems/subarrays-with-k-different-integers/)
 
 ---
 
 ### Combination 5: Two Pointers + Sorting
-**Classic Problem:** 3Sum (LC #15)
+**Classic Problem:** 3Sum ([LC #15](https://leetcode.com/problems/3sum/))
 
 **Why Two Patterns:**
 - Sorting: Enables two-pointer approach, helps skip duplicates
@@ -291,14 +291,14 @@ function threeSum(nums):
 ```
 
 **Similar Problems:**
-- LC 16: 3Sum Closest
-- LC 18: 4Sum
-- LC 259: 3Sum Smaller
+- [LC 16: 3Sum Closest](https://leetcode.com/problems/3sum-closest/)
+- [LC 18: 4Sum](https://leetcode.com/problems/4sum/)
+- [LC 259: 3Sum Smaller](https://leetcode.com/problems/3sum-smaller/) (premium)
 
 ---
 
 ### Combination 6: Monotonic Stack + Contribution
-**Classic Problem:** Sum of Subarray Minimums (LC #907)
+**Classic Problem:** Sum of Subarray Minimums ([LC #907](https://leetcode.com/problems/sum-of-subarray-minimums/))
 
 **Why Two Patterns:**
 - Monotonic Stack: Find previous/next smaller element efficiently
@@ -360,14 +360,14 @@ function sumSubarrayMins(arr):
 ```
 
 **Similar Problems:**
-- LC 84: Largest Rectangle in Histogram
-- LC 85: Maximal Rectangle
-- LC 2104: Sum of Subarray Ranges
+- [LC 84: Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
+- [LC 85: Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)
+- [LC 2104: Sum of Subarray Ranges](https://leetcode.com/problems/sum-of-subarray-ranges/)
 
 ---
 
 ### Combination 7: BFS + State Compression (Bitmask)
-**Classic Problem:** Shortest Path to Get All Keys (LC #864)
+**Classic Problem:** Shortest Path to Get All Keys ([LC #864](https://leetcode.com/problems/shortest-path-to-get-all-keys/))
 
 **Why Two Patterns:**
 - BFS: Find shortest path
@@ -442,13 +442,13 @@ function shortestPathAllKeys(grid):
 ```
 
 **Similar Problems:**
-- LC 847: Shortest Path Visiting All Nodes
-- LC 1284: Minimum Number of Flips to Convert Binary Matrix to Zero Matrix (the state is the whole board as a bitmask)
+- [LC 847: Shortest Path Visiting All Nodes](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)
+- [LC 1284: Minimum Number of Flips to Convert Binary Matrix to Zero Matrix](https://leetcode.com/problems/minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix/) (the state is the whole board as a bitmask)
 
 ---
 
 ### Combination 8: Union Find + HashMap
-**Classic Problem:** Accounts Merge (LC #721)
+**Classic Problem:** Accounts Merge ([LC #721](https://leetcode.com/problems/accounts-merge/))
 
 **Why Two Patterns:**
 - Union Find: Group connected components
@@ -465,14 +465,14 @@ Step 4: Format output
 ```
 
 **Similar Problems:**
-- LC 947: Most Stones Removed with Same Row or Column (a HashMap maps each row and column to a Union Find node)
-- LC 1202: Smallest String With Swaps (a HashMap groups indices by their root)
-- LC 399: Evaluate Division (a HashMap maps each variable name to its parent and weight)
+- [LC 947: Most Stones Removed with Same Row or Column](https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/) (a HashMap maps each row and column to a Union Find node)
+- [LC 1202: Smallest String With Swaps](https://leetcode.com/problems/smallest-string-with-swaps/) (a HashMap groups indices by their root)
+- [LC 399: Evaluate Division](https://leetcode.com/problems/evaluate-division/) (a HashMap maps each variable name to its parent and weight)
 
 ---
 
 ### Combination 9: Trie + DFS/Backtracking
-**Classic Problem:** Word Search II (LC #212)
+**Classic Problem:** Word Search II ([LC #212](https://leetcode.com/problems/word-search-ii/))
 
 **Why Two Patterns:**
 - Trie: Efficiently store and search word dictionary
@@ -523,14 +523,14 @@ function findWords(board, words):
 ```
 
 **Similar Problems:**
-- LC 211: Design Add and Search Words Data Structure
-- LC 472: Concatenated Words
-- LC 1268: Search Suggestions System
+- [LC 211: Design Add and Search Words Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
+- [LC 472: Concatenated Words](https://leetcode.com/problems/concatenated-words/)
+- [LC 1268: Search Suggestions System](https://leetcode.com/problems/search-suggestions-system/)
 
 ---
 
 ### Combination 10: Heap + Greedy + Custom Sorting
-**Classic Problem:** Meeting Rooms II (LC #253)
+**Classic Problem:** Meeting Rooms II ([LC #253](https://leetcode.com/problems/meeting-rooms-ii/) (premium))
 
 **Why Three Patterns:**
 - Sorting: Process meetings in chronological order
@@ -570,9 +570,9 @@ function minMeetingRooms(intervals):
 ```
 
 **Similar Problems:**
-- LC 1094: Car Pooling
-- LC 1353: Maximum Number of Events That Can Be Attended
-- LC 630: Course Schedule III
+- [LC 1094: Car Pooling](https://leetcode.com/problems/car-pooling/)
+- [LC 1353: Maximum Number of Events That Can Be Attended](https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/)
+- [LC 630: Course Schedule III](https://leetcode.com/problems/course-schedule-iii/)
 
 ---
 
@@ -596,40 +596,40 @@ function minMeetingRooms(intervals):
 ## Practice Problems by Combination
 
 ### Prefix Sum + HashMap
-- [ ] LC 560: Subarray Sum Equals K
-- [ ] LC 525: Contiguous Array
-- [ ] LC 974: Subarray Sums Divisible by K
-- [ ] LC 930: Binary Subarrays With Sum
+- [ ] [LC 560: Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
+- [ ] [LC 525: Contiguous Array](https://leetcode.com/problems/contiguous-array/)
+- [ ] [LC 974: Subarray Sums Divisible by K](https://leetcode.com/problems/subarray-sums-divisible-by-k/)
+- [ ] [LC 930: Binary Subarrays With Sum](https://leetcode.com/problems/binary-subarrays-with-sum/)
 
 ### Binary Search + Greedy
-- [ ] LC 410: Split Array Largest Sum
-- [ ] LC 875: Koko Eating Bananas
-- [ ] LC 1011: Capacity To Ship Packages
-- [ ] LC 1482: Minimum Number of Days to Make m Bouquets
+- [ ] [LC 410: Split Array Largest Sum](https://leetcode.com/problems/split-array-largest-sum/)
+- [ ] [LC 875: Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)
+- [ ] [LC 1011](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/): Capacity To Ship Packages
+- [ ] [LC 1482: Minimum Number of Days to Make m Bouquets](https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/)
 
 ### DFS + Memoization
-- [ ] LC 329: Longest Increasing Path in a Matrix
-- [ ] LC 576: Out of Boundary Paths
-- [ ] LC 494: Target Sum (also DP)
-- [ ] LC 2328: Number of Increasing Paths in a Grid
+- [ ] [LC 329: Longest Increasing Path in a Matrix](https://leetcode.com/problems/longest-increasing-path-in-a-matrix/)
+- [ ] [LC 576: Out of Boundary Paths](https://leetcode.com/problems/out-of-boundary-paths/)
+- [ ] [LC 494: Target Sum](https://leetcode.com/problems/target-sum/) (also DP)
+- [ ] [LC 2328: Number of Increasing Paths in a Grid](https://leetcode.com/problems/number-of-increasing-paths-in-a-grid/)
 
 ### Sliding Window + HashMap
-- [ ] LC 76: Minimum Window Substring
-- [ ] LC 438: Find All Anagrams in a String
-- [ ] LC 567: Permutation in String
-- [ ] LC 30: Substring with Concatenation of All Words
+- [ ] [LC 76: Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+- [ ] [LC 438: Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/)
+- [ ] [LC 567: Permutation in String](https://leetcode.com/problems/permutation-in-string/)
+- [ ] [LC 30: Substring with Concatenation of All Words](https://leetcode.com/problems/substring-with-concatenation-of-all-words/)
 
 ### BFS + State
-- [ ] LC 864: Shortest Path to Get All Keys
-- [ ] LC 847: Shortest Path Visiting All Nodes
-- [ ] LC 1293: Shortest Path with Obstacles Elimination
-- [ ] LC 752: Open the Lock
+- [ ] [LC 864: Shortest Path to Get All Keys](https://leetcode.com/problems/shortest-path-to-get-all-keys/)
+- [ ] [LC 847: Shortest Path Visiting All Nodes](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)
+- [ ] [LC 1293](https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/): Shortest Path with Obstacles Elimination
+- [ ] [LC 752: Open the Lock](https://leetcode.com/problems/open-the-lock/)
 
 ### Monotonic Stack + Contribution
-- [ ] LC 907: Sum of Subarray Minimums
-- [ ] LC 2104: Sum of Subarray Ranges
-- [ ] LC 84: Largest Rectangle in Histogram
-- [ ] LC 85: Maximal Rectangle
+- [ ] [LC 907: Sum of Subarray Minimums](https://leetcode.com/problems/sum-of-subarray-minimums/)
+- [ ] [LC 2104: Sum of Subarray Ranges](https://leetcode.com/problems/sum-of-subarray-ranges/)
+- [ ] [LC 84: Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
+- [ ] [LC 85: Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)
 
 ---
 

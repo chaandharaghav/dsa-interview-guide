@@ -228,12 +228,12 @@ function shortestValidWindow(arr, target):
 ### Variation D: Counting Valid Windows
 **Problem Type:** Count subarrays with sum exactly equal to k
 **Trick:** Can't directly use sliding window for "exactly k"
-**Solution:** Count(sum ≤ k) - Count(sum ≤ k-1), only if all values are non-negative (e.g. LC 930, LC 1248)
-**Condition:** The atMost trick for sums requires every value ≥ 0. Removing a negative value from the left raises the window sum, so shrinking does not always restore sum ≤ k. With negative values, use prefix sum + hashmap (LC 560, Pattern 04).
+**Solution:** Count(sum ≤ k) - Count(sum ≤ k-1), only if all values are non-negative (e.g. [LC 930](https://leetcode.com/problems/binary-subarrays-with-sum/), [LC 1248](https://leetcode.com/problems/count-number-of-nice-subarrays/))
+**Condition:** The atMost trick for sums requires every value ≥ 0. Removing a negative value from the left raises the window sum, so shrinking does not always restore sum ≤ k. With negative values, use prefix sum + hashmap ([LC 560](https://leetcode.com/problems/subarray-sum-equals-k/), Pattern 04).
 
 ### Variation E: Sum of Subarray Minimums (uses a monotonic stack)
 **Problem Type:** Find sum of min of all subarrays
-**Key:** Not a sliding window. Use a monotonic stack to find the span where each element is the minimum, then count its contribution (LC 907, Pattern 07)
+**Key:** Not a sliding window. Use a monotonic stack to find the span where each element is the minimum, then count its contribution ([LC 907](https://leetcode.com/problems/sum-of-subarray-minimums/), Pattern 07)
 
 ---
 
@@ -242,32 +242,32 @@ function shortestValidWindow(arr, target):
 ### EASY (Warm-up)
 | Problem | Key Insight |
 |---------|-------------|
-| Maximum Sum Subarray of Size K | Basic fixed window template |
-| Average of Subarrays of Size K | Fixed window, track sum |
-| Max Consecutive Ones | Variable window, count zeros |
+| Maximum Sum Subarray of Size K (LeetCode version: [643 Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)) | Basic fixed window template |
+| Average of Subarrays of Size K (LeetCode version: [1343 Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold](https://leetcode.com/problems/number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold/), Medium) | Fixed window, track sum |
+| [Max Consecutive Ones](https://leetcode.com/problems/max-consecutive-ones/) | Variable window, count zeros |
 
 ### MEDIUM (Interview Favorites)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Longest Substring Without Repeating Characters** | Variable window + HashSet | 3 |
-| **Longest Substring with At Most K Distinct** | Variable window + HashMap | 340 |
-| **Find All Anagrams in a String** | Fixed window + frequency match | 438 |
-| **Permutation in String** | Fixed window + frequency match | 567 |
-| **Fruit Into Baskets** | At most 2 distinct (same as k=2) | 904 |
-| **Max Consecutive Ones III** | At most k zeros in window | 1004 |
-| **Subarray Product Less Than K** | Variable window, shrink when ≥k | 713 |
-| **Minimum Size Subarray Sum** | Shortest window with sum ≥ target | 209 |
-| **Grumpy Bookstore Owner** | Fixed window optimization | 1052 |
-| **Count Subarrays Where Max Element Appears at Least K Times** | Track max element count | 2962 |
+| **[Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)** | Variable window + HashSet | 3 |
+| **[Longest Substring with At Most K Distinct](https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/)** (premium) | Variable window + HashMap | 340 |
+| **[Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/)** | Fixed window + frequency match | 438 |
+| **[Permutation in String](https://leetcode.com/problems/permutation-in-string/)** | Fixed window + frequency match | 567 |
+| **[Fruit Into Baskets](https://leetcode.com/problems/fruit-into-baskets/)** | At most 2 distinct (same as k=2) | 904 |
+| **[Max Consecutive Ones III](https://leetcode.com/problems/max-consecutive-ones-iii/)** | At most k zeros in window | 1004 |
+| **[Subarray Product Less Than K](https://leetcode.com/problems/subarray-product-less-than-k/)** | Variable window, shrink when ≥k | 713 |
+| **[Minimum Size Subarray Sum](https://leetcode.com/problems/minimum-size-subarray-sum/)** | Shortest window with sum ≥ target | 209 |
+| **[Grumpy Bookstore Owner](https://leetcode.com/problems/grumpy-bookstore-owner/)** | Fixed window optimization | 1052 |
+| **[Count Subarrays Where Max Element Appears at Least K Times](https://leetcode.com/problems/count-subarrays-where-max-element-appears-at-least-k-times/)** | Track max element count | 2962 |
 
 ### HARD (Differentiators)
 | Problem | Key Insight | LC # |
 |---------|-------------|------|
-| **Sliding Window Maximum** | Monotonic deque | 239 |
-| **Minimum Window Substring** | Variable window + 2 frequency maps | 76 |
-| **Minimum Window Subsequence** | DP + Two Pointers | 727 |
-| **Substring with Concatenation of All Words** | Multiple fixed windows | 30 |
-| **Subarrays with K Different Integers** | atMost(k) - atMost(k-1) | 992 |
+| **[Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)** | Monotonic deque | 239 |
+| **[Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)** | Variable window + 2 frequency maps | 76 |
+| **[Minimum Window Subsequence](https://leetcode.com/problems/minimum-window-subsequence/)** (premium) | DP + Two Pointers | 727 |
+| **[Substring with Concatenation of All Words](https://leetcode.com/problems/substring-with-concatenation-of-all-words/)** | Multiple fixed windows | 30 |
+| **[Subarrays with K Different Integers](https://leetcode.com/problems/subarrays-with-k-different-integers/)** | atMost(k) - atMost(k-1) | 992 |
 
 ---
 
@@ -279,7 +279,7 @@ function shortestValidWindow(arr, target):
 - Focus on: Building the initial window, sliding correctly
 
 **Day 3-4:**
-- Solve "Find All Anagrams" and "Permutation in String"
+- Solve "[Find All Anagrams](https://leetcode.com/problems/find-all-anagrams-in-a-string/)" and "[Permutation in String](https://leetcode.com/problems/permutation-in-string/)"
 - Focus on: Frequency map comparison techniques
 
 **Day 5:**
@@ -287,17 +287,17 @@ function shortestValidWindow(arr, target):
 
 ### Week 2: Variable Window Mastery
 **Day 1-2:**
-- Solve "Longest Substring Without Repeating Characters"
-- Solve "Longest Substring with At Most K Distinct"
+- Solve "[Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)"
+- Solve "[Longest Substring with At Most K Distinct](https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/)" (premium)
 - Focus on: When to shrink, when to expand
 
 **Day 3-4:**
-- Solve "Minimum Size Subarray Sum"
-- Solve "Minimum Window Substring" (this is THE classic)
+- Solve "[Minimum Size Subarray Sum](https://leetcode.com/problems/minimum-size-subarray-sum/)"
+- Solve "[Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)" (this is THE classic)
 - Focus on: Finding shortest vs longest
 
 **Day 5:**
-- Solve "Subarrays with K Different Integers"
+- Solve "[Subarrays with K Different Integers](https://leetcode.com/problems/subarrays-with-k-different-integers/)"
 - Master the atMost(k) - atMost(k-1) technique
 
 ### Practice Methodology:
@@ -417,10 +417,10 @@ When you recognize a sliding window problem, here's how to communicate:
 
 | Looks like... | But use... | The question that decides |
 |---|---|---|
-| Sliding window on "subarray sum = k" | Prefix sum + hashmap (Pattern 04) | Can values be negative? If yes, the window sum is not monotonic → prefix sum + hashmap (LC 560) |
-| Sliding window on "find a pair with sum = target" | Two pointers (Pattern 02) | Does the answer depend on 2 elements, or on every element in a contiguous range? 2 elements → two pointers (LC 167) |
-| Sliding window for "max of each window of size k" | Monotonic deque (Pattern 07) | Must the window state support removing the max or min? If yes → monotonic deque (LC 239) |
-| Sliding window on "longest common subsequence" | Dynamic programming (Pattern 15) | Does the problem say "subsequence"? If yes, elements need not be contiguous → DP (LC 1143) |
+| Sliding window on "subarray sum = k" | Prefix sum + hashmap (Pattern 04) | Can values be negative? If yes, the window sum is not monotonic → prefix sum + hashmap ([LC 560](https://leetcode.com/problems/subarray-sum-equals-k/)) |
+| Sliding window on "find a pair with sum = target" | Two pointers (Pattern 02) | Does the answer depend on 2 elements, or on every element in a contiguous range? 2 elements → two pointers ([LC 167](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)) |
+| Sliding window for "max of each window of size k" | Monotonic deque (Pattern 07) | Must the window state support removing the max or min? If yes → monotonic deque ([LC 239](https://leetcode.com/problems/sliding-window-maximum/)) |
+| Sliding window on "longest common subsequence" | Dynamic programming (Pattern 15) | Does the problem say "subsequence"? If yes, elements need not be contiguous → DP ([LC 1143](https://leetcode.com/problems/longest-common-subsequence/)) |
 
 > Full decision procedure: [How to Choose a Pattern](../how-to-choose-a-pattern.md)
 
