@@ -39,7 +39,7 @@ Strengths to keep: `how-to-choose-a-pattern.md` (a real procedure with deciding 
 
 ## 4. Batches and Their State (2026-11-12)
 
-The user set the limit of this work at pattern 14 during the session. Patterns 16 to 20 and the two practice pages are not started.
+The user set the limit of this work at pattern 14 during the session, and then asked for patterns 16 and 17. Patterns 18 to 20 and the two practice pages are not started.
 
 | Batch | Content | State |
 |---|---|---|
@@ -47,7 +47,8 @@ The user set the limit of this work at pattern 14 during the session. Patterns 1
 | B1 | Lessons: foundation F9 (recursion), patterns 15, 01, 08, 06 | Drafted and reviewed |
 | B2 | Lessons: patterns 02, 03, 04, 05, 07 | Drafted and reviewed |
 | B3 | Lessons: patterns 09, 10, 11, 12, 13, 14 | Drafted and reviewed |
-| B4 | Lessons: patterns 16, 17, 18, 19, 20 | Not started |
+| B4a | Lessons: patterns 16, 17 | Drafted and reviewed |
+| B4b | Lessons: patterns 18, 19, 20 | Not started |
 | B5 | `kb/dsa/mixed-practice.md` (sets without pattern labels, milestone sets) and `kb/dsa/problem-solving-method.md` | Not started. `kb/mastery-tracker.md` gives a rule for building a mixed set until the page exists |
 
 Process for each lesson: one Sonnet drafter (it reads `drafting-brief.md` and `lesson-brief.md`), then one Sonnet reviewer with two passes (expert, then learner). Each reviewer ran its own randomized tests against brute force. The main session read each report, checked samples, and ran the gate.
@@ -60,12 +61,12 @@ Tool changes in this work:
 
 ## 5. Gaps That Remain
 
-1. Patterns 16 to 20 (heap, trie, shortest paths, bit manipulation, intervals) are still template sheets. They are P1 pages. This is the largest gap in the coding track.
+1. Patterns 18 to 20 (shortest paths, bit manipulation, intervals) are still template sheets. They are P1 pages. This is the largest gap in the coding track. The lessons for patterns 14 and 16 link to pattern 20 as the home of the interval problems, and that page is not a lesson yet.
 2. No page of ready mixed sets and milestone sets, and no page that shows the full problem-solving method on unseen problems (batch B5).
 3. Patterns 21 to 28 and the foundations F0 to F8 keep their earlier templates. They have traces, Java, and questions, but no practice ladder with hints and no mastery checklist.
 4. The topic pages of LLD, HLD, Java, Databases, Operating Systems, and Networking have no "Prerequisites", "Mastery Checklist", or "Next Topics" sections. The roadmap gives the dependencies between subjects at the level of pages.
 5. API Design, Security, Engineering Practice (testing, debugging, code review), Behavioral, and AI Engineering are not written (phases 7 to 11 of the spec).
 6. The legacy reference pages (`cheatsheet.md`, `tricks-at-a-glance.md`, `pattern-combinations.md`, `common-mistakes.md`, `interview-tips.md`, `company-prep.md`, `mock-interviews.md`, `practice-solutions.md`) keep their old style. `company-prep.md` makes claims about company focus areas that have no source. Some of these pages refer to section names of the old pattern pages (for example "Template 3"); the links still resolve, because they have no anchors, but the names no longer exist on the lesson pages.
 7. Statements about LeetCode problem constraints on the lesson pages come from the writers' memory, because the saved problem list has no statements. Each page words them as "the problem guarantees" and uses them only where a solution needs them.
-8. Proofs that the pages state as not complete: the skip rule of LC 316 (pattern 07) rests on a brute-force test. The union find cost bounds cite the papers and are not proved.
+8. Proofs that the pages state as not complete: the skip rule of LC 316 (pattern 07) rests on a brute-force test, and the claim that the heap schedule of LC 621 reaches the proven lower bound (pattern 16) rests on a test. The union find cost bounds cite the papers and are not proved.
 9. No learner has used the lessons yet. The levels, the review intervals, and the time limits are recommendations until the user tests them. The user's sample used colored HTML cells for traces; the lessons use text traces and Mermaid diagrams.

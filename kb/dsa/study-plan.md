@@ -24,7 +24,7 @@ A day-by-day plan to learn the DSA patterns for interviews. Week 0 is a short re
 | 10 min | From Week 3: classify 3 unseen problems without solving them ([how-to-choose-a-pattern.md](./how-to-choose-a-pattern.md#part-4-how-to-train-recognition)) |
 
 ### How to Study One Pattern
-Patterns 01 to 15 are lesson pages. For each one, follow the [study loop](../mastery-tracker.md#the-study-loop-for-one-topic): attempt the anchor problem first, read the derivation, trace by hand, explain aloud, write the code from an empty file, and do the practice ladder with the hints closed. Record your level in [My Progress](../my-progress.md). The problem lists in the weeks below are extra practice after the ladder of the page.
+Patterns 01 to 17 are lesson pages. For each one, follow the [study loop](../mastery-tracker.md#the-study-loop-for-one-topic): attempt the anchor problem first, read the derivation, trace by hand, explain aloud, write the code from an empty file, and do the practice ladder with the hints closed. Record your level in [My Progress](../my-progress.md). The problem lists in the weeks below are extra practice after the ladder of the page.
 
 ### Rule for Every Problem
 Before you write code, write two lines: the pattern you predict, and the deciding question that chose it. Use the six steps in [How to Choose a Pattern](./how-to-choose-a-pattern.md). When your prediction is wrong, add one line to your misrecognition log.

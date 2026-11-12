@@ -165,7 +165,7 @@ Use this path if you have passed such interviews before and you need to return t
 
 These plans trade coverage for depth on the topics that the other topics depend on. They do not make you ready for every round. Each plan states what it leaves out.
 
-**Two weeks, coding rounds only (about 40 hours).** Patterns 01, 02, 05, 06, 08, 10, 11, 15, 16, in this order, two days for pattern 15 and one day for each other pattern. For each pattern: the "Derivation" section, the first four problems of the practice ladder, and the "Tell Them Apart" pairs. Pattern 16 is not a lesson page yet: for it, read [Heaps](dsa/foundations/06-heaps.md) and the pattern page's templates, and solve its first four Medium problems. Days 13 and 14: two [mixed sets](mastery-tracker.md#mixed-sets) each day. This plan leaves out patterns 03, 04, 07, 09, 12 to 14, 17 to 28, and every design and fundamentals topic.
+**Two weeks, coding rounds only (about 40 hours).** Patterns 01, 02, 05, 06, 08, 10, 11, 15, 16, in this order, two days for pattern 15 and one day for each other pattern. For each pattern: the "Derivation" section, the first four problems of the practice ladder, and the "Tell Them Apart" pairs. Days 13 and 14: two [mixed sets](mastery-tracker.md#mixed-sets) each day. This plan leaves out patterns 03, 04, 07, 09, 12 to 14, 17 to 28, and every design and fundamentals topic.
 
 **Six weeks, all rounds (about 120 hours).**
 
@@ -201,7 +201,7 @@ This plan leaves out patterns 09, 17, 19, and 21 to 28, the P2 pages of every su
 
 ## Questions This Page Answers
 
-The sections named in the right column ("Prerequisites", "Practice Problems", "Mastery Checklist", "Next Topics") exist on the lesson pages: DSA patterns 01 to 15 and the Recursion page. For every other page, use the subject index for the order, the page's `??? question` blocks for practice, and the level tests of the mastery tracker.
+The sections named in the right column ("Prerequisites", "Practice Problems", "Mastery Checklist", "Next Topics") exist on the lesson pages: DSA patterns 01 to 17 and the Recursion page. For every other page, use the subject index for the order, the page's `??? question` blocks for practice, and the level tests of the mastery tracker.
 
 | Question | Where to look |
 |---|---|

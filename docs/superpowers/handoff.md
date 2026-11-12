@@ -3,17 +3,17 @@
 - **Saved:** 2026-10-15, at the user's request. The user continues in a later session.
 - **Branch:** `knowledge-base`. `main` is unchanged since the spec and plan commits. Merging is the user's decision at the end of the project.
 
-## SESSION 5 (2026-11-11 to 2026-11-12): Learning layer, DSA lessons 01 to 15
+## SESSION 5 (2026-11-11 to 2026-11-12): Learning layer, DSA lessons 01 to 17
 
-User instruction: a long brief to turn the repository into a self-contained learning system (derive, do not memorize; prerequisites; practice with hints; mastery tracking; roadmap). During the session the user set the limit at pattern 14 and said: stop after the review, the other pages wait. Nothing is committed. The user approves first.
+User instruction: a long brief to turn the repository into a self-contained learning system (derive, do not memorize; prerequisites; practice with hints; mastery tracking; roadmap). During the session the user set the limit at pattern 14 and said: stop after the review, the other pages wait. The user approved the first part, which is committed (`2c5f11e`, `513401d`, `6cb0a51`, not pushed). The user then asked for patterns 16 and 17: drafted and reviewed, and they wait for approval before a commit.
 
 - Read first: `docs/superpowers/2026-11-11-learning-system-audit.md` (audit, design decisions, batch states, remaining gaps) and `docs/superpowers/lesson-brief.md` (the lesson format; section 9 lists the defects that reviews found).
-- **Done, drafted and reviewed (Sonnet drafter, Sonnet reviewer with an expert pass and a learner pass):** `kb/dsa/foundations/09-recursion.md` (new) and patterns 01 to 15 as lesson pages (`format: lesson` in the front matter).
+- **Done, drafted and reviewed (Sonnet drafter, Sonnet reviewer with an expert pass and a learner pass):** `kb/dsa/foundations/09-recursion.md` (new) and patterns 01 to 17 as lesson pages (`format: lesson` in the front matter).
 - **Done by the main session:** `kb/roadmap.md`, `kb/mastery-tracker.md`, `kb/my-progress.md` (the user's sheet: no tool rewrites it), navigation, home page, root README, DSA index (a "Format" column), DSA study plan, 16 glossary terms, the audit file.
 - **Tools:** `check_format.py` has the `dsa-lesson` template and two fence-indentation rules. `run_java.py` compiles a lesson page with JDK 21 and runs its programs. `tools/java-support/UnionFind.java` is a new support class.
-- Gate on 2026-11-12: 65/65 unit tests, format 217 files 0 errors, SQL 27 pages 0 errors, Java 1353/1353 blocks, 433 programs run, 24/24 case studies, strict build passes. Mermaid was not checked in a browser this session (`tools/check-mermaid.sh kb/dsa` needs the sandbox disabled).
-- **Not started (wait for the user):** lessons for patterns 16 to 20; `kb/dsa/mixed-practice.md` with milestone sets; `kb/dsa/problem-solving-method.md`. The mastery tracker has a "Mixed Sets" section with a rule for building a set until the page exists. Do not add links to these two pages before they exist: the strict build fails.
-- Assignment prompts for patterns 16 to 20: copy the form of the prompts of this session (read the two briefs, the user's sample, the old page, and a finished lesson; a list of items that the page must cover; scratch folder `scratchpad/lesson-NN/`; the two check commands). The reviewer prompt names the drafter's unverified claims.
+- Gate on 2026-11-12, after patterns 16 and 17: 65/65 unit tests, format 217 files 0 errors, SQL 27 pages 0 errors, Java 1397/1397 blocks, 443 programs run, 24/24 case studies, strict build passes, 3,303 LeetCode links with 0 bad. Mermaid was not checked in a browser this session (`tools/check-mermaid.sh kb/dsa` needs the sandbox disabled).
+- **Not started (wait for the user):** lessons for patterns 18 to 20; `kb/dsa/mixed-practice.md` with milestone sets; `kb/dsa/problem-solving-method.md`. The mastery tracker has a "Mixed Sets" section with a rule for building a set until the page exists. Do not add links to these two pages before they exist: the strict build fails.
+- Assignment prompts for patterns 18 to 20: copy the form of the prompts of this session (read the two briefs, the user's sample, the old page, and a finished lesson; a list of items that the page must cover; scratch folder `scratchpad/lesson-NN/`; the two check commands). The reviewer prompt names the drafter's unverified claims.
 - The user's untracked `kb/dsa/spike-dp-house-robber.md` is the model of the lesson style. Do not stage it, edit it, or link it. The lessons use text traces and Mermaid, not its HTML cells; the user can reverse that decision.
 - Version check still due: PostgreSQL 19 (see session 4 below).
 
