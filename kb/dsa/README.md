@@ -9,6 +9,8 @@
 
 ## Start Here (Returning to DSA)
 
+The [learning roadmap](../roadmap.md) shows which page needs which earlier page. The [mastery tracker](../mastery-tracker.md) gives the routine for one pattern: attempt, derive, trace, explain, write, practice, tell apart, record.
+
 1. **[How to Choose a Pattern](./how-to-choose-a-pattern.md)**: the six-step procedure, the 15 deciding questions, decision trees, 12 worked walkthroughs, and 20 recognition drills. This file is the core of the guide.
 2. **[Java Toolkit](./java-toolkit.md)**: the Java collections, the Java pitfalls that cost interviews, and a Java template for each core pattern.
 3. **[Study Plan](./study-plan.md)** (12 core weeks, plus 3): Week 0 is a re-entry week. It covers items 1 and 2, and the [foundations](#foundations) pages.
@@ -36,11 +38,14 @@
 
 ## How to Use This Guide
 
-1. **Study one pattern at a time** - Don't rush. Spend 3-5 days per pattern.
-2. **Understand the "why"** - Before looking at solutions, struggle with the brute force.
-3. **Practice recognition** - The hardest part is identifying WHICH pattern to use.
-4. **Build muscle memory** - Solve 5-10 problems per pattern before moving on.
-5. **Review regularly** - Come back to patterns you've completed.
+1. **Attempt first.** On a lesson page, read "Motivation" up to the problem statement, close the page, and try the problem for 10 minutes.
+2. **Derive.** Read "Derivation". At each question in the text, stop and answer before you read on.
+3. **Trace and explain.** Trace the algorithm by hand on a new input, then explain it aloud without the page.
+4. **Practice with the hints closed.** Give each ladder problem 15 minutes before you open "Hint 1".
+5. **Tell the patterns apart.** Do "Tell Them Apart" on each page, and practice recognition with [How to Choose a Pattern](./how-to-choose-a-pattern.md).
+6. **Record and review.** Write your level in [My Progress](../my-progress.md), and review on the dates of the [revision schedule](../mastery-tracker.md#the-revision-schedule).
+
+The full routine, with the level that each step reaches, is in the [mastery tracker](../mastery-tracker.md#the-study-loop-for-one-topic).
 
 ---
 
@@ -59,41 +64,48 @@ Read these pages in Week 0, or when a pattern uses a structure that you do not k
 | F6 | [Heaps](./foundations/06-heaps.md) | P1 |
 | F7 | [Graph Representations](./foundations/07-graph-representations.md) | P1 |
 | F8 | [Sorting Algorithms](./foundations/08-sorting-algorithms.md) | P1 |
+| F9 | [Recursion](./foundations/09-recursion.md) | P1 |
 
 ---
 
 ## Pattern Index
 
-| # | Pattern | Difficulty | Priority |
-|---|---------|------------|----------|
-| 01 | [Sliding Window](./01-sliding-window/README.md) | ⭐⭐ | HIGH |
-| 02 | [Two Pointers](./02-two-pointers/README.md) | ⭐⭐ | HIGH |
-| 03 | [Fast & Slow Pointers + Linked List Techniques](./03-fast-slow-pointers/README.md) | ⭐⭐ | MEDIUM |
-| 04 | [Prefix Sum / Difference Array](./04-prefix-sum/README.md) | ⭐⭐ | HIGH |
-| 05 | [Hashing & Frequency Maps](./05-hashing-frequency/README.md) | ⭐⭐ | HIGH |
-| 06 | [Binary Search (Classic & On Answer)](./06-binary-search-on-answer/README.md) | ⭐⭐⭐ | HIGH |
-| 07 | [Monotonic Stack / Queue](./07-monotonic-stack-queue/README.md) | ⭐⭐⭐ | HIGH |
-| 08 | [Recursion & Backtracking](./08-recursion-backtracking/README.md) | ⭐⭐⭐ | HIGH |
-| 09 | [Divide and Conquer](./09-divide-and-conquer/README.md) | ⭐⭐⭐ | MEDIUM |
-| 10 | [Tree DFS / BFS Patterns](./10-tree-patterns/README.md) | ⭐⭐⭐ | HIGH |
-| 11 | [Graph Traversal Patterns](./11-graph-traversal/README.md) | ⭐⭐⭐ | HIGH |
-| 12 | [Topological Sort](./12-topological-sort/README.md) | ⭐⭐⭐ | MEDIUM |
-| 13 | [Union Find](./13-union-find/README.md) | ⭐⭐⭐ | MEDIUM |
-| 14 | [Greedy Patterns](./14-greedy/README.md) | ⭐⭐⭐ | HIGH |
-| 15 | [Dynamic Programming](./15-dynamic-programming/README.md) | ⭐⭐⭐⭐ | CRITICAL |
-| 16 | [Heap / Priority Queue](./16-heap-priority-queue/README.md) | ⭐⭐⭐ | HIGH |
-| 17 | [Trie (Prefix Tree)](./17-trie/README.md) | ⭐⭐⭐ | MEDIUM |
-| 18 | [Shortest Paths (Dijkstra, Bellman-Ford, Floyd-Warshall)](./18-shortest-paths/README.md) | ⭐⭐⭐ | HIGH |
-| 19 | [Bit Manipulation](./19-bit-manipulation/README.md) | ⭐⭐⭐ | MEDIUM |
-| 20 | [Intervals & Sweep Line](./20-intervals/README.md) | ⭐⭐⭐ | HIGH |
-| 21 | [Segment Tree and Fenwick Tree](./21-segment-tree-and-fenwick-tree/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) |
-| 22 | [String Algorithms](./22-string-algorithms/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) |
-| 23 | [Math and Number Theory](./23-math-and-number-theory/README.md) | ⭐⭐⭐ | HIGH (P1) |
-| 24 | [Advanced Graphs](./24-advanced-graphs/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) |
-| 25 | [Matrix and Simulation](./25-matrix-and-simulation/README.md) | ⭐⭐ | HIGH (P1) |
-| 26 | [Design Data Structures](./26-design-data-structures/README.md) | ⭐⭐⭐ | HIGH (P1) |
-| 27 | [Advanced DP](./27-advanced-dp/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) |
-| 28 | [Randomized Algorithms](./28-randomized-algorithms/README.md) | ⭐⭐⭐ | MEDIUM (P2) |
+The "Format" column states how each page teaches:
+
+- **Lesson:** the page derives the technique from a brute-force solution, traces it, gives the reason that it is correct, and has a practice ladder with three hints and a solution for each problem. It ends with a mastery checklist. Patterns 01 to 15 and [Recursion](./foundations/09-recursion.md) have this format.
+- **Template sheet:** the page states the idea and gives pseudocode templates and a problem list. It does not derive the technique and has no hints. Patterns 16 to 20 still have this format. Use them with the foundations pages and with [How to Choose a Pattern](./how-to-choose-a-pattern.md).
+- **Topic page:** the page explains the mechanism with Java code, traces, and interview questions with model answers. It has no practice ladder with hints. Patterns 21 to 28 have this format.
+
+| # | Pattern | Difficulty | Priority | Format |
+|---|---------|------------|----------|--------|
+| 01 | [Sliding Window](./01-sliding-window/README.md) | ⭐⭐ | HIGH | Lesson |
+| 02 | [Two Pointers](./02-two-pointers/README.md) | ⭐⭐ | HIGH | Lesson |
+| 03 | [Fast & Slow Pointers + Linked List Techniques](./03-fast-slow-pointers/README.md) | ⭐⭐ | MEDIUM | Lesson |
+| 04 | [Prefix Sum / Difference Array](./04-prefix-sum/README.md) | ⭐⭐ | HIGH | Lesson |
+| 05 | [Hashing & Frequency Maps](./05-hashing-frequency/README.md) | ⭐⭐ | HIGH | Lesson |
+| 06 | [Binary Search (Classic & On Answer)](./06-binary-search-on-answer/README.md) | ⭐⭐⭐ | HIGH | Lesson |
+| 07 | [Monotonic Stack / Queue](./07-monotonic-stack-queue/README.md) | ⭐⭐⭐ | HIGH | Lesson |
+| 08 | [Recursion & Backtracking](./08-recursion-backtracking/README.md) | ⭐⭐⭐ | HIGH | Lesson |
+| 09 | [Divide and Conquer](./09-divide-and-conquer/README.md) | ⭐⭐⭐ | MEDIUM | Lesson |
+| 10 | [Tree DFS / BFS Patterns](./10-tree-patterns/README.md) | ⭐⭐⭐ | HIGH | Lesson |
+| 11 | [Graph Traversal Patterns](./11-graph-traversal/README.md) | ⭐⭐⭐ | HIGH | Lesson |
+| 12 | [Topological Sort](./12-topological-sort/README.md) | ⭐⭐⭐ | MEDIUM | Lesson |
+| 13 | [Union Find](./13-union-find/README.md) | ⭐⭐⭐ | MEDIUM | Lesson |
+| 14 | [Greedy Patterns](./14-greedy/README.md) | ⭐⭐⭐ | HIGH | Lesson |
+| 15 | [Dynamic Programming](./15-dynamic-programming/README.md) | ⭐⭐⭐⭐ | CRITICAL | Lesson |
+| 16 | [Heap / Priority Queue](./16-heap-priority-queue/README.md) | ⭐⭐⭐ | HIGH | Template sheet |
+| 17 | [Trie (Prefix Tree)](./17-trie/README.md) | ⭐⭐⭐ | MEDIUM | Template sheet |
+| 18 | [Shortest Paths (Dijkstra, Bellman-Ford, Floyd-Warshall)](./18-shortest-paths/README.md) | ⭐⭐⭐ | HIGH | Template sheet |
+| 19 | [Bit Manipulation](./19-bit-manipulation/README.md) | ⭐⭐⭐ | MEDIUM | Template sheet |
+| 20 | [Intervals & Sweep Line](./20-intervals/README.md) | ⭐⭐⭐ | HIGH | Template sheet |
+| 21 | [Segment Tree and Fenwick Tree](./21-segment-tree-and-fenwick-tree/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) | Topic page |
+| 22 | [String Algorithms](./22-string-algorithms/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) | Topic page |
+| 23 | [Math and Number Theory](./23-math-and-number-theory/README.md) | ⭐⭐⭐ | HIGH (P1) | Topic page |
+| 24 | [Advanced Graphs](./24-advanced-graphs/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) | Topic page |
+| 25 | [Matrix and Simulation](./25-matrix-and-simulation/README.md) | ⭐⭐ | HIGH (P1) | Topic page |
+| 26 | [Design Data Structures](./26-design-data-structures/README.md) | ⭐⭐⭐ | HIGH (P1) | Topic page |
+| 27 | [Advanced DP](./27-advanced-dp/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) | Topic page |
+| 28 | [Randomized Algorithms](./28-randomized-algorithms/README.md) | ⭐⭐⭐ | MEDIUM (P2) | Topic page |
 
 ---
 

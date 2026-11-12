@@ -7,19 +7,25 @@ Each topic page has two parts:
 - **Fundamentals:** what the topic is and how it works.
 - **Interview angle:** the questions interviewers ask, model answers, follow-up questions, and the answers that cost points.
 
+## Start Here
+
+1. Read the [learning roadmap](roadmap.md). It gives the order of the topics, the prerequisites of each stage, and a path for your start point and your available time.
+2. Read the [mastery tracker](mastery-tracker.md). It defines six levels between "I have read this" and "I can do this in an interview", and the routine that moves a topic up the levels.
+3. Record your level for each topic in [My Progress](my-progress.md). The earliest review date on that page is what you study today.
+
 ## How to Read This KB
 
 - Use the tabs at the top to go to a subject. Use the sidebar to go to a page in the subject.
 - Press ++slash++ or ++s++ to search all pages.
 - The contents panel on the right side lists the sections of the current page.
-- Model answers are in collapsible blocks. Answer the question yourself first. Then click the block to compare your answer.
+- Model answers, hints, and solutions are in collapsible blocks. Answer the question or attempt the problem yourself first. Then click the block to compare.
 - The toggle in the header switches between the light theme and the dark theme.
 
 ## Subjects
 
 | Subject | What it covers | Status |
 |---|---|---|
-| [DSA](dsa/README.md) | Data structures and algorithms: 8 foundation pages, how to choose a pattern, 28 patterns, Java templates, a 15-week plan | Complete |
+| [DSA](dsa/README.md) | Data structures and algorithms: 10 foundation pages, how to choose a pattern, 28 patterns, mixed practice with milestone sets, a 15-week plan | Complete |
 | [LLD](lld/README.md) | Low-level design: OOP, SOLID, design patterns, machine coding, 24 case studies with runnable Java | Complete |
 | [HLD](hld/README.md) | High-level design: building blocks, distributed systems, estimation, 25 case studies | Complete |
 | [Java](java/README.md) | Java and the JVM in depth, concurrency, Spring, JPA, 23 pages and a question bank | Complete |
@@ -58,4 +64,6 @@ The [cross-subject study plan](study-plan.md) puts these tracks on a calendar.
 ## Other Pages
 
 - [Glossary](glossary.md): one definition for each term that the KB uses.
-- [Study plan](study-plan.md): the plan across all subjects.
+- [Learning roadmap](roadmap.md): the stages, the topic dependencies, and the learning paths.
+- [Study plan](study-plan.md): the week-by-week calendar across all subjects.
+- [Mastery tracker](mastery-tracker.md) and [My Progress](my-progress.md): the levels, the revision schedule, and your record.

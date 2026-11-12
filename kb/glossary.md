@@ -28,7 +28,11 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **B+ tree**: a balanced search tree whose nodes are disk pages with hundreds of keys each. Inner pages route a search, the leaf pages hold the entries in key order, and the leaves link to each other for range scans. Most relational indexes are B+ trees. See [Indexing](databases/03-indexing.md).
 
+**Backtracking**: a search over choices in which the code makes one choice, explores what follows from it, and then undoes the choice before it tries the next one. See [Recursion and Backtracking](dsa/08-recursion-backtracking/README.md).
+
 **Balanced BST (balanced binary search tree)**: a binary search tree that keeps its height at O(log n) by rebalancing on insert and delete, for example an AVL tree or a red-black tree. `TreeMap` is a red-black tree. See [Trees and Balanced BSTs](dsa/foundations/05-trees-and-balanced-bsts.md).
+
+**Base case**: the smallest input of a recursive method, which the method answers without a call to itself. See [Recursion](dsa/foundations/09-recursion.md).
 
 **Bean (Spring)**: an object that the Spring container creates, configures, and manages. See [Spring Core](java/17-spring-core.md).
 
@@ -41,6 +45,8 @@ Each phase of the KB adds the terms that its pages introduce.
 **Buffer pool**: the memory area where a database keeps copies of disk pages, so that repeated reads skip the disk. PostgreSQL calls it `shared_buffers`. See [Storage Engines](databases/06-storage-engines.md).
 
 **Cache line**: the unit in which a CPU cache moves data to and from memory, 64 bytes on current x86-64 processors. Two variables in one line share its cost. See [Computer Architecture for Developers](operating-systems/06-computer-architecture-for-developers.md).
+
+**Call stack**: the stack of frames of one thread, with one frame for each method call that has not returned. A call pushes a frame and a return pops it. See [Recursion](dsa/foundations/09-recursion.md).
 
 **CAP theorem**: the result (Gilbert and Lynch, 2002) that during a network partition a replicated system cannot give both linearizable reads and writes and a response from every non-failing node. See [Consistency and CAP](hld/fundamentals/07-consistency-and-cap.md).
 
@@ -102,6 +108,8 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Eventual consistency**: the guarantee that replicas reach the same value when updates stop. It gives no bound on how stale a read can be before that. See [Consistency and CAP](hld/fundamentals/07-consistency-and-cap.md).
 
+**Exchange argument**: a proof that a greedy rule is correct: take any best solution, replace one of its choices with the greedy choice, and show that the result is still valid and not worse. See [Greedy](dsa/14-greedy/README.md).
+
 **False sharing**: a slowdown in which threads on different cores write different variables that sit in the same cache line, so the line moves between the cores on every write. See [Computer Architecture for Developers](operating-systems/06-computer-architecture-for-developers.md).
 
 **Fan-out on write**: a feed design that writes each new post into the stored feed of every follower when the post is created. Its opposite, fan-out on read, builds the feed when a user reads it. See [Design a News Feed](hld/case-studies/05-news-feed.md).
@@ -136,6 +144,8 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Immutable object**: an object whose state cannot change after construction. An immutable object needs no lock to be shared between threads. See [Design Principles](lld/fundamentals/03-design-principles.md).
 
+**Invariant**: a statement that is true before and after every step of a loop or a recursion. A correctness argument states the invariant, shows that the first step makes it true, and shows that each step keeps it true. See [Sliding Window](dsa/01-sliding-window/README.md).
+
 **Isolation level**: the setting that says which anomalies of concurrent transactions a database prevents. The SQL standard names four levels: read uncommitted, read committed, repeatable read, and serializable. Products implement each level differently. See [Transactions and Isolation](databases/04-transactions-and-isolation.md).
 
 **Java Memory Model (JMM)**: the part of the Java Language Specification (chapter 17) that defines which values a read of a shared variable can see, through the happens-before relation. See [Concurrency Basics](java/07-concurrency-basics.md).
@@ -145,6 +155,8 @@ Each phase of the KB adds the terms that its pages introduce.
 **Kernel mode and user mode**: the two privilege levels of the CPU. Application code runs in user mode, and a system call switches to kernel mode, in which the kernel can access hardware and all memory. See [Processes and Threads](operating-systems/01-processes-and-threads.md).
 
 **Lease**: a lock with an expiry time. The holder must renew it before it expires, or another node can take it. See [Distributed Locks and Leases](hld/distributed-systems/05-distributed-locks-and-leases.md).
+
+**Lesson page**: a DSA page in the lesson format: it derives the technique from a brute-force solution, traces it, gives the reason it is correct, and has a practice ladder with hints. The front matter has `format: lesson`. See the [mastery tracker](mastery-tracker.md).
 
 **Linearizability**: the consistency model in which every operation appears to take effect at one instant between its start and its end, so that all clients see one order of operations that matches real time. See [Consistency and CAP](hld/fundamentals/07-consistency-and-cap.md).
 
@@ -166,7 +178,13 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Machine-coding round**: an interview round of 90 to 120 minutes in which the candidate writes a complete, working program that the evaluator runs and reads. See [The Machine-Coding Round](lld/machine-coding-round.md).
 
+**Mastery level**: one of six levels, L1 to L6, that state what the reader can do with a topic, from "read" to "solve under interview conditions". Each level has a test. See the [mastery tracker](mastery-tracker.md).
+
+**Memoization**: storing the result of a call under its arguments the first time the call finishes, so that a later call with the same arguments reads the stored result. See [Dynamic Programming](dsa/15-dynamic-programming/README.md).
+
 **Minimum spanning tree (MST)**: a set of edges that connects all nodes of a weighted undirected graph with the minimum total weight. Kruskal's and Prim's algorithms find one. See [Advanced Graphs](dsa/24-advanced-graphs/README.md).
+
+**Mixed set**: a list of practice problems from several patterns, without the pattern labels, so that the reader must choose the technique. See the [mastery tracker](mastery-tracker.md#mixed-sets).
 
 **Modular inverse**: for an integer a and a modulus m with gcd(a, m) = 1, the integer x with a·x ≡ 1 (mod m). It replaces division in modular arithmetic. See [Math and Number Theory](dsa/23-math-and-number-theory/README.md).
 
@@ -182,7 +200,11 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **OOM killer**: the Linux kernel component that ends a process with `SIGKILL` when the system or a cgroup runs out of memory and reclaim fails. See [Memory Management](operating-systems/04-memory-management.md).
 
+**Optimal substructure**: the property that a best solution of a problem contains best solutions of its subproblems. Dynamic programming and greedy algorithms need it. See [Dynamic Programming](dsa/15-dynamic-programming/README.md).
+
 **Optimistic locking**: a concurrency method that takes no lock while a change is prepared, and checks a version number when it writes. If the version changed, the write fails and the caller retries. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
+
+**Overlapping subproblems**: the property that a recursion asks for the answer of the same subproblem more than once. It is the reason that memoization saves work. See [Dynamic Programming](dsa/15-dynamic-programming/README.md).
 
 **Page cache**: the kernel's cache of file pages in RAM. Reads hit it, and writes go to it first and reach the disk later, unless the program calls `fsync`. See [File Systems and I/O Models](operating-systems/05-file-systems-and-io-models.md).
 
@@ -198,6 +220,8 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Pinning (virtual threads)**: the state in which a virtual thread cannot unmount from its carrier thread while it blocks, so the carrier thread blocks too. See [Virtual Threads](java/10-virtual-threads.md).
 
+**Practice ladder**: the ordered list of problems on a lesson page, from easy to hard, in which each problem has three hints and a solution in collapsed blocks. See the [mastery tracker](mastery-tracker.md#the-study-loop-for-one-topic).
+
 **Preflight request**: the `OPTIONS` request that a browser sends before a cross-origin request that is not CORS-safelisted, to ask the server whether it allows the request. See [HTTP](networking/04-http.md).
 
 **Priority inversion**: a state in which a high-priority thread waits for a lock that a low-priority thread holds, while a medium-priority thread keeps the holder from running. Priority inheritance fixes it. See [Synchronization](operating-systems/03-synchronization.md).
@@ -211,6 +235,10 @@ Each phase of the KB adds the terms that its pages introduce.
 **Quorum**: the minimum number of replicas that must answer a read (R) or a write (W). With N replicas, R + W > N makes every read set overlap every write set. See [Replication](hld/fundamentals/05-replication.md).
 
 **Race condition**: a defect in which the result depends on the timing of threads, for example two threads that both book the last seat. See [Concurrency in LLD](lld/fundamentals/09-concurrency-in-lld.md).
+
+**Recursion**: a method that calls itself on a smaller input and combines the results. See [Recursion](dsa/foundations/09-recursion.md).
+
+**Recursion tree**: a tree with one node for each call of a recursive method, where the children of a node are the calls that it makes. Its size is the number of calls. See [Recursion](dsa/foundations/09-recursion.md).
 
 **Recursive resolver**: the DNS server that answers a client's query by asking the root, TLD, and authoritative servers in turn, and caches the answers. See [DNS](networking/06-dns.md).
 
@@ -254,11 +282,15 @@ Each phase of the KB adds the terms that its pages introduce.
 
 **Stable sort**: a sort that keeps the input order of elements with equal keys. `Arrays.sort` on object arrays is stable (TimSort). Stability does not matter for primitive arrays, because two equal primitive values cannot be told apart. See [Sorting Algorithms](dsa/foundations/08-sorting-algorithms.md).
 
+**Stack frame**: the record of one method call on the call stack. It holds the parameters, the local variables, and the position to return to. See [Recursion](dsa/foundations/09-recursion.md).
+
 **Star schema**: a data warehouse model with one fact table of measured events in the center and dimension tables (date, product, customer) that describe each event. See [OLTP, OLAP, and Warehousing](databases/10-oltp-olap-and-warehousing.md).
 
 **Strongly connected component (SCC)**: a maximal set of nodes in a directed graph in which every node can reach every other node. Tarjan's and Kosaraju's algorithms find all of them in O(V + E). See [Advanced Graphs](dsa/24-advanced-graphs/README.md).
 
 **System call**: a request from a program to the kernel, for example `read` or `fork`. The CPU switches to kernel mode for it and returns to user mode afterwards. See [Processes and Threads](operating-systems/01-processes-and-threads.md).
+
+**Tabulation**: filling a table of subproblem answers with loops, from the smallest subproblem upward, in an order in which each cell's inputs are ready. See [Dynamic Programming](dsa/15-dynamic-programming/README.md).
 
 **Thrashing**: a state in which the system spends most of its time moving pages between RAM and disk, because the working sets of the running processes do not fit in RAM. See [Memory Management](operating-systems/04-memory-management.md).
 

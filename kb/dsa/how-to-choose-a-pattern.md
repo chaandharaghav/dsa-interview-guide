@@ -732,7 +732,7 @@ Recognition is a separate skill from implementation. Train it on purpose.
 1. **Predict before you solve.** Read a new problem. Within 2 minutes, write down the pattern you predict and the deciding question that chose it. Then solve. Compare your prediction with the real solution.
 2. **Keep a misrecognition log.** For each wrong prediction, write one line: problem, your guess, the correct pattern, and the step or question that would have caught it. Read the log every week. Most people find that the same two or three questions cause most of their errors.
 3. **Mix the topics.** For the first weeks, practice one pattern at a time. After that, practice with random problems from all patterns. When you know the topic of a problem in advance, you skip the recognition step and do not train it.
-4. **Classify without solving.** Take 10 problems. For each one, name the pattern and the deciding question in 2 minutes, without writing code. This trains recognition five times faster than full solves. Use [Part 5](#part-5-recognition-drills).
+4. **Classify without solving.** Take 10 problems. For each one, name the pattern and the deciding question in 2 minutes, without writing code. A classify-only drill takes about one fifth of the time of a full solve, so you can do more of them in a session. Use [Part 5](#part-5-recognition-drills).
 5. **Solve one problem two ways.** For problems like [LC 1631](https://leetcode.com/problems/path-with-minimum-effort/) (walkthrough 10), write two different correct solutions. This shows you where the borders between patterns are.
 6. **Review on a schedule.** Solve each problem again after 1, 3, and 7 days. If you cannot name the pattern in 2 minutes, add the problem to the log.
 

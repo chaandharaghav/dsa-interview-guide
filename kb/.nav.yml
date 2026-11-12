@@ -1,7 +1,10 @@
 nav:
   - Start:
       - Home: README.md
+      - roadmap.md
       - study-plan.md
+      - mastery-tracker.md
+      - my-progress.md
       - glossary.md
   - DSA: dsa
   - LLD: lld

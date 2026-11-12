@@ -8,7 +8,8 @@ A day-by-day plan to learn the DSA patterns for interviews. Week 0 is a short re
 
 ### Prerequisites Checklist
 - [ ] Comfortable with Java (read [java-toolkit.md](./java-toolkit.md) for the collections and pitfalls)
-- [ ] Understand basic data structures (arrays, linked lists, stacks, queues, trees, graphs)
+- [ ] Understand basic data structures (arrays, linked lists, stacks, queues, trees, graphs). If not, read the [foundations](./README.md#foundations) pages in Week 0
+- [ ] Can trace and write a recursive method. If not, read [Recursion](./foundations/09-recursion.md) before Week 3
 - [ ] Know Big O notation basics
 - [ ] LeetCode account ready
 - [ ] 2-3 hours available daily
@@ -21,6 +22,9 @@ A day-by-day plan to learn the DSA patterns for interviews. Week 0 is a short re
 | 60 min | Solve 2-3 problems |
 | 30 min | Review solutions, note patterns |
 | 10 min | From Week 3: classify 3 unseen problems without solving them ([how-to-choose-a-pattern.md](./how-to-choose-a-pattern.md#part-4-how-to-train-recognition)) |
+
+### How to Study One Pattern
+Patterns 01 to 15 are lesson pages. For each one, follow the [study loop](../mastery-tracker.md#the-study-loop-for-one-topic): attempt the anchor problem first, read the derivation, trace by hand, explain aloud, write the code from an empty file, and do the practice ladder with the hints closed. Record your level in [My Progress](../my-progress.md). The problem lists in the weeks below are extra practice after the ladder of the page.
 
 ### Rule for Every Problem
 Before you write code, write two lines: the pattern you predict, and the deciding question that chose it. Use the six steps in [How to Choose a Pattern](./how-to-choose-a-pattern.md). When your prediction is wrong, add one line to your misrecognition log.
@@ -42,7 +46,7 @@ Before you write code, write two lines: the pattern you predict, and the decidin
 - [ ] Read walkthroughs 1–4 in Part 3. Cover the solution and predict the pattern first.
 
 ### Day 2–3: Foundations (as needed)
-**Read:** the [foundations](./README.md#foundations) pages for any structure that you do not know well. At minimum, read [Complexity Analysis](./foundations/01-complexity-analysis.md) and [Hash Tables](./foundations/04-hash-tables.md).
+**Read:** the [foundations](./README.md#foundations) pages for any structure that you do not know well. At minimum, read [Complexity Analysis](./foundations/01-complexity-analysis.md), [Hash Tables](./foundations/04-hash-tables.md), and [Recursion](./foundations/09-recursion.md).
 
 - [ ] Answer three `??? question` blocks on each page that you read before you open the model answers
 
