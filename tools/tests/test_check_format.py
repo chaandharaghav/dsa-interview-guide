@@ -92,6 +92,48 @@ class CheckFileTest(unittest.TestCase):
         path = Path("kb/dsa/22-string-algorithms/README.md")
         self.assertEqual(cf.check_file(path, text), [])
 
+    def test_lesson_page_in_legacy_path_is_checked(self):
+        path = Path("kb/dsa/01-sliding-window/README.md")
+        text = "---\npriority: P1\nformat: lesson\n---\n## Overview\n"
+        errors = cf.check_file(path, text)
+        self.assertTrue(any("missing section '## Prerequisites'" in e for e in errors))
+        self.assertTrue(any("needs 8 '??? question'" in e for e in errors))
+
+    def test_complete_lesson_page_passes(self):
+        path = Path("kb/dsa/01-sliding-window/README.md")
+        text = "---\npriority: P1\nformat: lesson\n---\n"
+        text += "\n".join(f"## {n}\n" for n in cf.SECTIONS["dsa-lesson"])
+        text += '??? question "Q"\n\n    A\n\n' * 8
+        self.assertEqual(cf.check_file(path, text), [])
+
+    def test_legacy_page_without_lesson_format_is_skipped(self):
+        path = Path("kb/dsa/01-sliding-window/README.md")
+        self.assertEqual(cf.check_file(path, "## Anything\n"), [])
+
+    def test_fence_indented_more_than_content_fails(self):
+        fence = "`" * 3
+        text = topic_page(extra=f'??? success "S"\n\n        {fence}java\n    int x = 1;\n    {fence}\n')
+        errors = cf.check_file(Path("kb/java/01-language-core.md"), text)
+        self.assertTrue(any("indented more than its content" in e for e in errors))
+
+    def test_fence_with_matching_indent_passes(self):
+        fence = "`" * 3
+        text = topic_page(extra=f'??? success "S"\n\n    {fence}java\n    int x = 1;\n    {fence}\n')
+        errors = cf.check_file(Path("kb/java/01-language-core.md"), text)
+        self.assertFalse(any("fence" in e for e in errors))
+
+    def test_fence_too_deep_for_its_block_fails(self):
+        fence = "`" * 3
+        text = topic_page(
+            extra=f'??? success "S"\n\n        {fence}java\n        int x = 1;\n        {fence}\n')
+        errors = cf.check_file(Path("kb/java/01-language-core.md"), text)
+        self.assertTrue(any("does not fit the block" in e for e in errors))
+
+    def test_fence_in_list_item_passes(self):
+        fence = "`" * 3
+        text = topic_page(extra=f'1. Step\n\n    {fence}java\n    int x = 1;\n    {fence}\n')
+        errors = cf.check_file(Path("kb/java/01-language-core.md"), text)
+        self.assertFalse(any("fence" in e for e in errors))
 
 FENCE = "`" * 3
 

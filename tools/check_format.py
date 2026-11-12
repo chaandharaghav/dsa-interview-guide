@@ -51,8 +51,17 @@ SECTIONS = {
         "Classic Interview Problems", "How to Practice This Pattern Effectively",
         "Common Mistakes", "Commonly Confused With", "Quick Reference Card",
     ],
+    # A DSA page that declares `format: lesson` in its front matter
+    # (docs/superpowers/lesson-brief.md). The page may be in a legacy path.
+    "dsa-lesson": [
+        "Overview", "Prerequisites", "Motivation", "Derivation", "The Pattern",
+        "Worked Examples", "Implementation", "Complexity and Trade-offs",
+        "Recognition Guide", "Common Mistakes", "Practice Problems",
+        "Interview Follow-ups", "Commonly Confused With", "Quick Reference Card",
+        "Mastery Checklist", "Next Topics",
+    ],
 }
-COUNTS_QUESTIONS = {"topic", "hld-case"}
+COUNTS_QUESTIONS = {"topic", "hld-case", "dsa-lesson"}
 QUESTION = re.compile(r'^\s*\?\?\?\+?\s+question\b')
 PLACEHOLDER = re.compile(r"@@[^@\n]*@@|\b(TODO|TBD|FIXME)\b")
 QUESTION_BANK = re.compile(r"(^|/)kb/.+question-bank\.md$")
@@ -138,9 +147,54 @@ def _check_priority(path: Path, text: str, template, errors: list) -> None:
             f"{path}: page needs {needed} '??? question' blocks ({priority}), found {found}")
 
 
+FENCE_OPEN = re.compile(r"^( *)(`{3,}|~{3,})\S*\s*$")
+# A line that may contain an indented fence: an admonition, a content tab, or a list item.
+CONTAINER = re.compile(r"^\s*((\?\?\?\+?|!!!|===)\s|([-*+]|\d+[.)])\s)")
+
+
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def _check_fence_indent(path: Path, text: str, errors: list) -> None:
+    """A fence inside a `???` block must have the indentation of its content.
+
+    If the fence is indented more than the content, or the closing fence is
+    indented differently, the site shows the block as literal text.
+    """
+    lines = text.split("\n")
+    i = 0
+    while i < len(lines):
+        match = FENCE_OPEN.match(lines[i])
+        if not match:
+            i += 1
+            continue
+        indent, fence = len(match.group(1)), match.group(2)
+        close = re.compile(rf"^( *){re.escape(fence)}\s*$")
+        j = i + 1
+        while j < len(lines) and not close.match(lines[j]):
+            j += 1
+        if indent > 0:
+            # The nearest line above with a smaller indentation opens the container.
+            k = i - 1
+            while k >= 0 and (not lines[k].strip() or _indent(lines[k]) >= indent):
+                k -= 1
+            if k < 0 or not CONTAINER.match(lines[k]) or indent - _indent(lines[k]) > 4:
+                errors.append(f"{path}:{i + 1}: code fence is indented {indent} spaces, which "
+                              f"does not fit the block that contains it")
+        body = [line for line in lines[i + 1:j] if line.strip()]
+        if body and min(len(line) - len(line.lstrip(" ")) for line in body) < indent:
+            errors.append(f"{path}:{i + 1}: code fence is indented more than its content")
+        elif j < len(lines) and len(close.match(lines[j]).group(1)) != indent:
+            errors.append(f"{path}:{j + 1}: closing code fence indentation differs from "
+                          f"the opening fence at line {i + 1}")
+        i = j + 1
+
+
 def check_file(path: Path, text: str) -> list:
     errors = []
-    if is_legacy(path):
+    lesson = front_matter(text).get("format") == "lesson"
+    if is_legacy(path) and not lesson:
         return errors
     for block in parse_blocks(text, path):
         for offset, line in enumerate(block.body.split("\n"), 1):
@@ -148,10 +202,11 @@ def check_file(path: Path, text: str) -> list:
                 errors.append(
                     f"{path}:{block.line + offset}: code line has {len(line)} characters "
                     f"(max {MAX_CODE_WIDTH})")
+    _check_fence_indent(path, text, errors)
     for line in prose_lines(text):
         if PLACEHOLDER.search(line):
             errors.append(f"{path}: unfilled placeholder in text: {line.strip()[:80]}")
-    template = template_for(path)
+    template = "dsa-lesson" if lesson else template_for(path)
     if template == "lld-case":
         _check_key_code(path, text, errors)
     if template:

@@ -82,6 +82,15 @@ def front_matter(text: str) -> dict:
     return result
 
 
+def is_lesson(path) -> bool:
+    """True if the page on disk declares `format: lesson` in its front matter."""
+    try:
+        text = Path(path).read_text(encoding="utf-8")
+    except OSError:
+        return False
+    return front_matter(text).get("format") == "lesson"
+
+
 def _fenced_lines(lines: list) -> set:
     inside = set()
     for start, end, _, _ in _iter_fences(lines):

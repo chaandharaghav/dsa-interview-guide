@@ -24,8 +24,17 @@ class CandidatesTest(unittest.TestCase):
 class ReleaseTest(unittest.TestCase):
     def test_release(self):
         self.assertEqual(rj.release_for(Path("kb/dsa/java-toolkit.md")), "17")
-        self.assertEqual(rj.release_for(Path("kb/dsa/05-hashing-frequency/README.md")), "17")
+        self.assertEqual(rj.release_for(Path("kb/dsa/05-no-such-page/README.md")), "17")
         self.assertEqual(rj.release_for(Path("kb/java/10-virtual-threads.md")), "21")
+
+    def test_lesson_page_in_legacy_path_uses_release_21(self):
+        with tempfile.TemporaryDirectory() as root:
+            page = Path(root, "kb", "dsa", "05-hashing-frequency", "README.md")
+            page.parent.mkdir(parents=True)
+            page.write_text("---\npriority: P1\nformat: lesson\n---\n# Page\n", encoding="utf-8")
+            self.assertEqual(rj.release_for(page), "21")
+            page.write_text("# Page\n", encoding="utf-8")
+            self.assertEqual(rj.release_for(page), "17")
 
 
 @unittest.skipUnless(rj.JDK.joinpath("bin", "javac").exists(), "JDK 21 not installed")

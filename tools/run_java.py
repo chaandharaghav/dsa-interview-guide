@@ -21,7 +21,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from mdblocks import Block, md_files, parse_blocks  # noqa: E402
+from mdblocks import Block, is_lesson, md_files, parse_blocks  # noqa: E402
 
 
 
@@ -56,7 +56,8 @@ def _posix(path: Path) -> str:
 
 
 def release_for(path: Path) -> str:
-    return "17" if LEGACY.search(_posix(path)) else "21"
+    # A legacy DSA page compiles with release 17 until it becomes a lesson page.
+    return "17" if LEGACY.search(_posix(path)) and not is_lesson(path) else "21"
 
 
 def release_of(block: Block) -> str:
