@@ -39,7 +39,7 @@ Strengths to keep: `how-to-choose-a-pattern.md` (a real procedure with deciding 
 
 ## 4. Batches and Their State (2026-11-12)
 
-The user set the limit of this work at pattern 14 during the session, and then asked for patterns 16 and 17. Patterns 18 to 20 and the two practice pages are not started.
+The user set the limit of this work at pattern 14 during the session, then asked for patterns 16 and 17, and then for patterns 18 to 20. The two practice pages are not started.
 
 | Batch | Content | State |
 |---|---|---|
@@ -48,7 +48,7 @@ The user set the limit of this work at pattern 14 during the session, and then a
 | B2 | Lessons: patterns 02, 03, 04, 05, 07 | Drafted and reviewed |
 | B3 | Lessons: patterns 09, 10, 11, 12, 13, 14 | Drafted and reviewed |
 | B4a | Lessons: patterns 16, 17 | Drafted and reviewed |
-| B4b | Lessons: patterns 18, 19, 20 | Not started |
+| B4b | Lessons: patterns 18, 19, 20 | Drafted and reviewed |
 | B5 | `kb/dsa/mixed-practice.md` (sets without pattern labels, milestone sets) and `kb/dsa/problem-solving-method.md` | Not started. `kb/mastery-tracker.md` gives a rule for building a mixed set until the page exists |
 
 Process for each lesson: one Sonnet drafter (it reads `drafting-brief.md` and `lesson-brief.md`), then one Sonnet reviewer with two passes (expert, then learner). Each reviewer ran its own randomized tests against brute force. The main session read each report, checked samples, and ran the gate.
@@ -61,7 +61,7 @@ Tool changes in this work:
 
 ## 5. Gaps That Remain
 
-1. Patterns 18 to 20 (shortest paths, bit manipulation, intervals) are still template sheets. They are P1 pages. This is the largest gap in the coding track. The lessons for patterns 14 and 16 link to pattern 20 as the home of the interval problems, and that page is not a lesson yet.
+1. Closed on 2026-11-12: patterns 18 to 20 (shortest paths, bit manipulation, intervals) are lesson pages. Patterns 01 to 20 now have the lesson format. Each of the three pages has more worked examples than the 2 to 4 of the lesson brief (6, 13, and 8), because its topic list needed them.
 2. No page of ready mixed sets and milestone sets, and no page that shows the full problem-solving method on unseen problems (batch B5).
 3. Patterns 21 to 28 and the foundations F0 to F8 keep their earlier templates. They have traces, Java, and questions, but no practice ladder with hints and no mastery checklist.
 4. The topic pages of LLD, HLD, Java, Databases, Operating Systems, and Networking have no "Prerequisites", "Mastery Checklist", or "Next Topics" sections. The roadmap gives the dependencies between subjects at the level of pages.

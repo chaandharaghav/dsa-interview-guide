@@ -72,8 +72,7 @@ Read these pages in Week 0, or when a pattern uses a structure that you do not k
 
 The "Format" column states how each page teaches:
 
-- **Lesson:** the page derives the technique from a brute-force solution, traces it, gives the reason that it is correct, and has a practice ladder with three hints and a solution for each problem. It ends with a mastery checklist. Patterns 01 to 17 and [Recursion](./foundations/09-recursion.md) have this format.
-- **Template sheet:** the page states the idea and gives pseudocode templates and a problem list. It does not derive the technique and has no hints. Patterns 18 to 20 still have this format. Use them with the foundations pages and with [How to Choose a Pattern](./how-to-choose-a-pattern.md).
+- **Lesson:** the page derives the technique from a brute-force solution, traces it, gives the reason that it is correct, and has a practice ladder with three hints and a solution for each problem. It ends with a mastery checklist. Patterns 01 to 20 and [Recursion](./foundations/09-recursion.md) have this format.
 - **Topic page:** the page explains the mechanism with Java code, traces, and interview questions with model answers. It has no practice ladder with hints. Patterns 21 to 28 have this format.
 
 | # | Pattern | Difficulty | Priority | Format |
@@ -95,9 +94,9 @@ The "Format" column states how each page teaches:
 | 15 | [Dynamic Programming](./15-dynamic-programming/README.md) | ⭐⭐⭐⭐ | CRITICAL | Lesson |
 | 16 | [Heap / Priority Queue](./16-heap-priority-queue/README.md) | ⭐⭐⭐ | HIGH | Lesson |
 | 17 | [Trie (Prefix Tree)](./17-trie/README.md) | ⭐⭐⭐ | MEDIUM | Lesson |
-| 18 | [Shortest Paths (Dijkstra, Bellman-Ford, Floyd-Warshall)](./18-shortest-paths/README.md) | ⭐⭐⭐ | HIGH | Template sheet |
-| 19 | [Bit Manipulation](./19-bit-manipulation/README.md) | ⭐⭐⭐ | MEDIUM | Template sheet |
-| 20 | [Intervals & Sweep Line](./20-intervals/README.md) | ⭐⭐⭐ | HIGH | Template sheet |
+| 18 | [Shortest Paths (Dijkstra, Bellman-Ford, Floyd-Warshall)](./18-shortest-paths/README.md) | ⭐⭐⭐ | HIGH | Lesson |
+| 19 | [Bit Manipulation](./19-bit-manipulation/README.md) | ⭐⭐⭐ | MEDIUM | Lesson |
+| 20 | [Intervals & Sweep Line](./20-intervals/README.md) | ⭐⭐⭐ | HIGH | Lesson |
 | 21 | [Segment Tree and Fenwick Tree](./21-segment-tree-and-fenwick-tree/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) | Topic page |
 | 22 | [String Algorithms](./22-string-algorithms/README.md) | ⭐⭐⭐⭐ | MEDIUM (P2) | Topic page |
 | 23 | [Math and Number Theory](./23-math-and-number-theory/README.md) | ⭐⭐⭐ | HIGH (P1) | Topic page |

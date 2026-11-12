@@ -201,7 +201,7 @@ This plan leaves out patterns 09, 17, 19, and 21 to 28, the P2 pages of every su
 
 ## Questions This Page Answers
 
-The sections named in the right column ("Prerequisites", "Practice Problems", "Mastery Checklist", "Next Topics") exist on the lesson pages: DSA patterns 01 to 17 and the Recursion page. For every other page, use the subject index for the order, the page's `??? question` blocks for practice, and the level tests of the mastery tracker.
+The sections named in the right column ("Prerequisites", "Practice Problems", "Mastery Checklist", "Next Topics") exist on the lesson pages: DSA patterns 01 to 20 and the Recursion page. For every other page, use the subject index for the order, the page's `??? question` blocks for practice, and the level tests of the mastery tracker.
 
 | Question | Where to look |
 |---|---|
